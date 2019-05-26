@@ -11,3 +11,4 @@ for i in b:
 os.chdir(os.getcwd())
 for i in a:
     os.system('python core.py'+' "'+i+'"')
+    time.sleep(3)
