@@ -21,6 +21,7 @@
 3. 把软件拷贝到AV的所在目录下，运行程序（中国大陆用户必须挂VPN，Shsadowsocks开全局代理）
 4. 运行AV_Data_capture.exe 如果使用源码请运行py文件
 5. 软件会自动把元数据获取成功的电影移动到JAV_output文件夹中，根据女优分类，失败的电影移动到failed文件夹中。
+6. ！！下载kodi管理器，把Jav_output导入到kodi，好好享受吧，骚年。
 
 ![](readme2.PNG)
 ![](readme3.PNG)
