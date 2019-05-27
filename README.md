@@ -8,7 +8,7 @@
 ## 软件流程图   (下下一个为使用教程)
 ![](readme/flow_chart2.png)
 
-## 如何使用 (如果使用release的程序可跳过第一步)
+## 如何使用 (release的程序可脱离python环境运行，可跳过第一步)
 1. 请安装requests,pyquery,lxml,Beautifulsoup4,pillow模块,可在CMD逐条输入以下命令安装
 ```python
 pip install requests
