@@ -7,7 +7,7 @@
 
 为此，综合上述软件特点，我写出了本软件，为了方便的管理本地AV，和更好的手冲体验。
 ## 软件流程图   (下下一个为使用教程)
-![](flow_chart2.png)
+![](readme/flow_chart2.png)
 
 ## 如何使用 (如果使用release的程序可跳过第一步)
 1. 请安装requests,pyquery,lxml,Beautifulsoup4,pillow模块,可在CMD逐条输入以下命令安装
@@ -39,19 +39,19 @@ COSQ-004.mp4
 对于多影片重命名，可以用ReNamer来批量重命名
 软件官网:http://www.den4b.com/products/renamer
 
-![](readme1.PNG)
+![](readme/readme1.PNG)
 
 3. 把软件拷贝到AV的所在目录下，运行程序（中国大陆用户必须挂VPN，Shsadowsocks开全局代理）
 4. 运行AV_Data_capture.py
 5. **你也可以把单个影片拖动到core程序**
 
-![](single.gif)
+![](readme/single.gif)
 
 6. 软件会自动把元数据获取成功的电影移动到JAV_output文件夹中，根据女优分类，失败的电影移动到failed文件夹中。
 
-![](readme2.PNG)
-![](readme3.PNG)
-![](readme4.PNG)
+![](readme/readme2.PNG)
+![](readme/readme3.PNG)
+![](readme/readme4.PNG)
 
 
-![](readme5.png)
+![](readme/readme5.png)
