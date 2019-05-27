@@ -27,7 +27,7 @@ pip install Beautifulsoup
 ```
 ###
 ```python
-   pip install pillow
+pip install pillow
 ```
 
 2. 你的AV在被软件管理前最好命名为番号:
