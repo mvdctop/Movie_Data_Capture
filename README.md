@@ -8,7 +8,7 @@
 ## 软件流程图   (下下一个为使用教程)
 ![](flow_chart.jpg)
 
-## 如何使用
+## 如何使用 (如果使用release的程序可跳过第一步)
 1. 请安装requests,pyquery,lxml,Beautifulsoup,pillow模块,可在CMD逐条输入以下命令安装
 ```python
 pip install requests
