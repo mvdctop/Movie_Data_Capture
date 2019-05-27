@@ -129,33 +129,49 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("file", help="Write the file path on here")
     args = parser.parse_args()
+    #===============================
+    #获取文件名称
     filename=str(os.path.basename(args.file)) #\[\d{4}(\-|\/|.)\d{1,2}\1\d{1,2}\]
     #去除文件名中日期
-    #print(filename)
     deldate=str(re.sub("\[\d{4}-\d{1,2}-\d{1,2}\] - ","",filename))
-    #print(deldate)
-    number=str(re.search('\w+-\w+',deldate).group())
+
+    #检测是否可以获取番号，如果不行终止本程序
+    def number_getter():
+        print("[!]Making Data for ["+filename+"]")
+        try:
+            a = str(re.search('\w+-\w+', deldate).group())
+            return a
+        except:
+            print('[-]File '+filename+'`s number can not be caught')
+            print('[-]Move ' + filename + 'to failed folder')
+            filepath = str(args).replace("Namespace(file='", '').replace("')", '').replace('\\\\', '\\')
+            if not os.path.exists('failed/'):  # 新建failed文件夹
+                os.makedirs('failed/')
+                if not os.path.exists('failed/'):
+                    print("[-]failed!Dirs can not be make (Please run as Administrator)")
+                    time.sleep(3)
+                    os._exit(0)
+            shutil.move(filepath, str(os.getcwd())+'/failed/')
+            os._exit(0)
+    number=number_getter()
     #print(number)
-    #获取网页信息
+    #获取网页HTML
     html = get_html("https://www.javbus.com/"+str(number))
     html_outline=get_html("https://www.dmm.co.jp/mono/dvd/-/detail/=/cid="+number.replace("-",''))
     #处理超长文件夹名称
     if len(getActor(html)) > 240:
-        path = 'JAV_output' + '/' + '超多人' + '/' + getNum(html)
+        path = 'JAV_output' + '/' + '超多人' + '/' + getNum(html) #path为影片+元数据所在目录
     else:
         path = 'JAV_output' + '/' + getActor(html) + '/' + getNum(html)
     if not os.path.exists(path):
         os.makedirs(path)
     #文件路径处理
-    #print(str(args))
     filepath = str(args).replace("Namespace(file='",'').replace("')",'').replace('\\\\', '\\')
-    #print(filepath)
     houzhui = str(re.search('[.](AVI|RMVB|WMV|MOV|MP4|MKV|FLV|avi|rmvb|wmv|mov|mp4|mkv|flv)$',filepath).group())
-    print("[!]Making Data for ["+number+houzhui+"]")
     #下载元数据
 
-
-    if not os.path.exists('failed/'):
+    #如果DownloadFileWithFilename返回为failed，就退出本程序
+    if not os.path.exists('failed/'): #新建failed文件夹
         os.makedirs('failed/')
         if not os.path.exists('failed/'):
             print("[-]failed!Dirs can not be make (Please run as Administrator)")
@@ -180,7 +196,7 @@ if __name__ == '__main__':
     # 电源文件位置处理
     os.rename(filepath, number + houzhui)
     shutil.move(number + houzhui, path)
-    #处理元数据
+    #下载元数据
     PrintFiles(path)
     print('[!]Finished!')
     time.sleep(3)
