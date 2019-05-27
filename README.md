@@ -6,7 +6,7 @@
 
 为此，我写出了本软件，为了方便的管理本地AV，和更好的手冲体验。
 ## 软件流程图   (下下一个为使用教程)
-![](flow_chart.jpg)
+![](flow_chart.png)
 
 ## 如何使用 (如果使用release的程序可跳过第一步)
 1. 请安装requests,pyquery,lxml,Beautifulsoup4,pillow模块,可在CMD逐条输入以下命令安装
