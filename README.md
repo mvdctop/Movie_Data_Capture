@@ -9,7 +9,7 @@
 ![](flow_chart.jpg)
 
 ## 如何使用 (如果使用release的程序可跳过第一步)
-1. 请安装requests,pyquery,lxml,Beautifulsoup,pillow模块,可在CMD逐条输入以下命令安装
+1. 请安装requests,pyquery,lxml,Beautifulsoup4,pillow模块,可在CMD逐条输入以下命令安装
 ```python
 pip install requests
 ```
@@ -23,7 +23,7 @@ pip install lxml
 ```
 ###
 ```python
-pip install Beautifulsoup
+pip install Beautifulsoup4
 ```
 ###
 ```python
