@@ -54,4 +54,3 @@ COSQ-004.mp4
 
 
 ![](readme/readme5.png)
-软件作者未成年
