@@ -6,7 +6,7 @@
 
 为此，综合上述软件特点，我写出了本软件，为了方便的管理本地AV，和更好的手冲体验。没女朋友怎么办ʅ(‾◡◝)ʃ 
 
-### **开 幕 雷 击**
+### **请认真阅读下面使用说明再使用**
 
 ![](readme/readme5.png)
 
@@ -14,8 +14,9 @@
 ## 软件流程图   (下下一个为使用教程)
 ![](readme/flow_chart2.png)
 
-## 如何使用
+## 如何使用 (使用前请认真阅读下文）
 **release的程序可脱离python环境运行，可跳过第一步（仅限windows平台)**
+**下载地址(Windows):https://github.com/wenead99/AV_Data_Capture/releases**
 1. 请安装requests,pyquery,lxml,Beautifulsoup4,pillow模块,可在CMD逐条输入以下命令安装
 ```python
 pip install requests
