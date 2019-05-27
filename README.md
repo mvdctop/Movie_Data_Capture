@@ -6,7 +6,7 @@
 
 为此，综合上述软件特点，我写出了本软件，为了方便的管理本地AV，和更好的手冲体验。没女朋友怎么办ʅ(‾◡◝)ʃ 
 
-**tg电报群:https://t.me/joinchat/J54y1g3-a7m83nt0vBSxOQ**
+**tg官方电报群:https://t.me/AV_Data_Capture_Official**
 
 ### **请认真阅读下面使用说明再使用**
 
