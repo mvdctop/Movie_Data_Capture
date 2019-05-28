@@ -17,7 +17,7 @@
 ![](readme/flow_chart2.png)
 
 ## 如何使用
-###**请认真阅读下面使用说明**
+### **请认真阅读下面使用说明**
   **release的程序可脱离python环境运行，可跳过第一步（仅限windows平台)**
   **下载地址(Windows):https://github.com/wenead99/AV_Data_Capture/releases**
 1. 请安装requests,pyquery,lxml,Beautifulsoup4,pillow模块,可在CMD逐条输入以下命令安装
