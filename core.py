@@ -85,7 +85,7 @@ def DownloadFileWithFilename(url,filename,path): #path = examle:photo , video.in
         print("[-]Download Failed2!")
         time.sleep(3)
         os._exit(0)
-def PrintFiles(html,html_outline,path):
+def PrintFiles(html,path):
     try:
         if not os.path.exists(path):
             os.makedirs(path)
@@ -96,8 +96,8 @@ def PrintFiles(html,html_outline,path):
             print("  </set>", file=code)
             print("  <studio>" + getStudio(html) + "+</studio>", file=code)
             print("  <year>" + getYear(html) + "</year>", file=code)
-            print("  <outline>"+getOutline(html_outline)+"</outline>", file=code)
-            print("  <plot>"+getOutline(html_outline)+"</plot>", file=code)
+            print("  <outline>"+getOutline(html)+"</outline>", file=code)
+            print("  <plot>"+getOutline(html)+"</plot>", file=code)
             print("  <runtime>"+str(getRuntime(html)).replace(" ","")+"</runtime>", file=code)
             print("  <director>" + getDirector(html) + "</director>", file=code)
             print("  <poster>" + getNum(html) + ".png</poster>", file=code)
@@ -122,8 +122,9 @@ def PrintFiles(html,html_outline,path):
         print(e1)
         print("[-]Write Failed!")
 
-
 #=====================本地文件处理===========================
+
+
 def argparse_get_file():
     import argparse
     parser = argparse.ArgumentParser()
@@ -173,11 +174,14 @@ def imageDownload(htmlcode,filepath,number): #封面是否下载成功，否则�
         shutil.move(filepath, 'failed/')
         os._exit(0)
     DownloadFileWithFilename(getCover(htmlcode), number + '.jpg', path)
-    print('[+]Downloaded!', path +'/'+number+'.jpg')
+    print('[+]Image Downloaded!', path +'/'+number+'.jpg')
 def cutImage(number):
     try:
         img = Image.open(path + '/' + number + '.jpg')
-        img2 = img.crop((421, 0, 800, 538))
+        imgSize=img.size
+        w=img.width
+        h=img.height
+        img2 = img.crop((w/1.9, 0, w, h))
         img2.save(path + '/' + number + '.png')
     except:
         print('[-]Cover cut failed!')
@@ -192,5 +196,6 @@ if __name__ == '__main__':
     htmlcode=get_html_javbus(number) #获取的HTML代码
     creatFolder(htmlcode,number) #创建文件夹
     imageDownload(htmlcode,filepath,number) #creatFoder会返回番号路径
-    cutImage(number) #裁剪图片
+    PrintFiles(htmlcode, path)#打印文件
+    cutImage(number) #裁剪图
     pasteFileToFolder(filepath,number,path) #移动文件
