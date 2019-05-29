@@ -12,13 +12,11 @@ import time
 #=====================爬虫核心部分==========================
 def get_html(url):#网页请求核心
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36'}
-    getweb = requests.get(str(url),proxies={"http": "http://127.0.0.1:2334","https": "https://127.0.0.1:2334"},timeout=5,headers=headers).text
+    getweb = requests.get(str(url),timeout=5,headers=headers).text
     try:
         return getweb
-    except Exception as e:
-        print(e)
-    except IOError as e1:
-        print(e1)
+    except:
+        print("[-]Connect Failed! Please check your Proxy.")
 
 def getTitle(htmlcode):  #获取标题
     doc = pq(htmlcode)
