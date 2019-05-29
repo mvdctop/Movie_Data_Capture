@@ -85,7 +85,7 @@ def DownloadFileWithFilename(url,filename,path): #path = examle:photo , video.in
         print("[-]Download Failed2!")
         time.sleep(3)
         os._exit(0)
-def PrintFiles(html,path):
+def PrintFiles(html,path,number):
     try:
         if not os.path.exists(path):
             os.makedirs(path)
@@ -96,8 +96,8 @@ def PrintFiles(html,path):
             print("  </set>", file=code)
             print("  <studio>" + getStudio(html) + "+</studio>", file=code)
             print("  <year>" + getYear(html) + "</year>", file=code)
-            print("  <outline>"+getOutline(html)+"</outline>", file=code)
-            print("  <plot>"+getOutline(html)+"</plot>", file=code)
+            print("  <outline>"+getOutline(get_html_dww(number))+"</outline>", file=code)
+            print("  <plot>"+getOutline(get_html_dww(number))+"</plot>", file=code)
             print("  <runtime>"+str(getRuntime(html)).replace(" ","")+"</runtime>", file=code)
             print("  <director>" + getDirector(html) + "</director>", file=code)
             print("  <poster>" + getNum(html) + ".png</poster>", file=code)
@@ -196,6 +196,6 @@ if __name__ == '__main__':
     htmlcode=get_html_javbus(number) #获取的HTML代码
     creatFolder(htmlcode,number) #创建文件夹
     imageDownload(htmlcode,filepath,number) #creatFoder会返回番号路径
-    PrintFiles(htmlcode, path)#打印文件
+    PrintFiles(htmlcode, path,number)#打印文件
     cutImage(number) #裁剪图
     pasteFileToFolder(filepath,number,path) #移动文件
