@@ -73,10 +73,8 @@ def DownloadFileWithFilename(url,filename,path): #path = examle:photo , video.in
         with open(str(path) + "/"+str(filename), "wb") as code:
             code.write(r.content)
     except IOError as e:
-        print("[-]Download Failed1!")
-        print("[-]Error:"+str(e))
-        print("[-]Movie not found in Javbus.com!")
-        print("[*]=====================================")
+        print("[-]Movie not found in All website!")
+        #print("[*]=====================================")
         return "failed"
     except Exception as e1:
         print(e1)
