@@ -6,7 +6,7 @@
 
 为此，综合上述软件特点，我写出了本软件，为了方便的管理本地AV，和更好的手冲体验。没女朋友怎么办ʅ(‾◡◝)ʃ 
 
-**预计本周末适配DS Video，暂时只支持Kodi**
+**预计本周末适配DS Video，暂时只支持Kodi,EMBY**
 
 **tg官方电报群:https://t.me/AV_Data_Capture_Official**
 
@@ -47,7 +47,10 @@ pip install pillow
 ```
 COSQ-004.mp4
 ```
-文件名中间要有减号"-"，没有多余的内容只有番号为最佳，可以让软件更好获取元数据
+```
+COSQ_004.mp4
+```
+文件名中间要有下划线或者减号"_","-"，没有多余的内容只有番号为最佳，可以让软件更好获取元数据
 对于多影片重命名，可以用ReNamer来批量重命名
 软件官网:http://www.den4b.com/products/renamer
 
