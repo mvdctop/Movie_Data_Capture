@@ -47,6 +47,7 @@ pip install pillow
 ```
 COSQ-004.mp4
 ```
+或者
 ```
 COSQ_004.mp4
 ```
