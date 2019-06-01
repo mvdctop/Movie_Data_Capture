@@ -1,6 +1,7 @@
 import glob
 import os
 import time
+import re
 
 def movie_lists():
     #MP4
@@ -47,8 +48,8 @@ if __name__ =='__main__':
     os.chdir(os.getcwd())
     for i in movie_lists(): #遍历电影列表 交给core处理
         if '_' in i:
-            os.rename(i, rreplace(i,'_','-',1))
-            i = rreplace(i,'_','-',1)
+            os.rename(re.search(r'[^\\/:*?"<>|\r\n]+$', i).group(), rreplace(re.search(r'[^\\/:*?"<>|\r\n]+$', i).group(), '_', '-', 1))
+            i = rreplace(re.search(r'[^\\/:*?"<>|\r\n]+$', i).group(), '_', '-', 1)
         os.system('python core.py' + ' "' + i + '"') #选择从py文件启动  （用于源码py）
         #os.system('core.exe' + ' "' + i + '"')      #选择从exe文件启动（用于EXE版程序）
         print("[*]=====================================")
@@ -57,4 +58,3 @@ if __name__ =='__main__':
     CEF('JAV_output')
     print("[+]All finished!!!")
     time.sleep(3)
-    
