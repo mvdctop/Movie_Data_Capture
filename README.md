@@ -14,11 +14,11 @@
 
 ### **请认真阅读下面使用说明再使用** * [如何使用](#如何使用)
 
-![](readme/readme5.png)
+![](https://i.loli.net/2019/06/02/5cf2b5d0bbecf69019.png)
 
 
 ## 软件流程图
-![](readme/flow_chart2.png)
+![](https://i.loli.net/2019/06/02/5cf2b5d043cc596965.png)
 
 ## 如何使用
 ### **请认真阅读下面使用说明**
@@ -57,19 +57,19 @@ COSQ_004.mp4
 对于多影片重命名，可以用ReNamer来批量重命名
 软件官网:http://www.den4b.com/products/renamer
 
-![](readme/readme1.PNG)
+![](https://i.loli.net/2019/06/02/5cf2b5cfbfe1070559.png)
 
 3. 把软件拷贝到AV的所在目录下，运行程序（中国大陆用户必须挂VPN，Shsadowsocks开全局代理）
 4. 运行AV_Data_capture.py
 5. **你也可以把单个影片拖动到core程序**
 
-![](readme/single.gif)
+![](https://i.loli.net/2019/06/02/5cf2b5d03640e73201.gif)
 
 6. 软件会自动把元数据获取成功的电影移动到JAV_output文件夹中，根据女优分类，失败的电影移动到failed文件夹中。
 
-![](readme/readme2.PNG)
-![](readme/readme3.PNG)
-![](readme/readme4.PNG)
+![](https://i.loli.net/2019/06/02/5cf2b5cfd1b0226763.png)
+![](https://i.loli.net/2019/06/02/5cf2b5cfd1b0246492.png)
+![](https://i.loli.net/2019/06/02/5cf2b5d009e4930666.png)
 
 
 
