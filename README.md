@@ -67,6 +67,8 @@ COSQ_004.mp4
 
 6. 软件会自动把元数据获取成功的电影移动到JAV_output文件夹中，根据女优分类，失败的电影移动到failed文件夹中。
 
+7. 把JAV_output文件夹导入到EMBY,KODI中，根据封面选片子，享受手冲乐趣
+
 ![](https://i.loli.net/2019/06/02/5cf2b5cfd1b0226763.png)
 ![](https://i.loli.net/2019/06/02/5cf2b5cfd1b0246492.png)
 ![](https://i.loli.net/2019/06/02/5cf2b5d009e4930666.png)
