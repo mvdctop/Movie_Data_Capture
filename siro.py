@@ -42,6 +42,10 @@ def getRelease(a):
     html = etree.fromstring(a, etree.HTMLParser())
     result=str(html.xpath('//table[2]/tr[5]/td/text()')).strip(" ['\\n                                        ']")
     return result
+def getTag(a):
+    html = etree.fromstring(a, etree.HTMLParser())
+    result=str(html.xpath('//table[2]/tr[9]/td/text()')).strip(" ['\\n                                        ']")
+    return result
 def getCover(htmlcode):
     html = etree.fromstring(htmlcode, etree.HTMLParser())
     result = str(html.xpath('//*[@id="center_column"]/div[2]/div[1]/div/div/h2/img/@src')).strip(" ['']")
@@ -58,7 +62,7 @@ def getOutline(htmlcode):
 def main(number):
     htmlcode=get_html('https://www.mgstage.com/product/product_detail/'+str(number))
     soup = BeautifulSoup(htmlcode, 'lxml')
-    a = str(soup.find(attrs={'class': 'detail_data'}))
+    a = str(soup.find(attrs={'class': 'detail_data'})).replace('\n                                        ','')
     dic = {
         'title': getTitle(htmlcode).replace("\\n",'').replace('        ',''),
         'studio': getStudio(a),
@@ -71,6 +75,7 @@ def main(number):
         'number': number,
         'cover': getCover(htmlcode),
         'imagecut': 0,
+        'tag':' ',
     }
     js = json.dumps(dic, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ':'),)#.encode('UTF-8')
     return js

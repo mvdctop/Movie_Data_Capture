@@ -29,8 +29,7 @@ def getStudio(htmlcode): #获取厂商
 def getYear(htmlcode):   #获取年份
     html = etree.fromstring(htmlcode,etree.HTMLParser())
     result = str(html.xpath('/html/body/div[5]/div[1]/div[2]/p[2]/text()')).strip(" ['']")
-    result2 = str(re.search('\d{4}', result).group(0))
-    return result2
+    return result
 def getCover(htmlcode):  #获取封面链接
     doc = pq(htmlcode)
     image = doc('a.bigImage')
@@ -49,8 +48,8 @@ def getActor(htmlcode):   #获取女优
     soup=BeautifulSoup(htmlcode,'lxml')
     a=soup.find_all(attrs={'class':'star-name'})
     for i in a:
-        b.append(i.text)
-    return ",".join(b)
+        b.append(i.get_text())
+    return b
 def getNum(htmlcode):     #获取番号
     html = etree.fromstring(htmlcode, etree.HTMLParser())
     result = str(html.xpath('/html/body/div[5]/div[1]/div[2]/p[1]/span[2]/text()')).strip(" ['']")
@@ -63,6 +62,18 @@ def getOutline(htmlcode):  #获取演员
     doc = pq(htmlcode)
     result = str(doc('tr td div.mg-b20.lh4 p.mg-b20').text())
     return result
+
+
+def getTag(htmlcode):  # 获取演员
+    tag = []
+    soup = BeautifulSoup(htmlcode, 'lxml')
+    a = soup.find_all(attrs={'class': 'genre'})
+    for i in a:
+        if 'onmouseout' in str(i):
+            continue
+        tag.append(i.get_text())
+    return tag
+
 
 def main(number):
     htmlcode=get_html('https://www.javbus.com/'+number)
@@ -79,28 +90,58 @@ def main(number):
         'number': getNum(htmlcode),
         'cover': getCover(htmlcode),
         'imagecut': 1,
+        'tag':getTag(htmlcode)
     }
     js = json.dumps(dic, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ':'),)#.encode('UTF-8')
     return js
 
 def main_uncensored(number):
-    htmlcode=get_html('https://www.javbus.com/'+number)
-    dww_htmlcode=get_html("https://www.dmm.co.jp/mono/dvd/-/detail/=/cid=" + number.replace("-", ''))
+    htmlcode = get_html('https://www.javbus.com/' + number)
+    dww_htmlcode = get_html("https://www.dmm.co.jp/mono/dvd/-/detail/=/cid=" + number.replace("-", ''))
+    #print('un')
+    #print('https://www.javbus.com/' + number)
     dic = {
         'title': getTitle(htmlcode),
         'studio': getStudio(htmlcode),
         'year': getYear(htmlcode),
-        'outline': getOutline(dww_htmlcode),
+        'outline': getOutline(htmlcode),
         'runtime': getRuntime(htmlcode),
         'director': getDirector(htmlcode),
         'actor': getActor(htmlcode),
         'release': getRelease(htmlcode),
         'number': getNum(htmlcode),
         'cover': getCover(htmlcode),
+        'tag': getTag(htmlcode),
         'imagecut': 0,
     }
-    js = json.dumps(dic, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ':'),)#.encode('UTF-8')
-    return js
+    js = json.dumps(dic, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ':'), )  # .encode('UTF-8')
+
+    if getYear(htmlcode) == '':
+        #print('un2')
+        number2 = number.replace('-', '_')
+        htmlcode = get_html('https://www.javbus.com/' + number2)
+        #print('https://www.javbus.com/' + number2)
+        dww_htmlcode = get_html("https://www.dmm.co.jp/mono/dvd/-/detail/=/cid=" + number2.replace("_", ''))
+        dic = {
+            'title': getTitle(htmlcode),
+            'studio': getStudio(htmlcode),
+            'year': getYear(htmlcode),
+            'outline': getOutline(htmlcode),
+            'runtime': getRuntime(htmlcode),
+            'director': getDirector(htmlcode),
+            'actor': getActor(htmlcode),
+            'release': getRelease(htmlcode),
+            'number': getNum(htmlcode),
+            'cover': getCover(htmlcode),
+            'tag': getTag(htmlcode),
+            'imagecut': 0,
+        }
+        js = json.dumps(dic, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ':'), )  # .encode('UTF-8')
+        #print(js)
+        return js
+    else:
+        bbb=''
+
 
 # def return1():
 #     json_data=json.loads(main('ipx-292'))
@@ -115,15 +156,17 @@ def main_uncensored(number):
 #     release = str(json_data['release'])
 #     number = str(json_data['number'])
 #     cover = str(json_data['cover'])
+#     tag = str(json_data['tag'])
 #
-#     # print(title)
-#     # print(studio)
-#     # print(year)
-#     # print(outline)
-#     # print(runtime)
-#     # print(director)
-#     # print(actor)
-#     # print(release)
-#     # print(number)
-#     # print(cover)
+#     print(title)
+#     print(studio)
+#     print(year)
+#     print(outline)
+#     print(runtime)
+#     print(director)
+#     print(actor)
+#     print(release)
+#     print(number)
+#     print(cover)
+#     print(tag)
 # return1()

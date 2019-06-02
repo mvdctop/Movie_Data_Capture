@@ -16,11 +16,12 @@ year=''
 outline=''
 runtime=''
 director=''
-actor=''
+actor=[]
 release=''
 number=''
 cover=''
 imagecut=''
+tag=[]
 
 #=====================资源下载部分===========================
 def DownloadFileWithFilename(url,filename,path): #path = examle:photo , video.in the Project Folder!
@@ -58,12 +59,21 @@ def PrintFiles(path):
             print("  <poster>" + number + ".png</poster>", file=code)
             print("  <thumb>" + number + ".png</thumb>", file=code)
             print("  <fanart>"+number + '.jpg'+"</fanart>", file=code)
-            print("  <actor>", file=code)
-            print("    <name>" + actor + "</name>", file=code)
-            print("  </actor>", file=code)
+            try:
+                for u in actor:
+                    print("  <actor>", file=code)
+                    print("   <name>" + u + "</name>", file=code)
+                    print("  </actor>", file=code)
+            except:
+                aaaa=''
             print("  <maker>" + studio + "</maker>", file=code)
             print("  <label>", file=code)
             print("  </label>", file=code)
+            try:
+                for i in tag:
+                    print("  <tag>" + i + "</tag>", file=code)
+            except:
+                aaaa=''
             print("  <num>" + number + "</num>", file=code)
             print("  <release>" + release + "</release>", file=code)
             print("  <cover>"+cover+"</cover>", file=code)
@@ -96,34 +106,47 @@ def getNumberFromFilename(filepath):
     global number
     global cover
     global imagecut
+    global tag
 
-    filename = str(os.path.basename(filepath)) #电影文件名
-    str(re.sub("\[\d{4}-\d{1,2}-\d{1,2}\] - ", "", filename))
+    filename = str(re.sub("\[\d{4}-\d{1,2}-\d{1,2}\] - ", "", os.path.basename(filepath)))
     print("[!]Making Data for ["+filename+"]")
-    a = str(re.search('\w+-\w+', filename).group())
+    file_number = str(re.search('\w+-\w+', filename).group())
     #print(a)
-
-    # =======================网站规则添加==============================
     try:
-        try:
-            if re.search('^\d{5,}', a).group() in filename:
-                json_data = json.loads(javbus.main_uncensored(a.replace("-", "_")))
-        except:
+
+
+
+
+
+#================================================网站规则添加开始================================================
+
+
+        try:  #添加 需要 正则表达式的规则
+            if re.search('^\d{5,}', file_number).group() in filename:
+                json_data = json.loads(javbus.main_uncensored(file_number))
+        except: #添加 无需 正则表达式的规则
             if 'fc2' in filename:
-                json_data = json.loads(fc2fans_club.main(a))
+                json_data = json.loads(fc2fans_club.main(file_number))
             elif 'FC2' in filename:
-                json_data = json.loads(fc2fans_club.main(a))
+                json_data = json.loads(fc2fans_club.main(file_number))
             elif 'siro' in filename:
-                json_data = json.loads(siro.main(a))
+                json_data = json.loads(siro.main(file_number))
             elif 'SIRO' in filename:
-                json_data = json.loads(siro.main(a))
+                json_data = json.loads(siro.main(file_number))
             elif '259luxu' in filename:
-                json_data = json.loads(siro.main(a))
+                json_data = json.loads(siro.main(file_number))
             elif '259LUXU' in filename:
-                json_data = json.loads(siro.main(a))
+                json_data = json.loads(siro.main(file_number))
             else:
-                json_data = json.loads(javbus.main(a))
-        # ====================网站规则添加结束==============================
+                json_data = json.loads(javbus.main(file_number))
+
+
+#================================================网站规则添加结束================================================
+
+
+
+
+
 
         title = json_data['title']
         studio = json_data['studio']
@@ -131,11 +154,12 @@ def getNumberFromFilename(filepath):
         outline = json_data['outline']
         runtime = json_data['runtime']
         director = json_data['director']
-        actor = json_data['actor']
+        actor = str(json_data['actor']).strip("[ ]").replace("'",'').replace(" ",'').split(',')
         release = json_data['release']
         number = json_data['number']
         cover = json_data['cover']
         imagecut = json_data['imagecut']
+        tag =   str(json_data['tag']).strip("[ ]").replace("'",'').replace(" ",'').split(',')
     except:
         print('[-]File '+filename+'`s number can not be caught')
         print('[-]Move ' + filename + ' to failed folder')
@@ -151,19 +175,21 @@ def getNumberFromFilename(filepath):
 path = '' #设置path为全局变量，后面移动文件要用
 
 def creatFolder():
+    actor2 = str(actor).strip("[ ]").replace("'",'').replace(" ",'')
     global path
     if not os.path.exists('failed/'): #新建failed文件夹
         os.makedirs('failed/')
         if not os.path.exists('failed/'):
             print("[-]failed!Dirs can not be make (Please run as Administrator)")
             os._exit(0)
-    if len(actor) > 240:    #新建成功输出文件夹
+    if len(actor2) > 240:    #新建成功输出文件夹
         path = 'JAV_output' + '/' + '超多人' + '/' + number #path为影片+元数据所在目录
     else:
-        path = 'JAV_output' + '/' + str(actor) + '/' + str(number)
+        path = 'JAV_output' + '/' + str(actor2) + '/' + str(number)
     if not os.path.exists(path):
         os.makedirs(path)
     path = str(os.getcwd())+'/'+path
+
 def imageDownload(filepath): #封面是否下载成功，否则移动到failed
     if DownloadFileWithFilename(cover,str(number) + '.jpg', path) == 'failed':
         shutil.move(filepath, 'failed/')
