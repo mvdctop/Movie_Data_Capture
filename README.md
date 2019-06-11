@@ -46,7 +46,6 @@ pip install pillow
 ```
 
 2. 设置本地代理（针对网络审查国家或地区）**Beta8新特性**
-
 打开proxy.ini,在proxy行设置本地代理地址和端口，支持Shadowsocks/R,V2RAY本地代理端口
 
 
