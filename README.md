@@ -46,21 +46,28 @@ pip install pillow
 ```
 
 2. 设置本地代理（针对网络审查国家或地区）**Beta8新特性**
+
 打开proxy.ini,在proxy行设置本地代理地址和端口，支持Shadowsocks/R,V2RAY本地代理端口
 
+
 3. 你的AV在被软件管理前最好命名为番号:
+
 ```
 COSQ-004.mp4
 ```
+
 或者
+
 ```
 COSQ_004.mp4
 ```
+
 文件名中间要有下划线或者减号"_","-"，没有多余的内容只有番号为最佳，可以让软件更好获取元数据
 对于多影片重命名，可以用ReNamer来批量重命名
 软件官网:http://www.den4b.com/products/renamer
 
 ![](https://i.loli.net/2019/06/02/5cf2b5cfbfe1070559.png)
+
 
 4. 把软件拷贝到AV的所在目录下，运行程序（中国大陆用户必须挂VPN，Shsadowsocks开全局代理）
 5. 运行AV_Data_capture.py
