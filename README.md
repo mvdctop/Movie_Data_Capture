@@ -45,7 +45,10 @@ pip install Beautifulsoup4
 pip install pillow
 ```
 
-2. 你的AV在被软件管理前最好命名为番号:
+2. 设置本地代理（针对网络审查国家或地区）**Beta8新特性**
+打开proxy.ini,在proxy行设置本地代理地址和端口，支持Shadowsocks/R,V2RAY本地代理端口
+
+3. 你的AV在被软件管理前最好命名为番号:
 ```
 COSQ-004.mp4
 ```
@@ -59,15 +62,15 @@ COSQ_004.mp4
 
 ![](https://i.loli.net/2019/06/02/5cf2b5cfbfe1070559.png)
 
-3. 把软件拷贝到AV的所在目录下，运行程序（中国大陆用户必须挂VPN，Shsadowsocks开全局代理）
-4. 运行AV_Data_capture.py
-5. **你也可以把单个影片拖动到core程序**
+4. 把软件拷贝到AV的所在目录下，运行程序（中国大陆用户必须挂VPN，Shsadowsocks开全局代理）
+5. 运行AV_Data_capture.py
+6. **你也可以把单个影片拖动到core程序**
 
 ![](https://i.loli.net/2019/06/02/5cf2b5d03640e73201.gif)
 
-6. 软件会自动把元数据获取成功的电影移动到JAV_output文件夹中，根据女优分类，失败的电影移动到failed文件夹中。
+7. 软件会自动把元数据获取成功的电影移动到JAV_output文件夹中，根据女优分类，失败的电影移动到failed文件夹中。
 
-7. 把JAV_output文件夹导入到EMBY,KODI中，根据封面选片子，享受手冲乐趣
+8. 把JAV_output文件夹导入到EMBY,KODI中，根据封面选片子，享受手冲乐趣
 
 ![](https://i.loli.net/2019/06/02/5cf2b5cfd1b0226763.png)
 ![](https://i.loli.net/2019/06/02/5cf2b5cfd1b0246492.png)
