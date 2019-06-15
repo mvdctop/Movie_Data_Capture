@@ -7,7 +7,7 @@ from bs4 import BeautifulSoup
 def get_html(url):#网页请求核心
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36'}
     cookies = {'adc':'1'}
-    getweb = requests.get(str(url),timeout=5,cookies=cookies,headers=headers).text
+    getweb = requests.get(str(url),timeout=10,cookies=cookies,headers=headers).text
     try:
         return getweb
     except:

@@ -12,7 +12,7 @@ import json
 
 def get_html(url):#网页请求核心
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36'}
-    getweb = requests.get(str(url),timeout=5,headers=headers).text
+    getweb = requests.get(str(url),timeout=10,headers=headers).text
     try:
         return getweb
     except:
@@ -97,9 +97,6 @@ def main(number):
 
 def main_uncensored(number):
     htmlcode = get_html('https://www.javbus.com/' + number)
-    dww_htmlcode = get_html("https://www.dmm.co.jp/mono/dvd/-/detail/=/cid=" + number.replace("-", ''))
-    #print('un')
-    #print('https://www.javbus.com/' + number)
     dic = {
         'title': getTitle(htmlcode),
         'studio': getStudio(htmlcode),
@@ -116,13 +113,10 @@ def main_uncensored(number):
     }
     js = json.dumps(dic, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ':'), )  # .encode('UTF-8')
 
-    if getYear(htmlcode) == '':
-        #print('un2')
+    if getYear(htmlcode) == '' or getYear(htmlcode) == 'null':
         number2 = number.replace('-', '_')
         htmlcode = get_html('https://www.javbus.com/' + number2)
-        #print('https://www.javbus.com/' + number2)
-        dww_htmlcode = get_html("https://www.dmm.co.jp/mono/dvd/-/detail/=/cid=" + number2.replace("_", ''))
-        dic = {
+        dic2 = {
             'title': getTitle(htmlcode),
             'studio': getStudio(htmlcode),
             'year': getYear(htmlcode),
@@ -136,11 +130,10 @@ def main_uncensored(number):
             'tag': getTag(htmlcode),
             'imagecut': 0,
         }
-        js = json.dumps(dic, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ':'), )  # .encode('UTF-8')
-        #print(js)
-        return js
-    else:
-        bbb=''
+        js2 = json.dumps(dic2, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ':'), )  # .encode('UTF-8')
+        return js2
+
+    return js
 
 
 # def return1():

@@ -2,6 +2,7 @@ import glob
 import os
 import time
 import re
+import sys
 
 def movie_lists():
     #MP4
@@ -50,11 +51,11 @@ if __name__ =='__main__':
         if '_' in i:
             os.rename(re.search(r'[^\\/:*?"<>|\r\n]+$', i).group(), rreplace(re.search(r'[^\\/:*?"<>|\r\n]+$', i).group(), '_', '-', 1))
             i = rreplace(re.search(r'[^\\/:*?"<>|\r\n]+$', i).group(), '_', '-', 1)
-        os.system('python core.py' + ' "' + i + '"') #选择从py文件启动  （用于源码py）
-        #os.system('core.exe' + ' "' + i + '"')      #选择从exe文件启动（用于EXE版程序）
+        #os.system('python core.py' + ' "' + i + '"') #选择从py文件启动  （用于源码py）
+        os.system('core.exe' + ' "' + i + '"')      #选择从exe文件启动（用于EXE版程序）
         print("[*]=====================================")
 
     print("[!]Cleaning empty folders")
     CEF('JAV_output')
     print("[+]All finished!!!")
-    time.sleep(3)
+    input("[+][+]Press enter key exit, you can check the error messge before you exit.\n[+][+]按回车键结束，你可以在结束之前查看错误信息。")

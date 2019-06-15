@@ -8,6 +8,8 @@ import javbus
 import json
 import fc2fans_club
 import siro
+from ADC_function import *
+from configparser import ConfigParser
 
 #初始化全局变量
 title=''
@@ -25,22 +27,49 @@ tag=[]
 
 #=====================资源下载部分===========================
 def DownloadFileWithFilename(url,filename,path): #path = examle:photo , video.in the Project Folder!
-    import requests
-    try:
-        if not os.path.exists(path):
-            os.makedirs(path)
-        r = requests.get(url)
-        with open(str(path) + "/"+str(filename), "wb") as code:
-            code.write(r.content)
-    except IOError as e:
-        print("[-]Movie not found in All website!")
-        #print("[*]=====================================")
-        return "failed"
-    except Exception as e1:
-        print(e1)
-        print("[-]Download Failed2!")
-        time.sleep(3)
-        os._exit(0)
+    config = ConfigParser()
+    config.read('proxy.ini', encoding='UTF-8')
+    proxy = str(config['proxy']['proxy'])
+
+    if not str(config['proxy']['proxy']) == '':
+        try:
+            if not os.path.exists(path):
+                os.makedirs(path)
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36'}
+            r = requests.get(url,timeout=10, headers=headers,proxies={"http": "http://" + str(proxy), "https": "https://" + str(proxy)})
+            with open(str(path) + "/" + str(filename), "wb") as code:
+                code.write(r.content)
+                # print(bytes(r),file=code)
+        except IOError as e:
+            print("[-]Movie not found in All website!")
+            print("[-]" + str(filename), e)
+            # print("[*]=====================================")
+            return "failed"
+        except Exception as e1:
+            print(e1)
+            print("[-]Download Failed2!")
+            time.sleep(3)
+            os._exit(0)
+    else:
+        try:
+            if not os.path.exists(path):
+                os.makedirs(path)
+            headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36'}
+            r = requests.get(url,timeout=10, headers=headers)
+            with open(str(path) + "/" + str(filename), "wb") as code:
+                code.write(r.content)
+                # print(bytes(r),file=code)
+        except IOError as e:
+            print("[-]Movie not found in All website!")
+            print("[-]" + str(filename), e)
+            # print("[*]=====================================")
+            return "failed"
+        except Exception as e1:
+            print(e1)
+            print("[-]Download Failed2!")
+            time.sleep(3)
+            os._exit(0)
 def PrintFiles(path):
     try:
         if not os.path.exists(path):
@@ -73,7 +102,12 @@ def PrintFiles(path):
                 for i in tag:
                     print("  <tag>" + i + "</tag>", file=code)
             except:
-                aaaa=''
+                aaaaa=''
+            try:
+                for i in tag:
+                    print("  <genre>" + i + "</genre>", file=code)
+            except:
+                aaaaaaaa=''
             print("  <num>" + number + "</num>", file=code)
             print("  <release>" + release + "</release>", file=code)
             print("  <cover>"+cover+"</cover>", file=code)
@@ -94,6 +128,14 @@ def argparse_get_file():
     parser.add_argument("file", help="Write the file path on here")
     args = parser.parse_args()
     return args.file
+def CreatFailedFolder():
+    if not os.path.exists('failed/'):  # 新建failed文件夹
+        try:
+            os.makedirs('failed/')
+        except:
+            print("[-]failed!can not be make folder 'failed'\n[-](Please run as Administrator)")
+            os._exit(0)
+
 def getNumberFromFilename(filepath):
     global title
     global studio
@@ -108,27 +150,59 @@ def getNumberFromFilename(filepath):
     global imagecut
     global tag
 
-    filename = str(re.sub("\[\d{4}-\d{1,2}-\d{1,2}\] - ", "", os.path.basename(filepath)))
-    print("[!]Making Data for ["+filename+"]")
-    file_number = str(re.search('\w+-\w+', filename).group())
-    #print(a)
+#================================================获取文件番号================================================
+    try:    #试图提取番号
+    # ====番号获取主程序====
+        try:  # 普通提取番号 主要处理包含减号-的番号
+            filepath.strip('22-sht.me').strip('-HD').strip('-hd')
+            filename = str(re.sub("\[\d{4}-\d{1,2}-\d{1,2}\] - ", "", filepath))  # 去除文件名中文件名
+            file_number = re.search('\w+-\d+', filename).group()
+        except:  # 提取不含减号-的番号
+            try:  # 提取东京热番号格式 n1087
+                filename1 = str(re.sub("h26\d", "", filepath)).strip('Tokyo-hot').strip('tokyo-hot')
+                filename0 = str(re.sub(".*?\.com-\d+", "", filename1)).strip('_')
+                file_number = str(re.search('n\d{4}', filename0).group(0))
+            except:  # 提取无减号番号
+                filename1 = str(re.sub("h26\d", "", filepath))  # 去除h264/265
+                filename0 = str(re.sub(".*?\.com-\d+", "", filename1))
+                file_number2 = str(re.match('\w+', filename0).group())
+                file_number = str(file_number2.replace(re.match("^[A-Za-z]+", file_number2).group(),re.match("^[A-Za-z]+", file_number2).group() + '-'))
+                if not re.search('\w-', file_number).group() == 'None':
+                    file_number = re.search('\w+-\w+', filename).group()
+                #上面是插入减号-到番号中
+        print("[!]Making Data for [" + filename + "],the number is [" + file_number + "]")
+    # ====番号获取主程序=结束===
+    except Exception as e: #番号提取异常
+        print('[-]'+str(os.path.basename(filepath))+' Cannot catch the number :')
+        print('[-]' + str(os.path.basename(filepath)) + ' :', e)
+        print('[-]Move ' + os.path.basename(filepath) + ' to failed folder')
+        shutil.move(filepath, str(os.getcwd()) + '/' + 'failed/')
+        os._exit(0)
+    except IOError as e2:
+        print('[-]' + str(os.path.basename(filepath)) + ' Cannot catch the number :')
+        print('[-]' + str(os.path.basename(filepath)) + ' :',e2)
+        print('[-]Move ' + os.path.basename(filepath) + ' to failed folder')
+        shutil.move(filepath, str(os.getcwd()) + '/' + 'failed/')
+        os._exit(0)
     try:
 
 
 
 
-
-#================================================网站规则添加开始================================================
-
+# ================================================网站规则添加开始================================================
 
         try:  #添加 需要 正则表达式的规则
+            #=======================javbus.py=======================
             if re.search('^\d{5,}', file_number).group() in filename:
                 json_data = json.loads(javbus.main_uncensored(file_number))
         except: #添加 无需 正则表达式的规则
+            # ====================fc2fans_club.py===================
             if 'fc2' in filename:
                 json_data = json.loads(fc2fans_club.main(file_number))
             elif 'FC2' in filename:
                 json_data = json.loads(fc2fans_club.main(file_number))
+
+            #========================siro.py========================
             elif 'siro' in filename:
                 json_data = json.loads(siro.main(file_number))
             elif 'SIRO' in filename:
@@ -137,8 +211,23 @@ def getNumberFromFilename(filepath):
                 json_data = json.loads(siro.main(file_number))
             elif '259LUXU' in filename:
                 json_data = json.loads(siro.main(file_number))
+            elif '300MAAN' in filename:
+                json_data = json.loads(siro.main(file_number))
+            elif '300maan' in filename:
+                json_data = json.loads(siro.main(file_number))
+            elif '326SCP' in filename:
+                json_data = json.loads(siro.main(file_number))
+            elif '326scp' in filename:
+                json_data = json.loads(siro.main(file_number))
+            elif '326URF' in filename:
+                json_data = json.loads(siro.main(file_number))
+            elif '326urf' in filename:
+                json_data = json.loads(siro.main(file_number))
+
+            #=======================javbus.py=======================
             else:
                 json_data = json.loads(javbus.main(file_number))
+
 
 
 #================================================网站规则添加结束================================================
@@ -146,29 +235,29 @@ def getNumberFromFilename(filepath):
 
 
 
-
-
-        title = json_data['title']
-        studio = json_data['studio']
-        year = json_data['year']
-        outline = json_data['outline']
-        runtime = json_data['runtime']
+        title    = json_data['title']
+        studio   = json_data['studio']
+        year     = json_data['year']
+        outline  = json_data['outline']
+        runtime  = json_data['runtime']
         director = json_data['director']
-        actor = str(json_data['actor']).strip("[ ]").replace("'",'').replace(" ",'').split(',')
-        release = json_data['release']
-        number = json_data['number']
-        cover = json_data['cover']
+        actor    = str(json_data['actor']).strip("[ ]").replace("'",'').replace(" ",'').split(',') #字符串转列表
+        release  = json_data['release']
+        number   = json_data['number']
+        cover    = json_data['cover']
         imagecut = json_data['imagecut']
-        tag =   str(json_data['tag']).strip("[ ]").replace("'",'').replace(" ",'').split(',')
-    except:
-        print('[-]File '+filename+'`s number can not be caught')
+        tag      = str(json_data['tag']).strip("[ ]").replace("'",'').replace(" ",'').split(',')   #字符串转列表
+
+
+    except IOError as e:
+        print('[-]'+str(e))
         print('[-]Move ' + filename + ' to failed folder')
-        if not os.path.exists('failed/'):  # 新建failed文件夹
-            os.makedirs('failed/')
-            if not os.path.exists('failed/'):
-                print("[-]failed!Dirs can not be make (Please run as Administrator)")
-                time.sleep(3)
-                os._exit(0)
+        shutil.move(filepath, str(os.getcwd())+'/'+'failed/')
+        os._exit(0)
+
+    except Exception as e:
+        print('[-]'+str(e))
+        print('[-]Move ' + filename + ' to failed folder')
         shutil.move(filepath, str(os.getcwd())+'/'+'failed/')
         os._exit(0)
 
@@ -177,11 +266,6 @@ path = '' #设置path为全局变量，后面移动文件要用
 def creatFolder():
     actor2 = str(actor).strip("[ ]").replace("'",'').replace(" ",'')
     global path
-    if not os.path.exists('failed/'): #新建failed文件夹
-        os.makedirs('failed/')
-        if not os.path.exists('failed/'):
-            print("[-]failed!Dirs can not be make (Please run as Administrator)")
-            os._exit(0)
     if len(actor2) > 240:    #新建成功输出文件夹
         path = 'JAV_output' + '/' + '超多人' + '/' + number #path为影片+元数据所在目录
     else:
@@ -220,6 +304,7 @@ def pasteFileToFolder(filepath, path): #文件路径，番号，后缀，要移�
 
 if __name__ == '__main__':
     filepath=argparse_get_file() #影片的路径
+    CreatFailedFolder()
     getNumberFromFilename(filepath) #定义番号
     creatFolder() #创建文件夹
     imageDownload(filepath) #creatFoder会返回番号路径
