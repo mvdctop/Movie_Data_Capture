@@ -23,7 +23,7 @@ release的程序可脱离python环境运行，可跳过第一步
 
 下载地址(Windows):https://github.com/wenead99/AV_Data_Capture/releases
 
-##1. 请安装requests,pyquery,lxml,Beautifulsoup4,pillow模块,在 CMD/终端 逐条输入以下命令安装
+## 1. 请安装requests,pyquery,lxml,Beautifulsoup4,pillow模块,在 CMD/终端 逐条输入以下命令安装
 ```python
 pip install requests
 ```
@@ -51,7 +51,7 @@ pip install pillow
 ```proxy=127.0.0.1:1080```
 
 
-##3. 关于番号提取失败或者异常
+## 3. 关于番号提取失败或者异常
 >下一张图片来自Pockies的blog:https://pockies.github.io/2019/03/25/everaver-emby-kodi/ 原作者已授权
 
 ![](https://raw.githubusercontent.com/Pockies/pic/master/741f9461gy1g1cxc31t41j20i804zdgo.jpg)
@@ -68,18 +68,18 @@ COSQ-004.mp4
 >软件官网:http://www.den4b.com/products/renamer
 
 
-##4. 把软件拷贝和AV的统一目录下
+## 4. 把软件拷贝和AV的统一目录下
 
-##5. 运行 ```AV_Data_capture.py/.exe```
+## 5. 运行 ```AV_Data_capture.py/.exe```
 >**你也可以把单个影片拖动到core程序**
 
 ![](https://i.loli.net/2019/06/02/5cf2b5d03640e73201.gif)
 
-##7. 软件会自动把元数据获取成功的电影移动到JAV_output文件夹中，根据女优分类，失败的电影移动到failed文件夹中。
+## 6. 软件会自动把元数据获取成功的电影移动到JAV_output文件夹中，根据女优分类，失败的电影移动到failed文件夹中。
 
-##8. 把JAV_output文件夹导入到EMBY,KODI中，根据封面选片子，享受手冲乐趣
+## 7. 把JAV_output文件夹导入到EMBY,KODI中，根据封面选片子，享受手冲乐趣
 
-##9.输出的文件如下
+## 8.输出的文件如下
 ![](https://i.loli.net/2019/06/02/5cf2b5cfd1b0226763.png)
 ![](https://i.loli.net/2019/06/02/5cf2b5cfd1b0246492.png)
 ![](https://i.loli.net/2019/06/02/5cf2b5d009e4930666.png)
