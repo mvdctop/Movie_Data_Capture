@@ -2,7 +2,7 @@
 
 ## 关于本软件 （~路star谢谢）<br>
 
-    目前，我下的AV越来越多，也意味着AV要集中地管理，形成媒体库。现在有两款主流的AV元数据获取器，"EverAver"和"Javhelper"。前者的优点是元数据获取比较全，缺点是不能批量处理；后者优点是可以批量处理，但是元数据不够全。<br>
+    目前，我下的AV越来越多，也意味着AV要集中地管理，形成媒体库。现在有两款主流的AV元数据获取器，<br，"EverAver"和"Javhelper"。前者的优点是元数据获取比较全，缺点是不能批量处理；后者优点是可以批量处理，但是元数据不够全。<br>
     为此，综合上述软件特点，我写出了本软件，为了方便的管理本地AV，和更好的手冲体验。没女朋友怎么办ʅ(‾◡◝)ʃ 
 
 **tg官方电报群:https://t.me/AV_Data_Capture_Official**<br>
@@ -23,19 +23,24 @@ release的程序可脱离python环境运行，可跳过第一步<br>
 ## 1. 请安装requests,pyquery,lxml,Beautifulsoup4,pillow模块,在 CMD/终端 逐条输入以下命令安装
 ```python
 pip install requests
-```<br>
+```
+<br>
 ```python
 pip install pyquery
-```<br>
+```
+<br>
 ```python
 pip install lxml
-```<br>
+```
+<br>
 ```python
 pip install Beautifulsoup4
-```<br>
+```
+<br>
 ```python
 pip install pillow
-```<br>
+```
+<br>
 
 ## 2. 设置proxy.ini
 #### 1.针对网络审查国家或地区
