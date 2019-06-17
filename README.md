@@ -55,14 +55,20 @@ pip install pillow
 #### 2.设置自定义目录和影片重命名规则
 
 **目前可以提取元素的影片:JAVBUS上有元数据的电影，素人系列:300Maan,326scp,326urf,259luxu,siro系列,FC2系列(不推荐)**
->location_rule是影片文件夹规则，naming_rule是文件命名规则(影片名,nfo,封面文件)
->title=标题,number=番号，stdio=片商,year=年份,director=导演，actor=女优，outline=简介
->runtime=时长，release=上市日期，cover=封面URL，tag=类型
->例子:
->location_rule='JAV_output/'+actor+'/'+actor+' '+' ['+year+']'+title+' ['+number+']'
->例子结束
->自定义字符(字符串)要加冒号'(内容)'，字符串连接要用加号+
-
+>**命名参数**
+>title = 片名
+>actor = 演员
+>studio = 公司
+>director = 导演
+>release = 发售日
+>year = 发行年份
+>number = 番号
+>cover = 封面链接
+>tag = 类型
+>outline = 简介
+>runtime = 时长
+>**例子**:
+>目录结构：'JAV_output/'+actor+'/'+actor+' '+' ['+year+']'+title+' ['+number+']'
 
 ## 3. 关于番号提取失败或者异常
 >下一张图片来自Pockies的blog:https://pockies.github.io/2019/03/25/everaver-emby-kodi/ 原作者已授权
