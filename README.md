@@ -51,6 +51,8 @@ pip install pillow
 ```proxy=127.0.0.1:1080```
 
 ### 2.设置自定义目录和影片重命名规则
+
+**目前可以提取元素的影片:JAVBUS上有元数据的电影，素人系列:300Maan,326scp,326urf,259luxu,siro系列,FC2系列(不推荐)**
 >location_rule是影片文件夹规则，naming_rule是文件命名规则(影片名,nfo,封面文件)
 >title=标题,number=番号，stdio=片商,year=年份,director=导演，actor=女优，outline=简介
 >runtime=时长，release=上市日期，cover=封面URL，tag=类型
