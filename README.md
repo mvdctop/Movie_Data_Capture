@@ -45,12 +45,12 @@ pip install pillow
 ```
 
 ## 2. 设置proxy.ini
-###1.针对网络审查国家或地区
+### 1.针对网络审查国家或地区
 
 打开```proxy.ini```,在```[proxy]```下的```proxy```行设置本地代理地址和端口，支持Shadowsocks/R,V2RAY本地代理端口:
 ```proxy=127.0.0.1:1080```
 
-###2.设置自定义目录和影片重命名规则
+### 2.设置自定义目录和影片重命名规则
 >location_rule是影片文件夹规则，naming_rule是文件命名规则(影片名,nfo,封面文件)
 >title=标题,number=番号，stdio=片商,year=年份,director=导演，actor=女优，outline=简介
 >runtime=时长，release=上市日期，cover=封面URL，tag=类型
