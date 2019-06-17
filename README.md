@@ -65,6 +65,7 @@ pip install pillow
 >runtime = 时长<br>
 >**例子**:<br>
 >目录结构：'JAV_output/'+actor+'/'+actor+' '+' ['+year+']'+title+' ['+number+']'<br>
+>影片命名（上面目录之下的文件）:'['+number+']-'+title
 
 ## 3. 关于番号提取失败或者异常
 >下一张图片来自Pockies的blog:https://pockies.github.io/2019/03/25/everaver-emby-kodi/ 原作者已授权
