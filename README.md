@@ -9,6 +9,8 @@
 
 **tg官方电报群:https://t.me/AV_Data_Capture_Official**
 
+**推荐用法:按照说明使用该软件后，对于不能正常获取元数据的电影可以用[Everaver](http://everaver.blogspot.com/)来补救**
+
 ### **请认真阅读下面使用说明再使用** * [如何使用](#如何使用)
 
 ![](https://i.loli.net/2019/06/02/5cf2b5d0bbecf69019.png)
