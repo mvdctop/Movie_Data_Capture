@@ -79,20 +79,41 @@ def main(number):
     htmlcode=get_html('https://www.javbus.com/'+number)
     dww_htmlcode=get_html("https://www.dmm.co.jp/mono/dvd/-/detail/=/cid=" + number.replace("-", ''))
     dic = {
-        'title': getTitle(htmlcode),
-        'studio': getStudio(htmlcode),
-        'year': getYear(htmlcode),
-        'outline': getOutline(dww_htmlcode),
-        'runtime': getRuntime(htmlcode),
+        'title':    getTitle(htmlcode),
+        'studio':   getStudio(htmlcode),
+        'year':     str(re.search('\d{4}',getYear(htmlcode)).group()),
+        'outline':  getOutline(dww_htmlcode),
+        'runtime':  getRuntime(htmlcode),
         'director': getDirector(htmlcode),
-        'actor': getActor(htmlcode),
-        'release': getRelease(htmlcode),
-        'number': getNum(htmlcode),
-        'cover': getCover(htmlcode),
+        'actor':    getActor(htmlcode),
+        'release':  getRelease(htmlcode),
+        'number':   getNum(htmlcode),
+        'cover':    getCover(htmlcode),
         'imagecut': 1,
-        'tag':getTag(htmlcode)
+        'tag':      getTag(htmlcode)
     }
     js = json.dumps(dic, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ':'),)#.encode('UTF-8')
+
+    if 'HEYZO' in number or 'heyzo' in number or 'Heyzo' in number:
+        htmlcode = get_html('https://www.javbus.com/' + number)
+        dww_htmlcode = get_html("https://www.dmm.co.jp/mono/dvd/-/detail/=/cid=" + number.replace("-", ''))
+        dic = {
+            'title': getTitle(htmlcode),
+            'studio': getStudio(htmlcode),
+            'year': getYear(htmlcode),
+            'outline': getOutline(dww_htmlcode),
+            'runtime': getRuntime(htmlcode),
+            'director': getDirector(htmlcode),
+            'actor': getActor(htmlcode),
+            'release': getRelease(htmlcode),
+            'number': getNum(htmlcode),
+            'cover': getCover(htmlcode),
+            'imagecut': 1,
+            'tag': getTag(htmlcode)
+        }
+        js2 = json.dumps(dic, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ':'), )  # .encode('UTF-8')
+        return js2
+
     return js
 
 def main_uncensored(number):
@@ -120,7 +141,7 @@ def main_uncensored(number):
             'title': getTitle(htmlcode),
             'studio': getStudio(htmlcode),
             'year': getYear(htmlcode),
-            'outline': getOutline(htmlcode),
+            'outline': '',
             'runtime': getRuntime(htmlcode),
             'director': getDirector(htmlcode),
             'actor': getActor(htmlcode),

@@ -43,16 +43,18 @@ def main(number):
     dic = {
         'title': getTitle(htmlcode),
         'studio': getStudio(htmlcode),
-        'year': getRelease(number),
+        'year': str(re.search('\d{4}',getRelease(number)).group()),
         'outline': getOutline(htmlcode,number),
         'runtime': '',
         'director': getStudio(htmlcode),
         'actor': '',
         'release': getRelease(number),
-        'number': number,
+        'number': 'FC2-'+number,
         'cover': getCover(htmlcode,number),
         'imagecut': 0,
         'tag':" ",
     }
     js = json.dumps(dic, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ':'),)#.encode('UTF-8')
     return js
+
+#print(main('1104989'))

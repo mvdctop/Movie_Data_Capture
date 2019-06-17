@@ -18,109 +18,15 @@ year=''
 outline=''
 runtime=''
 director=''
-actor=[]
+actor_list=[]
+actor=''
 release=''
 number=''
 cover=''
 imagecut=''
 tag=[]
-
-#=====================资源下载部分===========================
-def DownloadFileWithFilename(url,filename,path): #path = examle:photo , video.in the Project Folder!
-    config = ConfigParser()
-    config.read('proxy.ini', encoding='UTF-8')
-    proxy = str(config['proxy']['proxy'])
-
-    if not str(config['proxy']['proxy']) == '':
-        try:
-            if not os.path.exists(path):
-                os.makedirs(path)
-            headers = {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36'}
-            r = requests.get(url,timeout=10, headers=headers,proxies={"http": "http://" + str(proxy), "https": "https://" + str(proxy)})
-            with open(str(path) + "/" + str(filename), "wb") as code:
-                code.write(r.content)
-                # print(bytes(r),file=code)
-        except IOError as e:
-            print("[-]Movie not found in All website!")
-            print("[-]" + str(filename), e)
-            # print("[*]=====================================")
-            return "failed"
-        except Exception as e1:
-            print(e1)
-            print("[-]Download Failed2!")
-            time.sleep(3)
-            os._exit(0)
-    else:
-        try:
-            if not os.path.exists(path):
-                os.makedirs(path)
-            headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36'}
-            r = requests.get(url,timeout=10, headers=headers)
-            with open(str(path) + "/" + str(filename), "wb") as code:
-                code.write(r.content)
-                # print(bytes(r),file=code)
-        except IOError as e:
-            print("[-]Movie not found in All website!")
-            print("[-]" + str(filename), e)
-            # print("[*]=====================================")
-            return "failed"
-        except Exception as e1:
-            print(e1)
-            print("[-]Download Failed2!")
-            time.sleep(3)
-            os._exit(0)
-def PrintFiles(path):
-    try:
-        if not os.path.exists(path):
-            os.makedirs(path)
-        with open(path + "/" + number + ".nfo", "wt", encoding='UTF-8') as code:
-            print("<movie>", file=code)
-            print(" <title>" + title + "</title>", file=code)
-            print("  <set>", file=code)
-            print("  </set>", file=code)
-            print("  <studio>" + studio + "+</studio>", file=code)
-            print("  <year>" + year + "</year>", file=code)
-            print("  <outline>"+outline+"</outline>", file=code)
-            print("  <plot>"+outline+"</plot>", file=code)
-            print("  <runtime>"+str(runtime).replace(" ","")+"</runtime>", file=code)
-            print("  <director>" + director + "</director>", file=code)
-            print("  <poster>" + number + ".png</poster>", file=code)
-            print("  <thumb>" + number + ".png</thumb>", file=code)
-            print("  <fanart>"+number + '.jpg'+"</fanart>", file=code)
-            try:
-                for u in actor:
-                    print("  <actor>", file=code)
-                    print("   <name>" + u + "</name>", file=code)
-                    print("  </actor>", file=code)
-            except:
-                aaaa=''
-            print("  <maker>" + studio + "</maker>", file=code)
-            print("  <label>", file=code)
-            print("  </label>", file=code)
-            try:
-                for i in tag:
-                    print("  <tag>" + i + "</tag>", file=code)
-            except:
-                aaaaa=''
-            try:
-                for i in tag:
-                    print("  <genre>" + i + "</genre>", file=code)
-            except:
-                aaaaaaaa=''
-            print("  <num>" + number + "</num>", file=code)
-            print("  <release>" + release + "</release>", file=code)
-            print("  <cover>"+cover+"</cover>", file=code)
-            print("  <website>" + "https://www.javbus.com/"+number + "</website>", file=code)
-            print("</movie>", file=code)
-            print("[+]Writeed!    "+path + "/" + number + ".nfo")
-    except IOError as e:
-        print("[-]Write Failed!")
-        print(e)
-    except Exception as e1:
-        print(e1)
-        print("[-]Write Failed!")
-
+naming_rule  =''#eval(config['Name_Rule']['naming_rule'])
+location_rule=''#eval(config['Name_Rule']['location_rule'])
 #=====================本地文件处理===========================
 def argparse_get_file():
     import argparse
@@ -135,7 +41,6 @@ def CreatFailedFolder():
         except:
             print("[-]failed!can not be make folder 'failed'\n[-](Please run as Administrator)")
             os._exit(0)
-
 def getNumberFromFilename(filepath):
     global title
     global studio
@@ -143,12 +48,16 @@ def getNumberFromFilename(filepath):
     global outline
     global runtime
     global director
+    global actor_list
     global actor
     global release
     global number
     global cover
     global imagecut
     global tag
+
+    global naming_rule
+    global location_rule
 
 #================================================获取文件番号================================================
     try:    #试图提取番号
@@ -170,7 +79,7 @@ def getNumberFromFilename(filepath):
                 if not re.search('\w-', file_number).group() == 'None':
                     file_number = re.search('\w+-\w+', filename).group()
                 #上面是插入减号-到番号中
-        print("[!]Making Data for [" + filename + "],the number is [" + file_number + "]")
+        print("[!]Making Data for   [" + filename + "],the number is [" + file_number + "]")
     # ====番号获取主程序=结束===
     except Exception as e: #番号提取异常
         print('[-]'+str(os.path.basename(filepath))+' Cannot catch the number :')
@@ -235,20 +144,22 @@ def getNumberFromFilename(filepath):
 
 
 
-        title    = json_data['title']
-        studio   = json_data['studio']
-        year     = json_data['year']
-        outline  = json_data['outline']
-        runtime  = json_data['runtime']
-        director = json_data['director']
-        actor    = str(json_data['actor']).strip("[ ]").replace("'",'').replace(" ",'').split(',') #字符串转列表
-        release  = json_data['release']
-        number   = json_data['number']
-        cover    = json_data['cover']
-        imagecut = json_data['imagecut']
-        tag      = str(json_data['tag']).strip("[ ]").replace("'",'').replace(" ",'').split(',')   #字符串转列表
+        title     = json_data['title']
+        studio    = json_data['studio']
+        year      = json_data['year']
+        outline   = json_data['outline']
+        runtime   = json_data['runtime']
+        director  = json_data['director']
+        actor_list= str(json_data['actor']).strip("[ ]").replace("'",'').replace(" ",'').split(',') #字符串转列表
+        release   = json_data['release']
+        number    = json_data['number']
+        cover     = json_data['cover']
+        imagecut  = json_data['imagecut']
+        tag       = str(json_data['tag']).strip("[ ]").replace("'",'').replace(" ",'').split(',')   #字符串转列表
+        actor = str(actor_list).strip("[ ]").replace("'",'').replace(" ",'')
 
-
+        naming_rule  = eval(config['Name_Rule']['naming_rule'])
+        location_rule =eval(config['Name_Rule']['location_rule'])
     except IOError as e:
         print('[-]'+str(e))
         print('[-]Move ' + filename + ' to failed folder')
@@ -260,47 +171,137 @@ def getNumberFromFilename(filepath):
         print('[-]Move ' + filename + ' to failed folder')
         shutil.move(filepath, str(os.getcwd())+'/'+'failed/')
         os._exit(0)
-
 path = '' #设置path为全局变量，后面移动文件要用
-
 def creatFolder():
-    actor2 = str(actor).strip("[ ]").replace("'",'').replace(" ",'')
     global path
-    if len(actor2) > 240:    #新建成功输出文件夹
-        path = 'JAV_output' + '/' + '超多人' + '/' + number #path为影片+元数据所在目录
+    if len(actor) > 240:                    #新建成功输出文件夹
+        path = location_rule.replace("'actor'","'超多人'",3).replace("actor","'超多人'",3) #path为影片+元数据所在目录
+        #print(path)
     else:
-        path = 'JAV_output' + '/' + str(actor2) + '/' + str(number)
+        path = location_rule
+        #print(path)
     if not os.path.exists(path):
         os.makedirs(path)
-    path = str(os.getcwd())+'/'+path
-
+#=====================资源下载部分===========================
+def DownloadFileWithFilename(url,filename,path): #path = examle:photo , video.in the Project Folder!
+    config = ConfigParser()
+    config.read('proxy.ini', encoding='UTF-8')
+    proxy = str(config['proxy']['proxy'])
+    if not str(config['proxy']['proxy']) == '':
+        try:
+            if not os.path.exists(path):
+                os.makedirs(path)
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36'}
+            r = requests.get(url, headers=headers,proxies={"http": "http://" + str(proxy), "https": "https://" + str(proxy)})
+            with open(str(path) + "/" + filename, "wb") as code:
+                code.write(r.content)
+                # print(bytes(r),file=code)
+        except IOError as e:
+            print("[-]Movie not found in All website!")
+            print("[-]" + filename, e)
+            # print("[*]=====================================")
+            return "failed"
+        except Exception as e1:
+            print(e1)
+            print("[-]Download Failed2!")
+            time.sleep(3)
+            os._exit(0)
+    else:
+        try:
+            if not os.path.exists(path):
+                os.makedirs(path)
+            headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36'}
+            r = requests.get(url, headers=headers)
+            with open(str(path) + "/" + filename, "wb") as code:
+                code.write(r.content)
+                # print(bytes(r),file=code)
+        except IOError as e:
+            print("[-]Movie not found in All website!")
+            print("[-]" + filename, e)
+            # print("[*]=====================================")
+            return "failed"
+        except Exception as e1:
+            print(e1)
+            print("[-]Download Failed2!")
+            time.sleep(3)
+            os._exit(0)
+def PrintFiles(path):
+    try:
+        if not os.path.exists(path):
+            os.makedirs(path)
+        with open(path + "/" + naming_rule + ".nfo", "wt", encoding='UTF-8') as code:
+            print("<movie>", file=code)
+            print(" <title>" + title + "</title>", file=code)
+            print("  <set>", file=code)
+            print("  </set>", file=code)
+            print("  <studio>" + studio + "+</studio>", file=code)
+            print("  <year>" + year + "</year>", file=code)
+            print("  <outline>"+outline+"</outline>", file=code)
+            print("  <plot>"+outline+"</plot>", file=code)
+            print("  <runtime>"+str(runtime).replace(" ","")+"</runtime>", file=code)
+            print("  <director>" + director + "</director>", file=code)
+            print("  <poster>" + naming_rule + ".png</poster>", file=code)
+            print("  <thumb>" + naming_rule + ".png</thumb>", file=code)
+            print("  <fanart>"+naming_rule + '.jpg'+"</fanart>", file=code)
+            try:
+                for u in actor_list:
+                    print("  <actor>", file=code)
+                    print("   <name>" + u + "</name>", file=code)
+                    print("  </actor>", file=code)
+            except:
+                aaaa=''
+            print("  <maker>" + studio + "</maker>", file=code)
+            print("  <label>", file=code)
+            print("  </label>", file=code)
+            try:
+                for i in tag:
+                    print("  <tag>" + i + "</tag>", file=code)
+            except:
+                aaaaa=''
+            try:
+                for i in tag:
+                    print("  <genre>" + i + "</genre>", file=code)
+            except:
+                aaaaaaaa=''
+            print("  <num>" + number + "</num>", file=code)
+            print("  <release>" + release + "</release>", file=code)
+            print("  <cover>"+cover+"</cover>", file=code)
+            print("  <website>" + "https://www.javbus.com/"+number + "</website>", file=code)
+            print("</movie>", file=code)
+            print("[+]Writeed!          "+path + "/" + naming_rule + ".nfo")
+    except IOError as e:
+        print("[-]Write Failed!")
+        print(e)
+    except Exception as e1:
+        print(e1)
+        print("[-]Write Failed!")
 def imageDownload(filepath): #封面是否下载成功，否则移动到failed
-    if DownloadFileWithFilename(cover,str(number) + '.jpg', path) == 'failed':
+    if DownloadFileWithFilename(cover,naming_rule+ '.jpg', path) == 'failed':
         shutil.move(filepath, 'failed/')
         os._exit(0)
-    DownloadFileWithFilename(cover, number + '.jpg', path)
-    print('[+]Image Downloaded!', path +'/'+number+'.jpg')
+    DownloadFileWithFilename(cover, naming_rule + '.jpg', path)
+    print('[+]Image Downloaded!', path +'/'+naming_rule+'.jpg')
 def cutImage():
     if imagecut == 1:
         try:
-            img = Image.open(path + '/' + number + '.jpg')
+            img = Image.open(path + '/' + naming_rule + '.jpg')
             imgSize = img.size
             w = img.width
             h = img.height
             img2 = img.crop((w / 1.9, 0, w, h))
-            img2.save(path + '/' + number + '.png')
+            img2.save(path + '/' + naming_rule + '.png')
         except:
             print('[-]Cover cut failed!')
     else:
-        img = Image.open(path + '/' + number + '.jpg')
+        img = Image.open(path + '/' + naming_rule + '.jpg')
         w = img.width
         h = img.height
-        img.save(path + '/' + number + '.png')
-
+        img.save(path + '/' + naming_rule + '.png')
 def pasteFileToFolder(filepath, path): #文件路径，番号，后缀，要移动至的位置
     houzhui = str(re.search('[.](AVI|RMVB|WMV|MOV|MP4|MKV|FLV|avi|rmvb|wmv|mov|mp4|mkv|flv)$', filepath).group())
-    os.rename(filepath, number + houzhui)
-    shutil.move(number + houzhui, path)
+    os.rename(filepath, naming_rule + houzhui)
+    shutil.move(naming_rule + houzhui, path)
 
 if __name__ == '__main__':
     filepath=argparse_get_file() #影片的路径
