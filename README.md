@@ -24,23 +24,23 @@ release的程序可脱离python环境运行，可跳过第一步<br>
 ```python
 pip install requests
 ```
-<br>
+###
 ```python
 pip install pyquery
 ```
-<br>
+###
 ```python
 pip install lxml
 ```
-<br>
+###
 ```python
 pip install Beautifulsoup4
 ```
-<br>
+###
 ```python
 pip install pillow
 ```
-<br>
+###
 
 ## 2. 设置proxy.ini
 #### 1.针对网络审查国家或地区
