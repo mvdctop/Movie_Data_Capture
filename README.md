@@ -5,6 +5,7 @@
 &emsp;&emsp;目前，我下的AV越来越多，也意味着AV要集中地管理，形成媒体库。现在有两款主流的AV元数据获取器，"EverAver"和"Javhelper"。前者的优点是元数据获取比较全，缺点是不能批量处理；后者优点是可以批量处理，但是元数据不够全。<br>
 &emsp;&emsp;为此，综合上述软件特点，我写出了本软件，为了方便的管理本地AV，和更好的手冲体验。没女朋友怎么办ʅ(‾◡◝)ʃ 
 
+**可以结合pockies大神的[博客](https://pockies.github.io/2019/03/25/everaver-emby-kodi/)看本文档
 **tg官方电报群:https://t.me/AV_Data_Capture_Official**<br>
 **推荐用法:按照说明使用该软件后，对于不能正常获取元数据的电影可以用[Everaver](http://everaver.blogspot.com/)来补救**
 
