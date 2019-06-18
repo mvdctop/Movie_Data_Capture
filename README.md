@@ -4,7 +4,7 @@
 
 **可以结合pockies大神的[ 打造本地AV（毛片）媒体库 ](https://pockies.github.io/2019/03/25/everaver-emby-kodi/)看本文档**<br>
 **tg官方电报群:[ 点击进群](https://t.me/AV_Data_Capture_Official)**<br>
-**推荐用法:按照说明使用该软件后，对于不能正常获取元数据的电影可以用[ Everaver ](http://everaver.blogspot.com/)来补救**<br>
+**推荐用法: 按照[ 使用说明 ]使用该软件后，对于不能正常获取元数据的电影可以用[ Everaver ](http://everaver.blogspot.com/)来补救**<br>
 ![](https://i.loli.net/2019/06/02/5cf2b5d0bbecf69019.png)
 
 # 如何使用
