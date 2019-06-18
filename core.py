@@ -107,9 +107,9 @@ def getNumberFromFilename(filepath):
         except: #添加 无需 正则表达式的规则
             # ====================fc2fans_club.py===================
             if 'fc2' in filename:
-                json_data = json.loads(fc2fans_club.main(file_number))
+                json_data = json.loads(fc2fans_club.main(file_number.strip('fc2_').strip('fc2-')))
             elif 'FC2' in filename:
-                json_data = json.loads(fc2fans_club.main(file_number))
+                json_data = json.loads(fc2fans_club.main(file_number.strip('FC2_').strip('FC2-')))
 
             #========================siro.py========================
             elif 'siro' in filename:
