@@ -7,7 +7,8 @@ def getTitle(htmlcode): #获取厂商
     #print(htmlcode)
     html = etree.fromstring(htmlcode,etree.HTMLParser())
     result = str(html.xpath('/html/body/div[2]/div/div[1]/h3/text()')).strip(" ['']")
-    return result
+    result2 = str(re.sub('\D{2}2-\d+','',result)).replace(' ','',1)
+    return result2
 def getStudio(htmlcode): #获取厂商
     html = etree.fromstring(htmlcode,etree.HTMLParser())
     result = str(html.xpath('/html/body/div[2]/div/div[1]/h5[3]/a[1]/text()')).strip(" ['']")
