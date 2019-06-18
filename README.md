@@ -37,11 +37,12 @@ pip install pillow
 #### 1.针对网络审查国家或地区
 
 打开```proxy.ini```,在```[proxy]```下的```proxy```行设置本地代理地址和端口，支持Shadowsocks/R,V2RAY本地代理端口:<br>
-例子:```proxy=127.0.0.1:1080```
+例子:```proxy=127.0.0.1:1080```<br>
+**如果遇到tineout错误，可以把文件的proxy=后面的地址和端口删除，并开启vpn全局模式，或者重启电脑，vpn，网卡**
 
 #### 2.设置自定义目录和影片重命名规则
 
-**目前可以提取元素的影片:JAVBUS上有元数据的电影，素人系列:300Maan,326scp,326urf,259luxu,siro系列,FC2系列(不推荐)**<br>
+**目前可以提取元素的影片:JAVBUS上有元数据的电影，素人系列:300Maan,326scp,326urf,259luxu,siro系列,FC2系列**<br>
 ##### 命名参数<br>
 >title = 片名<br>
 >actor = 演员<br>
