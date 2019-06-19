@@ -10,6 +10,7 @@
 # 如何使用
 release的程序可脱离python环境运行，可跳过第一步<br>
 下载地址(Windows):https://github.com/wenead99/AV_Data_Capture/releases
+**简要教程:<br>1.把软件拉到和电影的同一目录<br>2.设置ini文件的代理<br>3.运行软件等待完成<br>4.把JAV_output导入至KODI,EMBY中。<br>详细请看以下教程
 
 ## 1.请安装模块,在CMD/终端逐条输入以下命令安装
 ```python
