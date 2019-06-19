@@ -33,16 +33,15 @@ pip install pillow
 ```
 ###
 
-## 2. 设置proxy.ini
+## 2. 配置
 #### 1.针对网络审查国家或地区
 
 打开```proxy.ini```,在```[proxy]```下的```proxy```行设置本地代理地址和端口，支持Shadowsocks/R,V2RAY本地代理端口:<br>
 例子:```proxy=127.0.0.1:1080```<br>
 **如果遇到tineout错误，可以把文件的proxy=后面的地址和端口删除，并开启vpn全局模式，或者重启电脑，vpn，网卡**
 
-#### 2.设置自定义目录和影片重命名规则
-
-**目前可以提取元素的影片:JAVBUS上有元数据的电影，素人系列:300Maan,326scp,326urf,259luxu,siro系列,FC2系列**<br>
+#### 2.（可选）设置自定义目录和影片重命名规则
+**已有默认配置**<br>
 ##### 命名参数<br>
 >title = 片名<br>
 >actor = 演员<br>
@@ -60,8 +59,8 @@ pip install pillow
 >影片命名（上面目录之下的文件）:'['+number+']-'+title
 
 ## 3. 关于番号提取失败或者异常
->下一张图片来自Pockies的blog:https://pockies.github.io/2019/03/25/everaver-emby-kodi/ 原作者已授权
-
+>下一张图片来自Pockies的blog:https://pockies.github.io/2019/03/25/everaver-emby-kodi/ 原作者已授权<br>
+**目前可以提取元素的影片:JAVBUS上有元数据的电影，素人系列:300Maan,326scp,326urf,259luxu,siro系列,FC2系列**<br>
 ![](https://raw.githubusercontent.com/Pockies/pic/master/741f9461gy1g1cxc31t41j20i804zdgo.jpg)
 
 目前作者已经完善了番号提取机制，功能较为强大，可提取上述文件名的的番号，如果出现提取失败或者异常的情况，请用以下规则命名<br>
