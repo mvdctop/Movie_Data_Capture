@@ -9,14 +9,7 @@ from bs4 import BeautifulSoup#need install
 from PIL import Image#need install
 import time
 import json
-
-def get_html(url):#网页请求核心
-    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36'}
-    getweb = requests.get(str(url),timeout=10,headers=headers).text
-    try:
-        return getweb
-    except:
-        print("[-]Connect Failed! Please check your Proxy.")
+from ADC_function import *
 
 def getTitle(htmlcode):  #获取标题
     doc = pq(htmlcode)
@@ -34,7 +27,6 @@ def getCover(htmlcode):  #获取封面链接
     doc = pq(htmlcode)
     image = doc('a.bigImage')
     return image.attr('href')
-    print(image.attr('href'))
 def getRelease(htmlcode): #获取出版日期
     html = etree.fromstring(htmlcode, etree.HTMLParser())
     result = str(html.xpath('/html/body/div[5]/div[1]/div[2]/p[2]/text()')).strip(" ['']")
@@ -62,8 +54,10 @@ def getOutline(htmlcode):  #获取演员
     doc = pq(htmlcode)
     result = str(doc('tr td div.mg-b20.lh4 p.mg-b20').text())
     return result
-
-
+def getSerise(htmlcode):
+    html = etree.fromstring(htmlcode, etree.HTMLParser())
+    result = str(html.xpath('/html/body/div[5]/div[1]/div[2]/p[7]/a/text()')).strip(" ['']")
+    return result
 def getTag(htmlcode):  # 获取演员
     tag = []
     soup = BeautifulSoup(htmlcode, 'lxml')
@@ -79,7 +73,7 @@ def main(number):
     htmlcode=get_html('https://www.javbus.com/'+number)
     dww_htmlcode=get_html("https://www.dmm.co.jp/mono/dvd/-/detail/=/cid=" + number.replace("-", ''))
     dic = {
-        'title':    getTitle(htmlcode),
+        'title':    str(re.sub('\w+-\d+-','',getTitle(htmlcode))),
         'studio':   getStudio(htmlcode),
         'year':     str(re.search('\d{4}',getYear(htmlcode)).group()),
         'outline':  getOutline(dww_htmlcode),
@@ -90,7 +84,8 @@ def main(number):
         'number':   getNum(htmlcode),
         'cover':    getCover(htmlcode),
         'imagecut': 1,
-        'tag':      getTag(htmlcode)
+        'tag':      getTag(htmlcode),
+        'label':   getSerise(htmlcode),
     }
     js = json.dumps(dic, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ':'),)#.encode('UTF-8')
 
@@ -98,7 +93,7 @@ def main(number):
         htmlcode = get_html('https://www.javbus.com/' + number)
         dww_htmlcode = get_html("https://www.dmm.co.jp/mono/dvd/-/detail/=/cid=" + number.replace("-", ''))
         dic = {
-            'title': getTitle(htmlcode),
+            'title': str(re.sub('\w+-\d+-','',getTitle(htmlcode))),
             'studio': getStudio(htmlcode),
             'year': getYear(htmlcode),
             'outline': getOutline(dww_htmlcode),
@@ -109,7 +104,8 @@ def main(number):
             'number': getNum(htmlcode),
             'cover': getCover(htmlcode),
             'imagecut': 1,
-            'tag': getTag(htmlcode)
+            'tag': getTag(htmlcode),
+            'label':   getSerise(htmlcode),
         }
         js2 = json.dumps(dic, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ':'), )  # .encode('UTF-8')
         return js2
@@ -118,11 +114,12 @@ def main(number):
 
 def main_uncensored(number):
     htmlcode = get_html('https://www.javbus.com/' + number)
+    dww_htmlcode = get_html("https://www.dmm.co.jp/mono/dvd/-/detail/=/cid=" + number.replace("-", ''))
     dic = {
-        'title': getTitle(htmlcode),
+        'title': str(re.sub('\w+-\d+-','',getTitle(htmlcode))),
         'studio': getStudio(htmlcode),
         'year': getYear(htmlcode),
-        'outline': getOutline(htmlcode),
+        'outline': getOutline(dww_htmlcode),
         'runtime': getRuntime(htmlcode),
         'director': getDirector(htmlcode),
         'actor': getActor(htmlcode),
@@ -130,6 +127,7 @@ def main_uncensored(number):
         'number': getNum(htmlcode),
         'cover': getCover(htmlcode),
         'tag': getTag(htmlcode),
+        'label': getSerise(htmlcode),
         'imagecut': 0,
     }
     js = json.dumps(dic, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ':'), )  # .encode('UTF-8')
@@ -138,7 +136,7 @@ def main_uncensored(number):
         number2 = number.replace('-', '_')
         htmlcode = get_html('https://www.javbus.com/' + number2)
         dic2 = {
-            'title': getTitle(htmlcode),
+            'title': str(re.sub('\w+-\d+-','',getTitle(htmlcode))),
             'studio': getStudio(htmlcode),
             'year': getYear(htmlcode),
             'outline': '',
@@ -149,6 +147,7 @@ def main_uncensored(number):
             'number': getNum(htmlcode),
             'cover': getCover(htmlcode),
             'tag': getTag(htmlcode),
+            'label':getSerise(htmlcode),
             'imagecut': 0,
         }
         js2 = json.dumps(dic2, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ':'), )  # .encode('UTF-8')

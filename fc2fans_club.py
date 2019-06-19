@@ -38,8 +38,8 @@ def getOutline(htmlcode,number):     #获取番号
 #     result = str(html.xpath('//*[@id="container"]/div[1]/div/article/section[4]/p/text()')).replace("\\n",'',10000).strip(" ['']").replace("'",'',10000)
 #     return result
 
-def main(number):
-    str(number).lstrip("FC2-").lstrip("fc2-").lstrip("fc2_").lstrip("fc2-")
+def main(number2):
+    number=number2.replace('PPV','').replace('ppv','')
     htmlcode = ADC_function.get_html('http://fc2fans.club/html/FC2-' + number + '.html')
     dic = {
         'title': getTitle(htmlcode),

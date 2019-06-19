@@ -1,8 +1,15 @@
 import requests
-from configparser import ConfigParser
+from configparser import RawConfigParser
 import os
+import re
 
-config = ConfigParser()
+# content = open('proxy.ini').read()
+# content = re.sub(r"\xfe\xff","", content)
+# content = re.sub(r"\xff\xfe","", content)
+# content = re.sub(r"\xef\xbb\xbf","", content)
+# open('BaseConfig.cfg', 'w').write(content)
+
+config = RawConfigParser()
 if os.path.exists('proxy.ini'):
     config.read('proxy.ini', encoding='UTF-8')
 else:
@@ -10,14 +17,14 @@ else:
         print("[proxy]",file=code)
         print("proxy=127.0.0.1:1080",file=code)
 
-def get_html(url):#网页请求核心
+def get_html(url,cookies = None):#网页请求核心
     if not str(config['proxy']['proxy']) == '':
         proxies = {
             "http" : "http://"  + str(config['proxy']['proxy']),
             "https": "https://" + str(config['proxy']['proxy'])
         }
         headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3100.0 Safari/537.36'}
-        getweb = requests.get(str(url), headers=headers, proxies=proxies)
+        getweb = requests.get(str(url), headers=headers, proxies=proxies,cookies=cookies)
         getweb.encoding = 'utf-8'
         # print(getweb.text)
         try:
@@ -27,7 +34,7 @@ def get_html(url):#网页请求核心
     else:
         headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36'}
-        getweb = requests.get(str(url),  headers=headers)
+        getweb = requests.get(str(url),  headers=headers,cookies=cookies)
         getweb.encoding = 'utf-8'
         try:
             return getweb.text

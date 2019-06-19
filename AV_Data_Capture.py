@@ -19,8 +19,10 @@ def movie_lists():
     f2 = glob.glob(os.getcwd() + r"\*.mkv")
     # FLV
     g2 = glob.glob(os.getcwd() + r"\*.flv")
+    # TS
+    h2 = glob.glob(os.getcwd() + r"\*.ts")
 
-    total = a2+b2+c2+d2+e2+f2+g2
+    total = a2+b2+c2+d2+e2+f2+g2+h2
     return total
 
 def lists_from_test(custom_nuber): #电影列表

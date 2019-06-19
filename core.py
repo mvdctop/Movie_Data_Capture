@@ -299,7 +299,7 @@ def cutImage():
         h = img.height
         img.save(path + '/' + naming_rule + '.png')
 def pasteFileToFolder(filepath, path): #文件路径，番号，后缀，要移动至的位置
-    houzhui = str(re.search('[.](AVI|RMVB|WMV|MOV|MP4|MKV|FLV|avi|rmvb|wmv|mov|mp4|mkv|flv)$', filepath).group())
+    houzhui = str(re.search('[.](AVI|RMVB|WMV|MOV|MP4|MKV|FLV|TS|avi|rmvb|wmv|mov|mp4|mkv|flv|ts)$', filepath).group())
     os.rename(filepath, naming_rule + houzhui)
     shutil.move(naming_rule + houzhui, path)
 
