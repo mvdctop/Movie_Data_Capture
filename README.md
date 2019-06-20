@@ -61,7 +61,7 @@ pip install pillow
 >影片命名（上面目录之下的文件）:'['+number+']-'+title
 
 ## 3. 关于番号提取失败或者异常
-**目前可以提取元素的影片:JAVBUS上有元数据的电影，素人系列(需要日本代理):300Maan,326scp,326urf,259luxu,siro,FC2系列**<br>
+**目前可以提取元素的影片:JAVBUS上有元数据的电影，素人系列(需要日本代理):300Maan,259luxu,siro等,FC2系列**<br>
 >下一张图片来自Pockies的blog:https://pockies.github.io/2019/03/25/everaver-emby-kodi/ 原作者已授权<br>
 
 ![](https://raw.githubusercontent.com/Pockies/pic/master/741f9461gy1g1cxc31t41j20i804zdgo.jpg)
