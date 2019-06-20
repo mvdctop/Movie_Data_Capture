@@ -3,6 +3,20 @@ import os
 import time
 import re
 import sys
+from ADC_function import *
+import json
+
+version='0.10.3'
+
+def UpdateCheck():
+    html2 = get_html('https://raw.githubusercontent.com/wenead99/AV_Data_Capture/master/update_check.json')
+    html = json.loads(str(html2))
+
+    if not version == html['version']:
+        print('[*]        * New update '+html['version']+' *')
+        print('[*]             * Download *')
+        print('[*] '+html['download'])
+        print('[*]=====================================')
 
 def movie_lists():
     #MP4
@@ -48,6 +62,10 @@ def rreplace(self, old, new, *max):
     return new.join(self.rsplit(old, count))
 
 if __name__ =='__main__':
+    print('[*]===========AV Data Capture===========')
+    print('[*]           Version '+version)
+    print('[*]=====================================')
+    UpdateCheck()
     os.chdir(os.getcwd())
     for i in movie_lists(): #遍历电影列表 交给core处理
         if '_' in i:

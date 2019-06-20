@@ -8,6 +8,7 @@ def getTitle(htmlcode): #获取厂商
     html = etree.fromstring(htmlcode,etree.HTMLParser())
     result = str(html.xpath('/html/body/div[2]/div/div[1]/h3/text()')).strip(" ['']")
     result2 = str(re.sub('\D{2}2-\d+','',result)).replace(' ','',1)
+    #print(result2)
     return result2
 def getStudio(htmlcode): #获取厂商
     html = etree.fromstring(htmlcode,etree.HTMLParser())
@@ -16,6 +17,7 @@ def getStudio(htmlcode): #获取厂商
 def getNum(htmlcode):     #获取番号
     html = etree.fromstring(htmlcode, etree.HTMLParser())
     result = str(html.xpath('/html/body/div[5]/div[1]/div[2]/p[1]/span[2]/text()')).strip(" ['']")
+    #print(result)
     return result
 def getRelease(number):
     a=ADC_function.get_html('http://adult.contents.fc2.com/article_search.php?id='+str(number).lstrip("FC2-").lstrip("fc2-").lstrip("fc2_").lstrip("fc2-")+'&utm_source=aff_php&utm_medium=source_code&utm_campaign=from_aff_php')
@@ -55,6 +57,8 @@ def main(number2):
         'imagecut': 0,
         'tag':" ",
     }
+    #print(getTitle(htmlcode))
+    #print(getNum(htmlcode))
     js = json.dumps(dic, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ':'),)#.encode('UTF-8')
     return js
 

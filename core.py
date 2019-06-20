@@ -107,32 +107,10 @@ def getNumberFromFilename(filepath):
         except: #添加 无需 正则表达式的规则
             # ====================fc2fans_club.py===================
             if 'fc2' in filename:
-                json_data = json.loads(fc2fans_club.main(file_number.strip('fc2_').strip('fc2-')))
+                json_data = json.loads(fc2fans_club.main(file_number.strip('fc2_').strip('fc2-').strip('ppv-').strip('PPV-')))
             elif 'FC2' in filename:
-                json_data = json.loads(fc2fans_club.main(file_number.strip('FC2_').strip('FC2-')))
-
-            #========================siro.py========================
-            elif 'siro' in filename:
-                json_data = json.loads(siro.main(file_number))
-            elif 'SIRO' in filename:
-                json_data = json.loads(siro.main(file_number))
-            elif '259luxu' in filename:
-                json_data = json.loads(siro.main(file_number))
-            elif '259LUXU' in filename:
-                json_data = json.loads(siro.main(file_number))
-            elif '300MAAN' in filename:
-                json_data = json.loads(siro.main(file_number))
-            elif '300maan' in filename:
-                json_data = json.loads(siro.main(file_number))
-            elif '326SCP' in filename:
-                json_data = json.loads(siro.main(file_number))
-            elif '326scp' in filename:
-                json_data = json.loads(siro.main(file_number))
-            elif '326URF' in filename:
-                json_data = json.loads(siro.main(file_number))
-            elif '326urf' in filename:
-                json_data = json.loads(siro.main(file_number))
-
+                json_data = json.loads(fc2fans_club.main(file_number.strip('FC2_').strip('FC2-').strip('ppv-').strip('PPV-')))
+                #print(file_number.strip('FC2_').strip('FC2-').strip('ppv-').strip('PPV-'))
             #=======================javbus.py=======================
             else:
                 json_data = json.loads(javbus.main(file_number))

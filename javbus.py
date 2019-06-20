@@ -10,6 +10,7 @@ from PIL import Image#need install
 import time
 import json
 from ADC_function import *
+import siro
 
 def getTitle(htmlcode):  #获取标题
     doc = pq(htmlcode)
@@ -70,32 +71,13 @@ def getTag(htmlcode):  # 获取演员
 
 
 def main(number):
-    htmlcode=get_html('https://www.javbus.com/'+number)
-    dww_htmlcode=get_html("https://www.dmm.co.jp/mono/dvd/-/detail/=/cid=" + number.replace("-", ''))
-    dic = {
-        'title':    str(re.sub('\w+-\d+-','',getTitle(htmlcode))),
-        'studio':   getStudio(htmlcode),
-        'year':     str(re.search('\d{4}',getYear(htmlcode)).group()),
-        'outline':  getOutline(dww_htmlcode),
-        'runtime':  getRuntime(htmlcode),
-        'director': getDirector(htmlcode),
-        'actor':    getActor(htmlcode),
-        'release':  getRelease(htmlcode),
-        'number':   getNum(htmlcode),
-        'cover':    getCover(htmlcode),
-        'imagecut': 1,
-        'tag':      getTag(htmlcode),
-        'label':   getSerise(htmlcode),
-    }
-    js = json.dumps(dic, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ':'),)#.encode('UTF-8')
-
-    if 'HEYZO' in number or 'heyzo' in number or 'Heyzo' in number:
+    try:
         htmlcode = get_html('https://www.javbus.com/' + number)
         dww_htmlcode = get_html("https://www.dmm.co.jp/mono/dvd/-/detail/=/cid=" + number.replace("-", ''))
         dic = {
-            'title': str(re.sub('\w+-\d+-','',getTitle(htmlcode))),
+            'title': str(re.sub('\w+-\d+-', '', getTitle(htmlcode))),
             'studio': getStudio(htmlcode),
-            'year': getYear(htmlcode),
+            'year': str(re.search('\d{4}', getYear(htmlcode)).group()),
             'outline': getOutline(dww_htmlcode),
             'runtime': getRuntime(htmlcode),
             'director': getDirector(htmlcode),
@@ -105,12 +87,35 @@ def main(number):
             'cover': getCover(htmlcode),
             'imagecut': 1,
             'tag': getTag(htmlcode),
-            'label':   getSerise(htmlcode),
+            'label': getSerise(htmlcode),
         }
-        js2 = json.dumps(dic, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ':'), )  # .encode('UTF-8')
-        return js2
+        js = json.dumps(dic, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ':'), )  # .encode('UTF-8')
 
-    return js
+        if 'HEYZO' in number or 'heyzo' in number or 'Heyzo' in number:
+            htmlcode = get_html('https://www.javbus.com/' + number)
+            dww_htmlcode = get_html("https://www.dmm.co.jp/mono/dvd/-/detail/=/cid=" + number.replace("-", ''))
+            dic = {
+                'title': str(re.sub('\w+-\d+-', '', getTitle(htmlcode))),
+                'studio': getStudio(htmlcode),
+                'year': getYear(htmlcode),
+                'outline': getOutline(dww_htmlcode),
+                'runtime': getRuntime(htmlcode),
+                'director': getDirector(htmlcode),
+                'actor': getActor(htmlcode),
+                'release': getRelease(htmlcode),
+                'number': getNum(htmlcode),
+                'cover': getCover(htmlcode),
+                'imagecut': 1,
+                'tag': getTag(htmlcode),
+                'label': getSerise(htmlcode),
+            }
+            js2 = json.dumps(dic, ensure_ascii=False, sort_keys=True, indent=4,
+                             separators=(',', ':'), )  # .encode('UTF-8')
+            return js2
+        return js
+    except:
+        a=siro.main(number)
+        return a
 
 def main_uncensored(number):
     htmlcode = get_html('https://www.javbus.com/' + number)
@@ -154,6 +159,8 @@ def main_uncensored(number):
         return js2
 
     return js
+
+#print(main('SIRO-3821'))
 
 
 # def return1():
