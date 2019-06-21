@@ -6,7 +6,7 @@ import sys
 from ADC_function import *
 import json
 
-version='0.10.4'
+version='0.10.5'
 
 def UpdateCheck():
     html2 = get_html('https://raw.githubusercontent.com/wenead99/AV_Data_Capture/master/update_check.json')
@@ -71,8 +71,8 @@ if __name__ =='__main__':
         if '_' in i:
             os.rename(re.search(r'[^\\/:*?"<>|\r\n]+$', i).group(), rreplace(re.search(r'[^\\/:*?"<>|\r\n]+$', i).group(), '_', '-', 1))
             i = rreplace(re.search(r'[^\\/:*?"<>|\r\n]+$', i).group(), '_', '-', 1)
-        os.system('python core.py' + ' "' + i + '"') #选择从py文件启动  （用于源码py）
-        #os.system('core.exe' + ' "' + i + '"')      #选择从exe文件启动（用于EXE版程序）
+        #os.system('python core.py' + ' "' + i + '"') #选择从py文件启动  （用于源码py）
+        os.system('core.exe' + ' "' + i + '"')      #选择从exe文件启动（用于EXE版程序）
         print("[*]=====================================")
 
     print("[!]Cleaning empty folders")
