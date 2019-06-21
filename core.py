@@ -204,13 +204,13 @@ def DownloadFileWithFilename(url,filename,path): #path = examle:photo , video.in
             print("[-]Download Failed2!")
             time.sleep(3)
             os._exit(0)
-def PrintFiles(path):
+def PrintFiles(path,naming_rule):
     try:
         if not os.path.exists(path):
             os.makedirs(path)
         with open(path + "/" + naming_rule + ".nfo", "wt", encoding='UTF-8') as code:
             print("<movie>", file=code)
-            print(" <title>" + title + "</title>", file=code)
+            print(" <title>" + naming_rule + "</title>", file=code)
             print("  <set>", file=code)
             print("  </set>", file=code)
             print("  <studio>" + studio + "+</studio>", file=code)
@@ -255,15 +255,15 @@ def PrintFiles(path):
         print(e1)
         print("[-]Write Failed!")
 def imageDownload(filepath): #封面是否下载成功，否则移动到failed
-    if DownloadFileWithFilename(cover,naming_rule+ '.jpg', path) == 'failed':
+    if DownloadFileWithFilename(cover,'Backdrop.jpg', path) == 'failed':
         shutil.move(filepath, 'failed/')
         os._exit(0)
-    DownloadFileWithFilename(cover, naming_rule + '.jpg', path)
-    print('[+]Image Downloaded!', path +'/'+naming_rule+'.jpg')
+    DownloadFileWithFilename(cover, 'Backdrop.jpg', path)
+    print('[+]Image Downloaded!', path +'/'+'Backdrop.jpg')
 def cutImage():
     if imagecut == 1:
         try:
-            img = Image.open(path + '/' + naming_rule + '.jpg')
+            img = Image.open(path + '/' + 'Backdrop' + '.jpg')
             imgSize = img.size
             w = img.width
             h = img.height
@@ -272,7 +272,7 @@ def cutImage():
         except:
             print('[-]Cover cut failed!')
     else:
-        img = Image.open(path + '/' + naming_rule + '.jpg')
+        img = Image.open(path + '/' + 'Backdrop' + '.jpg')
         w = img.width
         h = img.height
         img.save(path + '/' + naming_rule + '.png')
@@ -287,6 +287,6 @@ if __name__ == '__main__':
     getNumberFromFilename(filepath) #定义番号
     creatFolder() #创建文件夹
     imageDownload(filepath) #creatFoder会返回番号路径
-    PrintFiles(path)#打印文件
+    PrintFiles(path,naming_rule)#打印文件
     cutImage() #裁剪图
     pasteFileToFolder(filepath,path) #移动文件

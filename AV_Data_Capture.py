@@ -6,7 +6,7 @@ import sys
 from ADC_function import *
 import json
 
-version='0.10.3'
+version='0.10.4'
 
 def UpdateCheck():
     html2 = get_html('https://raw.githubusercontent.com/wenead99/AV_Data_Capture/master/update_check.json')

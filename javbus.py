@@ -15,7 +15,11 @@ import siro
 def getTitle(htmlcode):  #获取标题
     doc = pq(htmlcode)
     title=str(doc('div.container h3').text()).replace(' ','-')
-    return title
+    try:
+        title2 = re.sub('n\d+-','',title)
+        return title2
+    except:
+        return title
 def getStudio(htmlcode): #获取厂商
     html = etree.fromstring(htmlcode,etree.HTMLParser())
     result = str(html.xpath('/html/body/div[5]/div[1]/div[2]/p[5]/a/text()')).strip(" ['']")
@@ -121,7 +125,7 @@ def main_uncensored(number):
     htmlcode = get_html('https://www.javbus.com/' + number)
     dww_htmlcode = get_html("https://www.dmm.co.jp/mono/dvd/-/detail/=/cid=" + number.replace("-", ''))
     dic = {
-        'title': str(re.sub('\w+-\d+-','',getTitle(htmlcode))),
+        'title': str(re.sub('\w+-\d+-','',getTitle(htmlcode))).replace(getNum(htmlcode)+'-',''),
         'studio': getStudio(htmlcode),
         'year': getYear(htmlcode),
         'outline': getOutline(dww_htmlcode),
@@ -141,7 +145,7 @@ def main_uncensored(number):
         number2 = number.replace('-', '_')
         htmlcode = get_html('https://www.javbus.com/' + number2)
         dic2 = {
-            'title': str(re.sub('\w+-\d+-','',getTitle(htmlcode))),
+            'title': str(re.sub('\w+-\d+-','',getTitle(htmlcode))).replace(getNum(htmlcode)+'-',''),
             'studio': getStudio(htmlcode),
             'year': getYear(htmlcode),
             'outline': '',
