@@ -164,8 +164,6 @@ def main_uncensored(number):
 
     return js
 
-#print(main('SIRO-3821'))
-
 
 # def return1():
 #     json_data=json.loads(main('ipx-292'))
