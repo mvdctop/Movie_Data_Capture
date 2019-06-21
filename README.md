@@ -19,7 +19,8 @@
 
 **可以结合pockies大神的[ 打造本地AV（毛片）媒体库 ](https://pockies.github.io/2019/03/25/everaver-emby-kodi/)看本文档**<br>
 **tg官方电报群:[ 点击进群](https://t.me/AV_Data_Capture_Official)**<br>
-**推荐用法: 按照 [如何使用](#如何使用) 使用该软件后，对于不能正常获取元数据的电影可以用[ Everaver ](http://everaver.blogspot.com/)来补救**<br>
+**推荐用法: 使用该软件后，对于不能正常获取元数据的电影可以用[ Everaver ](http://everaver.blogspot.com/)来补救**<br>
+暂不支持多P电影
 ![](https://i.loli.net/2019/06/02/5cf2b5d0bbecf69019.png)
 
 # 捐助二维码
@@ -106,6 +107,7 @@ COSQ-004.mp4
 
 ## 6.软件会自动把元数据获取成功的电影移动到JAV_output文件夹中，根据女优分类，失败的电影移动到failed文件夹中。
 ## 7.把JAV_output文件夹导入到EMBY,KODI中，根据封面选片子，享受手冲乐趣
+cookies大神的EMBY教程:[链接](https://pockies.github.io/2019/03/25/everaver-emby-kodi/#%E5%AE%89%E8%A3%85emby%E5%B9%B6%E6%B7%BB%E5%8A%A0%E5%AA%92%E4%BD%93%E5%BA%93)
 ## 8.输出的文件如下
 ![](https://i.loli.net/2019/06/02/5cf2b5cfd1b0226763.png)
 ![](https://i.loli.net/2019/06/02/5cf2b5cfd1b0246492.png)
