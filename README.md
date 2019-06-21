@@ -11,11 +11,14 @@
 * [异常处理](#5关于番号提取失败或者异常)
 * [导入至EMBY](#7把jav_output文件夹导入到embykodi中根据封面选片子享受手冲乐趣)
 * [输出文件示例](#8输出的文件如下)
-* [软件流程图](#软件流程图)
+* [写在后面](#9写在后面)
+* [软件流程图](#10软件流程图)
 * []()
 # 前言
 &emsp;&emsp;目前，我下的AV越来越多，也意味着AV要集中地管理，形成媒体库。现在有两款主流的AV元数据获取器，"EverAver"和"Javhelper"。前者的优点是元数据获取比较全，缺点是不能批量处理；后者优点是可以批量处理，但是元数据不够全。<br>
 &emsp;&emsp;为此，综合上述软件特点，我写出了本软件，为了方便的管理本地AV，和更好的手冲体验。
+&emsp;&emsp;希望大家可以认真耐心地看完本文档，你的耐心换来的是完美的管理方式。
+&emsp;&emsp;本软件更新可能比较**频繁**，麻烦诸位用户**积极更新新版本**以获得**最佳体验**。
 
 **可以结合pockies大神的[ 打造本地AV（毛片）媒体库 ](https://pockies.github.io/2019/03/25/everaver-emby-kodi/)看本文档**<br>
 **tg官方电报群:[ 点击进群](https://t.me/AV_Data_Capture_Official)**<br>
@@ -34,7 +37,7 @@
 4.该软件禁止任何商用行为<br>
 
 # 如何使用
-release的程序可脱离python环境运行，可跳过第一步<br>
+**release的程序可脱离python环境运行，可跳过第一步**<br>
 下载地址(仅限Windows):https://github.com/wenead99/AV_Data_Capture/releases
 ### 简要教程:<br>
 **1.把软件拉到和电影的同一目录<br>2.设置ini文件的代理（路由器拥有自动代理功能的可以把proxy=后面内容去掉）<br>3.运行软件等待完成<br>4.把JAV_output导入至KODI,EMBY中。<br>详细请看以下教程**
@@ -112,8 +115,9 @@ cookies大神的EMBY教程:[链接](https://pockies.github.io/2019/03/25/everave
 ![](https://i.loli.net/2019/06/02/5cf2b5cfd1b0226763.png)
 ![](https://i.loli.net/2019/06/02/5cf2b5cfd1b0246492.png)
 ![](https://i.loli.net/2019/06/02/5cf2b5d009e4930666.png)
-
-## 软件流程图
+## 9.写在后面
+怎么样，看着自己的AV被这样完美地管理，是不是感觉成就感爆棚呢?
+## 10.软件流程图
 ![](https://i.loli.net/2019/06/02/5cf2bb9a9e2d997635.png)
 
 
