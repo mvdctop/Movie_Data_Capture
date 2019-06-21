@@ -76,8 +76,8 @@ def getNumberFromFilename(filepath):
                 filename0 = str(re.sub(".*?\.com-\d+", "", filename1))
                 file_number2 = str(re.match('\w+', filename0).group())
                 file_number = str(file_number2.replace(re.match("^[A-Za-z]+", file_number2).group(),re.match("^[A-Za-z]+", file_number2).group() + '-'))
-                if not re.search('\w-', file_number).group() == 'None':
-                    file_number = re.search('\w+-\w+', filename).group()
+                #if not re.search('\w-', file_number).group() == 'None':
+                    #file_number = re.search('\w+-\w+', filename).group()
                 #上面是插入减号-到番号中
         print("[!]Making Data for   [" + filename + "],the number is [" + file_number + "]")
     # ====番号获取主程序=结束===
