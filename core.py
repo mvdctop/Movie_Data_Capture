@@ -136,6 +136,10 @@ def getNumberFromFilename(filepath):
         tag       = str(json_data['tag']).strip("[ ]").replace("'",'').replace(" ",'').split(',')   #字符串转列表
         actor = str(actor_list).strip("[ ]").replace("'",'').replace(" ",'')
 
+        #====================处理异常字符====================== #\/:*?"<>|
+        #if "\\" in title or "/" in title or ":" in title or "*" in title or "?" in title or '"' in title or '<' in title or ">" in title or "|" in title or len(title) > 200:
+        #    title = title.
+
         naming_rule  = eval(config['Name_Rule']['naming_rule'])
         location_rule =eval(config['Name_Rule']['location_rule'])
     except IOError as e:
@@ -205,10 +209,11 @@ def DownloadFileWithFilename(url,filename,path): #path = examle:photo , video.in
             time.sleep(3)
             os._exit(0)
 def PrintFiles(path,naming_rule):
+    global title
     try:
         if not os.path.exists(path):
             os.makedirs(path)
-        with open(path + "/" + naming_rule + ".nfo", "wt", encoding='UTF-8') as code:
+        with open(path + "/" + number + ".nfo", "wt", encoding='UTF-8') as code:
             print("<movie>", file=code)
             print(" <title>" + naming_rule + "</title>", file=code)
             print("  <set>", file=code)
@@ -247,7 +252,7 @@ def PrintFiles(path,naming_rule):
             print("  <cover>"+cover+"</cover>", file=code)
             print("  <website>" + "https://www.javbus.com/"+number + "</website>", file=code)
             print("</movie>", file=code)
-            print("[+]Writeed!          "+path + "/" + naming_rule + ".nfo")
+            print("[+]Writeed!          "+path + "/" + number + ".nfo")
     except IOError as e:
         print("[-]Write Failed!")
         print(e)
@@ -268,18 +273,18 @@ def cutImage():
             w = img.width
             h = img.height
             img2 = img.crop((w / 1.9, 0, w, h))
-            img2.save(path + '/' + naming_rule + '.png')
+            img2.save(path + '/' + number + '.png')
         except:
             print('[-]Cover cut failed!')
     else:
         img = Image.open(path + '/' + 'Backdrop' + '.jpg')
         w = img.width
         h = img.height
-        img.save(path + '/' + naming_rule + '.png')
+        img.save(path + '/' + number + '.png')
 def pasteFileToFolder(filepath, path): #文件路径，番号，后缀，要移动至的位置
     houzhui = str(re.search('[.](AVI|RMVB|WMV|MOV|MP4|MKV|FLV|TS|avi|rmvb|wmv|mov|mp4|mkv|flv|ts)$', filepath).group())
-    os.rename(filepath, naming_rule + houzhui)
-    shutil.move(naming_rule + houzhui, path)
+    os.rename(filepath, number + houzhui)
+    shutil.move(number + houzhui, path)
 
 if __name__ == '__main__':
     filepath=argparse_get_file() #影片的路径
