@@ -5,6 +5,7 @@
 * [效果图](#效果图)
 * [免责声明](#免责声明)
 * [如何使用](#如何使用)
+* [下载](#下载)
 * [简明教程](#简要教程)
 * [模块安装](#1请安装模块在cmd终端逐条输入以下命令安装)
 * [配置](#2配置proxyini)
@@ -47,8 +48,9 @@
 [回到目录](#目录)
 
 # 如何使用
-**release的程序可脱离python环境运行，可跳过第一步**<br>
-下载地址(仅限Windows):https://github.com/wenead99/AV_Data_Capture/releases
+### 下载
+* release的程序可脱离python环境运行，可跳过第一步<br>下载地址(**仅限Windows**):https://github.com/wenead99/AV_Data_Capture/releases
+* Linux,MacOS请下载源码包运行
 ### 简要教程:<br>
 **1.把软件拉到和电影的同一目录<br>2.设置ini文件的代理（路由器拥有自动代理功能的可以把proxy=后面内容去掉）<br>3.运行软件等待完成<br>4.把JAV_output导入至KODI,EMBY中。<br>详细请看以下教程**<br>
 [回到目录](#目录)
