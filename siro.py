@@ -6,9 +6,12 @@ from bs4 import BeautifulSoup
 from ADC_function import *
 
 def getTitle(a):
-    html = etree.fromstring(a, etree.HTMLParser())
-    result = str(html.xpath('//*[@id="center_column"]/div[2]/h1/text()')).strip(" ['']")
-    return result.replace('/',',')
+    try:
+        html = etree.fromstring(a, etree.HTMLParser())
+        result = str(html.xpath('//*[@id="center_column"]/div[2]/h1/text()')).strip(" ['']")
+        return result.replace('/', ',')
+    except:
+        return ''
 def getActor(a): #//*[@id="center_column"]/div[2]/div[1]/div/table/tbody/tr[1]/td/text()
     html = etree.fromstring(a, etree.HTMLParser()) #//table/tr[1]/td[1]/text()
     result1=str(html.xpath('//th[contains(text(),"出演：")]/../td/a/text()')).strip(" ['']").strip('\\n    ').strip('\\n')
@@ -96,4 +99,4 @@ def main(number2):
     js = json.dumps(dic, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ':'),)#.encode('UTF-8')
     return js
 
-#print(main('200GANA-1624'))
+#print(main('200GANA-1581'))

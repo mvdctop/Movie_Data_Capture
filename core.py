@@ -108,9 +108,9 @@ def getNumberFromFilename(filepath):
         except: #添加 无需 正则表达式的规则
             # ====================fc2fans_club.py===================
             if 'fc2' in filename:
-                json_data = json.loads(fc2fans_club.main(file_number.strip('fc2_').strip('fc2-').strip('ppv-').strip('PPV-')))
+                json_data = json.loads(fc2fans_club.main(file_number.strip('fc2_').strip('fc2-').strip('ppv-').strip('PPV-').strip('FC2_').strip('FC2-').strip('ppv-').strip('PPV-')))
             elif 'FC2' in filename:
-                json_data = json.loads(fc2fans_club.main(file_number.strip('FC2_').strip('FC2-').strip('ppv-').strip('PPV-')))
+                json_data = json.loads(fc2fans_club.main(file_number.strip('FC2_').strip('FC2-').strip('ppv-').strip('PPV-').strip('fc2_').strip('fc2-').strip('ppv-').strip('PPV-')))
                 #print(file_number.strip('FC2_').strip('FC2-').strip('ppv-').strip('PPV-'))
             #=======================javbus.py=======================
             else:
@@ -156,6 +156,7 @@ def getNumberFromFilename(filepath):
         os._exit(0)
 path = '' #设置path为全局变量，后面移动文件要用
 def creatFolder():
+    global actor
     global path
     if len(actor) > 240:                    #新建成功输出文件夹
         path = location_rule.replace("'actor'","'超多人'",3).replace("actor","'超多人'",3) #path为影片+元数据所在目录
@@ -164,7 +165,13 @@ def creatFolder():
         path = location_rule
         #print(path)
     if not os.path.exists(path):
-        os.makedirs(path)
+        try:
+            os.makedirs(path)
+        except:
+            path = location_rule.replace(actor,"'其他'")
+            os.makedirs(path)
+
+
 #=====================资源下载部分===========================
 def DownloadFileWithFilename(url,filename,path): #path = examle:photo , video.in the Project Folder!
     config = ConfigParser()
