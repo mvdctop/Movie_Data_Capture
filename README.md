@@ -4,7 +4,6 @@
 
 ![](https://img.shields.io/badge/build-passing-brightgreen.svg)
 ![](https://img.shields.io/github/downloads/wenead99/av_data_capture/total.svg)
-![](https://img.shields.io/github/downloads/wenead99/av_data_capture/0.16.0/total.svg)
 ![](https://img.shields.io/github/downloads/wenead99/av_data_capture/latest/total.svg)<br>
 ![](https://img.shields.io/github/languages/code-size/wenead99/av_data_capture.svg)
 ![](https://img.shields.io/github/issues/wenead99/av_data_capture.svg)
