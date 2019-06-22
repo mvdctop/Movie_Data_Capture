@@ -55,6 +55,7 @@ def getNumberFromFilename(filepath):
     global cover
     global imagecut
     global tag
+    global image_main
 
     global naming_rule
     global location_rule
@@ -122,19 +123,19 @@ def getNumberFromFilename(filepath):
 
 
 
-        title     = json_data['title']
-        studio    = json_data['studio']
-        year      = json_data['year']
-        outline   = json_data['outline']
-        runtime   = json_data['runtime']
-        director  = json_data['director']
-        actor_list= str(json_data['actor']).strip("[ ]").replace("'",'').replace(" ",'').split(',') #字符串转列表
-        release   = json_data['release']
-        number    = json_data['number']
-        cover     = json_data['cover']
-        imagecut  = json_data['imagecut']
-        tag       = str(json_data['tag']).strip("[ ]").replace("'",'').replace(" ",'').split(',')   #字符串转列表
-        actor = str(actor_list).strip("[ ]").replace("'",'').replace(" ",'')
+        title      = json_data['title']
+        studio     = json_data['studio']
+        year       = json_data['year']
+        outline    = json_data['outline']
+        runtime    = json_data['runtime']
+        director   = json_data['director']
+        actor_list = str(json_data['actor']).strip("[ ]").replace("'",'').replace(" ",'').split(',') #字符串转列表
+        release    = json_data['release']
+        number     = json_data['number']
+        cover      = json_data['cover']
+        imagecut   = json_data['imagecut']
+        tag        = str(json_data['tag']).strip("[ ]").replace("'",'').replace(" ",'').split(',')   #字符串转列表
+        actor      = str(actor_list).strip("[ ]").replace("'",'').replace(" ",'')
 
         #====================处理异常字符====================== #\/:*?"<>|
         #if "\\" in title or "/" in title or ":" in title or "*" in title or "?" in title or '"' in title or '<' in title or ">" in title or "|" in title or len(title) > 200:
