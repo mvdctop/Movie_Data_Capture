@@ -2,6 +2,7 @@
 
 <div align=center>
 ![](https://img.shields.io/badge/build-passing-brightgreen.svg)
+</div>
 ![](https://img.shields.io/badge/AV%20Data%20Capture-Beta%2010.6-blue.svg)
 ![](https://img.shields.io/github/downloads/wenead99/av_data_capture/total.svg)
 ![](https://img.shields.io/github/downloads/wenead99/av_data_capture/0.16.0/total.svg)<br>
@@ -11,7 +12,7 @@
 ![](https://img.shields.io/github/forks/wenead99/av_data_capture.svg?style=social)
 ![](https://img.shields.io/github/stars/wenead99/av_data_capture.svg?style=social)
 ![](https://img.shields.io/github/watchers/wenead99/av_data_capture.svg?style=social)
- </div>
+
 
 
 # 目录
