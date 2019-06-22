@@ -1,4 +1,4 @@
-# <h1 align = "center">AV Data Capture 日本AV元数据刮削器</h1>
+<h1 align = "center">AV Data Capture 日本AV元数据刮削器</h1>
 
 # 目录
 * [前言](#前言)
