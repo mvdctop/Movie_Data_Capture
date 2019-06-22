@@ -100,8 +100,8 @@ pip install pillow
 >outline = 简介<br>
 >runtime = 时长<br>
 ##### **例子**:<br>
->目录结构：location_rule='JAV_output/'+actor+'/'+number **不推荐修改目录结构，抓取数据时新建文件夹容易出错**<br>
->影片命名（上面目录之下的文件）:naming_rule='['+number+']-'+title<br> **在EMBY,KODI等本地媒体库显示的标题**
+>目录结构规则:location_rule='JAV_output/'+actor+'/'+number **不推荐修改目录结构规则，抓取数据时新建文件夹容易出错**<br>
+>影片命名规则:naming_rule='['+number+']-'+title<br> **在EMBY,KODI等本地媒体库显示的标题**
 [回到目录](#目录)
 ## 3.把软件拷贝和AV的统一目录下
 ## 4.运行 ```AV_Data_capture.py/.exe```
