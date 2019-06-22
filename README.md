@@ -1,4 +1,4 @@
-<h1 align = "center">AV Data Capture 日本AV元数据刮削器</h1><br>
+# AV Data Capture 日本AV元数据刮削器
 
 ![](https://img.shields.io/badge/build-passing-brightgreen.svg)
 ![](https://img.shields.io/badge/AV%20Data%20Capture-Beta%2010.6-blue.svg)
