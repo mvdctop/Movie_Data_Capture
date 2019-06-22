@@ -6,7 +6,10 @@
 ![](https://img.shields.io/github/downloads/wenead99/av_data_capture/0.16.0/total.svg)<br>
 ![](https://img.shields.io/github/languages/code-size/wenead99/av_data_capture.svg)
 ![](https://img.shields.io/github/issues/wenead99/av_data_capture.svg)
-![](https://img.shields.io/github/license/wenead99/av_data_capture.svg)
+![](https://img.shields.io/github/license/wenead99/av_data_capture.svg)<br>
+![](https://img.shields.io/github/forks/wenead99/av_data_capture.svg?style=social)
+![](https://img.shields.io/github/stars/wenead99/av_data_capture.svg?style=social)
+![](https://img.shields.io/github/watchers/wenead99/av_data_capture.svg?style=social)
 
 # 目录
 * [前言](#前言)
