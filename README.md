@@ -9,9 +9,9 @@
 ![](https://img.shields.io/github/issues/wenead99/av_data_capture.svg?style=flat-square)
 ![](https://img.shields.io/github/license/wenead99/av_data_capture.svg?style=flat-square)
 ![](https://img.shields.io/github/release/wenead99/av_data_capture.svg?style=flat-square)<br>
-![](https://img.shields.io/github/forks/wenead99/av_data_capture.svg?style=social?style=flat-square)
-![](https://img.shields.io/github/stars/wenead99/av_data_capture.svg?style=social?style=flat-square)
-![](https://img.shields.io/github/watchers/wenead99/av_data_capture.svg?style=social?style=flat-square)
+![](https://img.shields.io/github/forks/wenead99/av_data_capture.svg?style=flat-square)
+![](https://img.shields.io/github/stars/wenead99/av_data_capture.svg?style=flat-square)
+![](https://img.shields.io/github/watchers/wenead99/av_data_capture.svg?style=flat-square)
 
 
 
