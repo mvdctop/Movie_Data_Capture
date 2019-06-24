@@ -37,6 +37,8 @@
 &emsp;&emsp;希望大家可以认真耐心地看完本文档，你的耐心换来的是完美的管理方式。<br>
 &emsp;&emsp;本软件更新可能比较**频繁**，麻烦诸位用户**积极更新新版本**以获得**最佳体验**。
 
+## 注意
+**如果在中国大陆网站，请低调传播本软件或者不传播该软件**
 **可以结合pockies大神的[ 打造本地AV（毛片）媒体库 ](https://pockies.github.io/2019/03/25/everaver-emby-kodi/)看本文档**<br>
 **tg官方电报群:[ 点击进群](https://t.me/AV_Data_Capture_Official)**<br>
 **推荐用法: 使用该软件后，对于不能正常获取元数据的电影可以用[ Everaver ](http://everaver.blogspot.com/)来补救**<br>
