@@ -7,7 +7,7 @@ import ADC_function
 import json
 import shutil
 
-version='0.11.1'
+version='0.11.2'
 os.chdir(os.getcwd())
 
 def UpdateCheck():
@@ -125,7 +125,7 @@ if __name__ =='__main__':
         print('[!] - '+percentage+' ['+str(count)+'/'+count_all+'] -')
         print("[!]Making Data for   [" + i + "],the number is [" + getNumber(i) + "]")
         os.system('python core.py' + '   "' + i + '" --number "'+getNumber(i)+'"') #选择从py文件启动  （用于源码py）
-        #print('core.exe' + '   "' + i + '" --number "'+getNumber(i)+'"')      #选择从exe文件启动（用于EXE版程序
+        #os.system('core.exe' + '   "' + i + '" --number "'+getNumber(i)+'"')      #选择从exe文件启动（用于EXE版程序
         #print()
         print("[*]=====================================")
 
