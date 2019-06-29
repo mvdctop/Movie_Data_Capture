@@ -10,6 +10,8 @@ import fc2fans_club
 import siro
 from ADC_function import *
 from configparser import ConfigParser
+import argparse
+import javdb
 
 #初始化全局变量
 title=''
@@ -25,15 +27,19 @@ number=''
 cover=''
 imagecut=''
 tag=[]
+cn_sub=''
+path=''
+houzhui=''
 naming_rule  =''#eval(config['Name_Rule']['naming_rule'])
 location_rule=''#eval(config['Name_Rule']['location_rule'])
+
 #=====================本地文件处理===========================
 def argparse_get_file():
-    import argparse
     parser = argparse.ArgumentParser()
+    parser.add_argument("--number", help="Enter Number on here", default='')
     parser.add_argument("file", help="Write the file path on here")
     args = parser.parse_args()
-    return args.file
+    return (args.file, args.number)
 def CreatFailedFolder():
     if not os.path.exists('failed/'):  # 新建failed文件夹
         try:
@@ -41,7 +47,7 @@ def CreatFailedFolder():
         except:
             print("[-]failed!can not be make folder 'failed'\n[-](Please run as Administrator)")
             os._exit(0)
-def getNumberFromFilename(filepath):
+def getDataFromJSON(file_number): #从JSON返回元数据
     global title
     global studio
     global year
@@ -56,106 +62,72 @@ def getNumberFromFilename(filepath):
     global imagecut
     global tag
     global image_main
+    global cn_sub
 
     global naming_rule
     global location_rule
 
-#================================================获取文件番号================================================
-    try:    #试图提取番号
-    # ====番号获取主程序====
-        try:  # 普通提取番号 主要处理包含减号-的番号
-            filepath.strip('22-sht.me').strip('-HD').strip('-hd')
-            filename = str(re.sub("\[\d{4}-\d{1,2}-\d{1,2}\] - ", "", filepath))  # 去除文件名中文件名
-            file_number = re.search('\w+-\d+', filename).group()
-        except:  # 提取不含减号-的番号
-            try:  # 提取东京热番号格式 n1087
-                filename1 = str(re.sub("h26\d", "", filepath)).strip('Tokyo-hot').strip('tokyo-hot')
-                filename0 = str(re.sub(".*?\.com-\d+", "", filename1)).strip('_')
-                file_number = str(re.search('n\d{4}', filename0).group(0))
-            except:  # 提取无减号番号
-                filename1 = str(re.sub("h26\d", "", filepath))  # 去除h264/265
-                filename0 = str(re.sub(".*?\.com-\d+", "", filename1))
-                file_number2 = str(re.match('\w+', filename0).group())
-                file_number = str(file_number2.replace(re.match("^[A-Za-z]+", file_number2).group(),re.match("^[A-Za-z]+", file_number2).group() + '-'))
-                #if not re.search('\w-', file_number).group() == 'None':
-                    #file_number = re.search('\w+-\w+', filename).group()
-                #上面是插入减号-到番号中
-        print("[!]Making Data for   [" + filename + "],the number is [" + file_number + "]")
-    # ====番号获取主程序=结束===
-    except Exception as e: #番号提取异常
-        print('[-]'+str(os.path.basename(filepath))+' Cannot catch the number :')
-        print('[-]' + str(os.path.basename(filepath)) + ' :', e)
-        print('[-]Move ' + os.path.basename(filepath) + ' to failed folder')
-        shutil.move(filepath, str(os.getcwd()) + '/' + 'failed/')
-        os._exit(0)
-    except IOError as e2:
-        print('[-]' + str(os.path.basename(filepath)) + ' Cannot catch the number :')
-        print('[-]' + str(os.path.basename(filepath)) + ' :',e2)
-        print('[-]Move ' + os.path.basename(filepath) + ' to failed folder')
-        shutil.move(filepath, str(os.getcwd()) + '/' + 'failed/')
-        os._exit(0)
-    try:
+    try:    # 添加 需要 正则表达式的规则
+        # =======================javdb.py=======================
+        if re.search('^\d{5,}', file_number).group() in file_number:
+            json_data = json.loads(javdb.main(file_number))
+        # ======================siro.py==========================
+        elif re.search('\d+\D+', file_number).group() in file_number:
+            json_data = json.loads(siro.main(file_number))
+    except:  # 添加 无需 正则表达式的规则
+        # ====================fc2fans_club.py====================
+        if 'fc2' in file_number:
+            json_data = json.loads(fc2fans_club.main(
+                file_number.strip('fc2_').strip('fc2-').strip('ppv-').strip('PPV-').strip('FC2_').strip('FC2-').strip('ppv-').strip('PPV-')))
+        elif 'FC2' in file_number:
+            json_data = json.loads(fc2fans_club.main(
+                file_number.strip('FC2_').strip('FC2-').strip('ppv-').strip('PPV-').strip('fc2_').strip('fc2-').strip('ppv-').strip('PPV-')))
+            # print(file_number.strip('FC2_').strip('FC2-').strip('ppv-').strip('PPV-'))
+        # =======================javbus.py=======================
+        else:
+            json_data = json.loads(javbus.main(file_number))
 
+    # ================================================网站规则添加结束================================================
 
+    title =      str(json_data['title'])
+    studio =         json_data['studio']
+    year =           json_data['year']
+    outline =        json_data['outline']
+    runtime =        json_data['runtime']
+    director =       json_data['director']
+    actor_list = str(json_data['actor']).strip("[ ]").replace("'", '').replace(" ", '').split(',')  # 字符串转列表
+    release =        json_data['release']
+    number =         json_data['number']
+    cover =          json_data['cover']
+    imagecut =       json_data['imagecut']
+    tag =        str(json_data['tag']).strip("[ ]").replace("'", '').replace(" ", '').split(',')  # 字符串转列表
+    actor =      str(actor_list).strip("[ ]").replace("'", '').replace(" ", '')
 
+    # ====================处理异常字符====================== #\/:*?"<>|
+    if '\\' in title:
+        title=title.replace('\\', ' ')
+    elif '/' in title:
+        title=title.replace('/', '')
+    elif ':' in title:
+        title=title.replace('/', '')
+    elif '*' in title:
+        title=title.replace('*', '')
+    elif '?' in title:
+        title=title.replace('?', '')
+    elif '"' in title:
+        title=title.replace('"', '')
+    elif '<' in title:
+        title=title.replace('<', '')
+    elif '>' in title:
+        title=title.replace('>', '')
+    elif '|' in title:
+        title=title.replace('|', '')
+    # ====================处理异常字符 END================== #\/:*?"<>|
 
-# ================================================网站规则添加开始================================================
+    naming_rule   = eval(config['Name_Rule']['naming_rule'])
+    location_rule = eval(config['Name_Rule']['location_rule'])
 
-        try:  #添加 需要 正则表达式的规则
-            #=======================javbus.py=======================
-            if re.search('^\d{5,}', file_number).group() in filename:
-                json_data = json.loads(javbus.main_uncensored(file_number))
-        except: #添加 无需 正则表达式的规则
-            # ====================fc2fans_club.py===================
-            if 'fc2' in filename:
-                json_data = json.loads(fc2fans_club.main(file_number.strip('fc2_').strip('fc2-').strip('ppv-').strip('PPV-').strip('FC2_').strip('FC2-').strip('ppv-').strip('PPV-')))
-            elif 'FC2' in filename:
-                json_data = json.loads(fc2fans_club.main(file_number.strip('FC2_').strip('FC2-').strip('ppv-').strip('PPV-').strip('fc2_').strip('fc2-').strip('ppv-').strip('PPV-')))
-                #print(file_number.strip('FC2_').strip('FC2-').strip('ppv-').strip('PPV-'))
-            #=======================javbus.py=======================
-            else:
-                json_data = json.loads(javbus.main(file_number))
-
-
-
-#================================================网站规则添加结束================================================
-
-
-
-
-        title      = json_data['title']
-        studio     = json_data['studio']
-        year       = json_data['year']
-        outline    = json_data['outline']
-        runtime    = json_data['runtime']
-        director   = json_data['director']
-        actor_list = str(json_data['actor']).strip("[ ]").replace("'",'').replace(" ",'').split(',') #字符串转列表
-        release    = json_data['release']
-        number     = json_data['number']
-        cover      = json_data['cover']
-        imagecut   = json_data['imagecut']
-        tag        = str(json_data['tag']).strip("[ ]").replace("'",'').replace(" ",'').split(',')   #字符串转列表
-        actor      = str(actor_list).strip("[ ]").replace("'",'').replace(" ",'')
-
-        #====================处理异常字符====================== #\/:*?"<>|
-        #if "\\" in title or "/" in title or ":" in title or "*" in title or "?" in title or '"' in title or '<' in title or ">" in title or "|" in title or len(title) > 200:
-        #    title = title.
-
-        naming_rule  = eval(config['Name_Rule']['naming_rule'])
-        location_rule =eval(config['Name_Rule']['location_rule'])
-    except IOError as e:
-        print('[-]'+str(e))
-        print('[-]Move ' + filename + ' to failed folder')
-        shutil.move(filepath, str(os.getcwd())+'/'+'failed/')
-        os._exit(0)
-
-    except Exception as e:
-        print('[-]'+str(e))
-        print('[-]Move ' + filename + ' to failed folder')
-        shutil.move(filepath, str(os.getcwd())+'/'+'failed/')
-        os._exit(0)
-path = '' #设置path为全局变量，后面移动文件要用
-def creatFolder():
+def creatFolder(): #创建文件夹
     global actor
     global path
     if len(actor) > 240:                    #新建成功输出文件夹
@@ -168,56 +140,62 @@ def creatFolder():
         try:
             os.makedirs(path)
         except:
-            path = location_rule.replace(actor,"'其他'")
+            path = location_rule.replace('/['+number+']-'+title,"/number")
+            #print(path)
             os.makedirs(path)
-
-
 #=====================资源下载部分===========================
 def DownloadFileWithFilename(url,filename,path): #path = examle:photo , video.in the Project Folder!
     config = ConfigParser()
     config.read('proxy.ini', encoding='UTF-8')
     proxy = str(config['proxy']['proxy'])
-    if not str(config['proxy']['proxy']) == '':
+    timeout = int(config['proxy']['timeout'])
+    retry_count = int(config['proxy']['retry'])
+    i = 0
+    while i < retry_count:
         try:
-            if not os.path.exists(path):
-                os.makedirs(path)
-            headers = {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36'}
-            r = requests.get(url, headers=headers,proxies={"http": "http://" + str(proxy), "https": "https://" + str(proxy)})
-            with open(str(path) + "/" + filename, "wb") as code:
-                code.write(r.content)
-                # print(bytes(r),file=code)
-        except IOError as e:
-            print("[-]Movie not found in All website!")
-            print("[-]" + filename, e)
-            # print("[*]=====================================")
-            return "failed"
-        except Exception as e1:
-            print(e1)
-            print("[-]Download Failed2!")
-            time.sleep(3)
-            os._exit(0)
-    else:
-        try:
-            if not os.path.exists(path):
-                os.makedirs(path)
-            headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36'}
-            r = requests.get(url, headers=headers)
-            with open(str(path) + "/" + filename, "wb") as code:
-                code.write(r.content)
-                # print(bytes(r),file=code)
-        except IOError as e:
-            print("[-]Movie not found in All website!")
-            print("[-]" + filename, e)
-            # print("[*]=====================================")
-            return "failed"
-        except Exception as e1:
-            print(e1)
-            print("[-]Download Failed2!")
-            time.sleep(3)
-            os._exit(0)
-def PrintFiles(path,naming_rule):
+            if not str(config['proxy']['proxy']) == '':
+                if not os.path.exists(path):
+                    os.makedirs(path)
+                headers = {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36'}
+                r = requests.get(url, headers=headers, timeout=timeout,proxies={"http": "http://" + str(proxy), "https": "https://" + str(proxy)})
+                with open(str(path) + "/" + filename, "wb") as code:
+                    code.write(r.content)
+                return
+                        # print(bytes(r),file=code)
+            else:
+                if not os.path.exists(path):
+                    os.makedirs(path)
+                headers = {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36'}
+                r = requests.get(url, timeout=timeout, headers=headers)
+                with open(str(path) + "/" + filename, "wb") as code:
+                    code.write(r.content)
+                return
+                    # print(bytes(r),file=code)
+        except requests.exceptions.RequestException:
+            i += 1
+            print('[-]Image Download :  Connect retry '+str(i)+'/'+str(retry_count))
+        except requests.exceptions.ConnectionError:
+            i += 1
+            print('[-]Image Download :  Connect retry '+str(i)+'/'+str(retry_count))
+        except requests.exceptions.ProxyError:
+            i += 1
+            print('[-]Image Download :  Connect retry '+str(i)+'/'+str(retry_count))
+        except requests.exceptions.ConnectTimeout:
+            i += 1
+            print('[-]Image Download :  Connect retry '+str(i)+'/'+str(retry_count))
+def imageDownload(filepath): #封面是否下载成功，否则移动到failed
+    global path
+    if DownloadFileWithFilename(cover,naming_rule+'.jpg', path) == 'failed':
+        shutil.move(filepath, 'failed/')
+        os._exit(0)
+    DownloadFileWithFilename(cover, naming_rule+'.jpg', path)
+    print('[+]Image Downloaded!', path +'/'+naming_rule+'.jpg')
+def PrintFiles(filepath):
+    #global path
     global title
+    global cn_sub
     try:
         if not os.path.exists(path):
             os.makedirs(path)
@@ -245,6 +223,8 @@ def PrintFiles(path,naming_rule):
             print("  <maker>" + studio + "</maker>", file=code)
             print("  <label>", file=code)
             print("  </label>", file=code)
+            if cn_sub == '1':
+                print("  <tag>中文字幕</tag>", file=code)
             try:
                 for i in tag:
                     print("  <tag>" + i + "</tag>", file=code)
@@ -255,6 +235,8 @@ def PrintFiles(path,naming_rule):
                     print("  <genre>" + i + "</genre>", file=code)
             except:
                 aaaaaaaa=''
+            if cn_sub == '1':
+                print("  <genre>中文字幕</genre>", file=code)
             print("  <num>" + number + "</num>", file=code)
             print("  <release>" + release + "</release>", file=code)
             print("  <cover>"+cover+"</cover>", file=code)
@@ -264,42 +246,61 @@ def PrintFiles(path,naming_rule):
     except IOError as e:
         print("[-]Write Failed!")
         print(e)
+        shutil.move(filepath, str(os.getcwd()) + '/' + 'failed/')
+        os._exit(0)
     except Exception as e1:
         print(e1)
         print("[-]Write Failed!")
-def imageDownload(filepath): #封面是否下载成功，否则移动到failed
-    if DownloadFileWithFilename(cover,'Backdrop.jpg', path) == 'failed':
-        shutil.move(filepath, 'failed/')
+        shutil.move(filepath, str(os.getcwd()) + '/' + 'failed/')
         os._exit(0)
-    DownloadFileWithFilename(cover, 'Backdrop.jpg', path)
-    print('[+]Image Downloaded!', path +'/'+'Backdrop.jpg')
 def cutImage():
     if imagecut == 1:
         try:
-            img = Image.open(path + '/' + 'Backdrop' + '.jpg')
+            img = Image.open(path + '/' + naming_rule + '.jpg')
             imgSize = img.size
             w = img.width
             h = img.height
             img2 = img.crop((w / 1.9, 0, w, h))
-            img2.save(path + '/' + number + '.png')
+            img2.save(path + '/' + naming_rule + '.png')
         except:
             print('[-]Cover cut failed!')
     else:
-        img = Image.open(path + '/' + 'Backdrop' + '.jpg')
+        img = Image.open(path + '/' + naming_rule + '.jpg')
         w = img.width
         h = img.height
-        img.save(path + '/' + number + '.png')
+        img.save(path + '/' + naming_rule + '.png')
 def pasteFileToFolder(filepath, path): #文件路径，番号，后缀，要移动至的位置
+    global houzhui
     houzhui = str(re.search('[.](AVI|RMVB|WMV|MOV|MP4|MKV|FLV|TS|avi|rmvb|wmv|mov|mp4|mkv|flv|ts)$', filepath).group())
-    os.rename(filepath, number + houzhui)
-    shutil.move(number + houzhui, path)
+    os.rename(filepath, naming_rule + houzhui)
+    shutil.move(naming_rule + houzhui, path)
+def renameJpgToBackdrop_copy():
+    shutil.copy(path+'/'+naming_rule + '.jpg', path+'/Backdrop.jpg')
 
 if __name__ == '__main__':
-    filepath=argparse_get_file() #影片的路径
-    CreatFailedFolder()
-    getNumberFromFilename(filepath) #定义番号
-    creatFolder() #创建文件夹
-    imageDownload(filepath) #creatFoder会返回番号路径
-    PrintFiles(path,naming_rule)#打印文件
-    cutImage() #裁剪图
-    pasteFileToFolder(filepath,path) #移动文件
+    filepath=argparse_get_file()[0] #影片的路径
+
+    if argparse_get_file()[1] == '':    #获取手动拉去影片获取的番号
+        try:
+            number = str(re.findall(r'(.+?)\.',str(re.search('([^<>/\\\\|:""\\*\\?]+)\\.\\w+$',filepath).group()))).strip("['']").replace('_','-')
+            print("[!]Making Data for   [" + number + "]")
+        except:
+            print("[-]failed!Please rename the filename again!")
+            shutil.move(filepath,'failed/')
+    else:
+        number = argparse_get_file()[1]
+
+    try:
+        CreatFailedFolder()
+        getDataFromJSON(number)  # 定义番号
+        creatFolder()  # 创建文件夹
+        imageDownload(filepath)  # creatFoder会返回番号路径
+        PrintFiles(filepath)  # 打印文件
+        cutImage()  # 裁剪图
+        pasteFileToFolder(filepath, path)  # 移动文件
+        renameJpgToBackdrop_copy()
+        #time.sleep(20)
+    except:
+        print('[-]Movie data capture failed!')
+        #time.sleep(20)
+        os._exit(0)

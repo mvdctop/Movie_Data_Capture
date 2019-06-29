@@ -17,7 +17,6 @@ def getActor(htmlcode):
         return result
     except:
         return ''
-
 def getStudio(htmlcode): #获取厂商
     html = etree.fromstring(htmlcode,etree.HTMLParser())
     result = str(html.xpath('/html/body/div[2]/div/div[1]/h5[3]/a[1]/text()')).strip(" ['']")
@@ -41,7 +40,6 @@ def getCover(htmlcode,number,htmlcode2): #获取厂商 #
         result2 = str(html.xpath('//*[@id="slider"]/ul[1]/li[1]/img/@src')).strip(" ['']")
         return 'http://fc2fans.club' +  result2
     return 'http:' + result
-
 def getOutline(htmlcode2,number):     #获取番号 #
     #a = ADC_function.get_html('http://adult.contents.fc2.com/article_search.php?id=' + str(number).lstrip("FC2-").lstrip("fc2-").lstrip("fc2_").lstrip("fc2-") + '&utm_source=aff_php&utm_medium=source_code&utm_campaign=from_aff_php')
     html = etree.fromstring(htmlcode2, etree.HTMLParser())

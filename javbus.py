@@ -10,7 +10,7 @@ from PIL import Image#need install
 import time
 import json
 from ADC_function import *
-import siro
+import javdb
 
 def getTitle(htmlcode):  #获取标题
     doc = pq(htmlcode)
@@ -118,7 +118,7 @@ def main(number):
             return js2
         return js
     except:
-        a=siro.main(number)
+        a=javdb.main(number)
         return a
 
 def main_uncensored(number):
@@ -142,53 +142,7 @@ def main_uncensored(number):
     js = json.dumps(dic, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ':'), )  # .encode('UTF-8')
 
     if getYear(htmlcode) == '' or getYear(htmlcode) == 'null':
-        number2 = number.replace('-', '_')
-        htmlcode = get_html('https://www.javbus.com/' + number2)
-        dic2 = {
-            'title': str(re.sub('\w+-\d+-','',getTitle(htmlcode))).replace(getNum(htmlcode)+'-',''),
-            'studio': getStudio(htmlcode),
-            'year': getYear(htmlcode),
-            'outline': '',
-            'runtime': getRuntime(htmlcode),
-            'director': getDirector(htmlcode),
-            'actor': getActor(htmlcode),
-            'release': getRelease(htmlcode),
-            'number': getNum(htmlcode),
-            'cover': getCover(htmlcode),
-            'tag': getTag(htmlcode),
-            'label':getSerise(htmlcode),
-            'imagecut': 0,
-        }
-        js2 = json.dumps(dic2, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ':'), )  # .encode('UTF-8')
+        js2 = javdb.main(number)
         return js2
 
     return js
-
-
-# def return1():
-#     json_data=json.loads(main('ipx-292'))
-#
-#     title = str(json_data['title'])
-#     studio = str(json_data['studio'])
-#     year = str(json_data['year'])
-#     outline = str(json_data['outline'])
-#     runtime = str(json_data['runtime'])
-#     director = str(json_data['director'])
-#     actor = str(json_data['actor'])
-#     release = str(json_data['release'])
-#     number = str(json_data['number'])
-#     cover = str(json_data['cover'])
-#     tag = str(json_data['tag'])
-#
-#     print(title)
-#     print(studio)
-#     print(year)
-#     print(outline)
-#     print(runtime)
-#     print(director)
-#     print(actor)
-#     print(release)
-#     print(number)
-#     print(cover)
-#     print(tag)
-# return1()
