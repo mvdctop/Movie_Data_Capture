@@ -1,4 +1,4 @@
-# AV Data Capture 日本AV元数据刮削器
+# AV Data Capture 日本电影元数据刮削器
 
 
 <a title="Hits" target="_blank" href="https://github.com/b3log/hits"><img src="https://hits.b3log.org/b3log/hits.svg"></a>
@@ -32,12 +32,12 @@
 * [写在后面](#9写在后面)
 
 # 前言
-&emsp;&emsp;目前，我下的AV越来越多，也意味着AV要**集中地管理**，形成本地媒体库。现在有两款主流的AV元数据获取器，"EverAver"和"Javhelper"。前者的优点是元数据获取比较全，缺点是不能批量处理；后者优点是可以批量处理，但是元数据不够全。<br>
-&emsp;&emsp;为此，综合上述软件特点，我写出了本软件，为了方便的管理本地AV，和更好的手冲体验。<br>
+&emsp;&emsp;目前，我下的日本电影越来越多，也意味着日本电影要**集中地管理**，形成本地媒体库。现在有两款主流的日本电影元数据获取器，"EverAver"和"Javhelper"。前者的优点是元数据获取比较全，缺点是不能批量处理；后者优点是可以批量处理，但是元数据不够全。<br>
+&emsp;&emsp;为此，综合上述软件特点，我写出了本软件，为了方便的管理本地日本电影，和更好的手冲体验。<br>
 &emsp;&emsp;希望大家可以认真耐心地看完本文档，你的耐心换来的是完美的管理方式。<br>
 &emsp;&emsp;本软件更新可能比较**频繁**，麻烦诸位用户**积极更新新版本**以获得**最佳体验**。
 - - -
-**可以结合pockies大神的[ 打造本地AV（毛片）媒体库 ](https://pockies.github.io/2019/03/25/everaver-emby-kodi/)看本文档**<br>
+**可以结合pockies大神的[ 打造本地日本电影（毛片）媒体库 ](https://pockies.github.io/2019/03/25/everaver-emby-kodi/)看本文档**<br>
 **tg官方电报群:[ 点击进群](https://t.me/AV_Data_Capture_Official)**<br>
 **推荐用法: 使用该软件后，对于不能正常获取元数据的电影可以用[ Everaver ](http://everaver.blogspot.com/)来补救**<br>
 暂不支持多P电影<br>
@@ -189,7 +189,7 @@ cookies大神的EMBY教程:[链接](https://pockies.github.io/2019/03/25/everave
 ![](https://i.loli.net/2019/06/02/5cf2b5d009e4930666.png)<br>
 [回到目录](#目录)
 ## 9.写在后面
-怎么样，看着自己的AV被这样完美地管理，是不是感觉成就感爆棚呢?<br>
+怎么样，看着自己的日本电影被这样完美地管理，是不是感觉成就感爆棚呢?<br>
 [回到目录](#目录)
 
 
