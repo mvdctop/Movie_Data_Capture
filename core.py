@@ -89,7 +89,7 @@ def getDataFromJSON(file_number): #从JSON返回元数据
 
     # ================================================网站规则添加结束================================================
 
-    title =      str(json_data['title'])
+    title =      str(json_data['title']).replace(' ','')
     studio =         json_data['studio']
     year =           json_data['year']
     outline =        json_data['outline']
@@ -126,7 +126,6 @@ def getDataFromJSON(file_number): #从JSON返回元数据
 
     naming_rule   = eval(config['Name_Rule']['naming_rule'])
     location_rule = eval(config['Name_Rule']['location_rule'])
-
 def creatFolder(): #创建文件夹
     global actor
     global path
@@ -151,6 +150,7 @@ def DownloadFileWithFilename(url,filename,path): #path = examle:photo , video.in
     timeout = int(config['proxy']['timeout'])
     retry_count = int(config['proxy']['retry'])
     i = 0
+
     while i < retry_count:
         try:
             if not str(config['proxy']['proxy']) == '':
@@ -199,7 +199,7 @@ def PrintFiles(filepath):
     try:
         if not os.path.exists(path):
             os.makedirs(path)
-        with open(path + "/" + number + ".nfo", "wt", encoding='UTF-8') as code:
+        with open(path + "/" + naming_rule + ".nfo", "wt", encoding='UTF-8') as code:
             print("<movie>", file=code)
             print(" <title>" + naming_rule + "</title>", file=code)
             print("  <set>", file=code)
@@ -242,7 +242,7 @@ def PrintFiles(filepath):
             print("  <cover>"+cover+"</cover>", file=code)
             print("  <website>" + "https://www.javbus.com/"+number + "</website>", file=code)
             print("</movie>", file=code)
-            print("[+]Writeed!          "+path + "/" + number + ".nfo")
+            print("[+]Writeed!          "+path + "/" + naming_rule + ".nfo")
     except IOError as e:
         print("[-]Write Failed!")
         print(e)
@@ -280,6 +280,9 @@ def renameJpgToBackdrop_copy():
 if __name__ == '__main__':
     filepath=argparse_get_file()[0] #影片的路径
 
+    if '-c.' in filepath or '-C.' in filepath:
+        cn_sub='1'
+
     if argparse_get_file()[1] == '':    #获取手动拉去影片获取的番号
         try:
             number = str(re.findall(r'(.+?)\.',str(re.search('([^<>/\\\\|:""\\*\\?]+)\\.\\w+$',filepath).group()))).strip("['']").replace('_','-')
@@ -289,18 +292,12 @@ if __name__ == '__main__':
             shutil.move(filepath,'failed/')
     else:
         number = argparse_get_file()[1]
-
-    try:
-        CreatFailedFolder()
-        getDataFromJSON(number)  # 定义番号
-        creatFolder()  # 创建文件夹
-        imageDownload(filepath)  # creatFoder会返回番号路径
-        PrintFiles(filepath)  # 打印文件
-        cutImage()  # 裁剪图
-        pasteFileToFolder(filepath, path)  # 移动文件
-        renameJpgToBackdrop_copy()
-        #time.sleep(20)
-    except:
-        print('[-]Movie data capture failed!')
-        #time.sleep(20)
-        os._exit(0)
+    CreatFailedFolder()
+    getDataFromJSON(number)  # 定义番号
+    creatFolder()  # 创建文件夹
+    imageDownload(filepath)  # creatFoder会返回番号路径
+    PrintFiles(filepath)  # 打印文件
+    cutImage()  # 裁剪图
+    pasteFileToFolder(filepath, path)  # 移动文件
+    renameJpgToBackdrop_copy()
+    # time.sleep(20)
