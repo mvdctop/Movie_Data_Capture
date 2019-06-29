@@ -30,8 +30,7 @@
 * [导入至EMBY](#7把jav_output文件夹导入到embykodi中根据封面选片子享受手冲乐趣)
 * [输出文件示例](#8输出的文件如下)
 * [写在后面](#9写在后面)
-* [软件流程图](#10软件流程图)
-* []()
+
 # 前言
 &emsp;&emsp;目前，我下的AV越来越多，也意味着AV要**集中地管理**，形成本地媒体库。现在有两款主流的AV元数据获取器，"EverAver"和"Javhelper"。前者的优点是元数据获取比较全，缺点是不能批量处理；后者优点是可以批量处理，但是元数据不够全。<br>
 &emsp;&emsp;为此，综合上述软件特点，我写出了本软件，为了方便的管理本地AV，和更好的手冲体验。<br>
@@ -67,8 +66,12 @@
 
 # 如何使用
 ### 下载
-* release的程序可脱离python环境运行，可跳过 [模块安装](#1请安装模块在cmd终端逐条输入以下命令安装)<br>下载地址(**仅限Windows**):https://github.com/wenead99/AV_Data_Capture/releases
+* release的程序可脱离**python环境**运行，可跳过 [模块安装](#1请安装模块在cmd终端逐条输入以下命令安装)<br>下载地址(**仅限Windows**):[点击前往](https://github.com/wenead99/AV_Data_Capture/releases)<br>
 * Linux,MacOS请下载源码包运行
+
+* Windows Python环境:[点击前往](https://www.python.org/downloads/windows/) 选中executable installer下载
+* MacOS Python环境：[点击前往](https://www.python.org/downloads/mac-osx/)
+* Linux Python环境：Linux用户懂的吧，不解释下载地址
 ### 简要教程:<br>
 **1.把软件拉到和电影的同一目录<br>2.设置ini文件的代理（路由器拥有自动代理功能的可以把proxy=后面内容去掉）<br>3.运行软件等待完成<br>4.把JAV_output导入至KODI,EMBY中。<br>详细请看以下教程**<br>
 [回到目录](#目录)
@@ -99,14 +102,33 @@ pip install pillow
 [回到目录](#目录)
 
 ## 2.配置proxy.ini
-#### 1.针对网络审查国家或地区的代理设置
+proxy.ini
+>[proxy]<br>
+>proxy=127.0.0.1:1080<br>
+>timeout=10<br>
+>retry=3<br>
+>
+>[Name_Rule]<br>
+>location_rule='JAV_output/'+actor+'/['+number+']-'+title<br>
+>naming_rule=number+'-'+title<br>
+>
+>[update]<br>
+>update_check=1<br>
+
+### 1.网络设置
+#### * 针对“某些地区”的代理设置
 打开```proxy.ini```,在```[proxy]```下的```proxy```行设置本地代理地址和端口，支持Shadowsocks/R,V2RAY本地代理端口:<br>
 例子:```proxy=127.0.0.1:1080```<br>素人系列抓取建议使用日本代理<br>
 **（路由器拥有自动代理功能的可以把proxy=后面内容去掉）**<br>
 **如果遇到tineout错误，可以把文件的proxy=后面的地址和端口删除，并开启vpn全局模式，或者重启电脑，vpn，网卡**<br>
-[回到目录](#目录)
+##### 连接超时重试设置
+>timeout=10
+10为超时重试时间 单位：秒
+##### 连接重试次数设置
+>retry=3
+3即为重试次数
 
-#### 2.（可选）设置自定义目录和影片重命名规则
+### 2.（可选）设置自定义目录和影片重命名规则
 **已有默认配置**<br>
 ##### 命名参数<br>
 >title = 片名<br>
@@ -123,12 +145,12 @@ pip install pillow
 ##### **例子**:<br>
 >目录结构规则:location_rule='JAV_output/'+actor+'/'+number **不推荐修改目录结构规则，抓取数据时新建文件夹容易出错**<br>
 >影片命名规则:naming_rule='['+number+']-'+title<br> **在EMBY,KODI等本地媒体库显示的标题**
+### 3.更新开关
+>[update]<br>update_check=1<br>
+1为开，0为关
 [回到目录](#目录)
 ## 3.把软件拷贝和AV的统一目录下
 ## 4.运行 ```AV_Data_capture.py/.exe```
-你也可以把单个影片拖动到core程序<br>
-![](https://i.loli.net/2019/06/02/5cf2b5d03640e73201.gif)<br>
-[回到目录](#目录)
 ## 5.异常处理（重要）
 ### 关于连接拒绝的错误
 请设置好[代理](#1针对网络审查国家或地区的代理设置)<br>
@@ -147,9 +169,14 @@ pip install pillow
 COSQ-004.mp4
 ```
 
-文件名中间要有下划线或者减号"_","-"，没有多余的内容只有番号为最佳，可以让软件更好获取元数据
+针对**野鸡番号**，你需要把文件名命名为与抓取网站提供的番号一致（文件拓展名除外），然后把文件拖拽至core.exe/.py<br>
+**野鸡番号**:比如 DCL-001-1这种野鸡三段式番号，在javbus等资料库存在的作品。
+![](https://i.loli.net/2019/06/02/5cf2b5d03640e73201.gif)<br>
+条件：文件名中间要有下划线或者减号"_","-"，没有多余的内容只有番号为最佳，可以让软件更好获取元数据
 对于多影片重命名，可以用[ReNamer](http://www.den4b.com/products/renamer)来批量重命名<br>
 [回到目录](#目录)
+### 关于PIL/image.py
+暂时无解，可能是网络问题或者pillow模块打包问题，你可以用源码运行（要安装好第一步的模块）
 
 
 ## 6.软件会自动把元数据获取成功的电影移动到JAV_output文件夹中，根据女优分类，失败的电影移动到failed文件夹中。
@@ -163,9 +190,6 @@ cookies大神的EMBY教程:[链接](https://pockies.github.io/2019/03/25/everave
 [回到目录](#目录)
 ## 9.写在后面
 怎么样，看着自己的AV被这样完美地管理，是不是感觉成就感爆棚呢?<br>
-[回到目录](#目录)
-## 10.软件流程图
-![](https://i.loli.net/2019/06/02/5cf2bb9a9e2d997635.png)<br>
 [回到目录](#目录)
 
 
