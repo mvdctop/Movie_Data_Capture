@@ -71,9 +71,6 @@ def getDataFromJSON(file_number): #从JSON返回元数据
         # =======================javdb.py=======================
         if re.search('^\d{5,}', file_number).group() in file_number:
             json_data = json.loads(javdb.main(file_number))
-        # ======================siro.py==========================
-        elif re.search('\d+\D+', file_number).group() in file_number:
-            json_data = json.loads(siro.main(file_number))
     except:  # 添加 无需 正则表达式的规则
         # ====================fc2fans_club.py====================
         if 'fc2' in file_number:
@@ -95,7 +92,7 @@ def getDataFromJSON(file_number): #从JSON返回元数据
     outline =        json_data['outline']
     runtime =        json_data['runtime']
     director =       json_data['director']
-    actor_list = str(json_data['actor']).strip("[ ]").replace("'", '').replace(" ", '').split(',')  # 字符串转列表
+    actor_list = str(json_data['actor']).strip("[ ]").replace("'", '').split(',')  # 字符串转列表
     release =        json_data['release']
     number =         json_data['number']
     cover =          json_data['cover']

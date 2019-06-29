@@ -11,6 +11,7 @@ import time
 import json
 from ADC_function import *
 import javdb
+import siro
 
 def getTitle(htmlcode):  #获取标题
     doc = pq(htmlcode)
@@ -75,6 +76,13 @@ def getTag(htmlcode):  # 获取演员
 
 
 def main(number):
+    try:
+        if re.search('\d+\D+', number).group() in number:
+            js = siro.main(number)
+            return js
+    except:
+        aaaa=''
+
     try:
         htmlcode = get_html('https://www.javbus.com/' + number)
         dww_htmlcode = get_html("https://www.dmm.co.jp/mono/dvd/-/detail/=/cid=" + number.replace("-", ''))

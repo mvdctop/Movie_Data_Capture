@@ -76,8 +76,6 @@ def getNumber(filepath):
             filepath1.strip('22-sht.me').strip('-HD').strip('-hd')
             filename = str(re.sub("\[\d{4}-\d{1,2}-\d{1,2}\] - ", "", filepath1))  # 去除文件名中时间
             file_number = re.search('\w+-\d+', filename).group()
-            if '-C.' in filepath or '-c.' in filepath:
-                cn_sub = '1'
             return file_number
         except:  # 提取不含减号-的番号
             try:  # 提取东京热番号格式 n1087
@@ -127,7 +125,8 @@ if __name__ =='__main__':
         print('[!] - '+percentage+' ['+str(count)+'/'+count_all+'] -')
         print("[!]Making Data for   [" + i + "],the number is [" + getNumber(i) + "]")
         os.system('python core.py' + '   "' + i + '" --number "'+getNumber(i)+'"') #选择从py文件启动  （用于源码py）
-        #os.system('core.exe' + '   "' + i + '" --number "'+getNumber(i)+'"')      #选择从exe文件启动（用于EXE版程序）
+        #print('core.exe' + '   "' + i + '" --number "'+getNumber(i)+'"')      #选择从exe文件启动（用于EXE版程序
+        #print()
         print("[*]=====================================")
 
     CEF('JAV_output')
