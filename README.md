@@ -1,4 +1,4 @@
-# AV Data Capture 日本电影元数据刮削器
+# AV Data Capture 日本电影元数据抓取工具（刮削器）
 
 
 <a title="Hits" target="_blank" href="https://github.com/b3log/hits"><img src="https://hits.b3log.org/b3log/hits.svg"></a>
