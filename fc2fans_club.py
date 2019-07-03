@@ -61,18 +61,20 @@ def main(number2):
     htmlcode2 = ADC_function.get_html('http://adult.contents.fc2.com/article_search.php?id='+str(number).lstrip("FC2-").lstrip("fc2-").lstrip("fc2_").lstrip("fc2-")+'&utm_source=aff_php&utm_medium=source_code&utm_campaign=from_aff_php')
     htmlcode = ADC_function.get_html('http://fc2fans.club/html/FC2-' + number + '.html')
     dic = {
-        'title': getTitle(htmlcode),
-        'studio': getStudio(htmlcode),
+        'title':    getTitle(htmlcode),
+        'studio':   getStudio(htmlcode),
         'year': '',#str(re.search('\d{4}',getRelease(number)).group()),
-        'outline': getOutline(htmlcode,number),
-        'runtime': getYear(getRelease(htmlcode)),
+        'outline':  getOutline(htmlcode,number),
+        'runtime':  getYear(getRelease(htmlcode)),
         'director': getStudio(htmlcode),
-        'actor': getActor(htmlcode),
-        'release': getRelease(number),
-        'number': 'FC2-'+number,
-        'cover': getCover(htmlcode,number,htmlcode2),
+        'actor':    getActor(htmlcode),
+        'release':  getRelease(number),
+        'number':  'FC2-'+number,
+        'cover':    getCover(htmlcode,number,htmlcode2),
         'imagecut': 0,
-        'tag':getTag(htmlcode),
+        'tag':      getTag(htmlcode),
+        'actor_photo':'',
+        'website':  'http://fc2fans.club/html/FC2-' + number + '.html',
     }
     #print(getTitle(htmlcode))
     #print(getNum(htmlcode))

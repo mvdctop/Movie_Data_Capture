@@ -13,6 +13,18 @@ from ADC_function import *
 import javdb
 import siro
 
+def getActorPhoto(htmlcode): #//*[@id="star_qdt"]/li/a/img
+    soup = BeautifulSoup(htmlcode, 'lxml')
+    a = soup.find_all(attrs={'class': 'star-name'})
+    d={}
+    for i in a:
+        l=i.a['href']
+        t=i.get_text()
+        html = etree.fromstring(get_html(l), etree.HTMLParser())
+        p=str(html.xpath('//*[@id="waterfall"]/div[1]/div/div[1]/img/@src')).strip(" ['']")
+        p2={t:p}
+        d.update(p2)
+    return d
 def getTitle(htmlcode):  #获取标题
     doc = pq(htmlcode)
     title=str(doc('div.container h3').text()).replace(' ','-')
@@ -100,17 +112,18 @@ def main(number):
             'imagecut': 1,
             'tag': getTag(htmlcode),
             'label': getSerise(htmlcode),
+            'actor_photo': getActorPhoto(htmlcode),
+            'website': 'https://www.javbus.com/' + number,
         }
         js = json.dumps(dic, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ':'), )  # .encode('UTF-8')
-
         if 'HEYZO' in number or 'heyzo' in number or 'Heyzo' in number:
             htmlcode = get_html('https://www.javbus.com/' + number)
-            dww_htmlcode = get_html("https://www.dmm.co.jp/mono/dvd/-/detail/=/cid=" + number.replace("-", ''))
+            #dww_htmlcode = get_html("https://www.dmm.co.jp/mono/dvd/-/detail/=/cid=" + number.replace("-", ''))
             dic = {
                 'title': str(re.sub('\w+-\d+-', '', getTitle(htmlcode))),
                 'studio': getStudio(htmlcode),
                 'year': getYear(htmlcode),
-                'outline': getOutline(dww_htmlcode),
+                'outline': '',
                 'runtime': getRuntime(htmlcode),
                 'director': getDirector(htmlcode),
                 'actor': getActor(htmlcode),
@@ -120,6 +133,8 @@ def main(number):
                 'imagecut': 1,
                 'tag': getTag(htmlcode),
                 'label': getSerise(htmlcode),
+                'actor_photo': getActorPhoto(htmlcode),
+                'website': 'https://www.javbus.com/' + number,
             }
             js2 = json.dumps(dic, ensure_ascii=False, sort_keys=True, indent=4,
                              separators=(',', ':'), )  # .encode('UTF-8')
@@ -132,6 +147,9 @@ def main(number):
 def main_uncensored(number):
     htmlcode = get_html('https://www.javbus.com/' + number)
     dww_htmlcode = get_html("https://www.dmm.co.jp/mono/dvd/-/detail/=/cid=" + number.replace("-", ''))
+    if getTitle(htmlcode) == '':
+        htmlcode = get_html('https://www.javbus.com/' + number.replace('-','_'))
+        dww_htmlcode = get_html("https://www.dmm.co.jp/mono/dvd/-/detail/=/cid=" + number.replace("-", ''))
     dic = {
         'title': str(re.sub('\w+-\d+-','',getTitle(htmlcode))).replace(getNum(htmlcode)+'-',''),
         'studio': getStudio(htmlcode),
@@ -146,6 +164,8 @@ def main_uncensored(number):
         'tag': getTag(htmlcode),
         'label': getSerise(htmlcode),
         'imagecut': 0,
+        'actor_photo': '',
+        'website': 'https://www.javbus.com/' + number,
     }
     js = json.dumps(dic, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ':'), )  # .encode('UTF-8')
 

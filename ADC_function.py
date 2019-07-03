@@ -5,17 +5,17 @@ import re
 from retrying import retry
 import sys
 
-# content = open('proxy.ini').read()
+# content = open('config.ini').read()
 # content = re.sub(r"\xfe\xff","", content)
 # content = re.sub(r"\xff\xfe","", content)
 # content = re.sub(r"\xef\xbb\xbf","", content)
 # open('BaseConfig.cfg', 'w').write(content)
 
 config = RawConfigParser()
-if os.path.exists('proxy.ini'):
-    config.read('proxy.ini', encoding='UTF-8')
+if os.path.exists('config.ini'):
+    config.read('config.ini', encoding='UTF-8')
 else:
-    with open("proxy.ini", "wt", encoding='UTF-8') as code:
+    with open("config.ini", "wt", encoding='UTF-8') as code:
         print("[proxy]",file=code)
         print("proxy=127.0.0.1:1080",file=code)
         print("timeout=10", file=code)

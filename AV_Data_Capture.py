@@ -7,7 +7,7 @@ import ADC_function
 import json
 import shutil
 
-version='0.11.2'
+version='0.11.4'
 os.chdir(os.getcwd())
 
 def UpdateCheck():
@@ -102,12 +102,20 @@ def getNumber(filepath):
         print('[-]' + str(os.path.basename(filepath)) + ' Cannot catch the number :')
         print('[-]' + str(os.path.basename(filepath)) + ' :', e)
         print('[-]Move ' + os.path.basename(filepath) + ' to failed folder')
+
         shutil.move(filepath, str(os.getcwd()) + '/' + 'failed/')
     except IOError as e2:
         print('[-]' + str(os.path.basename(filepath)) + ' Cannot catch the number :')
         print('[-]' + str(os.path.basename(filepath)) + ' :', e2)
         print('[-]Move ' + os.path.basename(filepath) + ' to failed folder')
         shutil.move(filepath, str(os.getcwd()) + '/' + 'failed/')
+def RunCore():
+    if os.path.exists('core.py'):
+        os.system('python core.py' + '   "' + i + '" --number "'+getNumber(i)+'"') #选择从py文件启动  （用于源码py）
+    elif os.path.exists('core.exe'):
+        os.system('core.exe' + '   "' + i + '" --number "'+getNumber(i)+'"')      #选择从exe文件启动（用于EXE版程序:
+    elif os.path.exists('core.py') and os.path.exists('core.exe'):
+        os.system('python core.py' + '   "' + i + '" --number "' + getNumber(i) + '"')  # 选择从py文件启动  （用于源码py）
 
 if __name__ =='__main__':
     print('[*]===========AV Data Capture===========')
@@ -124,9 +132,7 @@ if __name__ =='__main__':
         percentage = str(count/int(count_all)*100)[:4]+'%'
         print('[!] - '+percentage+' ['+str(count)+'/'+count_all+'] -')
         print("[!]Making Data for   [" + i + "],the number is [" + getNumber(i) + "]")
-        os.system('python core.py' + '   "' + i + '" --number "'+getNumber(i)+'"') #选择从py文件启动  （用于源码py）
-        #os.system('core.exe' + '   "' + i + '" --number "'+getNumber(i)+'"')      #选择从exe文件启动（用于EXE版程序
-        #print()
+        RunCore()
         print("[*]=====================================")
 
     CEF('JAV_output')

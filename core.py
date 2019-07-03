@@ -30,6 +30,9 @@ tag=[]
 cn_sub=''
 path=''
 houzhui=''
+website=''
+json_data={}
+actor_photo={}
 naming_rule  =''#eval(config['Name_Rule']['naming_rule'])
 location_rule=''#eval(config['Name_Rule']['location_rule'])
 
@@ -63,6 +66,8 @@ def getDataFromJSON(file_number): #从JSON返回元数据
     global tag
     global image_main
     global cn_sub
+    global website
+    global actor_photo
 
     global naming_rule
     global location_rule
@@ -70,7 +75,7 @@ def getDataFromJSON(file_number): #从JSON返回元数据
     try:    # 添加 需要 正则表达式的规则
         # =======================javdb.py=======================
         if re.search('^\d{5,}', file_number).group() in file_number:
-            json_data = json.loads(javdb.main(file_number))
+            json_data = json.loads(javbus.main_uncensored(file_number))
     except:  # 添加 无需 正则表达式的规则
         # ====================fc2fans_club.py====================
         if 'fc2' in file_number:
@@ -99,6 +104,8 @@ def getDataFromJSON(file_number): #从JSON返回元数据
     imagecut =       json_data['imagecut']
     tag =        str(json_data['tag']).strip("[ ]").replace("'", '').replace(" ", '').split(',')  # 字符串转列表
     actor =      str(actor_list).strip("[ ]").replace("'", '').replace(" ", '')
+    actor_photo =    json_data['actor_photo']
+    website =        json_data['website']
 
     # ====================处理异常字符====================== #\/:*?"<>|
     if '\\' in title:
@@ -142,9 +149,9 @@ def creatFolder(): #创建文件夹
 #=====================资源下载部分===========================
 def DownloadFileWithFilename(url,filename,path): #path = examle:photo , video.in the Project Folder!
     config = ConfigParser()
-    config.read('proxy.ini', encoding='UTF-8')
-    proxy = str(config['proxy']['proxy'])
-    timeout = int(config['proxy']['timeout'])
+    config.read('config.ini', encoding='UTF-8')
+    proxy       = str(config['proxy']['proxy'])
+    timeout     = int(config['proxy']['timeout'])
     retry_count = int(config['proxy']['retry'])
     i = 0
 
@@ -184,19 +191,20 @@ def DownloadFileWithFilename(url,filename,path): #path = examle:photo , video.in
             print('[-]Image Download :  Connect retry '+str(i)+'/'+str(retry_count))
 def imageDownload(filepath): #封面是否下载成功，否则移动到failed
     global path
-    if DownloadFileWithFilename(cover,naming_rule+'.jpg', path) == 'failed':
+    if DownloadFileWithFilename(cover,'fanart.jpg', path) == 'failed':
         shutil.move(filepath, 'failed/')
         os._exit(0)
-    DownloadFileWithFilename(cover, naming_rule+'.jpg', path)
-    print('[+]Image Downloaded!', path +'/'+naming_rule+'.jpg')
+    DownloadFileWithFilename(cover, 'fanart.jpg', path)
+    print('[+]Image Downloaded!', path +'/fanart.jpg')
 def PrintFiles(filepath):
     #global path
     global title
     global cn_sub
+    global actor_photo
     try:
         if not os.path.exists(path):
             os.makedirs(path)
-        with open(path + "/" + naming_rule + ".nfo", "wt", encoding='UTF-8') as code:
+        with open(path + "/" + number + ".nfo", "wt", encoding='UTF-8') as code:
             print("<movie>", file=code)
             print(" <title>" + naming_rule + "</title>", file=code)
             print("  <set>", file=code)
@@ -207,13 +215,15 @@ def PrintFiles(filepath):
             print("  <plot>"+outline+"</plot>", file=code)
             print("  <runtime>"+str(runtime).replace(" ","")+"</runtime>", file=code)
             print("  <director>" + director + "</director>", file=code)
-            print("  <poster>" + naming_rule + ".png</poster>", file=code)
-            print("  <thumb>" + naming_rule + ".png</thumb>", file=code)
-            print("  <fanart>"+naming_rule + '.jpg'+"</fanart>", file=code)
+            print("  <poster>poster.png</poster>", file=code)
+            print("  <thumb>thumb.png</thumb>", file=code)
+            print("  <fanart>fanart.jpg</fanart>", file=code)
             try:
-                for u in actor_list:
+                for key, value in actor_photo.items():
                     print("  <actor>", file=code)
-                    print("   <name>" + u + "</name>", file=code)
+                    print("   <name>" + key + "</name>", file=code)
+                    if not actor_photo == '':  # or actor_photo == []:
+                        print("   <thumb>" + value + "</thumb>", file=code)
                     print("  </actor>", file=code)
             except:
                 aaaa=''
@@ -237,9 +247,9 @@ def PrintFiles(filepath):
             print("  <num>" + number + "</num>", file=code)
             print("  <release>" + release + "</release>", file=code)
             print("  <cover>"+cover+"</cover>", file=code)
-            print("  <website>" + "https://www.javbus.com/"+number + "</website>", file=code)
+            print("  <website>" + website + "</website>", file=code)
             print("</movie>", file=code)
-            print("[+]Writeed!          "+path + "/" + naming_rule + ".nfo")
+            print("[+]Writeed!          "+path + "/" + number + ".nfo")
     except IOError as e:
         print("[-]Write Failed!")
         print(e)
@@ -253,31 +263,32 @@ def PrintFiles(filepath):
 def cutImage():
     if imagecut == 1:
         try:
-            img = Image.open(path + '/' + naming_rule + '.jpg')
+            img = Image.open(path + '/fanart.jpg')
             imgSize = img.size
             w = img.width
             h = img.height
             img2 = img.crop((w / 1.9, 0, w, h))
-            img2.save(path + '/' + naming_rule + '.png')
+            img2.save(path + '/poster.png')
         except:
             print('[-]Cover cut failed!')
     else:
-        img = Image.open(path + '/' + naming_rule + '.jpg')
+        img = Image.open(path + '/fanart.jpg')
         w = img.width
         h = img.height
-        img.save(path + '/' + naming_rule + '.png')
+        img.save(path + '/poster.png')
 def pasteFileToFolder(filepath, path): #文件路径，番号，后缀，要移动至的位置
     global houzhui
     houzhui = str(re.search('[.](AVI|RMVB|WMV|MOV|MP4|MKV|FLV|TS|avi|rmvb|wmv|mov|mp4|mkv|flv|ts)$', filepath).group())
-    os.rename(filepath, naming_rule + houzhui)
-    shutil.move(naming_rule + houzhui, path)
+    os.rename(filepath, number + houzhui)
+    shutil.move(number + houzhui, path)
 def renameJpgToBackdrop_copy():
-    shutil.copy(path+'/'+naming_rule + '.jpg', path+'/Backdrop.jpg')
+    shutil.copy(path+'/fanart.jpg', path+'/Backdrop.jpg')
+    shutil.copy(path + '/poster.png', path + '/thumb.png')
 
 if __name__ == '__main__':
     filepath=argparse_get_file()[0] #影片的路径
 
-    if '-c.' in filepath or '-C.' in filepath:
+    if '-c.' in filepath or '-C.' in filepath or '中文' in filepath or '字幕' in filepath:
         cn_sub='1'
 
     if argparse_get_file()[1] == '':    #获取手动拉去影片获取的番号
