@@ -1,7 +1,7 @@
 # AV Data Capture 日本电影元数据抓取工具（刮削器）
 
 
-<a title="Hits" target="_blank" href="https://github.com/b3log/hits"><img src="https://hits.b3log.org/b3log/hits.svg"></a>
+<a title="Hits" target="_blank" href="https://github.com/yoshiko2/AV_Data_Capture"><img src="https://hits.b3log.org/yoshiko2/AV_Data_Capture.svg"></a>
 ![](https://img.shields.io/badge/build-passing-brightgreen.svg?style=flat-square)
 ![](https://img.shields.io/github/downloads/yoshiko2/av_data_capture/total.svg?style=flat-square)<br>
 ![](https://img.shields.io/github/languages/code-size/yoshiko2/av_data_capture.svg?style=flat-square)
