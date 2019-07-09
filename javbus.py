@@ -89,7 +89,7 @@ def getTag(htmlcode):  # 获取演员
 
 def main(number):
     try:
-        if re.search('\d+\D+', number).group() in number:
+        if re.search('\d+\D+', number).group() in number or 'siro' in number or 'SIRO' in number or 'Siro' in number:
             js = siro.main(number)
             return js
     except:

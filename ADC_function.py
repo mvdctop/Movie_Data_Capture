@@ -3,27 +3,36 @@ from configparser import RawConfigParser
 import os
 import re
 from retrying import retry
+import time
 import sys
-
-# content = open('config.ini').read()
-# content = re.sub(r"\xfe\xff","", content)
-# content = re.sub(r"\xff\xfe","", content)
-# content = re.sub(r"\xef\xbb\xbf","", content)
-# open('BaseConfig.cfg', 'w').write(content)
 
 config = RawConfigParser()
 if os.path.exists('config.ini'):
-    config.read('config.ini', encoding='UTF-8')
+    try:
+        config.read('config.ini', encoding='UTF-8')
+    except:
+        print('[-]Config.ini read failed! Please use the offical file!')
 else:
+    print('[+]config.ini: not found, creating...')
     with open("config.ini", "wt", encoding='UTF-8') as code:
         print("[proxy]",file=code)
         print("proxy=127.0.0.1:1080",file=code)
         print("timeout=10", file=code)
+        print("retry=3", file=code)
+        print("", file=code)
         print("[Name_Rule]", file=code)
-        print("location_rule='JAV_output/'+actor+'/['+number+']-'+title",file=code)
+        print("location_rule='JAV_output/'+actor+'/'+number",file=code)
         print("naming_rule=number+'-'+title",file=code)
+        print("", file=code)
         print("[update]",file=code)
-        print("update_check=1")
+        print("update_check=1",file=code)
+    time.sleep(2)
+    print('[+]config.ini: created!')
+    try:
+        config.read('config.ini', encoding='UTF-8')
+    except:
+        print('[-]Config.ini read failed! Please use the offical file!')
+
 def UpdateCheckSwitch():
     check=str(config['update']['update_check'])
     if check == '1':
@@ -58,6 +67,5 @@ def get_html(url,cookies = None):#网页请求核心
         except requests.exceptions.ConnectTimeout:
             i += 1
             print('[-]Connect retry '+str(i)+'/'+str(retry_count))
-
 
 

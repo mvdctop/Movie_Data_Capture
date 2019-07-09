@@ -37,6 +37,11 @@ naming_rule  =''#eval(config['Name_Rule']['naming_rule'])
 location_rule=''#eval(config['Name_Rule']['location_rule'])
 
 #=====================本地文件处理===========================
+def moveFailedFolder():
+    global filepath
+    print('[-]Move to "failed"')
+    shutil.move(filepath, str(os.getcwd()) + '/' + 'failed/')
+    os._exit(0)
 def argparse_get_file():
     parser = argparse.ArgumentParser()
     parser.add_argument("--number", help="Enter Number on here", default='')
@@ -72,6 +77,9 @@ def getDataFromJSON(file_number): #从JSON返回元数据
     global naming_rule
     global location_rule
 
+
+    # ================================================网站规则添加开始================================================
+
     try:    # 添加 需要 正则表达式的规则
         # =======================javdb.py=======================
         if re.search('^\d{5,}', file_number).group() in file_number:
@@ -84,28 +92,31 @@ def getDataFromJSON(file_number): #从JSON返回元数据
         elif 'FC2' in file_number:
             json_data = json.loads(fc2fans_club.main(
                 file_number.strip('FC2_').strip('FC2-').strip('ppv-').strip('PPV-').strip('fc2_').strip('fc2-').strip('ppv-').strip('PPV-')))
-            # print(file_number.strip('FC2_').strip('FC2-').strip('ppv-').strip('PPV-'))
         # =======================javbus.py=======================
         else:
             json_data = json.loads(javbus.main(file_number))
 
     # ================================================网站规则添加结束================================================
 
-    title =      str(json_data['title']).replace(' ','')
-    studio =         json_data['studio']
-    year =           json_data['year']
-    outline =        json_data['outline']
-    runtime =        json_data['runtime']
-    director =       json_data['director']
-    actor_list = str(json_data['actor']).strip("[ ]").replace("'", '').split(',')  # 字符串转列表
-    release =        json_data['release']
-    number =         json_data['number']
-    cover =          json_data['cover']
-    imagecut =       json_data['imagecut']
-    tag =        str(json_data['tag']).strip("[ ]").replace("'", '').replace(" ", '').split(',')  # 字符串转列表
-    actor =      str(actor_list).strip("[ ]").replace("'", '').replace(" ", '')
-    actor_photo =    json_data['actor_photo']
-    website =        json_data['website']
+    title       = str(json_data['title']).replace(' ','')
+    studio      =     json_data['studio']
+    year        =     json_data['year']
+    outline     =     json_data['outline']
+    runtime     =     json_data['runtime']
+    director    =     json_data['director']
+    actor_list  = str(json_data['actor']).strip("[ ]").replace("'", '').split(',')  # 字符串转列表
+    release     =     json_data['release']
+    number      =     json_data['number']
+    cover       =     json_data['cover']
+    imagecut    =     json_data['imagecut']
+    tag         = str(json_data['tag']).strip("[ ]").replace("'", '').replace(" ", '').split(',')  # 字符串转列表
+    actor       = str(actor_list).strip("[ ]").replace("'", '').replace(" ", '')
+    actor_photo =     json_data['actor_photo']
+    website     =     json_data['website']
+
+    if title == '' or number == '':
+        print('[-]Movie Data not found!')
+        moveFailedFolder()
 
     # ====================处理异常字符====================== #\/:*?"<>|
     if '\\' in title:
@@ -163,20 +174,24 @@ def DownloadFileWithFilename(url,filename,path): #path = examle:photo , video.in
                 headers = {
                     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36'}
                 r = requests.get(url, headers=headers, timeout=timeout,proxies={"http": "http://" + str(proxy), "https": "https://" + str(proxy)})
+                if r == '':
+                    print('[-]Movie Data not found!')
+                    os._exit(0)
                 with open(str(path) + "/" + filename, "wb") as code:
                     code.write(r.content)
                 return
-                        # print(bytes(r),file=code)
             else:
                 if not os.path.exists(path):
                     os.makedirs(path)
                 headers = {
                     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36'}
                 r = requests.get(url, timeout=timeout, headers=headers)
+                if r == '':
+                    print('[-]Movie Data not found!')
+                    os._exit(0)
                 with open(str(path) + "/" + filename, "wb") as code:
                     code.write(r.content)
                 return
-                    # print(bytes(r),file=code)
         except requests.exceptions.RequestException:
             i += 1
             print('[-]Image Download :  Connect retry '+str(i)+'/'+str(retry_count))
@@ -189,11 +204,11 @@ def DownloadFileWithFilename(url,filename,path): #path = examle:photo , video.in
         except requests.exceptions.ConnectTimeout:
             i += 1
             print('[-]Image Download :  Connect retry '+str(i)+'/'+str(retry_count))
+    moveFailedFolder()
 def imageDownload(filepath): #封面是否下载成功，否则移动到failed
     global path
     if DownloadFileWithFilename(cover,'fanart.jpg', path) == 'failed':
-        shutil.move(filepath, 'failed/')
-        os._exit(0)
+        moveFailedFolder()
     DownloadFileWithFilename(cover, 'fanart.jpg', path)
     print('[+]Image Downloaded!', path +'/fanart.jpg')
 def PrintFiles(filepath):
@@ -253,13 +268,11 @@ def PrintFiles(filepath):
     except IOError as e:
         print("[-]Write Failed!")
         print(e)
-        shutil.move(filepath, str(os.getcwd()) + '/' + 'failed/')
-        os._exit(0)
+        moveFailedFolder()
     except Exception as e1:
         print(e1)
         print("[-]Write Failed!")
-        shutil.move(filepath, str(os.getcwd()) + '/' + 'failed/')
-        os._exit(0)
+        moveFailedFolder()
 def cutImage():
     if imagecut == 1:
         try:
@@ -282,7 +295,7 @@ def pasteFileToFolder(filepath, path): #文件路径，番号，后缀，要移�
     os.rename(filepath, number + houzhui)
     shutil.move(number + houzhui, path)
 def renameJpgToBackdrop_copy():
-    shutil.copy(path+'/fanart.jpg', path+'/Backdrop.jpg')
+    shutil.copy(path + '/fanart.jpg', path + '/Backdrop.jpg')
     shutil.copy(path + '/poster.png', path + '/thumb.png')
 
 if __name__ == '__main__':
@@ -297,7 +310,7 @@ if __name__ == '__main__':
             print("[!]Making Data for   [" + number + "]")
         except:
             print("[-]failed!Please rename the filename again!")
-            shutil.move(filepath,'failed/')
+            moveFailedFolder()
     else:
         number = argparse_get_file()[1]
     CreatFailedFolder()
@@ -308,4 +321,3 @@ if __name__ == '__main__':
     cutImage()  # 裁剪图
     pasteFileToFolder(filepath, path)  # 移动文件
     renameJpgToBackdrop_copy()
-    # time.sleep(20)
