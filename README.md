@@ -65,7 +65,7 @@
 
 # 如何使用
 ### 下载
-* release的程序可脱离**python环境**运行，可跳过 [模块安装](#1请安装模块在cmd终端逐条输入以下命令安装)<br>下载地址(**仅限Windows**):[点击前往](https://github.com/wenead99/AV_Data_Capture/releases)<br>
+* release的程序可脱离**python环境**运行，可跳过 [模块安装](#1请安装模块在cmd终端逐条输入以下命令安装)<br>下载地址(**仅限Windows**):[![](https://img.shields.io/badge/%E4%B8%8B%E8%BD%BD-windows-blue.svg?style=for-the-badge&logo=windows)](https://github.com/yoshiko2/av_data_capture/raw/master/Beta11.4.zip)<br>
 * Linux,MacOS请下载源码包运行
 
 * Windows Python环境:[点击前往](https://www.python.org/downloads/windows/) 选中executable installer下载
