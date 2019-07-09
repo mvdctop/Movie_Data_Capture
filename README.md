@@ -34,7 +34,6 @@
 4.不可使用于商业和个人其他意图<br>
 
 # 注意
-**tg官方电报群:[ 点击进群](https://t.me/AV_Data_Capture_Official)**<br>
 **推荐用法: 使用该软件后，对于不能正常获取元数据的电影可以用 Everaver 来补救**<br>
 暂不支持多P电影<br>
 
@@ -178,6 +177,6 @@ COSQ-004.mp4
 ## 7.把JAV_output文件夹导入到EMBY,KODI中，等待元数据刷新，完成
 ## 8.写在后面
 怎么样，看着自己的日本电影被这样完美地管理，是不是感觉成就感爆棚呢?<br>
-
+**tg官方电报群:[ 点击进群](https://t.me/AV_Data_Capture_Official)**<br>
 
 
