@@ -34,7 +34,6 @@
 4.不可使用于商业和个人其他意图<br>
 
 # 注意
-**tg官方电报群:[ 点击进群](https://t.me/AV_Data_Capture_Official)**<br>
 **推荐用法: 使用该软件后，对于不能正常获取元数据的电影可以用 Everaver 来补救**<br>
 暂不支持多P电影<br>
 
@@ -102,7 +101,7 @@ config.ini
 
 ### 1.网络设置
 #### * 针对“某些地区”的代理设置
-打开```config.ini```,在```[proxy]```下的```proxy```行设置本地代理地址和端口，支持Shadowsocks/R,V2RAY本地代理端口:<br>
+打开```config.ini```,在```[proxy]```下的```proxy```行设置本地代理地址和端口，支持Shadowxxxx/X,V2XXX本地代理端口:<br>
 例子:```proxy=127.0.0.1:1080```<br>素人系列抓取建议使用日本代理<br>
 **路由器拥有自动代理功能的可以把proxy=后面内容去掉**<br>
 **本地代理软件开全局模式的同志同上**<br>
@@ -156,7 +155,7 @@ config.ini
 同上<br>
 ### 关于番号提取失败或者异常
 **目前可以提取元素的影片:JAVBUS上有元数据的电影，素人系列:300Maan,259luxu,siro等,FC2系列**<br>
->下一张图片来自Pockies的blog:https://pockies.github.io/2019/03/25/everaver-emby-kodi/ 原作者已授权<br>
+>下一张图片来自Pockies的blog 原作者已授权<br>
 
 ![](https://raw.githubusercontent.com/Pockies/pic/master/741f9461gy1g1cxc31t41j20i804zdgo.jpg)
 
@@ -167,16 +166,15 @@ COSQ-004.mp4
 ```
 
 针对**野鸡番号**，你需要把文件名命名为与抓取网站提供的番号一致（文件拓展名除外），然后把文件拖拽至core.exe/.py<br>
-**野鸡番号**:比如 DCL-001-1这种野鸡三段式番号，在javbus等资料库存在的作品。<br>（除了SSNI-XXX-C，后面这种-C的是指电影有中文字幕！）<br>
+**野鸡番号**:比如 XXX-XXX-1这种野鸡三段式番号，在javbus等资料库存在的作品。<br>（除了SSNI-XXX-C，后面这种-C的是指电影有中文字幕！）<br>
 条件：文件名中间要有下划线或者减号"_","-"，没有多余的内容只有番号为最佳，可以让软件更好获取元数据
 对于多影片重命名，可以用[ReNamer](http://www.den4b.com/products/renamer)来批量重命名<br>
 ### 关于PIL/image.py
 暂时无解，可能是网络问题或者pillow模块打包问题，你可以用源码运行（要安装好第一步的模块）
 
 
-## 6.软件会自动把元数据获取成功的电影移动到JAV_output文件夹中，根据女优分类，失败的电影移动到failed文件夹中。
-## 7.把JAV_output文件夹导入到EMBY,KODI中，根据封面选片子，享受手冲乐趣
-cookies大神的EMBY教程:[链接](https://pockies.github.io/2019/03/25/everaver-emby-kodi/#%E5%AE%89%E8%A3%85emby%E5%B9%B6%E6%B7%BB%E5%8A%A0%E5%AA%92%E4%BD%93%E5%BA%93)<br>
+## 6.软件会自动把元数据获取成功的电影移动到JAV_output文件夹中，根据演员分类，失败的电影移动到failed文件夹中。
+## 7.把JAV_output文件夹导入到EMBY,KODI中，等待元数据刷新，完成
 ## 8.写在后面
 怎么样，看着自己的日本电影被这样完美地管理，是不是感觉成就感爆棚呢?<br>
 
