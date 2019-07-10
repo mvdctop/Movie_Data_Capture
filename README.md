@@ -145,7 +145,7 @@ config.ini
 ### 请确保软件是完整地！确保ini文件内容是和下载提供ini文件内容的一致的！
 ### 关于软件打开就闪退
 可以打开cmd命令提示符，把 ```AV_Data_capture.py/.exe```拖进cmd窗口回车运行，查看错误，出现的错误信息**依据以下条目解决**
-### 关于```Updata_check```
+### 关于```Updata_check```和```JSON```相关的错误
 跳转 [网络设置](#1网络设置)
 ### 关于```FileNotFoundError: [WinError 3] 系统找不到指定的路径。: 'JAV_output''```
 在软件所在文件夹下新建 JAV_output 文件夹
