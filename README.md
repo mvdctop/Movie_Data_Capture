@@ -4,13 +4,11 @@
 <a title="Hits" target="_blank" href="https://github.com/yoshiko2/AV_Data_Capture"><img src="https://hits.b3log.org/yoshiko2/AV_Data_Capture.svg"></a>
 ![](https://img.shields.io/badge/build-passing-brightgreen.svg?style=flat-square)
 ![](https://img.shields.io/github/downloads/yoshiko2/av_data_capture/total.svg?style=flat-square)<br>
-![](https://img.shields.io/github/languages/code-size/yoshiko2/av_data_capture.svg?style=flat-square)
-![](https://img.shields.io/github/issues/yoshiko2/av_data_capture.svg?style=flat-square)
 ![](https://img.shields.io/github/license/yoshiko2/av_data_capture.svg?style=flat-square)
 ![](https://img.shields.io/github/release/yoshiko2/av_data_capture.svg?style=flat-square)<br>
-![](https://img.shields.io/github/forks/yoshiko2/av_data_capture.svg?style=flat-square)
-![](https://img.shields.io/github/stars/yoshiko2/av_data_capture.svg?style=flat-square)
-![](https://img.shields.io/github/watchers/yoshiko2/av_data_capture.svg?style=flat-square)
+
+
+日本电影刮削器，配合本地影片管理软件EMBY,KODI管理本地影片，该软件起到分类与元数据抓取作用，利用元数据信息来分类，供本地影片分类整理使用。
 
 # 目录
 * [免责声明](#免责声明)
@@ -38,8 +36,8 @@
 暂不支持多P电影<br>
 
 # 你问我答 FAQ
-### F：这软件是干什么用的？
-**Q**：配合本地影片管理软件EMBY,KODI管理本地影片，该软件起到分类与元数据抓取作用，利用元数据信息来分类，**注意：不提供任何影片下载地址**。
+### F：这软件能下片吗？
+**Q**：该软件不提供任何影片下载地址，仅供本地影片分类整理使用。
 ### F：什么是元数据？
 **Q**：元数据包括了影片的：封面，导演，演员，简介，类型......
 ### F：软件收费吗？
