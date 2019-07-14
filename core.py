@@ -387,6 +387,8 @@ def renameJpgToBackdrop_copy():
     if option == 'plex':
         shutil.copy(path + '/fanart.jpg', path + '/Backdrop.jpg')
         shutil.copy(path + '/poster.png', path + '/thumb.png')
+    if option == 'emby':
+        shutil.copy(path + '/' + number + '.jpg', path + '/Backdrop.jpg')
 
 if __name__ == '__main__':
     filepath=argparse_get_file()[0] #影片的路径
