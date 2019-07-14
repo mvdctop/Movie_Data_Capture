@@ -8,7 +8,7 @@ import json
 import shutil
 from configparser import ConfigParser
 
-version='0.11.5'
+version='0.11.6'
 os.chdir(os.getcwd())
 
 config = ConfigParser()
