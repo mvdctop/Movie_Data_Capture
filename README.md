@@ -96,6 +96,17 @@ config.ini
 >
 >[update]<br>
 >update_check=1<br>
+>
+>[media]<br>
+>media_warehouse=emby<br>
+>#emby or plex<br>
+>#plex only test!<br>
+>
+>[directory_capture]<br>
+>switch=0<br>
+>directory=<br>
+>
+>#everyone switch:1=on, 0=off<br>
 
 ### 1.网络设置
 #### * 针对“某些地区”的代理设置
@@ -112,8 +123,25 @@ config.ini
 #### 连接重试次数设置
 >[proxy]<br>
 >retry=3<br>
-
 3即为重试次数
+
+#### 检查更新开关
+>[update]<br>
+>update_check=1<br>
+0为关闭，1为开启，不建议关闭
+
+##### 媒体库选择 
+>[media]<br>
+>media_warehouse=emby<br>
+>#emby or plex<br>
+>#plex only test!<br>
+建议选择emby, plex不完善
+
+#### 抓取目录选择
+>[directory_capture]<br>
+>switch=0<br>
+>directory=<br>
+switch为1时，directory才会被触发，抓取程序目录下的directory目录下的电影；如果为0则不触发，抓取和程序同一目录下的影片，directory不生效
 
 ### (可选)设置自定义目录和影片重命名规则
 **已有默认配置**<br>
