@@ -3,16 +3,20 @@ import os
 import time
 import re
 import sys
-import ADC_function
+from ADC_function import *
 import json
 import shutil
+from configparser import ConfigParser
 
 version='0.11.5'
 os.chdir(os.getcwd())
 
+config = ConfigParser()
+config.read(config_file, encoding='UTF-8')
+
 def UpdateCheck():
-    if ADC_function.UpdateCheckSwitch() == '1':
-        html2 = ADC_function.get_html('https://raw.githubusercontent.com/wenead99/AV_Data_Capture/master/update_check.json')
+    if UpdateCheckSwitch() == '1':
+        html2 = get_html('https://raw.githubusercontent.com/wenead99/AV_Data_Capture/master/update_check.json')
         html = json.loads(str(html2))
 
         if not version == html['version']:
@@ -23,25 +27,29 @@ def UpdateCheck():
     else:
         print('[+]Update Check disabled!')
 def movie_lists():
-    #MP4
-    a2 = glob.glob(r".\*.mp4")
-    # AVI
-    b2 = glob.glob(r".\*.avi")
-    # RMVB
-    c2 = glob.glob(r".\*.rmvb")
-    # WMV
-    d2 = glob.glob(r".\*.wmv")
-    # MOV
-    e2 = glob.glob(r".\*.mov")
-    # MKV
-    f2 = glob.glob(r".\*.mkv")
-    # FLV
-    g2 = glob.glob(r".\*.flv")
-    # TS
-    h2 = glob.glob(r".\*.ts")
-
-    total = a2+b2+c2+d2+e2+f2+g2+h2
-    return total
+    if config['directory_capture']['switch'] == '0' or config['directory_capture']['switch'] == '':
+        a2 = glob.glob(r".\*.mp4")
+        b2 = glob.glob(r".\*.avi")
+        c2 = glob.glob(r".\*.rmvb")
+        d2 = glob.glob(r".\*.wmv")
+        e2 = glob.glob(r".\*.mov")
+        f2 = glob.glob(r".\*.mkv")
+        g2 = glob.glob(r".\*.flv")
+        h2 = glob.glob(r".\*.ts")
+        total = a2 + b2 + c2 + d2 + e2 + f2 + g2 + h2
+        return total
+    elif config['directory_capture']['switch'] == '1':
+        directory = config['directory_capture']['directory']
+        a2 = glob.glob(r".\\" + directory + "\*.mp4")
+        b2 = glob.glob(r".\\" + directory + "\*.avi")
+        c2 = glob.glob(r".\\" + directory + "\*.rmvb")
+        d2 = glob.glob(r".\\" + directory + "\*.wmv")
+        e2 = glob.glob(r".\\" + directory + "\*.mov")
+        f2 = glob.glob(r".\\" + directory + "\*.mkv")
+        g2 = glob.glob(r".\\" + directory + "\*.flv")
+        h2 = glob.glob(r".\\" + directory + "\*.ts")
+        total = a2 + b2 + c2 + d2 + e2 + f2 + g2 + h2
+        return total
 def CreatFailedFolder():
     if not os.path.exists('failed/'):  # 新建failed文件夹
         try:
@@ -50,7 +58,6 @@ def CreatFailedFolder():
             print("[-]failed!can not be make folder 'failed'\n[-](Please run as Administrator)")
             os._exit(0)
 def lists_from_test(custom_nuber): #电影列表
-
     a=[]
     a.append(custom_nuber)
     return a

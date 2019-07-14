@@ -36,6 +36,13 @@ actor_photo={}
 naming_rule  =''#eval(config['Name_Rule']['naming_rule'])
 location_rule=''#eval(config['Name_Rule']['location_rule'])
 
+Config = ConfigParser()
+Config.read(config_file, encoding='UTF-8')
+try:
+    option = ReadMediaWarehouse()
+except:
+    print('[-]Config media_warehouse read failed!')
+
 #=====================本地文件处理===========================
 def moveFailedFolder():
     global filepath
@@ -159,16 +166,17 @@ def creatFolder(): #创建文件夹
             os.makedirs(path)
 #=====================资源下载部分===========================
 def DownloadFileWithFilename(url,filename,path): #path = examle:photo , video.in the Project Folder!
-    config = ConfigParser()
-    config.read('config.ini', encoding='UTF-8')
-    proxy       = str(config['proxy']['proxy'])
-    timeout     = int(config['proxy']['timeout'])
-    retry_count = int(config['proxy']['retry'])
+    try:
+        proxy = Config['proxy']['proxy']
+        timeout = int(Config['proxy']['timeout'])
+        retry_count = int(Config['proxy']['retry'])
+    except:
+        print('[-]Proxy config error! Please check the config.')
     i = 0
 
     while i < retry_count:
         try:
-            if not str(config['proxy']['proxy']) == '':
+            if not proxy == '':
                 if not os.path.exists(path):
                     os.makedirs(path)
                 headers = {
@@ -204,13 +212,19 @@ def DownloadFileWithFilename(url,filename,path): #path = examle:photo , video.in
         except requests.exceptions.ConnectTimeout:
             i += 1
             print('[-]Image Download :  Connect retry '+str(i)+'/'+str(retry_count))
+    print('[-]Connect Failed! Please check your Proxy or Network!')
     moveFailedFolder()
 def imageDownload(filepath): #封面是否下载成功，否则移动到failed
-    global path
-    if DownloadFileWithFilename(cover,'fanart.jpg', path) == 'failed':
-        moveFailedFolder()
-    DownloadFileWithFilename(cover, 'fanart.jpg', path)
-    print('[+]Image Downloaded!', path +'/fanart.jpg')
+    if option == 'emby':
+        if DownloadFileWithFilename(cover, number + '.jpg', path) == 'failed':
+            moveFailedFolder()
+        DownloadFileWithFilename(cover, number + '.jpg', path)
+        print('[+]Image Downloaded!', path + '/' + number + '.jpg')
+    elif option == 'plex':
+        if DownloadFileWithFilename(cover, 'fanart.jpg', path) == 'failed':
+            moveFailedFolder()
+        DownloadFileWithFilename(cover, 'fanart.jpg', path)
+        print('[+]Image Downloaded!', path + '/fanart.jpg')
 def PrintFiles(filepath):
     #global path
     global title
@@ -219,52 +233,100 @@ def PrintFiles(filepath):
     try:
         if not os.path.exists(path):
             os.makedirs(path)
-        with open(path + "/" + number + ".nfo", "wt", encoding='UTF-8') as code:
-            print("<movie>", file=code)
-            print(" <title>" + naming_rule + "</title>", file=code)
-            print("  <set>", file=code)
-            print("  </set>", file=code)
-            print("  <studio>" + studio + "+</studio>", file=code)
-            print("  <year>" + year + "</year>", file=code)
-            print("  <outline>"+outline+"</outline>", file=code)
-            print("  <plot>"+outline+"</plot>", file=code)
-            print("  <runtime>"+str(runtime).replace(" ","")+"</runtime>", file=code)
-            print("  <director>" + director + "</director>", file=code)
-            print("  <poster>poster.png</poster>", file=code)
-            print("  <thumb>thumb.png</thumb>", file=code)
-            print("  <fanart>fanart.jpg</fanart>", file=code)
-            try:
-                for key, value in actor_photo.items():
-                    print("  <actor>", file=code)
-                    print("   <name>" + key + "</name>", file=code)
-                    if not actor_photo == '':  # or actor_photo == []:
-                        print("   <thumb>" + value + "</thumb>", file=code)
-                    print("  </actor>", file=code)
-            except:
-                aaaa=''
-            print("  <maker>" + studio + "</maker>", file=code)
-            print("  <label>", file=code)
-            print("  </label>", file=code)
-            if cn_sub == '1':
-                print("  <tag>中文字幕</tag>", file=code)
-            try:
-                for i in tag:
-                    print("  <tag>" + i + "</tag>", file=code)
-            except:
-                aaaaa=''
-            try:
-                for i in tag:
-                    print("  <genre>" + i + "</genre>", file=code)
-            except:
-                aaaaaaaa=''
-            if cn_sub == '1':
-                print("  <genre>中文字幕</genre>", file=code)
-            print("  <num>" + number + "</num>", file=code)
-            print("  <release>" + release + "</release>", file=code)
-            print("  <cover>"+cover+"</cover>", file=code)
-            print("  <website>" + website + "</website>", file=code)
-            print("</movie>", file=code)
-            print("[+]Writeed!          "+path + "/" + number + ".nfo")
+        if option == 'plex':
+            with open(path + "/" + number + ".nfo", "wt", encoding='UTF-8') as code:
+                print("<movie>", file=code)
+                print(" <title>" + naming_rule + "</title>", file=code)
+                print("  <set>", file=code)
+                print("  </set>", file=code)
+                print("  <studio>" + studio + "+</studio>", file=code)
+                print("  <year>" + year + "</year>", file=code)
+                print("  <outline>" + outline + "</outline>", file=code)
+                print("  <plot>" + outline + "</plot>", file=code)
+                print("  <runtime>" + str(runtime).replace(" ", "") + "</runtime>", file=code)
+                print("  <director>" + director + "</director>", file=code)
+                print("  <poster>poster.png</poster>", file=code)
+                print("  <thumb>thumb.png</thumb>", file=code)
+                print("  <fanart>fanart.jpg</fanart>", file=code)
+                try:
+                    for key, value in actor_photo.items():
+                        print("  <actor>", file=code)
+                        print("   <name>" + key + "</name>", file=code)
+                        if not actor_photo == '':  # or actor_photo == []:
+                            print("   <thumb>" + value + "</thumb>", file=code)
+                        print("  </actor>", file=code)
+                except:
+                    aaaa = ''
+                print("  <maker>" + studio + "</maker>", file=code)
+                print("  <label>", file=code)
+                print("  </label>", file=code)
+                if cn_sub == '1':
+                    print("  <tag>中文字幕</tag>", file=code)
+                try:
+                    for i in tag:
+                        print("  <tag>" + i + "</tag>", file=code)
+                except:
+                    aaaaa = ''
+                try:
+                    for i in tag:
+                        print("  <genre>" + i + "</genre>", file=code)
+                except:
+                    aaaaaaaa = ''
+                if cn_sub == '1':
+                    print("  <genre>中文字幕</genre>", file=code)
+                print("  <num>" + number + "</num>", file=code)
+                print("  <release>" + release + "</release>", file=code)
+                print("  <cover>" + cover + "</cover>", file=code)
+                print("  <website>" + website + "</website>", file=code)
+                print("</movie>", file=code)
+                print("[+]Writeed!          " + path + "/" + number + ".nfo")
+        elif option == 'emby':
+            with open(path + "/" + number + ".nfo", "wt", encoding='UTF-8') as code:
+                print("<movie>", file=code)
+                print(" <title>" + naming_rule + "</title>", file=code)
+                print("  <set>", file=code)
+                print("  </set>", file=code)
+                print("  <studio>" + studio + "+</studio>", file=code)
+                print("  <year>" + year + "</year>", file=code)
+                print("  <outline>" + outline + "</outline>", file=code)
+                print("  <plot>" + outline + "</plot>", file=code)
+                print("  <runtime>" + str(runtime).replace(" ", "") + "</runtime>", file=code)
+                print("  <director>" + director + "</director>", file=code)
+                print("  <poster>" + number + ".png</poster>", file=code)
+                print("  <thumb>" + number + ".png</thumb>", file=code)
+                print("  <fanart>" + number + '.jpg' + "</fanart>", file=code)
+                try:
+                    for key, value in actor_photo.items():
+                        print("  <actor>", file=code)
+                        print("   <name>" + key + "</name>", file=code)
+                        if not actor_photo == '':  # or actor_photo == []:
+                            print("   <thumb>" + value + "</thumb>", file=code)
+                        print("  </actor>", file=code)
+                except:
+                    aaaa = ''
+                print("  <maker>" + studio + "</maker>", file=code)
+                print("  <label>", file=code)
+                print("  </label>", file=code)
+                if cn_sub == '1':
+                    print("  <tag>中文字幕</tag>", file=code)
+                try:
+                    for i in tag:
+                        print("  <tag>" + i + "</tag>", file=code)
+                except:
+                    aaaaa = ''
+                try:
+                    for i in tag:
+                        print("  <genre>" + i + "</genre>", file=code)
+                except:
+                    aaaaaaaa = ''
+                if cn_sub == '1':
+                    print("  <genre>中文字幕</genre>", file=code)
+                print("  <num>" + number + "</num>", file=code)
+                print("  <release>" + release + "</release>", file=code)
+                print("  <cover>" + cover + "</cover>", file=code)
+                print("  <website>" + "https://www.javbus.com/" + number + "</website>", file=code)
+                print("</movie>", file=code)
+                print("[+]Writeed!          " + path + "/" + number + ".nfo")
     except IOError as e:
         print("[-]Write Failed!")
         print(e)
@@ -274,29 +336,57 @@ def PrintFiles(filepath):
         print("[-]Write Failed!")
         moveFailedFolder()
 def cutImage():
-    if imagecut == 1:
-        try:
+    if option == 'plex':
+        if imagecut == 1:
+            try:
+                img = Image.open(path + '/fanart.jpg')
+                imgSize = img.size
+                w = img.width
+                h = img.height
+                img2 = img.crop((w / 1.9, 0, w, h))
+                img2.save(path + '/poster.png')
+            except:
+                print('[-]Cover cut failed!')
+        else:
             img = Image.open(path + '/fanart.jpg')
-            imgSize = img.size
             w = img.width
             h = img.height
-            img2 = img.crop((w / 1.9, 0, w, h))
-            img2.save(path + '/poster.png')
-        except:
-            print('[-]Cover cut failed!')
-    else:
-        img = Image.open(path + '/fanart.jpg')
-        w = img.width
-        h = img.height
-        img.save(path + '/poster.png')
+            img.save(path + '/poster.png')
+    elif option == 'emby':
+        if imagecut == 1:
+            try:
+                img = Image.open(path + '/' + number + '.jpg')
+                imgSize = img.size
+                w = img.width
+                h = img.height
+                img2 = img.crop((w / 1.9, 0, w, h))
+                img2.save(path + '/' + number + '.png')
+            except:
+                print('[-]Cover cut failed!')
+        else:
+            img = Image.open(path + '/' + number + '.jpg')
+            w = img.width
+            h = img.height
+            img.save(path + '/' + number + '.png')
 def pasteFileToFolder(filepath, path): #文件路径，番号，后缀，要移动至的位置
     global houzhui
     houzhui = str(re.search('[.](AVI|RMVB|WMV|MOV|MP4|MKV|FLV|TS|avi|rmvb|wmv|mov|mp4|mkv|flv|ts)$', filepath).group())
-    os.rename(filepath, number + houzhui)
-    shutil.move(number + houzhui, path)
+    try:
+        os.rename(filepath, number + houzhui)
+    except FileExistsError:
+        print('[-]File Exists! Please check your movie!')
+        print('[-]move to the root folder of the program.')
+        os._exit(0)
+    try:
+        shutil.move(number + houzhui, path)
+    except:
+        print('[-]File Exists! Please check your movie!')
+        print('[-]move to the root folder of the program.')
+        os._exit(0)
 def renameJpgToBackdrop_copy():
-    shutil.copy(path + '/fanart.jpg', path + '/Backdrop.jpg')
-    shutil.copy(path + '/poster.png', path + '/thumb.png')
+    if option == 'plex':
+        shutil.copy(path + '/fanart.jpg', path + '/Backdrop.jpg')
+        shutil.copy(path + '/poster.png', path + '/thumb.png')
 
 if __name__ == '__main__':
     filepath=argparse_get_file()[0] #影片的路径
