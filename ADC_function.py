@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import requests
 from configparser import ConfigParser
 import os
