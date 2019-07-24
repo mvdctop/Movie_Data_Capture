@@ -129,6 +129,7 @@ config.ini
 >[update]<br>
 >update_check=1<br>
 0为关闭，1为开启，不建议关闭
+PLEX请安装插件：```XBMCnfoMoviesImporter```
 
 ##### 媒体库选择 
 >[media]<br>
