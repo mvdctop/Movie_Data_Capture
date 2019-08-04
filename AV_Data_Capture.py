@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 import glob
@@ -30,26 +31,26 @@ def UpdateCheck():
         print('[+]Update Check disabled!')
 def movie_lists():
     if config['directory_capture']['switch'] == '0' or config['directory_capture']['switch'] == '':
-        a2 = glob.glob(r".\*.mp4")
-        b2 = glob.glob(r".\*.avi")
-        c2 = glob.glob(r".\*.rmvb")
-        d2 = glob.glob(r".\*.wmv")
-        e2 = glob.glob(r".\*.mov")
-        f2 = glob.glob(r".\*.mkv")
-        g2 = glob.glob(r".\*.flv")
-        h2 = glob.glob(r".\*.ts")
+        a2 = glob.glob(r'./*.mp4') # 使用 '/' 可以同时兼容Linux
+        b2 = glob.glob(r'./*.avi')
+        c2 = glob.glob(r'./*.rmvb')
+        d2 = glob.glob(r'./*.wmv')
+        e2 = glob.glob(r'./*.mov')
+        f2 = glob.glob(r'./*.mkv')
+        g2 = glob.glob(r'./*.flv')
+        h2 = glob.glob(r'./*.ts')
         total = a2 + b2 + c2 + d2 + e2 + f2 + g2 + h2
         return total
     elif config['directory_capture']['switch'] == '1':
         directory = config['directory_capture']['directory']
-        a2 = glob.glob(r".\\" + directory + "\*.mp4")
-        b2 = glob.glob(r".\\" + directory + "\*.avi")
-        c2 = glob.glob(r".\\" + directory + "\*.rmvb")
-        d2 = glob.glob(r".\\" + directory + "\*.wmv")
-        e2 = glob.glob(r".\\" + directory + "\*.mov")
-        f2 = glob.glob(r".\\" + directory + "\*.mkv")
-        g2 = glob.glob(r".\\" + directory + "\*.flv")
-        h2 = glob.glob(r".\\" + directory + "\*.ts")
+        a2 = glob.glob(r"./" + directory + "/*.mp4")
+        b2 = glob.glob(r"./" + directory + "/*.avi")
+        c2 = glob.glob(r"./" + directory + "/*.rmvb")
+        d2 = glob.glob(r"./" + directory + "/*.wmv")
+        e2 = glob.glob(r"./" + directory + "/*.mov")
+        f2 = glob.glob(r"./" + directory + "/*.mkv")
+        g2 = glob.glob(r"./" + directory + "/*.flv")
+        h2 = glob.glob(r"./" + directory + "/*.ts")
         total = a2 + b2 + c2 + d2 + e2 + f2 + g2 + h2
         return total
 def CreatFailedFolder():
@@ -121,11 +122,11 @@ def getNumber(filepath):
 
 def RunCore():
     if os.path.exists('core.py'):
-        os.system('python core.py' + '   "' + i + '" --number "'+getNumber(i)+'"')     #从py文件启动（用于源码py）
+        os.popen(sys.executable + ' core.py' + '   "' + i + '" --number "'+getNumber(i)+'"')     #从py文件启动（用于源码py）
     elif os.path.exists('core.exe'):
-        os.system('core.exe' + '   "' + i + '" --number "'+getNumber(i)+'"')           #从exe启动（用于EXE版程序）
+        os.popen('core.exe' + '   "' + i + '" --number "'+getNumber(i)+'"')           #从exe启动（用于EXE版程序）
     elif os.path.exists('core.py') and os.path.exists('core.exe'):
-        os.system('python core.py' + '   "' + i + '" --number "' + getNumber(i) + '"') #从py文件启动（用于源码py）
+        os.popen(sys.executable + ' core.py' + '   "' + i + '" --number "' + getNumber(i) + '"') #从py文件启动（用于源码py）
 
 if __name__ =='__main__':
     print('[*]===========AV Data Capture===========')

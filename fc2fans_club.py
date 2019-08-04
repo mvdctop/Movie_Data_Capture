@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import re
 from lxml import etree#need install
 import json
