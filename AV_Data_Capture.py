@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 import glob
@@ -7,11 +8,15 @@ import re
 import sys
 from ADC_function import *
 import json
+import subprocess
 import shutil
 from configparser import ConfigParser
 
 version='0.11.6'
 os.chdir(os.getcwd())
+
+input_dir='.' # 电影的读取与输出路径, 默认为当前路径
+output_dir='.'
 
 config = ConfigParser()
 config.read(config_file, encoding='UTF-8')
@@ -28,36 +33,50 @@ def UpdateCheck():
             print('[*]=====================================')
     else:
         print('[+]Update Check disabled!')
+
+def set_directory(): # 设置读取与存放路径
+    global input_dir
+    global output_dir
+    # 配置项switch为1且定义了新的路径时, 更改默认存取路径
+    if config['directory_capture']['switch'] == '1': 
+        custom_input = config['directory_capture']['input_directory']
+        custom_output = config['directory_capture']['output_directory']
+        if custom_input != '': # 自定义了输入路径
+            input_dir = format_path(custom_input)
+            # 若自定义了输入路径, 输出路径默认在输入路径下
+            output_dir = input_dir 
+        output_dir = format_path(custom_output) if custom_output != '' else output_dir # 自定义了输出路径
+    CreatFolder(output_dir)
+    CreatFolder(input_dir)
+    print('[+]Working directory is "' + os.getcwd() + '".')
+    print('[+]Using "' + input_dir + '" as input directory.')
+    print('[+]Using "' + output_dir + '" as output directory.')
+
+def format_path(path): # 使路径兼容Linux与MacOS
+    if path.find('\\'): # 是仅兼容Windows的路径格式
+        path_list=path.split('\\')
+        path='/'.join(path_list) # 转换为可移植的路径格式
+    return path
+
+
 def movie_lists():
-    if config['directory_capture']['switch'] == '0' or config['directory_capture']['switch'] == '':
-        a2 = glob.glob(r".\*.mp4")
-        b2 = glob.glob(r".\*.avi")
-        c2 = glob.glob(r".\*.rmvb")
-        d2 = glob.glob(r".\*.wmv")
-        e2 = glob.glob(r".\*.mov")
-        f2 = glob.glob(r".\*.mkv")
-        g2 = glob.glob(r".\*.flv")
-        h2 = glob.glob(r".\*.ts")
-        total = a2 + b2 + c2 + d2 + e2 + f2 + g2 + h2
-        return total
-    elif config['directory_capture']['switch'] == '1':
-        directory = config['directory_capture']['directory']
-        a2 = glob.glob(r".\\" + directory + "\*.mp4")
-        b2 = glob.glob(r".\\" + directory + "\*.avi")
-        c2 = glob.glob(r".\\" + directory + "\*.rmvb")
-        d2 = glob.glob(r".\\" + directory + "\*.wmv")
-        e2 = glob.glob(r".\\" + directory + "\*.mov")
-        f2 = glob.glob(r".\\" + directory + "\*.mkv")
-        g2 = glob.glob(r".\\" + directory + "\*.flv")
-        h2 = glob.glob(r".\\" + directory + "\*.ts")
-        total = a2 + b2 + c2 + d2 + e2 + f2 + g2 + h2
-        return total
-def CreatFailedFolder():
-    if not os.path.exists('failed/'):  # 新建failed文件夹
+    a2 = glob.glob( input_dir + "/*.mp4")
+    b2 = glob.glob( input_dir + "/*.avi")
+    c2 = glob.glob( input_dir + "/*.rmvb")
+    d2 = glob.glob( input_dir + "/*.wmv")
+    e2 = glob.glob( input_dir + "/*.mov")
+    f2 = glob.glob( input_dir + "/*.mkv")
+    g2 = glob.glob( input_dir + "/*.flv")
+    h2 = glob.glob( input_dir + "/*.ts")
+    total = a2 + b2 + c2 + d2 + e2 + f2 + g2 + h2
+    return total
+def CreatFolder(folder_path):
+    if not os.path.exists(folder_path):  # 新建文件夹
         try:
-            os.makedirs('failed/')
+            print('[+]Creating ' + folder_path)
+            os.makedirs(folder_path)
         except:
-            print("[-]failed!can not be make folder 'failed'\n[-](Please run as Administrator)")
+            print("[-]failed!can not be make folder '"+folder_path+"'\n[-](Please run as Administrator)")
             os._exit(0)
 def lists_from_test(custom_nuber): #电影列表
     a=[]
@@ -111,40 +130,56 @@ def getNumber(filepath):
         print('[-]' + str(os.path.basename(filepath)) + ' Cannot catch the number :')
         print('[-]' + str(os.path.basename(filepath)) + ' :', e)
         print('[-]Move ' + os.path.basename(filepath) + ' to failed folder')
-
-        shutil.move(filepath, str(os.getcwd()) + '/' + 'failed/')
+        print('[-]' + filepath + ' -> ' + output_dir + '/failed/')
+        shutil.move(filepath, output_dir + '/failed/')
     except IOError as e2:
         print('[-]' + str(os.path.basename(filepath)) + ' Cannot catch the number :')
         print('[-]' + str(os.path.basename(filepath)) + ' :', e2)
-        print('[-]Move ' + os.path.basename(filepath) + ' to failed folder')
-        shutil.move(filepath, str(os.getcwd()) + '/' + 'failed/')
+        print('[-]' + filepath + ' -> ' + output_dir + '/failed/')
+        shutil.move(filepath, output_dir + '/failed/')
 
-def RunCore():
+def RunCore(movie):
+    # 异步调用core.py, core.py作为子线程执行, 本程序继续执行.
     if os.path.exists('core.py'):
-        os.system('python core.py' + '   "' + i + '" --number "'+getNumber(i)+'"')     #从py文件启动（用于源码py）
+        cmd_arg=[sys.executable,'core.py',movie,'--number',getNumber(movie),'--output',output_dir] #从py文件启动（用于源码py）
     elif os.path.exists('core.exe'):
-        os.system('core.exe' + '   "' + i + '" --number "'+getNumber(i)+'"')           #从exe启动（用于EXE版程序）
+        cmd_arg=['core.exe',movie,'--number',getNumber(movie),'--output',output_dir] #从exe启动（用于EXE版程序）
     elif os.path.exists('core.py') and os.path.exists('core.exe'):
-        os.system('python core.py' + '   "' + i + '" --number "' + getNumber(i) + '"') #从py文件启动（用于源码py）
+        cmd_arg=[sys.executable,'core.py',movie,'--number',getNumber(movie),'--output',output_dir] #从py文件启动（用于源码py）
+    process=subprocess.Popen(cmd_arg)
+    return process
 
 if __name__ =='__main__':
     print('[*]===========AV Data Capture===========')
     print('[*]           Version '+version)
     print('[*]=====================================')
-    CreatFailedFolder()
     UpdateCheck()
     os.chdir(os.getcwd())
+    set_directory()
+    CreatFolder(output_dir+'/failed')
 
     count = 0
-    count_all = str(len(movie_lists()))
-    for i in movie_lists(): #遍历电影列表 交给core处理
-        count = count + 1
-        percentage = str(count/int(count_all)*100)[:4]+'%'
+    movies = movie_lists()
+    count_all = str(len(movies))
+    print('[+]Find ' + str(len(movies)) + ' movies.')
+    process_list=[]
+    for movie in movies: #遍历电影列表 交给core处理
+        num=getNumber(movie) # 获取番号
+        if num is None:
+            movies.remove(movie) # 未获取到番号, 则将影片从列表移除
+            count_all=count_all-1
+            continue
+        print("[!]Making Data for   [" + movie + "], the number is [" + num + "]")
+        process=RunCore(movie)
+        process_list.append(process)
+    print("[*]=====================================")
+    for i in range(len(movies)):
+        process_list[i].communicate()
+        percentage = str((i+1)/int(count_all)*100)[:4]+'%'
         print('[!] - '+percentage+' ['+str(count)+'/'+count_all+'] -')
-        print("[!]Making Data for   [" + i + "], the number is [" + getNumber(i) + "]")
-        RunCore()
-        print("[*]=====================================")
-
-    CEF('JAV_output')
+        print("[!]The [" + getNumber(movies[i]) + "] process is done.")
+    print("[*]=====================================")
+        
+    CEF(input_dir)
     print("[+]All finished!!!")
     input("[+][+]Press enter key exit, you can check the error messge before you exit.\n[+][+]按回车键结束，你可以在结束之前查看和错误信息。")

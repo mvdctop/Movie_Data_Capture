@@ -141,8 +141,9 @@ PLEX请安装插件：```XBMCnfoMoviesImporter```
 #### 抓取目录选择
 >[directory_capture]<br>
 >switch=0<br>
->directory=<br>
-switch为1时，directory才会被触发，抓取程序目录下的directory目录下的电影；如果为0则不触发，抓取和程序同一目录下的影片，directory不生效
+>input_directory=<br>
+>output_directory=<br>
+switch为1时，目录自定义才会被触发，此时可以指定抓取任意目录下的影片, 并指定存放的目录；如果为0则不触发，抓取和程序同一目录下的影片，directory不生效. 如果仅指定input_directory, output_directory默认与input_directory相同.
 
 ### (可选)设置自定义目录和影片重命名规则
 **已有默认配置**<br>
