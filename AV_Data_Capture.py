@@ -130,11 +130,12 @@ def getNumber(filepath):
         print('[-]' + str(os.path.basename(filepath)) + ' Cannot catch the number :')
         print('[-]' + str(os.path.basename(filepath)) + ' :', e)
         print('[-]Move ' + os.path.basename(filepath) + ' to failed folder')
+        print('[-]' + filepath + ' -> ' + output_dir + '/failed/')
         shutil.move(filepath, output_dir + '/failed/')
     except IOError as e2:
         print('[-]' + str(os.path.basename(filepath)) + ' Cannot catch the number :')
         print('[-]' + str(os.path.basename(filepath)) + ' :', e2)
-        print('[-]Move ' + os.path.basename(filepath) + ' to failed folder')
+        print('[-]' + filepath + ' -> ' + output_dir + '/failed/')
         shutil.move(filepath, output_dir + '/failed/')
 
 def RunCore(movie):
@@ -163,7 +164,12 @@ if __name__ =='__main__':
     print('[+]Find ' + str(len(movies)) + ' movies.')
     process_list=[]
     for movie in movies: #遍历电影列表 交给core处理
-        print("[!]Making Data for   [" + movie + "], the number is [" + getNumber(movie) + "]")
+        num=getNumber(movie) # 获取番号
+        if num is None:
+            movies.remove(movie) # 未获取到番号, 则将影片从列表移除
+            count_all=count_all-1
+            continue
+        print("[!]Making Data for   [" + movie + "], the number is [" + num + "]")
         process=RunCore(movie)
         process_list.append(process)
     print("[*]=====================================")
