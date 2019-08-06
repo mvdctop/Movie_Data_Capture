@@ -12,20 +12,17 @@ import subprocess
 import shutil
 from configparser import ConfigParser
 
-version='0.11.6'
+version='0.11.7'
 os.chdir(os.getcwd())
 
 input_dir='.' # 电影的读取与输出路径, 默认为当前路径
-output_dir='.'
 
 config = ConfigParser()
 config.read(config_file, encoding='UTF-8')
 
 def UpdateCheck():
     if UpdateCheckSwitch() == '1':
-        html2 = get_html('https://raw.githubusercontent.com/wenead99/AV_Data_Capture/master/update_check.json')
-        html = json.loads(str(html2))
-
+        html = json.loads(get_html('https://raw.githubusercontent.com/wenead99/AV_Data_Capture/master/update_check.json'))
         if not version == html['version']:
             print('[*]        * New update ' + html['version'] + ' *')
             print('[*]             * Download *')
@@ -36,21 +33,15 @@ def UpdateCheck():
 
 def set_directory(): # 设置读取与存放路径
     global input_dir
-    global output_dir
     # 配置项switch为1且定义了新的路径时, 更改默认存取路径
     if config['directory_capture']['switch'] == '1': 
         custom_input = config['directory_capture']['input_directory']
-        custom_output = config['directory_capture']['output_directory']
         if custom_input != '': # 自定义了输入路径
             input_dir = format_path(custom_input)
             # 若自定义了输入路径, 输出路径默认在输入路径下
-            output_dir = input_dir 
-        output_dir = format_path(custom_output) if custom_output != '' else output_dir # 自定义了输出路径
-    CreatFolder(output_dir)
     CreatFolder(input_dir)
-    print('[+]Working directory is "' + os.getcwd() + '".')
-    print('[+]Using "' + input_dir + '" as input directory.')
-    print('[+]Using "' + output_dir + '" as output directory.')
+    #print('[+]Working directory is "' + os.getcwd() + '".')
+    #print('[+]Using "' + input_dir + '" as input directory.')
 
 def format_path(path): # 使路径兼容Linux与MacOS
     if path.find('\\'): # 是仅兼容Windows的路径格式
@@ -130,33 +121,33 @@ def getNumber(filepath):
         print('[-]' + str(os.path.basename(filepath)) + ' Cannot catch the number :')
         print('[-]' + str(os.path.basename(filepath)) + ' :', e)
         print('[-]Move ' + os.path.basename(filepath) + ' to failed folder')
-        print('[-]' + filepath + ' -> ' + output_dir + '/failed/')
-        shutil.move(filepath, output_dir + '/failed/')
+        #print('[-]' + filepath + ' -> ' + output_dir + '/failed/')
+        #shutil.move(filepath, output_dir + '/failed/')
     except IOError as e2:
         print('[-]' + str(os.path.basename(filepath)) + ' Cannot catch the number :')
         print('[-]' + str(os.path.basename(filepath)) + ' :', e2)
-        print('[-]' + filepath + ' -> ' + output_dir + '/failed/')
-        shutil.move(filepath, output_dir + '/failed/')
+        #print('[-]' + filepath + ' -> ' + output_dir + '/failed/')
+        #shutil.move(filepath, output_dir + '/failed/')
 
 def RunCore(movie):
     # 异步调用core.py, core.py作为子线程执行, 本程序继续执行.
     if os.path.exists('core.py'):
-        cmd_arg=[sys.executable,'core.py',movie,'--number',getNumber(movie),'--output',output_dir] #从py文件启动（用于源码py）
+        cmd_arg=[sys.executable,'core.py',movie,'--number',getNumber(movie)] #从py文件启动（用于源码py）
     elif os.path.exists('core.exe'):
-        cmd_arg=['core.exe',movie,'--number',getNumber(movie),'--output',output_dir] #从exe启动（用于EXE版程序）
+        cmd_arg=['core.exe',movie,'--number',getNumber(movie)] #从exe启动（用于EXE版程序）
     elif os.path.exists('core.py') and os.path.exists('core.exe'):
-        cmd_arg=[sys.executable,'core.py',movie,'--number',getNumber(movie),'--output',output_dir] #从py文件启动（用于源码py）
+        cmd_arg=[sys.executable,'core.py',movie,'--number',getNumber(movie)] #从py文件启动（用于源码py）
     process=subprocess.Popen(cmd_arg)
     return process
 
 if __name__ =='__main__':
     print('[*]===========AV Data Capture===========')
-    print('[*]           Version '+version)
+    print('[*]           Version  '+version)
     print('[*]=====================================')
     UpdateCheck()
     os.chdir(os.getcwd())
     set_directory()
-    CreatFolder(output_dir+'/failed')
+
 
     count = 0
     movies = movie_lists()

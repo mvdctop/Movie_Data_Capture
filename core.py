@@ -32,7 +32,6 @@ imagecut=''
 tag=[]
 cn_sub=''
 path=''
-output_dir=''
 houzhui=''
 website=''
 json_data={}
@@ -51,20 +50,19 @@ except:
 def moveFailedFolder():
     global filepath
     print('[-]Move to "failed"')
-    print('[-]' + filepath + ' -> ' + output_dir + '/failed/')
-    os.rename(filepath, output_dir + '/failed/')
+    #print('[-]' + filepath + ' -> ' + output_dir + '/failed/')
+    #os.rename(filepath, output_dir + '/failed/')
     os._exit(0)
 def argparse_get_file():
     parser = argparse.ArgumentParser()
     parser.add_argument("file", help="Write the file path on here")
     parser.add_argument("--number", help="Enter Number on here", default='')
-    parser.add_argument("--output", help="Enter Output directory here", default='')
     args = parser.parse_args()
-    return (args.file, args.number, args.output)
+    return (args.file, args.number)
 def CreatFailedFolder():
-    if not os.path.exists(output_dir+'/failed/'):  # 新建failed文件夹
+    if not os.path.exists('/failed/'):  # 新建failed文件夹
         try:
-            os.makedirs(output_dir+'/failed/')
+            os.makedirs('/failed/')
         except:
             print("[-]failed!can not be make folder 'failed'\n[-](Please run as Administrator)")
             os._exit(0)
@@ -158,10 +156,10 @@ def creatFolder(): #创建文件夹
     global actor
     global path
     if len(actor) > 240:                    #新建成功输出文件夹
-        path = output_dir + '/' + location_rule.replace("'actor'","'超多人'",3).replace("actor","'超多人'",3) #path为影片+元数据所在目录
+        path = location_rule.replace("'actor'","'超多人'",3).replace("actor","'超多人'",3) #path为影片+元数据所在目录
         #print(path)
     else:
-        path = output_dir + '/' + location_rule
+        path = location_rule
         #print(path)
     if not os.path.exists(path):
         try:
@@ -377,16 +375,9 @@ def cutImage():
 def pasteFileToFolder(filepath, path): #文件路径，番号，后缀，要移动至的位置
     global houzhui
     houzhui = str(re.search('[.](AVI|RMVB|WMV|MOV|MP4|MKV|FLV|TS|avi|rmvb|wmv|mov|mp4|mkv|flv|ts)$', filepath).group())
+    os.rename(filepath, number + houzhui)
     try:
-        print('[*]' + filepath + ' -> ' + output_dir + number + houzhui)
-        os.rename(filepath, output_dir + '/' + number + houzhui)
-    except FileExistsError:
-        print('[-]File Exists! Please check your movie!')
-        print('[-]move to the root folder of the program.')
-        os._exit(0)
-    try:
-        print('[*]' + output_dir + '/' + number + houzhui + ' -> ' + path)
-        os.rename(output_dir + '/'  + number + houzhui, path)
+        shutil.move(number + houzhui, path)
     except:
         print('[-]File Exists! Please check your movie!')
         print('[-]move to the root folder of the program.')
@@ -413,7 +404,6 @@ if __name__ == '__main__':
             moveFailedFolder()
     else:
         number = argparse_get_file()[1]
-    output_dir = argparse_get_file()[2]
     CreatFailedFolder()
     getDataFromJSON(number)  # 定义番号
     creatFolder()  # 创建文件夹
