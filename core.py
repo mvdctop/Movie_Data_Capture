@@ -103,6 +103,8 @@ def getDataFromJSON(file_number): #从JSON返回元数据
         elif 'FC2' in file_number:
             json_data = json.loads(fc2fans_club.main(
                 file_number.strip('FC2_').strip('FC2-').strip('ppv-').strip('PPV-').strip('fc2_').strip('fc2-').strip('ppv-').strip('PPV-')))
+        elif 'siro' in number or 'SIRO' in number or 'Siro' in number:
+            json_data = json.loads(siro.main(file_number))
         # =======================javbus.py=======================
         else:
             json_data = json.loads(javbus.main(file_number))
