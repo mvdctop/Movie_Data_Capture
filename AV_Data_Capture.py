@@ -15,10 +15,9 @@ from configparser import ConfigParser
 version='0.11.7'
 os.chdir(os.getcwd())
 
-input_dir='.' # 电影的读取与输出路径, 默认为当前路径
-
 config = ConfigParser()
 config.read(config_file, encoding='UTF-8')
+input_dir=config['directory_capture']['input_directory']
 
 def UpdateCheck():
     if UpdateCheckSwitch() == '1':
@@ -30,18 +29,6 @@ def UpdateCheck():
             print('[*]=====================================')
     else:
         print('[+]Update Check disabled!')
-
-def set_directory(): # 设置读取与存放路径
-    global input_dir
-    # 配置项switch为1且定义了新的路径时, 更改默认存取路径
-    if config['directory_capture']['switch'] == '1': 
-        custom_input = config['directory_capture']['input_directory']
-        if custom_input != '': # 自定义了输入路径
-            input_dir = format_path(custom_input)
-            # 若自定义了输入路径, 输出路径默认在输入路径下
-    CreatFolder(input_dir)
-    #print('[+]Working directory is "' + os.getcwd() + '".')
-    #print('[+]Using "' + input_dir + '" as input directory.')
 
 def format_path(path): # 使路径兼容Linux与MacOS
     if path.find('\\'): # 是仅兼容Windows的路径格式
@@ -146,7 +133,6 @@ if __name__ =='__main__':
     print('[*]=====================================')
     UpdateCheck()
     os.chdir(os.getcwd())
-    set_directory()
 
 
     count = 0
