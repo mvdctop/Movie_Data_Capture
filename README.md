@@ -100,11 +100,9 @@ config.ini
 >[media]<br>
 >media_warehouse=emby<br>
 >#emby or plex<br>
->#plex only test!<br>
 >
 >[directory_capture]<br>
->switch=0<br>
->directory=<br>
+>input_directory=<br>
 >
 >#everyone switch:1=on, 0=off<br>
 
@@ -138,12 +136,15 @@ PLEX请安装插件：```XBMCnfoMoviesImporter```
 >#plex only test!<br>
 建议选择emby, plex不完善
 
+#### 输出目录选择
+>[directory_capture]<br>
+>location_rule='JAV_output/'+actor+'/['+number+']-'+title<br>
+开头的JAV_output即输出目录，自定义过程不要把前后的冒号 '' 去除
+
 #### 抓取目录选择
 >[directory_capture]<br>
->switch=0<br>
 >input_directory=<br>
->output_directory=<br>
-switch为1时，目录自定义才会被触发，此时可以指定抓取任意目录下的影片, 并指定存放的目录；如果为0则不触发，抓取和程序同一目录下的影片，directory不生效. 如果仅指定input_directory, output_directory默认与input_directory相同.
+如果input_directory后面为空，则抓取和程序同一目录下的影片
 
 ### (可选)设置自定义目录和影片重命名规则
 **已有默认配置**<br>
