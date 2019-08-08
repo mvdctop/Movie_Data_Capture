@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 import re
@@ -50,19 +49,18 @@ except:
 def moveFailedFolder():
     global filepath
     print('[-]Move to "failed"')
-    #print('[-]' + filepath + ' -> ' + output_dir + '/failed/')
-    #os.rename(filepath, output_dir + '/failed/')
+    shutil.move(filepath, str(os.getcwd()) + '/' + 'failed/')
     os._exit(0)
 def argparse_get_file():
     parser = argparse.ArgumentParser()
-    parser.add_argument("file", help="Write the file path on here")
     parser.add_argument("--number", help="Enter Number on here", default='')
+    parser.add_argument("file", help="Write the file path on here")
     args = parser.parse_args()
     return (args.file, args.number)
 def CreatFailedFolder():
-    if not os.path.exists('/failed/'):  # 新建failed文件夹
+    if not os.path.exists('failed/'):  # 新建failed文件夹
         try:
-            os.makedirs('/failed/')
+            os.makedirs('failed/')
         except:
             print("[-]failed!can not be make folder 'failed'\n[-](Please run as Administrator)")
             os._exit(0)
@@ -103,8 +101,6 @@ def getDataFromJSON(file_number): #从JSON返回元数据
         elif 'FC2' in file_number:
             json_data = json.loads(fc2fans_club.main(
                 file_number.strip('FC2_').strip('FC2-').strip('ppv-').strip('PPV-').strip('fc2_').strip('fc2-').strip('ppv-').strip('PPV-')))
-        elif 'siro' in number or 'SIRO' in number or 'Siro' in number:
-            json_data = json.loads(siro.main(file_number))
         # =======================javbus.py=======================
         else:
             json_data = json.loads(javbus.main(file_number))
@@ -377,14 +373,19 @@ def cutImage():
 def pasteFileToFolder(filepath, path): #文件路径，番号，后缀，要移动至的位置
     global houzhui
     houzhui = str(re.search('[.](AVI|RMVB|WMV|MOV|MP4|MKV|FLV|TS|avi|rmvb|wmv|mov|mp4|mkv|flv|ts)$', filepath).group())
-    os.rename(filepath, number + houzhui)
+    try:
+        os.rename(filepath, number + houzhui)
+    except FileExistsError:
+        print('[-]File Exists! Please check your movie!')
+        print('[-]move to the root folder of the program.')
+        os._exit(0)
     try:
         shutil.move(number + houzhui, path)
     except:
         print('[-]File Exists! Please check your movie!')
         print('[-]move to the root folder of the program.')
         os._exit(0)
-def moveJpgToBackdrop_copy():
+def renameJpgToBackdrop_copy():
     if option == 'plex':
         shutil.copy(path + '/fanart.jpg', path + '/Backdrop.jpg')
         shutil.copy(path + '/poster.png', path + '/thumb.png')
@@ -402,7 +403,7 @@ if __name__ == '__main__':
             number = str(re.findall(r'(.+?)\.',str(re.search('([^<>/\\\\|:""\\*\\?]+)\\.\\w+$',filepath).group()))).strip("['']").replace('_','-')
             print("[!]Making Data for   [" + number + "]")
         except:
-            print("[-]failed!Please move the filename again!")
+            print("[-]failed!Please rename the filename again!")
             moveFailedFolder()
     else:
         number = argparse_get_file()[1]
@@ -413,4 +414,4 @@ if __name__ == '__main__':
     PrintFiles(filepath)  # 打印文件
     cutImage()  # 裁剪图
     pasteFileToFolder(filepath, path)  # 移动文件
-    moveJpgToBackdrop_copy()
+    renameJpgToBackdrop_copy()

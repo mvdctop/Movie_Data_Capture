@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 import re
 import requests #need install
 from pyquery import PyQuery as pq#need install
