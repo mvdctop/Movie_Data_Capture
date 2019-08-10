@@ -85,13 +85,18 @@ pip install pillow
 
 ## 2.配置config.ini
 config.ini
+>[common]<br>
+>main_mode=1<br>
+>failed_output_folder=failed<br>
+>success_output_folder=JAV_output<br>
+>
 >[proxy]<br>
 >proxy=127.0.0.1:1080<br>
 >timeout=10<br>
 >retry=3<br>
 >
 >[Name_Rule]<br>
->location_rule='JAV_output/'+actor+'/['+number+']-'+title<br>
+>location_rule=actor+'/'+number<br>
 >naming_rule=number+'-'+title<br>
 >
 >[update]<br>
@@ -102,11 +107,17 @@ config.ini
 >#emby or plex<br>
 >
 >[directory_capture]<br>
->input_directory=<br>
->
->#everyone switch:1=on, 0=off<br>
+>directory=<br>
 
-### 1.网络设置
+### 全局设置
+#### 软件模式
+>[common]<br>
+>main_mode=1<br>
+1为普通模式，2为整理模式：仅根据女优把电影命名为番号并分类到女优名称的文件夹下
+>failed_output_folder=failed<br>
+>success_output_folder=JAV_outputd<br>
+设置成功输出目录和失败输出目录
+### 网络设置
 #### * 针对“某些地区”的代理设置
 打开```config.ini```,在```[proxy]```下的```proxy```行设置本地代理地址和端口，支持Shadowxxxx/X,V2XXX本地代理端口:<br>
 例子:```proxy=127.0.0.1:1080```<br>素人系列抓取建议使用日本代理<br>
@@ -136,19 +147,14 @@ PLEX请安装插件：```XBMCnfoMoviesImporter```
 >#plex only test!<br>
 建议选择emby, plex不完善
 
-#### 输出目录选择
->[directory_capture]<br>
->location_rule='JAV_output/'+actor+'/['+number+']-'+title<br>
-开头的JAV_output即输出目录，自定义过程不要把前后的冒号 '' 去除
-
 #### 抓取目录选择
 >[directory_capture]<br>
->input_directory=<br>
-如果input_directory后面为空，则抓取和程序同一目录下的影片
+>directory=<br>
+如果directory后面为空，则抓取和程序同一目录下的影片，设置为 * 可抓取软件目录下所以子目录中的影片
 
 ### (可选)设置自定义目录和影片重命名规则
 **已有默认配置**<br>
-##### 命名参数<br>
+#### 命名参数<br>
 >title = 片名<br>
 >actor = 演员<br>
 >studio = 公司<br>
@@ -161,25 +167,25 @@ PLEX请安装插件：```XBMCnfoMoviesImporter```
 >outline = 简介<br>
 >runtime = 时长<br>
 ##### **例子**:<br>
-目录结构规则:```location_rule='JAV_output/'+actor+'/'+number```<br> **不推荐修改时在这里添加title**，有时title过长，因为Windows API问题，抓取数据时新建文件夹容易出错。<br>
-影片命名规则:```naming_rule='['+number+']-'+title```<br> **在EMBY,KODI等本地媒体库显示的标题，不影响目录结构下影片文件的命名**，依旧是 番号+后缀。
-### 3.更新开关
+目录结构规则:```location_rule=actor+'/'+number```<br> **不推荐修改时在这里添加title**，有时title过长，因为Windows API问题，抓取数据时新建文件夹容易出错。<br>
+影片命名规则:```naming_rule=number+'-'+title```<br> **在EMBY,KODI等本地媒体库显示的标题，不影响目录结构下影片文件的命名**，依旧是 番号+后缀。
+### 更新开关
 >[update]<br>update_check=1<br>
 1为开，0为关
-## 3.把软件拷贝和电影的统一目录下
-## 4.运行 ```AV_Data_capture.py/.exe```
+## 把软件拷贝和电影的统一目录下
+## 运行 ```AV_Data_capture.py/.exe```
 当文件名包含:<br>
 中文，字幕，-c., -C., 处理元数据时会加上**中文字幕**标签
-## 5.异常处理（重要）
+## 异常处理（重要）
 ### 请确保软件是完整地！确保ini文件内容是和下载提供ini文件内容的一致的！
 ### 关于软件打开就闪退
 可以打开cmd命令提示符，把 ```AV_Data_capture.py/.exe```拖进cmd窗口回车运行，查看错误，出现的错误信息**依据以下条目解决**
 ### 关于 ```Updata_check``` 和 ```JSON``` 相关的错误
-跳转 [网络设置](#1网络设置)
+跳转 [网络设置](#网络设置)
 ### 关于```FileNotFoundError: [WinError 3] 系统找不到指定的路径。: 'JAV_output''``` 
 在软件所在文件夹下新建 JAV_output 文件夹，可能是你没有把软件拉到和电影的同一目录
 ### 关于连接拒绝的错误
-请设置好[代理](#1针对某些地区的代理设置)<br>
+请设置好[代理](#针对某些地区的代理设置)<br>
 ### 关于Nonetype,xpath报错
 同上<br>
 ### 关于番号提取失败或者异常
