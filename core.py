@@ -15,6 +15,13 @@ from configparser import ConfigParser
 import argparse
 import javdb
 
+Config = ConfigParser()
+Config.read(config_file, encoding='UTF-8')
+try:
+    option = ReadMediaWarehouse()
+except:
+    print('[-]Config media_warehouse read failed!')
+
 #初始化全局变量
 title=''
 studio=''
@@ -37,19 +44,14 @@ json_data={}
 actor_photo={}
 naming_rule  =''#eval(config['Name_Rule']['naming_rule'])
 location_rule=''#eval(config['Name_Rule']['location_rule'])
-
-Config = ConfigParser()
-Config.read(config_file, encoding='UTF-8')
-try:
-    option = ReadMediaWarehouse()
-except:
-    print('[-]Config media_warehouse read failed!')
-
+program_mode = Config['common']['main_mode']
+failed_folder= Config['common']['failed_output_folder']
+success_folder=Config['common']['success_output_folder']
 #=====================本地文件处理===========================
 def moveFailedFolder():
     global filepath
-    print('[-]Move to "failed"')
-    shutil.move(filepath, str(os.getcwd()) + '/' + 'failed/')
+    print('[-]Move to Failed output folder')
+    shutil.move(filepath, str(os.getcwd()) + '/' + failed_folder + '/')
     os._exit(0)
 def argparse_get_file():
     parser = argparse.ArgumentParser()
@@ -58,11 +60,11 @@ def argparse_get_file():
     args = parser.parse_args()
     return (args.file, args.number)
 def CreatFailedFolder():
-    if not os.path.exists('failed/'):  # 新建failed文件夹
+    if not os.path.exists(failed_folder+'/'):  # 新建failed文件夹
         try:
-            os.makedirs('failed/')
+            os.makedirs(failed_folder+'/')
         except:
-            print("[-]failed!can not be make folder 'failed'\n[-](Please run as Administrator)")
+            print("[-]failed!can not be make Failed output folder\n[-](Please run as Administrator)")
             os._exit(0)
 def getDataFromJSON(file_number): #从JSON返回元数据
     global title
@@ -96,11 +98,11 @@ def getDataFromJSON(file_number): #从JSON返回元数据
     except:  # 添加 无需 正则表达式的规则
         # ====================fc2fans_club.py====================
         if 'fc2' in file_number:
-            json_data = json.loads(fc2fans_club.main(
-                file_number.strip('fc2_').strip('fc2-').strip('ppv-').strip('PPV-').strip('FC2_').strip('FC2-').strip('ppv-').strip('PPV-')))
+            json_data = json.loads(fc2fans_club.main(file_number.strip('fc2_').strip('fc2-').strip('ppv-').strip('PPV-').strip('FC2_').strip('FC2-').strip('ppv-').strip('PPV-')))
         elif 'FC2' in file_number:
-            json_data = json.loads(fc2fans_club.main(
-                file_number.strip('FC2_').strip('FC2-').strip('ppv-').strip('PPV-').strip('fc2_').strip('fc2-').strip('ppv-').strip('PPV-')))
+            json_data = json.loads(fc2fans_club.main(file_number.strip('FC2_').strip('FC2-').strip('ppv-').strip('PPV-').strip('fc2_').strip('fc2-').strip('ppv-').strip('PPV-')))
+        elif 'siro' in number or 'SIRO' in number or 'Siro' in number:
+            json_data = json_data(siro.main(file_number))
         # =======================javbus.py=======================
         else:
             json_data = json.loads(javbus.main(file_number))
@@ -130,10 +132,10 @@ def getDataFromJSON(file_number): #从JSON返回元数据
     # ====================处理异常字符====================== #\/:*?"<>|
     if '\\' in title:
         title=title.replace('\\', ' ')
-    elif '/' in title:
-        title=title.replace('/', '')
+    elif r'/' in title:
+        title=title.replace(r'/', '')
     elif ':' in title:
-        title=title.replace('/', '')
+        title=title.replace(':', '')
     elif '*' in title:
         title=title.replace('*', '')
     elif '?' in title:
@@ -154,16 +156,16 @@ def creatFolder(): #创建文件夹
     global actor
     global path
     if len(actor) > 240:                    #新建成功输出文件夹
-        path = location_rule.replace("'actor'","'超多人'",3).replace("actor","'超多人'",3) #path为影片+元数据所在目录
+        path = success_folder+'/'+location_rule.replace("'actor'","'超多人'",3).replace("actor","'超多人'",3) #path为影片+元数据所在目录
         #print(path)
     else:
-        path = location_rule
+        path = success_folder+'/'+location_rule
         #print(path)
     if not os.path.exists(path):
         try:
             os.makedirs(path)
         except:
-            path = location_rule.replace('/['+number+']-'+title,"/number")
+            path = success_folder+'/'+location_rule.replace('/['+number+']-'+title,"/number")
             #print(path)
             os.makedirs(path)
 #=====================资源下载部分===========================
@@ -374,13 +376,17 @@ def pasteFileToFolder(filepath, path): #文件路径，番号，后缀，要移�
     global houzhui
     houzhui = str(re.search('[.](AVI|RMVB|WMV|MOV|MP4|MKV|FLV|TS|avi|rmvb|wmv|mov|mp4|mkv|flv|ts)$', filepath).group())
     try:
-        os.rename(filepath, number + houzhui)
+        os.rename(filepath, path + '/' + number + houzhui)
     except FileExistsError:
         print('[-]File Exists! Please check your movie!')
         print('[-]move to the root folder of the program.')
         os._exit(0)
+def pasteFileToFolder_mode2(filepath, path): #文件路径，番号，后缀，要移动至的位置
+    global houzhui
+    houzhui = str(re.search('[.](AVI|RMVB|WMV|MOV|MP4|MKV|FLV|TS|avi|rmvb|wmv|mov|mp4|mkv|flv|ts)$', filepath).group())
     try:
-        shutil.move(number + houzhui, path)
+        os.rename(filepath, path + houzhui)
+        print('[+]Movie ' + number + ' move to target folder Finished!')
     except:
         print('[-]File Exists! Please check your movie!')
         print('[-]move to the root folder of the program.')
@@ -410,8 +416,11 @@ if __name__ == '__main__':
     CreatFailedFolder()
     getDataFromJSON(number)  # 定义番号
     creatFolder()  # 创建文件夹
-    imageDownload(filepath)  # creatFoder会返回番号路径
-    PrintFiles(filepath)  # 打印文件
-    cutImage()  # 裁剪图
-    pasteFileToFolder(filepath, path)  # 移动文件
-    renameJpgToBackdrop_copy()
+    if program_mode == '1':
+        imageDownload(filepath)  # creatFoder会返回番号路径
+        PrintFiles(filepath)  # 打印文件
+        cutImage()  # 裁剪图
+        pasteFileToFolder(filepath, path)  # 移动文件
+        renameJpgToBackdrop_copy()
+    elif program_mode == '2':
+        pasteFileToFolder_mode2(filepath, path)  # 移动文件
