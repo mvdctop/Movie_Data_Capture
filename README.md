@@ -151,10 +151,9 @@ config.ini
 >[media]<br>
 >media_warehouse=emby<br>
 >#emby or plex<br>
->#plex only test!<br>
 
-建议选择emby, plex不完善<br>
-PLEX请安装插件：```XBMCnfoMoviesImporter```
+可选择emby, plex<br>
+如果是PLEX，请安装插件：```XBMCnfoMoviesImporter```
 
 #### 抓取目录选择
 >[directory_capture]<br>
