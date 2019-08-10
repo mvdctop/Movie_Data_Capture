@@ -144,7 +144,6 @@ config.ini
 >update_check=1<br>
 
 0为关闭，1为开启，不建议关闭
-PLEX请安装插件：```XBMCnfoMoviesImporter```
 
 ##### 媒体库选择 
 >[media]<br>
@@ -152,7 +151,8 @@ PLEX请安装插件：```XBMCnfoMoviesImporter```
 >#emby or plex<br>
 >#plex only test!<br>
 
-建议选择emby, plex不完善
+建议选择emby, plex不完善<br>
+PLEX请安装插件：```XBMCnfoMoviesImporter```
 
 #### 抓取目录选择
 >[directory_capture]<br>
