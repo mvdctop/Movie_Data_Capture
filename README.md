@@ -20,9 +20,9 @@
 * [简明教程](#简要教程)
 * [模块安装](#1请安装模块在cmd终端逐条输入以下命令安装)
 * [配置](#2配置configini)
-* [运行软件](#4运行-av_data_capturepyexe)
-* [异常处理（重要）](#5异常处理重要)
-* [导入至媒体库](#7把jav_output文件夹导入到embykodi中根据封面选片子享受手冲乐趣)
+* [运行软件](#4运行av_data_capturepyexe)
+* [异常处理（重要）](#异常处理重要)
+* [导入至媒体库](#7把jav_output文件夹导入到embykodi中等待元数据刷新完成)
 * [写在后面](#8写在后面)
 
 # 免责声明
@@ -113,10 +113,14 @@ config.ini
 #### 软件模式
 >[common]<br>
 >main_mode=1<br>
+
 1为普通模式，2为整理模式：仅根据女优把电影命名为番号并分类到女优名称的文件夹下
+
 >failed_output_folder=failed<br>
 >success_output_folder=JAV_outputd<br>
+
 设置成功输出目录和失败输出目录
+
 ### 网络设置
 #### * 针对“某些地区”的代理设置
 打开```config.ini```,在```[proxy]```下的```proxy```行设置本地代理地址和端口，支持Shadowxxxx/X,V2XXX本地代理端口:<br>
@@ -132,11 +136,13 @@ config.ini
 #### 连接重试次数设置
 >[proxy]<br>
 >retry=3<br>
+
 3即为重试次数
 
 #### 检查更新开关
 >[update]<br>
 >update_check=1<br>
+
 0为关闭，1为开启，不建议关闭
 PLEX请安装插件：```XBMCnfoMoviesImporter```
 
@@ -145,6 +151,7 @@ PLEX请安装插件：```XBMCnfoMoviesImporter```
 >media_warehouse=emby<br>
 >#emby or plex<br>
 >#plex only test!<br>
+
 建议选择emby, plex不完善
 
 #### 抓取目录选择
@@ -153,6 +160,10 @@ PLEX请安装插件：```XBMCnfoMoviesImporter```
 如果directory后面为空，则抓取和程序同一目录下的影片，设置为 * 可抓取软件目录下所以子目录中的影片
 
 ### (可选)设置自定义目录和影片重命名规则
+>[Name_Rule]<br>
+>location_rule=actor+'/'+number<br>
+>naming_rule=number+'-'+title<br>
+
 **已有默认配置**<br>
 #### 命名参数<br>
 >title = 片名<br>
