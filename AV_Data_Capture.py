@@ -14,7 +14,7 @@ os.chdir(os.getcwd())
 
 # ============global var===========
 
-version='0.11.8'
+version='0.11.9'
 
 config = ConfigParser()
 config.read(config_file, encoding='UTF-8')
@@ -37,6 +37,26 @@ def UpdateCheck():
         print('[+]Update Check disabled!')
 def movie_lists():
     directory = config['directory_capture']['directory']
+    a2=[]
+    b2=[]
+    c2=[]
+    d2=[]
+    e2=[]
+    f2=[]
+    g2=[]
+    h2=[]
+    if directory=='*':
+        for i in os.listdir(os.getcwd()):
+            a2 += glob.glob(r"./" + i + "/*.mp4")
+            b2 += glob.glob(r"./" + i + "/*.avi")
+            c2 += glob.glob(r"./" + i + "/*.rmvb")
+            d2 += glob.glob(r"./" + i + "/*.wmv")
+            e2 += glob.glob(r"./" + i + "/*.mov")
+            f2 += glob.glob(r"./" + i + "/*.mkv")
+            g2 += glob.glob(r"./" + i + "/*.flv")
+            h2 += glob.glob(r"./" + i + "/*.ts")
+        total = a2 + b2 + c2 + d2 + e2 + f2 + g2 + h2
+        return total
     a2 = glob.glob(r"./" + directory + "/*.mp4")
     b2 = glob.glob(r"./" + directory + "/*.avi")
     c2 = glob.glob(r"./" + directory + "/*.rmvb")
@@ -139,6 +159,7 @@ if __name__ =='__main__':
             print('[-]' + i + ' Cannot catch the number :')
             print('[-]Move ' + i + ' to failed folder')
             shutil.move(i, str(os.getcwd()) + '/' + 'failed/')
+            continue
 
 
     CEF('JAV_output')
