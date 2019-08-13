@@ -112,6 +112,7 @@ config.ini
 >directory=<br>
 
 ### 全局设置
+---
 #### 软件模式
 >[common]<br>
 >main_mode=1<br>
@@ -123,6 +124,7 @@ config.ini
 
 设置成功输出目录和失败输出目录
 
+---
 ### 网络设置
 #### * 针对“某些地区”的代理设置
 打开```config.ini```,在```[proxy]```下的```proxy```行设置本地代理地址和端口，支持Shadowxxxx/X,V2XXX本地代理端口:<br>
@@ -135,18 +137,22 @@ config.ini
 >timeout=10<br>
 
 10为超时重试时间 单位：秒
+
+---
 #### 连接重试次数设置
 >[proxy]<br>
 >retry=3<br>
 
 3即为重试次数
 
+---
 #### 检查更新开关
 >[update]<br>
 >update_check=1<br>
 
 0为关闭，1为开启，不建议关闭
 
+---
 ##### 媒体库选择 
 >[media]<br>
 >media_warehouse=emby<br>
@@ -155,18 +161,20 @@ config.ini
 可选择emby, plex<br>
 如果是PLEX，请安装插件：```XBMCnfoMoviesImporter```
 
+---
 #### 抓取目录选择
 >[directory_capture]<br>
 >directory=<br>
 如果directory后面为空，则抓取和程序同一目录下的影片，设置为``` * ```可抓取软件所在目录下的所有子目录中的影片
-
 ## 3.(可选)设置自定义目录和影片重命名规则
 >[Name_Rule]<br>
 >location_rule=actor+'/'+number<br>
 >naming_rule=number+'-'+title<br>
 
-**已有默认配置**<br>
-#### 命名参数<br>
+已有默认配置
+
+---
+#### 命名参数
 >title = 片名<br>
 >actor = 演员<br>
 >studio = 公司<br>
@@ -178,9 +186,15 @@ config.ini
 >tag = 类型<br>
 >outline = 简介<br>
 >runtime = 时长<br>
-##### **例子**:<br>
-目录结构规则:```location_rule=actor+'/'+number```<br> **不推荐修改时在这里添加title**，有时title过长，因为Windows API问题，抓取数据时新建文件夹容易出错。<br>
-影片命名规则:```naming_rule=number+'-'+title```<br> **在EMBY,KODI等本地媒体库显示的标题，不影响目录结构下影片文件的命名**，依旧是 番号+后缀。
+
+上面的参数以下都称之为**变量**
+
+#### 例子：
+自定义规则方法：有两种元素，变量和字符，无论是任何一种元素之间连接必须要用加号 **+** ，比如：```'naming_rule=['+number+']-'+title```，其中冒号 ' ' 内的文字是字符，没有冒号包含的文字是变量，元素之间连接必须要用加号 **+** <br>
+目录结构规则：默认 ```location_rule=actor+'/'+number```<br> **不推荐修改时在这里添加title**，有时title过长，因为Windows API问题，抓取数据时新建文件夹容易出错。<br>
+影片命名规则：默认 ```naming_rule=number+'-'+title```<br> **在EMBY,KODI等本地媒体库显示的标题，不影响目录结构下影片文件的命名**，依旧是 番号+后缀。
+
+---
 ### 更新开关
 >[update]<br>update_check=1<br>
 1为开，0为关
@@ -191,16 +205,27 @@ config.ini
 中文，字幕，-c., -C., 处理元数据时会加上**中文字幕**标签
 ## 5.1 异常处理（重要）
 ### 请确保软件是完整地！确保ini文件内容是和下载提供ini文件内容的一致的！
+---
 ### 关于软件打开就闪退
 可以打开cmd命令提示符，把 ```AV_Data_capture.py/.exe```拖进cmd窗口回车运行，查看错误，出现的错误信息**依据以下条目解决**
+
+---
 ### 关于 ```Updata_check``` 和 ```JSON``` 相关的错误
 跳转 [网络设置](#网络设置)
+
+---
 ### 关于```FileNotFoundError: [WinError 3] 系统找不到指定的路径。: 'JAV_output''``` 
 在软件所在文件夹下新建 JAV_output 文件夹，可能是你没有把软件拉到和电影的同一目录
+
+---
 ### 关于连接拒绝的错误
 请设置好[代理](#针对某些地区的代理设置)<br>
+
+---
 ### 关于Nonetype,xpath报错
 同上<br>
+
+---
 ### 关于番号提取失败或者异常
 **目前可以提取元素的影片:JAVBUS上有元数据的电影，素人系列:300Maan,259luxu,siro等,FC2系列**<br>
 >下一张图片来自Pockies的blog 原作者已授权<br>
@@ -217,6 +242,8 @@ COSQ-004.mp4
 **野鸡番号**:比如 ```XXX-XXX-1```,  ```1301XX-MINA_YUKA``` 这种**野鸡**番号，在javbus等资料库存在的作品。<br>**重要**：除了 **影片文件名**  ```XXXX-XXX-C```，后面这种-C的是指电影有中文字幕！<br>
 条件：文件名中间要有下划线或者减号"_","-"，没有多余的内容只有番号为最佳，可以让软件更好获取元数据
 对于多影片重命名，可以用[ReNamer](http://www.den4b.com/products/renamer)来批量重命名<br>
+
+---
 ### 关于PIL/image.py
 暂时无解，可能是网络问题或者pillow模块打包问题，你可以用源码运行（要安装好第一步的模块）
 
