@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 from AV_Data_Capture import movie_lists
+from aip import AipBodyAnalysis
+import cv2
+from PIL import Image
 import re
 import os
 import os.path
@@ -14,6 +17,7 @@ from ADC_function import *
 from configparser import ConfigParser
 import argparse
 import javdb
+
 
 Config = ConfigParser()
 Config.read(config_file, encoding='UTF-8')
@@ -176,7 +180,8 @@ def get_path():  # 创建文件夹
     else:
         path = success_folder + '/' + location_rule
     return path
-        # print(path)
+    # print(path)
+
 
 def creatFolder(path_1):
     if not os.path.exists(path_1):
@@ -366,6 +371,44 @@ def PrintFiles(filepath):
         moveFailedFolder()
 
 
+def get_file_content(filePath):
+    with open(filePath, 'rb') as fp:
+        return fp.read()
+
+
+def image_cut(file_name):
+    """ 你的 APPID AK SK """
+    APP_ID = '17013175'
+    API_KEY = 'IQs1mkG4FerdtmNh6qKDI4fW'
+    SECRET_KEY = 'dLr9GTqqutqP9nWKKRaEinVDhxYlPbnD'
+
+    client = AipBodyAnalysis(APP_ID, API_KEY, SECRET_KEY)
+
+    """ 获取图片分辨率 """
+    im = Image.open(file_name)  # 返回一个Image对象
+    width, height = im.size
+
+    """ 读取图片 """
+    image = get_file_content(file_name)
+
+    """ 调用人体检测与属性识别 """
+    result = client.bodyAnalysis(image)
+    ewidth = int(0.661538 * height)
+    print(ewidth)
+    ex = int(result["person_info"][0]['body_parts']['nose']['x'])
+    if width - ex < ewidth / 2:
+        ex = width - ewidth
+    else:
+        ex -= int(ewidth / 2)
+    ey = 0
+    ew = ewidth
+    eh = height
+    img = Image.open(file_name)
+    img2 = img.crop((ex, ey, ew + ex, eh + ey))
+    img2.save(path + '/' + number + '.png')
+
+
+
 def cutImage():
     if option == 'plex':
         if imagecut == 1:
@@ -398,10 +441,8 @@ def cutImage():
             except:
                 print('[-]Cover cut failed!')
         else:
-            img = Image.open(path + '/' + number + '.jpg')
-            w = img.width
-            h = img.height
-            img.save(path + '/' + number + '.png')
+            file_name = path + '/' + number + '.jpg'
+            image_cut(file_name)
 
 
 # 获取视频后缀
@@ -411,6 +452,7 @@ def get_video_suffix(file):
         return file.split('.')[-1]
     else:
         return ''
+
 
 # 获取其他文件后缀
 def get_other_suffix(file):
