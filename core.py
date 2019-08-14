@@ -485,6 +485,7 @@ def pasteFileToFolder(filepath, path):  # 文件路径，番号，后缀，要�
             os.rename(filepath, path + '/' + number + "-CD" + str(count_video + 1) + '.' + video_suffix)
             if num_video != 0:
                 shutil.copy(path + '/Backdrop.jpg', path + '/' + number + "-CD" + str(count_jpg + 1) + '.jpg')
+                print('[+]Image Downloaded!', path + '/' + number + "-CD" + str(count_jpg + 1) + '.jpg')
             # print('[-]File Exists! Please check your movie!')
             # print('[-]move to the root folder of the program.')
     except FileExistsError:
