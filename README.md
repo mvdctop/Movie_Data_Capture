@@ -5,7 +5,7 @@
 ![](https://img.shields.io/badge/build-passing-brightgreen.svg?style=flat-square)
 ![](https://img.shields.io/github/downloads/yoshiko2/av_data_capture/total.svg?style=flat-square)<br>
 ![](https://img.shields.io/github/license/yoshiko2/av_data_capture.svg?style=flat-square)
-![https://github.com/yoshiko2/AV_Data_Capture/release](https://img.shields.io/github/release/yoshiko2/av_data_capture.svg?style=flat-square)
+![](https://img.shields.io/github/release/yoshiko2/av_data_capture.svg?style=flat-square)
 ![](https://img.shields.io/badge/Python-3.7-yellow.svg?style=flat-square&logo=python)<br>
 
 
