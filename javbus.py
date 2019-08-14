@@ -130,7 +130,7 @@ def main(number):
                 'release': getRelease(htmlcode),
                 'number': getNum(htmlcode),
                 'cover': getCover(htmlcode),
-                'imagecut': 1,
+                'imagecut': 0,
                 'tag': getTag(htmlcode),
                 'label': getSerise(htmlcode),
                 'actor_photo': getActorPhoto(htmlcode),
