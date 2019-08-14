@@ -10,16 +10,18 @@ from ADC_function import *
 import json
 import shutil
 from configparser import ConfigParser
+
 os.chdir(os.getcwd())
 
 # ============global var===========
 
-version='0.11.9'
+version = '0.11.9'
 
 config = ConfigParser()
 config.read(config_file, encoding='UTF-8')
 
 Platform = sys.platform
+
 
 # ==========global var end=========
 
@@ -35,38 +37,31 @@ def UpdateCheck():
             print('[*]=====================================')
     else:
         print('[+]Update Check disabled!')
+
+
 def movie_lists():
-    directory = config['directory_capture']['directory']
-    a2=[]
-    b2=[]
-    c2=[]
-    d2=[]
-    e2=[]
-    f2=[]
-    g2=[]
-    h2=[]
-    if directory=='*':
-        for i in os.listdir(os.getcwd()):
-            a2 += glob.glob(r"./" + i + "/*.mp4")
-            b2 += glob.glob(r"./" + i + "/*.avi")
-            c2 += glob.glob(r"./" + i + "/*.rmvb")
-            d2 += glob.glob(r"./" + i + "/*.wmv")
-            e2 += glob.glob(r"./" + i + "/*.mov")
-            f2 += glob.glob(r"./" + i + "/*.mkv")
-            g2 += glob.glob(r"./" + i + "/*.flv")
-            h2 += glob.glob(r"./" + i + "/*.ts")
-        total = a2 + b2 + c2 + d2 + e2 + f2 + g2 + h2
-        return total
-    a2 = glob.glob(r"./" + directory + "/*.mp4")
-    b2 = glob.glob(r"./" + directory + "/*.avi")
-    c2 = glob.glob(r"./" + directory + "/*.rmvb")
-    d2 = glob.glob(r"./" + directory + "/*.wmv")
-    e2 = glob.glob(r"./" + directory + "/*.mov")
-    f2 = glob.glob(r"./" + directory + "/*.mkv")
-    g2 = glob.glob(r"./" + directory + "/*.flv")
-    h2 = glob.glob(r"./" + directory + "/*.ts")
-    total = a2 + b2 + c2 + d2 + e2 + f2 + g2 + h2
-    return total
+    list_array = []
+    movie_type = ['mp4', 'avi', 'rmvb', 'wmv', 'mov', 'mkv', 'flv', 'ts']
+    directory = ''
+    switch = config['directory_capture']['switch']
+    if int(switch) == 1:
+        directory = config['directory_capture']['directory']
+        if directory == '*':
+            # 遍历子文件夹
+            for i in os.listdir(os.getcwd()):
+                for typ in movie_type:
+                    list_array += glob.glob(i + "/*." + typ)
+            # 遍历当前文件夹
+            for typ in movie_type:
+                list_array += glob.glob(r"*." + typ)
+    # 遍历指定文件夹或当前文件夹
+    if directory != '*':
+        for typ in movie_type:
+            list_array += glob.glob(directory + "/*." + typ)
+    # print(list_array)
+    return list_array
+
+
 def CreatFailedFolder():
     if not os.path.exists('failed/'):  # 新建failed文件夹
         try:
@@ -74,24 +69,32 @@ def CreatFailedFolder():
         except:
             print("[-]failed!can not be make folder 'failed'\n[-](Please run as Administrator)")
             os._exit(0)
-def lists_from_test(custom_nuber): #电影列表
-    a=[]
+
+
+def lists_from_test(custom_nuber):  # 电影列表
+    a = []
     a.append(custom_nuber)
     return a
+
+
 def CEF(path):
     files = os.listdir(path)  # 获取路径下的子文件(夹)列表
     for file in files:
-        try: #试图删除空目录,非空目录删除会报错
+        try:  # 试图删除空目录,非空目录删除会报错
             os.removedirs(path + '/' + file)  # 删除这个空文件夹
-            print('[+]Deleting empty folder',path + '/' + file)
+            print('[+]Deleting empty folder', path + '/' + file)
         except:
-            a=''
+            a = ''
+
+
 def rreplace(self, old, new, *max):
-#从右开始替换文件名中内容，源字符串，将被替换的子字符串， 新字符串，用于替换old子字符串，可选字符串, 替换不超过 max 次
+    # 从右开始替换文件名中内容，源字符串，将被替换的子字符串， 新字符串，用于替换old子字符串，可选字符串, 替换不超过 max 次
     count = len(self)
     if max and str(max[0]).isdigit():
         count = max[0]
     return new.join(self.rsplit(old, count))
+
+
 def getNumber(filepath):
     try:  # 普通提取番号 主要处理包含减号-的番号
         filepath1 = filepath.replace("_", "-")
@@ -101,6 +104,7 @@ def getNumber(filepath):
         return file_number
     except:  # 提取不含减号-的番号
         try:  # 提取东京热番号格式 n1087
+            print(file_number)
             filename1 = str(re.sub("h26\d", "", filepath)).strip('Tokyo-hot').strip('tokyo-hot')
             filename0 = str(re.sub(".*?\.com-\d+", "", filename1)).strip('_')
             if '-C.' in filepath or '-c.' in filepath:
@@ -120,6 +124,7 @@ def getNumber(filepath):
             # file_number = re.search('\w+-\w+', filename).group()
             #
 
+
 def RunCore():
     if Platform == 'win32':
         if os.path.exists('core.py'):
@@ -136,21 +141,23 @@ def RunCore():
         elif os.path.exists('core.py') and os.path.exists('core.exe'):
             os.system('python3 core.py' + '   "' + i + '" --number "' + getNumber(i) + '"')  # 从py文件启动（用于源码py）
 
-if __name__ =='__main__':
+
+if __name__ == '__main__':
     print('[*]===========AV Data Capture===========')
-    print('[*]           Version '+version)
+    print('[*]           Version ' + version)
     print('[*]=====================================')
     CreatFailedFolder()
     UpdateCheck()
     os.chdir(os.getcwd())
 
+    movie_list = movie_lists()
     count = 0
-    count_all = str(len(movie_lists()))
-    print('[+]Find',str(len(movie_lists())),'movies')
-    for i in movie_lists(): #遍历电影列表 交给core处理
+    count_all = str(len(movie_list))
+    print('[+]Find', str(len(movie_list)), 'movies')
+    for i in movie_list:  # 遍历电影列表 交给core处理
         count = count + 1
-        percentage = str(count/int(count_all)*100)[:4]+'%'
-        print('[!] - '+percentage+' ['+str(count)+'/'+count_all+'] -')
+        percentage = str(count / int(count_all) * 100)[:4] + '%'
+        print('[!] - ' + percentage + ' [' + str(count) + '/' + count_all + '] -')
         try:
             print("[!]Making Data for   [" + i + "], the number is [" + getNumber(i) + "]")
             RunCore()
@@ -161,7 +168,6 @@ if __name__ =='__main__':
             shutil.move(i, str(os.getcwd()) + '/' + 'failed/')
             continue
 
-
     CEF('JAV_output')
     print("[+]All finished!!!")
-    input("[+][+]Press enter key exit, you can check the error messge before you exit.\n[+][+]按回车键结束，你可以在结束之前查看和错误信息。")
+    # input("[+][+]Press enter key exit, you can check the error messge before you exit.\n[+][+]按回车键结束，你可以在结束之前查看和错误信息。")
