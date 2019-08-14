@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+from AV_Data_Capture import movie_lists
 import re
 import os
 import os.path
@@ -22,51 +22,59 @@ try:
 except:
     print('[-]Config media_warehouse read failed!')
 
-#初始化全局变量
-title=''
-studio=''
-year=''
-outline=''
-runtime=''
-director=''
-actor_list=[]
-actor=''
-release=''
-number=''
-cover=''
-imagecut=''
-tag=[]
-cn_sub=''
-path=''
-houzhui=''
-website=''
-json_data={}
-actor_photo={}
-naming_rule  =''#eval(config['Name_Rule']['naming_rule'])
-location_rule=''#eval(config['Name_Rule']['location_rule'])
+# 初始化全局变量
+title = ''
+studio = ''
+year = ''
+outline = ''
+runtime = ''
+director = ''
+actor_list = []
+actor = ''
+release = ''
+number = ''
+cover = ''
+imagecut = ''
+tag = []
+cn_sub = ''
+multi_part = 0
+path = ''
+website = ''
+json_data = {}
+actor_photo = {}
+naming_rule = ''  # eval(config['Name_Rule']['naming_rule'])
+location_rule = ''  # eval(config['Name_Rule']['location_rule'])
 program_mode = Config['common']['main_mode']
-failed_folder= Config['common']['failed_output_folder']
-success_folder=Config['common']['success_output_folder']
-#=====================本地文件处理===========================
+failed_folder = Config['common']['failed_output_folder']
+success_folder = Config['common']['success_output_folder']
+
+
+# =====================本地文件处理===========================
 def moveFailedFolder():
     global filepath
     print('[-]Move to Failed output folder')
     shutil.move(filepath, str(os.getcwd()) + '/' + failed_folder + '/')
     os._exit(0)
+
+
 def argparse_get_file():
     parser = argparse.ArgumentParser()
     parser.add_argument("--number", help="Enter Number on here", default='')
     parser.add_argument("file", help="Write the file path on here")
     args = parser.parse_args()
     return (args.file, args.number)
+
+
 def CreatFailedFolder():
-    if not os.path.exists(failed_folder+'/'):  # 新建failed文件夹
+    if not os.path.exists(failed_folder + '/'):  # 新建failed文件夹
         try:
-            os.makedirs(failed_folder+'/')
+            os.makedirs(failed_folder + '/')
         except:
             print("[-]failed!can not be make Failed output folder\n[-](Please run as Administrator)")
             os._exit(0)
-def getDataFromJSON(file_number): #从JSON返回元数据
+
+
+def getDataFromJSON(file_number):  # 从JSON返回元数据
     global title
     global studio
     global year
@@ -88,19 +96,22 @@ def getDataFromJSON(file_number): #从JSON返回元数据
     global naming_rule
     global location_rule
 
-
     # ================================================网站规则添加开始================================================
 
-    try:    # 添加 需要 正则表达式的规则
+    try:  # 添加 需要 正则表达式的规则
         # =======================javdb.py=======================
         if re.search('^\d{5,}', file_number).group() in file_number:
             json_data = json.loads(javbus.main_uncensored(file_number))
     except:  # 添加 无需 正则表达式的规则
         # ====================fc2fans_club.py====================
         if 'fc2' in file_number:
-            json_data = json.loads(fc2fans_club.main(file_number.strip('fc2_').strip('fc2-').strip('ppv-').strip('PPV-').strip('FC2_').strip('FC2-').strip('ppv-').strip('PPV-')))
+            json_data = json.loads(fc2fans_club.main(
+                file_number.strip('fc2_').strip('fc2-').strip('ppv-').strip('PPV-').strip('FC2_').strip('FC2-').strip(
+                    'ppv-').strip('PPV-')))
         elif 'FC2' in file_number:
-            json_data = json.loads(fc2fans_club.main(file_number.strip('FC2_').strip('FC2-').strip('ppv-').strip('PPV-').strip('fc2_').strip('fc2-').strip('ppv-').strip('PPV-')))
+            json_data = json.loads(fc2fans_club.main(
+                file_number.strip('FC2_').strip('FC2-').strip('ppv-').strip('PPV-').strip('fc2_').strip('fc2-').strip(
+                    'ppv-').strip('PPV-')))
         # =======================siro.py=========================
         elif 'siro' in file_number or 'SIRO' in file_number or 'Siro' in file_number:
             json_data = json.loads(siro.main(file_number))
@@ -110,21 +121,21 @@ def getDataFromJSON(file_number): #从JSON返回元数据
 
     # ================================================网站规则添加结束================================================
 
-    title       = str(json_data['title']).replace(' ','')
-    studio      =     json_data['studio']
-    year        =     json_data['year']
-    outline     =     json_data['outline']
-    runtime     =     json_data['runtime']
-    director    =     json_data['director']
-    actor_list  = str(json_data['actor']).strip("[ ]").replace("'", '').split(',')  # 字符串转列表
-    release     =     json_data['release']
-    number      =     json_data['number']
-    cover       =     json_data['cover']
-    imagecut    =     json_data['imagecut']
-    tag         = str(json_data['tag']).strip("[ ]").replace("'", '').replace(" ", '').split(',')  # 字符串转列表
-    actor       = str(actor_list).strip("[ ]").replace("'", '').replace(" ", '')
-    actor_photo =     json_data['actor_photo']
-    website     =     json_data['website']
+    title = str(json_data['title']).replace(' ', '')
+    studio = json_data['studio']
+    year = json_data['year']
+    outline = json_data['outline']
+    runtime = json_data['runtime']
+    director = json_data['director']
+    actor_list = str(json_data['actor']).strip("[ ]").replace("'", '').split(',')  # 字符串转列表
+    release = json_data['release']
+    number = json_data['number']
+    cover = json_data['cover']
+    imagecut = json_data['imagecut']
+    tag = str(json_data['tag']).strip("[ ]").replace("'", '').replace(" ", '').split(',')  # 字符串转列表
+    actor = str(actor_list).strip("[ ]").replace("'", '').replace(" ", '')
+    actor_photo = json_data['actor_photo']
+    website = json_data['website']
 
     if title == '' or number == '':
         print('[-]Movie Data not found!')
@@ -132,45 +143,53 @@ def getDataFromJSON(file_number): #从JSON返回元数据
 
     # ====================处理异常字符====================== #\/:*?"<>|
     if '\\' in title:
-        title=title.replace('\\', ' ')
+        title = title.replace('\\', ' ')
     elif r'/' in title:
-        title=title.replace(r'/', '')
+        title = title.replace(r'/', '')
     elif ':' in title:
-        title=title.replace(':', '')
+        title = title.replace(':', '')
     elif '*' in title:
-        title=title.replace('*', '')
+        title = title.replace('*', '')
     elif '?' in title:
-        title=title.replace('?', '')
+        title = title.replace('?', '')
     elif '"' in title:
-        title=title.replace('"', '')
+        title = title.replace('"', '')
     elif '<' in title:
-        title=title.replace('<', '')
+        title = title.replace('<', '')
     elif '>' in title:
-        title=title.replace('>', '')
+        title = title.replace('>', '')
     elif '|' in title:
-        title=title.replace('|', '')
+        title = title.replace('|', '')
     # ====================处理异常字符 END================== #\/:*?"<>|
 
-    naming_rule   = eval(config['Name_Rule']['naming_rule'])
+    naming_rule = eval(config['Name_Rule']['naming_rule'])
     location_rule = eval(config['Name_Rule']['location_rule'])
-def creatFolder(): #创建文件夹
+
+
+def get_path():  # 创建文件夹
     global actor
     global path
-    if len(actor) > 240:                    #新建成功输出文件夹
-        path = success_folder+'/'+location_rule.replace("'actor'","'超多人'",3).replace("actor","'超多人'",3) #path为影片+元数据所在目录
-        #print(path)
+    if len(actor) > 240:  # 新建成功输出文件夹
+        path = success_folder + '/' + location_rule.replace("'actor'", "'超多人'", 3).replace("actor", "'超多人'",
+                                                                                           3)  # path为影片+元数据所在目录
+        # print(path)
     else:
-        path = success_folder+'/'+location_rule
-        #print(path)
-    if not os.path.exists(path):
+        path = success_folder + '/' + location_rule
+    return path
+        # print(path)
+
+def creatFolder(path_1):
+    if not os.path.exists(path_1):
         try:
-            os.makedirs(path)
+            os.makedirs(path_1)
         except:
-            path = success_folder+'/'+location_rule.replace('/['+number+']-'+title,"/number")
-            #print(path)
+            path = success_folder + '/' + location_rule.replace('/[' + number + ']-' + title, "/number")
+            # print(path)
             os.makedirs(path)
-#=====================资源下载部分===========================
-def DownloadFileWithFilename(url,filename,path): #path = examle:photo , video.in the Project Folder!
+
+
+# =====================资源下载部分===========================
+def DownloadFileWithFilename(url, filename, path):  # path = examle:photo , video.in the Project Folder!
     try:
         proxy = Config['proxy']['proxy']
         timeout = int(Config['proxy']['timeout'])
@@ -186,7 +205,8 @@ def DownloadFileWithFilename(url,filename,path): #path = examle:photo , video.in
                     os.makedirs(path)
                 headers = {
                     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36'}
-                r = requests.get(url, headers=headers, timeout=timeout,proxies={"http": "http://" + str(proxy), "https": "https://" + str(proxy)})
+                r = requests.get(url, headers=headers, timeout=timeout,
+                                 proxies={"http": "http://" + str(proxy), "https": "https://" + str(proxy)})
                 if r == '':
                     print('[-]Movie Data not found!')
                     os._exit(0)
@@ -207,19 +227,21 @@ def DownloadFileWithFilename(url,filename,path): #path = examle:photo , video.in
                 return
         except requests.exceptions.RequestException:
             i += 1
-            print('[-]Image Download :  Connect retry '+str(i)+'/'+str(retry_count))
+            print('[-]Image Download :  Connect retry ' + str(i) + '/' + str(retry_count))
         except requests.exceptions.ConnectionError:
             i += 1
-            print('[-]Image Download :  Connect retry '+str(i)+'/'+str(retry_count))
+            print('[-]Image Download :  Connect retry ' + str(i) + '/' + str(retry_count))
         except requests.exceptions.ProxyError:
             i += 1
-            print('[-]Image Download :  Connect retry '+str(i)+'/'+str(retry_count))
+            print('[-]Image Download :  Connect retry ' + str(i) + '/' + str(retry_count))
         except requests.exceptions.ConnectTimeout:
             i += 1
-            print('[-]Image Download :  Connect retry '+str(i)+'/'+str(retry_count))
+            print('[-]Image Download :  Connect retry ' + str(i) + '/' + str(retry_count))
     print('[-]Connect Failed! Please check your Proxy or Network!')
     moveFailedFolder()
-def imageDownload(filepath): #封面是否下载成功，否则移动到failed
+
+
+def imageDownload(filepath):  # 封面是否下载成功，否则移动到failed
     if option == 'emby':
         if DownloadFileWithFilename(cover, number + '.jpg', path) == 'failed':
             moveFailedFolder()
@@ -230,8 +252,10 @@ def imageDownload(filepath): #封面是否下载成功，否则移动到failed
             moveFailedFolder()
         DownloadFileWithFilename(cover, 'fanart.jpg', path)
         print('[+]Image Downloaded!', path + '/fanart.jpg')
+
+
 def PrintFiles(filepath):
-    #global path
+    # global path
     global title
     global cn_sub
     global actor_photo
@@ -340,6 +364,8 @@ def PrintFiles(filepath):
         print(e1)
         print("[-]Write Failed!")
         moveFailedFolder()
+
+
 def cutImage():
     if option == 'plex':
         if imagecut == 1:
@@ -365,7 +391,10 @@ def cutImage():
                 w = img.width
                 h = img.height
                 img2 = img.crop((w / 1.9, 0, w, h))
-                img2.save(path + '/' + number + '.png')
+                if multi_part == 1:
+                    img2.save(path + '/' + number + '-CD1.png')
+                else:
+                    img2.save(path + '/' + number + '.png')
             except:
                 print('[-]Cover cut failed!')
         else:
@@ -373,25 +402,65 @@ def cutImage():
             w = img.width
             h = img.height
             img.save(path + '/' + number + '.png')
-def pasteFileToFolder(filepath, path): #文件路径，番号，后缀，要移动至的位置
-    global houzhui
-    houzhui = str(re.search('[.](AVI|RMVB|WMV|MOV|MP4|MKV|FLV|TS|avi|rmvb|wmv|mov|mp4|mkv|flv|ts)$', filepath).group())
+
+
+# 获取视频后缀
+def get_video_suffix(file):
+    if file.split('.')[-1] in ['AVI', 'RMVB', 'WMV', 'MOV', 'MP4', 'MKV', 'FLV', 'TS', 'avi', 'rmvb', 'wmv', 'mov',
+                               'mp4', 'mkv', 'flv', 'ts']:
+        return file.split('.')[-1]
+    else:
+        return ''
+
+# 获取其他文件后缀
+def get_other_suffix(file):
+    return file.split('.')[-1]
+
+
+def pasteFileToFolder(filepath, path):  # 文件路径，番号，后缀，要移动至的位置
+    video_suffix = get_video_suffix(filepath)
     try:
-        os.rename(filepath, path + '/' + number + houzhui)
+        if multi_part == 0:
+            os.rename(filepath, path + '/' + number + '.' + video_suffix)
+            # print(movie_lists())
+        else:
+            num_video = 0
+            for file in os.listdir(path):
+                if get_video_suffix(file) != '':
+                    num_video += 1
+            count_video = 0
+            count_jpg = 0
+            for file in os.listdir(path):
+                if get_video_suffix(file) != '':
+                    count_video += 1
+                    os.rename(path + '/' + file, path + '/' + number + "-CD" + str(count_video) + '.' + video_suffix)
+                elif get_other_suffix(file) == 'nfo':
+                    get_other_suffix(file)
+                    os.rename(path + '/' + file, path + '/' + number + "-CD1." + get_other_suffix(file))
+                elif 'Backdrop' not in file and get_other_suffix(file) == 'jpg':
+                    count_jpg += 1
+                    os.rename(path + '/' + file, path + '/' + number + "-CD" + str(count_jpg) + ".jpg")
+            os.rename(filepath, path + '/' + number + "-CD" + str(count_video + 1) + '.' + video_suffix)
+            if num_video != 0:
+                shutil.copy(path + '/Backdrop.jpg', path + '/' + number + "-CD" + str(count_jpg + 1) + '.jpg')
+            # print('[-]File Exists! Please check your movie!')
+            # print('[-]move to the root folder of the program.')
     except FileExistsError:
-        print('[-]File Exists! Please check your movie!')
-        print('[-]move to the root folder of the program.')
         os._exit(0)
-def pasteFileToFolder_mode2(filepath, path): #文件路径，番号，后缀，要移动至的位置
-    global houzhui
-    houzhui = str(re.search('[.](AVI|RMVB|WMV|MOV|MP4|MKV|FLV|TS|avi|rmvb|wmv|mov|mp4|mkv|flv|ts)$', filepath).group())
+
+
+def pasteFileToFolder_mode2(filepath, path):  # 文件路径，番号，后缀，要移动至的位置
+    global suffix
+    suffix = str(re.search('[.](AVI|RMVB|WMV|MOV|MP4|MKV|FLV|TS|avi|rmvb|wmv|mov|mp4|mkv|flv|ts)$', filepath).group())
     try:
-        os.rename(filepath, path + houzhui)
+        os.rename(filepath, path + suffix)
         print('[+]Movie ' + number + ' move to target folder Finished!')
     except:
         print('[-]File Exists! Please check your movie!')
         print('[-]move to the root folder of the program.')
         os._exit(0)
+
+
 def renameJpgToBackdrop_copy():
     if option == 'plex':
         shutil.copy(path + '/fanart.jpg', path + '/Backdrop.jpg')
@@ -399,15 +468,19 @@ def renameJpgToBackdrop_copy():
     if option == 'emby':
         shutil.copy(path + '/' + number + '.jpg', path + '/Backdrop.jpg')
 
+
 if __name__ == '__main__':
-    filepath=argparse_get_file()[0] #影片的路径
-
+    filepath = argparse_get_file()[0]  # 影片的路径
+    if '-CD' in filepath or '-cd' in filepath:
+        multi_part = 1
     if '-c.' in filepath or '-C.' in filepath or '中文' in filepath or '字幕' in filepath:
-        cn_sub='1'
+        cn_sub = '1'
 
-    if argparse_get_file()[1] == '':    #获取手动拉去影片获取的番号
+    if argparse_get_file()[1] == '':  # 获取手动拉去影片获取的番号
         try:
-            number = str(re.findall(r'(.+?)\.',str(re.search('([^<>/\\\\|:""\\*\\?]+)\\.\\w+$',filepath).group()))).strip("['']").replace('_','-')
+            number = str(
+                re.findall(r'(.+?)\.', str(re.search('([^<>/\\\\|:""\\*\\?]+)\\.\\w+$', filepath).group()))).strip(
+                "['']").replace('_', '-')
             print("[!]Making Data for   [" + number + "]")
         except:
             print("[-]failed!Please rename the filename again!")
@@ -416,12 +489,14 @@ if __name__ == '__main__':
         number = argparse_get_file()[1]
     CreatFailedFolder()
     getDataFromJSON(number)  # 定义番号
-    creatFolder()  # 创建文件夹
+    path = get_path()
     if program_mode == '1':
-        imageDownload(filepath)  # creatFoder会返回番号路径
-        PrintFiles(filepath)  # 打印文件
-        cutImage()  # 裁剪图
+        if not os.path.exists(path):
+            creatFolder(path)  # 创建文件夹
+            imageDownload(filepath)  # creatFoder会返回番号路径
+            PrintFiles(filepath)  # 打印文件
+            cutImage()  # 裁剪图
+            renameJpgToBackdrop_copy()
         pasteFileToFolder(filepath, path)  # 移动文件
-        renameJpgToBackdrop_copy()
     elif program_mode == '2':
         pasteFileToFolder_mode2(filepath, path)  # 移动文件
