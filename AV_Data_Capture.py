@@ -170,4 +170,4 @@ if __name__ == '__main__':
 
     CEF('JAV_output')
     print("[+]All finished!!!")
-    input("[+][+]Press enter key exit, you can check the error messge before you exit.\n[+][+]按回车键结束，你可以在结束之前查看和错误信息。")
+    # input("[+][+]Press enter key exit, you can check the error messge before you exit.\n[+][+]按回车键结束，你可以在结束之前查看和错误信息。")
