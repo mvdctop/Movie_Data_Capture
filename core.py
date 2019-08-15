@@ -394,7 +394,6 @@ def image_cut(file_name):
     """ 调用人体检测与属性识别 """
     result = client.bodyAnalysis(image)
     ewidth = int(0.661538 * height)
-    print(ewidth)
     ex = int(result["person_info"][0]['body_parts']['nose']['x'])
     if width - ex < ewidth / 2:
         ex = width - ewidth
@@ -463,6 +462,10 @@ def pasteFileToFolder(filepath, path):  # 文件路径，番号，后缀，要�
     video_suffix = get_video_suffix(filepath)
     try:
         if multi_part == 0:
+            if os.path.exists(path + '/' + number + '.' + video_suffix):
+                print('[-]File Exists! Please check your movie!')
+                print('[-]move to the root folder of the program.')
+                os._exit(0)
             os.rename(filepath, path + '/' + number + '.' + video_suffix)
             # print(movie_lists())
         else:
