@@ -1,14 +1,8 @@
 # -*- coding: utf-8 -*-
-from AV_Data_Capture import movie_lists
 from aip import AipBodyAnalysis
-import cv2
-from PIL import Image
-import re
-import os
 import os.path
 import shutil
 from PIL import Image
-import time
 import javbus
 import json
 import fc2fans_club
@@ -16,7 +10,6 @@ import siro
 from ADC_function import *
 from configparser import ConfigParser
 import argparse
-import javdb
 
 
 Config = ConfigParser()
@@ -164,6 +157,8 @@ def getDataFromJSON(file_number):  # 从JSON返回元数据
         title = title.replace('>', '')
     elif '|' in title:
         title = title.replace('|', '')
+    if r'/' in release:
+        release = release.replace(r'/', '-')
     # ====================处理异常字符 END================== #\/:*?"<>|
 
     naming_rule = eval(config['Name_Rule']['naming_rule'])
@@ -467,7 +462,6 @@ def pasteFileToFolder(filepath, path):  # 文件路径，番号，后缀，要�
                 print('[-]move to the root folder of the program.')
                 os._exit(0)
             os.rename(filepath, path + '/' + number + '.' + video_suffix)
-            # print(movie_lists())
         else:
             num_video = 0
             for file in os.listdir(path):
@@ -489,8 +483,6 @@ def pasteFileToFolder(filepath, path):  # 文件路径，番号，后缀，要�
             if num_video != 0:
                 shutil.copy(path + '/Backdrop.jpg', path + '/' + number + "-CD" + str(count_jpg + 1) + '.jpg')
                 print('[+]Image Downloaded!', path + '/' + number + "-CD" + str(count_jpg + 1) + '.jpg')
-            # print('[-]File Exists! Please check your movie!')
-            # print('[-]move to the root folder of the program.')
     except FileExistsError:
         os._exit(0)
 
