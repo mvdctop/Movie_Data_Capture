@@ -41,24 +41,17 @@ def UpdateCheck():
 
 def movie_lists():
     list_array = []
-    movie_type = ['mp4', 'avi', 'rmvb', 'wmv', 'mov', 'mkv', 'flv', 'ts']
-    directory = ''
-    switch = config['directory_capture']['switch']
-    if int(switch) == 1:
-        directory = config['directory_capture']['directory']
-        if directory == '*':
-            # 遍历子文件夹
-            for i in os.listdir(os.getcwd()):
-                for typ in movie_type:
-                    list_array += glob.glob(i + "/*." + typ)
-            # 遍历当前文件夹
-            for typ in movie_type:
-                list_array += glob.glob(r"*." + typ)
-    # 遍历指定文件夹或当前文件夹
-    if directory != '*':
+    directory = config['directory_capture']['directory']
+    movie_type = ['.mp4', '.avi', '.rmvb', '.wmv', '.mov', '.mkv', '.flv', '.ts']
+    if directory == '':
         for typ in movie_type:
-            list_array += glob.glob(directory + "/*." + typ)
-    # print(list_array)
+            list_array += glob.glob(r"./" + directory + "/*" + typ)
+        return list_array
+    elif directory == '*':
+        directory = os.getcwd()
+    for i in os.listdir(directory):
+        for typ in movie_type:
+            list_array += glob.glob(r"./" + i + "/*" + typ)
     return list_array
 
 
