@@ -2,8 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import glob
-import os
-import time
 import re
 import sys
 from ADC_function import *
@@ -97,7 +95,6 @@ def getNumber(filepath):
         return file_number
     except:  # 提取不含减号-的番号
         try:  # 提取东京热番号格式 n1087
-            print(file_number)
             filename1 = str(re.sub("h26\d", "", filepath)).strip('Tokyo-hot').strip('tokyo-hot')
             filename0 = str(re.sub(".*?\.com-\d+", "", filename1)).strip('_')
             if '-C.' in filepath or '-c.' in filepath:
@@ -160,7 +157,7 @@ if __name__ == '__main__':
             print('[-]Move ' + i + ' to failed folder')
             shutil.move(i, str(os.getcwd()) + '/' + 'failed/')
             continue
-
-    CEF('JAV_output')
+    if os.path.exists('JAV_output'):
+        CEF('JAV_output')
     print("[+]All finished!!!")
-    # input("[+][+]Press enter key exit, you can check the error messge before you exit.\n[+][+]按回车键结束，你可以在结束之前查看和错误信息。")
+    input("[+][+]Press enter key exit, you can check the error messge before you exit.\n[+][+]按回车键结束，你可以在结束之前查看和错误信息。")
