@@ -40,6 +40,7 @@ cover=''
 imagecut=''
 tag=[]
 cn_sub=''
+multi_part=0
 path=''
 houzhui=''
 website=''
