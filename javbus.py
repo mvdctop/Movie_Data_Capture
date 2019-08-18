@@ -1,17 +1,9 @@
 import re
-import requests #need install
 from pyquery import PyQuery as pq#need install
 from lxml import etree#need install
-import os
-import os.path
-import shutil
 from bs4 import BeautifulSoup#need install
-from PIL import Image#need install
-import time
 import json
 from ADC_function import *
-import javdb
-import siro
 
 def getActorPhoto(htmlcode): #//*[@id="star_qdt"]/li/a/img
     soup = BeautifulSoup(htmlcode, 'lxml')
@@ -89,15 +81,11 @@ def getTag(htmlcode):  # 获取演员
 
 def main(number):
     try:
-        if re.search('\d+\D+', number).group() in number:
-            js = siro.main(number)
-            return js
-    except:
-        aaaa=''
-
-    try:
         htmlcode = get_html('https://www.javbus.com/' + number)
-        dww_htmlcode = get_html("https://www.dmm.co.jp/mono/dvd/-/detail/=/cid=" + number.replace("-", ''))
+        try:
+            dww_htmlcode = get_html("https://www.dmm.co.jp/mono/dvd/-/detail/=/cid=" + number.replace("-", ''))
+        except:
+            dww_htmlcode = ''
         dic = {
             'title': str(re.sub('\w+-\d+-', '', getTitle(htmlcode))),
             'studio': getStudio(htmlcode),
@@ -114,35 +102,12 @@ def main(number):
             'label': getSerise(htmlcode),
             'actor_photo': getActorPhoto(htmlcode),
             'website': 'https://www.javbus.com/' + number,
+            'source' : 'javbus.py',
         }
         js = json.dumps(dic, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ':'), )  # .encode('UTF-8')
-        if 'HEYZO' in number or 'heyzo' in number or 'Heyzo' in number:
-            htmlcode = get_html('https://www.javbus.com/' + number)
-            #dww_htmlcode = get_html("https://www.dmm.co.jp/mono/dvd/-/detail/=/cid=" + number.replace("-", ''))
-            dic = {
-                'title': str(re.sub('\w+-\d+-', '', getTitle(htmlcode))),
-                'studio': getStudio(htmlcode),
-                'year': getYear(htmlcode),
-                'outline': '',
-                'runtime': getRuntime(htmlcode),
-                'director': getDirector(htmlcode),
-                'actor': getActor(htmlcode),
-                'release': getRelease(htmlcode),
-                'number': getNum(htmlcode),
-                'cover': getCover(htmlcode),
-                'imagecut': 1,
-                'tag': getTag(htmlcode),
-                'label': getSerise(htmlcode),
-                'actor_photo': getActorPhoto(htmlcode),
-                'website': 'https://www.javbus.com/' + number,
-            }
-            js2 = json.dumps(dic, ensure_ascii=False, sort_keys=True, indent=4,
-                             separators=(',', ':'), )  # .encode('UTF-8')
-            return js2
         return js
     except:
-        a=javdb.main(number)
-        return a
+        return main_uncensored(number)
 
 def main_uncensored(number):
     htmlcode = get_html('https://www.javbus.com/' + number)
@@ -166,11 +131,7 @@ def main_uncensored(number):
         'imagecut': 0,
         'actor_photo': '',
         'website': 'https://www.javbus.com/' + number,
+        'source': 'javbus.py',
     }
     js = json.dumps(dic, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ':'), )  # .encode('UTF-8')
-
-    if getYear(htmlcode) == '' or getYear(htmlcode) == 'null':
-        js2 = javdb.main(number)
-        return js2
-
     return js

@@ -1,7 +1,6 @@
 import re
 from lxml import etree
 import json
-import requests
 from bs4 import BeautifulSoup
 from ADC_function import *
 
@@ -79,7 +78,6 @@ def main(number):
             result1 = str(html.xpath('//*[@id="videos"]/div/div/a/@href')).strip(" ['']")
         b = get_html('https://javdb1.com' + result1)
         soup = BeautifulSoup(b, 'lxml')
-
         a = str(soup.find(attrs={'class': 'panel'}))
         dic = {
             'actor': getActor(a),
@@ -99,6 +97,7 @@ def main(number):
             'year': getYear(getRelease(a)),  # str(re.search('\d{4}',getRelease(a)).group()),
             'actor_photo': '',
             'website': 'https://javdb1.com' + result1,
+            'source': 'javdb.py',
         }
         js = json.dumps(dic, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ':'), )  # .encode('UTF-8')
         return js
@@ -106,19 +105,18 @@ def main(number):
         a = get_html('https://javdb.com/search?q=' + number + '&f=all')
         html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
         result1 = str(html.xpath('//*[@id="videos"]/div/div/a/@href')).strip(" ['']")
-        if result1 == '':
+        if result1 == '' or result1 == 'null':
             a = get_html('https://javdb.com/search?q=' + number.replace('-', '_') + '&f=all')
             html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
             result1 = str(html.xpath('//*[@id="videos"]/div/div/a/@href')).strip(" ['']")
-
         b = get_html('https://javdb.com' + result1)
         soup = BeautifulSoup(b, 'lxml')
-
         a = str(soup.find(attrs={'class': 'panel'}))
         dic = {
             'actor': getActor(a),
-            'title': getTitle(b).replace("\\n", '').replace('        ', '').replace(getActor(a), '').replace(getNum(a),
-                                                                                                             '').replace(
+            'title': getTitle(b).replace("\\n", '').replace('        ', '').replace(getActor(a), '').replace(
+                getNum(a),
+                '').replace(
                 '无码', '').replace('有码', '').lstrip(' '),
             'studio': getStudio(a),
             'outline': getOutline(a),
@@ -132,9 +130,10 @@ def main(number):
             'label': getLabel(a),
             'year': getYear(getRelease(a)),  # str(re.search('\d{4}',getRelease(a)).group()),
             'actor_photo': '',
-            'website':'https://javdb.com' + result1,
+            'website': 'https://javdb.com' + result1,
+            'source': 'javdb.py',
         }
-        js = json.dumps(dic, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ':'), )  # .encode('UTF-8')
+        js = json.dumps(dic, ensure_ascii=False, sort_keys=True, indent=4,separators=(',', ':'), )  # .encode('UTF-8')
         return js
 
 #print(main('061519-861'))

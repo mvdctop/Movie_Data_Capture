@@ -75,6 +75,7 @@ def main(number2):
         'tag':      getTag(htmlcode),
         'actor_photo':'',
         'website':  'http://fc2fans.club/html/FC2-' + number + '.html',
+        'source': 'fc2fans_club.py',
     }
     #print(getTitle(htmlcode))
     #print(getNum(htmlcode))

@@ -19,6 +19,7 @@ else:
     print('[+]config.ini: not found, creating...')
     with open("config.ini", "wt", encoding='UTF-8') as code:
         print("[common]", file=code)
+        print("main_mode=1", file=code)
         print("failed_output_folder=failed", file=code)
         print("success_output_folder=JAV_output", file=code)
         print("", file=code)

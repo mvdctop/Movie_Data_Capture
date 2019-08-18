@@ -6,14 +6,17 @@ import os.path
 import shutil
 from PIL import Image
 import time
-import javbus
 import json
-import fc2fans_club
-import siro
 from ADC_function import *
 from configparser import ConfigParser
 import argparse
+#=========website========
+import fc2fans_club
+import siro
+import avsox
+import javbus
 import javdb
+#=========website========
 
 Config = ConfigParser()
 Config.read(config_file, encoding='UTF-8')
@@ -42,6 +45,7 @@ houzhui=''
 website=''
 json_data={}
 actor_photo={}
+cover_small=''
 naming_rule  =''#eval(config['Name_Rule']['naming_rule'])
 location_rule=''#eval(config['Name_Rule']['location_rule'])
 program_mode = Config['common']['main_mode']
@@ -66,6 +70,11 @@ def CreatFailedFolder():
         except:
             print("[-]failed!can not be make Failed output folder\n[-](Please run as Administrator)")
             os._exit(0)
+def getDataState(json_data): #元数据获取失败检测
+    if json_data['title'] == '' or json_data['title'] == 'None' or json_data['title'] == 'null':
+        return 0
+    else:
+        return 1
 def getDataFromJSON(file_number): #从JSON返回元数据
     global title
     global studio
@@ -84,6 +93,7 @@ def getDataFromJSON(file_number): #从JSON返回元数据
     global cn_sub
     global website
     global actor_photo
+    global cover_small
 
     global naming_rule
     global location_rule
@@ -92,21 +102,33 @@ def getDataFromJSON(file_number): #从JSON返回元数据
     # ================================================网站规则添加开始================================================
 
     try:    # 添加 需要 正则表达式的规则
-        # =======================javdb.py=======================
         if re.search('^\d{5,}', file_number).group() in file_number:
-            json_data = json.loads(javbus.main_uncensored(file_number))
+            json_data = json.loads(avsox.main(file_number))
+            if getDataState(json_data) == 0:    #如果元数据获取失败，请求番号至其他网站抓取
+                json_data = json.loads(javdb.main(file_number))
+
+        elif re.search('\d+\D+', file_number).group() in file_number:
+            json_data = json.loads(siro.main(file_number))
+            if getDataState(json_data) == 0:    #如果元数据获取失败，请求番号至其他网站抓取
+                json_data = json.loads(javbus.main(file_number))
+            elif getDataState(json_data) == 0:  #如果元数据获取失败，请求番号至其他网站抓取
+                json_data = json.loads(javdb.main(file_number))
+
     except:  # 添加 无需 正则表达式的规则
-        # ====================fc2fans_club.py====================
         if 'fc2' in file_number:
             json_data = json.loads(fc2fans_club.main(file_number.strip('fc2_').strip('fc2-').strip('ppv-').strip('PPV-').strip('FC2_').strip('FC2-').strip('ppv-').strip('PPV-')))
         elif 'FC2' in file_number:
             json_data = json.loads(fc2fans_club.main(file_number.strip('FC2_').strip('FC2-').strip('ppv-').strip('PPV-').strip('fc2_').strip('fc2-').strip('ppv-').strip('PPV-')))
-        # =======================siro.py=========================
+        elif 'HEYZO' in number or 'heyzo' in number or 'Heyzo' in number:
+            json_data = json.loads(avsox.main(file_number))
         elif 'siro' in file_number or 'SIRO' in file_number or 'Siro' in file_number:
             json_data = json.loads(siro.main(file_number))
-        # =======================javbus.py=======================
         else:
             json_data = json.loads(javbus.main(file_number))
+            if getDataState(json_data) == 0:    #如果元数据获取失败，请求番号至其他网站抓取
+                json_data = json.loads(avsox.main(file_number))
+            elif getDataState(json_data) == 0:  #如果元数据获取失败，请求番号至其他网站抓取
+                json_data = json.loads(javdb.main(file_number))
 
     # ================================================网站规则添加结束================================================
 
@@ -120,15 +142,24 @@ def getDataFromJSON(file_number): #从JSON返回元数据
     release     =     json_data['release']
     number      =     json_data['number']
     cover       =     json_data['cover']
+    try:
+        cover_small = json_data['cover_small']
+    except:
+        aaaaaaa=''
     imagecut    =     json_data['imagecut']
     tag         = str(json_data['tag']).strip("[ ]").replace("'", '').replace(" ", '').split(',')  # 字符串转列表
     actor       = str(actor_list).strip("[ ]").replace("'", '').replace(" ", '')
     actor_photo =     json_data['actor_photo']
     website     =     json_data['website']
+    source      =     json_data['source']
 
     if title == '' or number == '':
         print('[-]Movie Data not found!')
         moveFailedFolder()
+
+    if imagecut == '3':
+        DownloadFileWithFilename()
+
 
     # ====================处理异常字符====================== #\/:*?"<>|
     if '\\' in title:
@@ -153,6 +184,23 @@ def getDataFromJSON(file_number): #从JSON返回元数据
 
     naming_rule   = eval(config['Name_Rule']['naming_rule'])
     location_rule = eval(config['Name_Rule']['location_rule'])
+def smallCoverCheck():
+    if imagecut == 3:
+        if option == 'emby':
+            DownloadFileWithFilename(cover_small, '1.jpg', path)
+            img = Image.open(path + '/1.jpg')
+            w = img.width
+            h = img.height
+            img.save(path + '/' + number + '.png')
+            time.sleep(1)
+            os.remove(path + '/1.jpg')
+        if option == 'plex':
+            DownloadFileWithFilename(cover_small, '1.jpg', path)
+            img = Image.open(path + '/1.jpg')
+            w = img.width
+            h = img.height
+            img.save(path + '/poster.png')
+            os.remove(path + '/1.jpg')
 def creatFolder(): #创建文件夹
     global actor
     global path
@@ -352,7 +400,7 @@ def cutImage():
                 img2.save(path + '/poster.png')
             except:
                 print('[-]Cover cut failed!')
-        else:
+        elif imagecut == 0:
             img = Image.open(path + '/fanart.jpg')
             w = img.width
             h = img.height
@@ -368,7 +416,7 @@ def cutImage():
                 img2.save(path + '/' + number + '.png')
             except:
                 print('[-]Cover cut failed!')
-        else:
+        elif imagecut == 0:
             img = Image.open(path + '/' + number + '.jpg')
             w = img.width
             h = img.height
@@ -420,6 +468,7 @@ if __name__ == '__main__':
     if program_mode == '1':
         imageDownload(filepath)  # creatFoder会返回番号路径
         PrintFiles(filepath)  # 打印文件
+        smallCoverCheck()
         cutImage()  # 裁剪图
         pasteFileToFolder(filepath, path)  # 移动文件
         renameJpgToBackdrop_copy()

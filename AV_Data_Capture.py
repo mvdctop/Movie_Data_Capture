@@ -14,7 +14,7 @@ os.chdir(os.getcwd())
 
 # ============global var===========
 
-version='0.11.9'
+version='1.1'
 
 config = ConfigParser()
 config.read(config_file, encoding='UTF-8')
@@ -25,11 +25,11 @@ Platform = sys.platform
 
 def UpdateCheck():
     if UpdateCheckSwitch() == '1':
-        html2 = get_html('https://raw.githubusercontent.com/wenead99/AV_Data_Capture/master/update_check.json')
+        html2 = get_html('https://raw.githubusercontent.com/yoshiko2/AV_Data_Capture/master/update_check.json')
         html = json.loads(str(html2))
 
         if not version == html['version']:
-            print('[*]        * New update ' + html['version'] + ' *')
+            print('[*]           * New update ' + html['version'] + ' *')
             print('[*]             * Download *')
             print('[*] ' + html['download'])
             print('[*]=====================================')
@@ -37,35 +37,35 @@ def UpdateCheck():
         print('[+]Update Check disabled!')
 def movie_lists():
     directory = config['directory_capture']['directory']
-    a2=[]
-    b2=[]
-    c2=[]
-    d2=[]
-    e2=[]
-    f2=[]
-    g2=[]
-    h2=[]
+    mp4=[]
+    avi=[]
+    rmvb=[]
+    wmv=[]
+    mov=[]
+    mkv=[]
+    flv=[]
+    ts=[]
     if directory=='*':
         for i in os.listdir(os.getcwd()):
-            a2 += glob.glob(r"./" + i + "/*.mp4")
-            b2 += glob.glob(r"./" + i + "/*.avi")
-            c2 += glob.glob(r"./" + i + "/*.rmvb")
-            d2 += glob.glob(r"./" + i + "/*.wmv")
-            e2 += glob.glob(r"./" + i + "/*.mov")
-            f2 += glob.glob(r"./" + i + "/*.mkv")
-            g2 += glob.glob(r"./" + i + "/*.flv")
-            h2 += glob.glob(r"./" + i + "/*.ts")
-        total = a2 + b2 + c2 + d2 + e2 + f2 + g2 + h2
+            mp4 += glob.glob(r"./" + i + "/*.mp4")
+            avi += glob.glob(r"./" + i + "/*.avi")
+            rmvb += glob.glob(r"./" + i + "/*.rmvb")
+            wmv += glob.glob(r"./" + i + "/*.wmv")
+            mov += glob.glob(r"./" + i + "/*.mov")
+            mkv += glob.glob(r"./" + i + "/*.mkv")
+            flv += glob.glob(r"./" + i + "/*.flv")
+            ts += glob.glob(r"./" + i + "/*.ts")
+        total = mp4 + avi + rmvb + wmv + mov + mkv + flv + ts
         return total
-    a2 = glob.glob(r"./" + directory + "/*.mp4")
-    b2 = glob.glob(r"./" + directory + "/*.avi")
-    c2 = glob.glob(r"./" + directory + "/*.rmvb")
-    d2 = glob.glob(r"./" + directory + "/*.wmv")
-    e2 = glob.glob(r"./" + directory + "/*.mov")
-    f2 = glob.glob(r"./" + directory + "/*.mkv")
-    g2 = glob.glob(r"./" + directory + "/*.flv")
-    h2 = glob.glob(r"./" + directory + "/*.ts")
-    total = a2 + b2 + c2 + d2 + e2 + f2 + g2 + h2
+    mp4 = glob.glob(r"./" + directory + "/*.mp4")
+    avi = glob.glob(r"./" + directory + "/*.avi")
+    rmvb = glob.glob(r"./" + directory + "/*.rmvb")
+    wmv = glob.glob(r"./" + directory + "/*.wmv")
+    mov = glob.glob(r"./" + directory + "/*.mov")
+    mkv = glob.glob(r"./" + directory + "/*.mkv")
+    flv = glob.glob(r"./" + directory + "/*.flv")
+    ts = glob.glob(r"./" + directory + "/*.ts")
+    total = mp4 + avi + rmvb + wmv + mov + mkv + flv + ts
     return total
 def CreatFailedFolder():
     if not os.path.exists('failed/'):  # 新建failed文件夹
@@ -94,31 +94,30 @@ def rreplace(self, old, new, *max):
     return new.join(self.rsplit(old, count))
 def getNumber(filepath):
     try:  # 普通提取番号 主要处理包含减号-的番号
-        filepath1 = filepath.replace("_", "-")
-        filepath1.strip('22-sht.me').strip('-HD').strip('-hd')
-        filename = str(re.sub("\[\d{4}-\d{1,2}-\d{1,2}\] - ", "", filepath1))  # 去除文件名中时间
-        file_number = re.search('\w+-\d+', filename).group()
-        return file_number
+        try:
+            filepath1 = filepath.replace("_", "-")
+            filepath1.strip('22-sht.me').strip('-HD').strip('-hd')
+            filename = str(re.sub("\[\d{4}-\d{1,2}-\d{1,2}\] - ", "", filepath1))  # 去除文件名中时间
+            file_number = re.search('\w+-\d+', filename).group()
+            return file_number
+        except:
+            filepath1 = filepath.replace("_", "-")
+            filepath1.strip('22-sht.me').strip('-HD').strip('-hd')
+            filename = str(re.sub("\[\d{4}-\d{1,2}-\d{1,2}\] - ", "", filepath1))  # 去除文件名中时间
+            file_number = re.search('\w+-\w+', filename).group()
+            return file_number
     except:  # 提取不含减号-的番号
-        try:  # 提取东京热番号格式 n1087
-            filename1 = str(re.sub("h26\d", "", filepath)).strip('Tokyo-hot').strip('tokyo-hot')
+        try:
+            filename1 = str(re.sub("ts6\d", "", filepath)).strip('Tokyo-hot').strip('tokyo-hot')
             filename0 = str(re.sub(".*?\.com-\d+", "", filename1)).strip('_')
-            if '-C.' in filepath or '-c.' in filepath:
-                cn_sub = '1'
-            file_number = str(re.search('n\d{4}', filename0).group(0))
+            file_number = str(re.search('\w+\d{4}', filename0).group(0))
             return file_number
         except:  # 提取无减号番号
-            filename1 = str(re.sub("h26\d", "", filepath))  # 去除h264/265
+            filename1 = str(re.sub("ts6\d", "", filepath))  # 去除ts64/265
             filename0 = str(re.sub(".*?\.com-\d+", "", filename1))
             file_number2 = str(re.match('\w+', filename0).group())
-            if '-C.' in filepath or '-c.' in filepath:
-                cn_sub = '1'
-            file_number = str(file_number2.replace(re.match("^[A-Za-z]+", file_number2).group(),
-                                                   re.match("^[A-Za-z]+", file_number2).group() + '-'))
+            file_number = str(file_number2.replace(re.match("^[A-Za-z]+", file_number2).group(),re.match("^[A-Za-z]+", file_number2).group() + '-'))
             return file_number
-            # if not re.search('\w-', file_number).group() == 'None':
-            # file_number = re.search('\w+-\w+', filename).group()
-            #
 
 def RunCore():
     if Platform == 'win32':
@@ -138,7 +137,7 @@ def RunCore():
 
 if __name__ =='__main__':
     print('[*]===========AV Data Capture===========')
-    print('[*]           Version '+version)
+    print('[*]             Version '+version)
     print('[*]=====================================')
     CreatFailedFolder()
     UpdateCheck()
