@@ -40,6 +40,8 @@ cover=''
 imagecut=''
 tag=[]
 cn_sub=''
+multi_part=0
+part=''
 path=''
 houzhui=''
 website=''
@@ -272,7 +274,13 @@ def imageDownload(filepath): #封面是否下载成功，否则移动到failed
         if DownloadFileWithFilename(cover, number + '.jpg', path) == 'failed':
             moveFailedFolder()
         DownloadFileWithFilename(cover, number + '.jpg', path)
-        print('[+]Image Downloaded!', path + '/' + number + '.jpg')
+        if multi_part == 1:
+            old_name = os.path.join(path, number + '.jpg')
+            new_name = os.path.join(path, number + part + '.jpg')
+            os.rename(old_name, new_name)
+            print('[+]Image Downloaded!', path + '/' + number + part + '.jpg')
+        else:
+            print('[+]Image Downloaded!', path + '/' + number + '.jpg')
     elif option == 'plex':
         if DownloadFileWithFilename(cover, 'fanart.jpg', path) == 'failed':
             moveFailedFolder()
@@ -447,9 +455,26 @@ def renameJpgToBackdrop_copy():
     if option == 'emby':
         shutil.copy(path + '/' + number + '.jpg', path + '/Backdrop.jpg')
 
+def renameBackdropToJpg_copy():
+    if option == 'plex':
+        shutil.copy(path + '/fanart.jpg', path + '/Backdrop.jpg')
+        shutil.copy(path + '/poster.png', path + '/thumb.png')
+    if option == 'emby':
+        shutil.copy(path + '/Backdrop.jpg', path + '/' + number + '.jpg')
+        print('[+]Image Downloaded!', path + '/' + number + '.jpg')
+def get_part(filepath):
+    try:
+        if re.search('-CD\d+', filepath):
+            return re.findall('-CD\d+', filepath)[0]
+    except:
+        print("[-]failed!Please rename the filename again!")
+        moveFailedFolder()
 if __name__ == '__main__':
     filepath=argparse_get_file()[0] #影片的路径
 
+    if '-CD' in filepath or '-cd' in filepath:
+        multi_part = 1
+    part = get_part(filepath)
     if '-c.' in filepath or '-C.' in filepath or '中文' in filepath or '字幕' in filepath:
         cn_sub='1'
 
@@ -466,11 +491,17 @@ if __name__ == '__main__':
     getDataFromJSON(number)  # 定义番号
     creatFolder()  # 创建文件夹
     if program_mode == '1':
-        imageDownload(filepath)  # creatFoder会返回番号路径
-        PrintFiles(filepath)  # 打印文件
-        smallCoverCheck()
-        cutImage()  # 裁剪图
+        if part == '-CD1' or multi_part == 0:
+            imageDownload(filepath)  # creatFoder会返回番号路径
+            if multi_part == 1:
+                number += part
+            PrintFiles(filepath)  # 打印文件
+            smallCoverCheck()
+            cutImage()  # 裁剪图
+            renameJpgToBackdrop_copy()
+        else:
+            number += part
+            renameBackdropToJpg_copy()
         pasteFileToFolder(filepath, path)  # 移动文件
-        renameJpgToBackdrop_copy()
     elif program_mode == '2':
         pasteFileToFolder_mode2(filepath, path)  # 移动文件
