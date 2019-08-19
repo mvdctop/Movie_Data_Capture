@@ -463,8 +463,12 @@ def renameBackdropToJpg_copy():
         shutil.copy(path + '/Backdrop.jpg', path + '/' + number + '.jpg')
         print('[+]Image Downloaded!', path + '/' + number + '.jpg')
 def get_part(filepath):
-    if re.search('-CD\d+', filepath):
-        return re.findall('-CD\d+', filepath)[0]
+    try:
+        if re.search('-CD\d+', filepath):
+            return re.findall('-CD\d+', filepath)[0]
+    except:
+        print("[-]failed!Please rename the filename again!")
+        moveFailedFolder()
 if __name__ == '__main__':
     filepath=argparse_get_file()[0] #影片的路径
 
