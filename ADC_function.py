@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 import requests
@@ -18,18 +19,13 @@ if os.path.exists(config_file):
 else:
     print('[+]config.ini: not found, creating...')
     with open("config.ini", "wt", encoding='UTF-8') as code:
-        print("[common]", file=code)
-        print("main_mode=1", file=code)
-        print("failed_output_folder=failed", file=code)
-        print("success_output_folder=JAV_output", file=code)
-        print("", file=code)
         print("[proxy]",file=code)
         print("proxy=127.0.0.1:1080",file=code)
         print("timeout=10", file=code)
         print("retry=3", file=code)
         print("", file=code)
         print("[Name_Rule]", file=code)
-        print("location_rule=actor+'/'+number",file=code)
+        print("location_rule='JAV_output/'+actor+'/'+number",file=code)
         print("naming_rule=number+'-'+title",file=code)
         print("", file=code)
         print("[update]",file=code)
@@ -41,8 +37,10 @@ else:
         print("#plex only test!", file=code)
         print("", file=code)
         print("[directory_capture]", file=code)
+        print("switch=0", file=code)
         print("directory=", file=code)
         print("", file=code)
+        print("everyone switch:1=on, 0=off", file=code)
     time.sleep(2)
     print('[+]config.ini: created!')
     try:

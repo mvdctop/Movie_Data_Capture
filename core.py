@@ -18,14 +18,13 @@ import javbus
 import javdb
 #=========website========
 
+#初始化全局变量
 Config = ConfigParser()
 Config.read(config_file, encoding='UTF-8')
 try:
     option = ReadMediaWarehouse()
 except:
     print('[-]Config media_warehouse read failed!')
-
-#初始化全局变量
 title=''
 studio=''
 year=''
@@ -54,6 +53,7 @@ program_mode = Config['common']['main_mode']
 failed_folder= Config['common']['failed_output_folder']
 success_folder=Config['common']['success_output_folder']
 #=====================本地文件处理===========================
+
 def moveFailedFolder():
     global filepath
     print('[-]Move to Failed output folder')
@@ -100,37 +100,36 @@ def getDataFromJSON(file_number): #从JSON返回元数据
     global naming_rule
     global location_rule
 
-
     # ================================================网站规则添加开始================================================
 
-    try:    # 添加 需要 正则表达式的规则
-        if re.search('^\d{5,}', file_number).group() in file_number:
-            json_data = json.loads(avsox.main(file_number))
-            if getDataState(json_data) == 0:    #如果元数据获取失败，请求番号至其他网站抓取
-                json_data = json.loads(javdb.main(file_number))
-
-        elif re.search('\d+\D+', file_number).group() in file_number:
-            json_data = json.loads(siro.main(file_number))
-            if getDataState(json_data) == 0:    #如果元数据获取失败，请求番号至其他网站抓取
-                json_data = json.loads(javbus.main(file_number))
-            elif getDataState(json_data) == 0:  #如果元数据获取失败，请求番号至其他网站抓取
-                json_data = json.loads(javdb.main(file_number))
-
-    except:  # 添加 无需 正则表达式的规则
-        if 'fc2' in file_number:
-            json_data = json.loads(fc2fans_club.main(file_number.strip('fc2_').strip('fc2-').strip('ppv-').strip('PPV-').strip('FC2_').strip('FC2-').strip('ppv-').strip('PPV-')))
-        elif 'FC2' in file_number:
-            json_data = json.loads(fc2fans_club.main(file_number.strip('FC2_').strip('FC2-').strip('ppv-').strip('PPV-').strip('fc2_').strip('fc2-').strip('ppv-').strip('PPV-')))
-        elif 'HEYZO' in number or 'heyzo' in number or 'Heyzo' in number:
-            json_data = json.loads(avsox.main(file_number))
-        elif 'siro' in file_number or 'SIRO' in file_number or 'Siro' in file_number:
-            json_data = json.loads(siro.main(file_number))
-        else:
+    if re.match('^\d{5,}', file_number):
+        json_data = json.loads(avsox.main(file_number))
+        if getDataState(json_data) == 0:  # 如果元数据获取失败，请求番号至其他网站抓取
+            json_data = json.loads(javdb.main(file_number))
+    #==
+    elif re.match('\d+\D+', file_number):
+        json_data = json.loads(siro.main(file_number))
+        if getDataState(json_data) == 0:  # 如果元数据获取失败，请求番号至其他网站抓取
             json_data = json.loads(javbus.main(file_number))
-            if getDataState(json_data) == 0:    #如果元数据获取失败，请求番号至其他网站抓取
-                json_data = json.loads(avsox.main(file_number))
-            elif getDataState(json_data) == 0:  #如果元数据获取失败，请求番号至其他网站抓取
-                json_data = json.loads(javdb.main(file_number))
+        elif getDataState(json_data) == 0:  # 如果元数据获取失败，请求番号至其他网站抓取
+            json_data = json.loads(javdb.main(file_number))
+    # ==
+    elif 'fc2' in file_number or 'FC2' in file_number:
+        json_data = json.loads(fc2fans_club.main(
+            file_number))
+    # ==
+    elif 'HEYZO' in number or 'heyzo' in number or 'Heyzo' in number:
+        json_data = json.loads(avsox.main(file_number))
+    # ==
+    elif 'siro' in file_number or 'SIRO' in file_number or 'Siro' in file_number:
+        json_data = json.loads(siro.main(file_number))
+    # ==
+    else:
+        json_data = json.loads(javbus.main(file_number))
+        if getDataState(json_data) == 0:  # 如果元数据获取失败，请求番号至其他网站抓取
+            json_data = json.loads(avsox.main(file_number))
+        elif getDataState(json_data) == 0:  # 如果元数据获取失败，请求番号至其他网站抓取
+            json_data = json.loads(javdb.main(file_number))
 
     # ================================================网站规则添加结束================================================
 
@@ -147,9 +146,9 @@ def getDataFromJSON(file_number): #从JSON返回元数据
     try:
         cover_small = json_data['cover_small']
     except:
-        aaaaaaa=''
+        cover_small=''
     imagecut    =     json_data['imagecut']
-    tag         = str(json_data['tag']).strip("[ ]").replace("'", '').replace(" ", '').split(',')  # 字符串转列表
+    tag         = str(json_data['tag']).strip("[ ]").replace("'", '').replace(" ", '').split(',')  # 字符串转列表 @
     actor       = str(actor_list).strip("[ ]").replace("'", '').replace(" ", '')
     actor_photo =     json_data['actor_photo']
     website     =     json_data['website']
@@ -324,12 +323,12 @@ def PrintFiles(filepath):
                 if cn_sub == '1':
                     print("  <tag>中文字幕</tag>", file=code)
                 try:
-                    for i in tag:
+                    for i in str(json_data['tag']).strip("[ ]").replace("'", '').replace(" ", '').split(','):
                         print("  <tag>" + i + "</tag>", file=code)
                 except:
                     aaaaa = ''
                 try:
-                    for i in tag:
+                    for i in str(json_data['tag']).strip("[ ]").replace("'", '').replace(" ", '').split(','):
                         print("  <genre>" + i + "</genre>", file=code)
                 except:
                     aaaaaaaa = ''

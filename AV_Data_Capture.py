@@ -14,7 +14,7 @@ os.chdir(os.getcwd())
 
 # ============global var===========
 
-version='1.1'
+version='1.2'
 
 config = ConfigParser()
 config.read(config_file, encoding='UTF-8')
@@ -36,36 +36,26 @@ def UpdateCheck():
     else:
         print('[+]Update Check disabled!')
 def movie_lists():
+    global exclude_directory_1
+    global exclude_directory_2
     directory = config['directory_capture']['directory']
-    mp4=[]
-    avi=[]
-    rmvb=[]
-    wmv=[]
-    mov=[]
-    mkv=[]
-    flv=[]
-    ts=[]
+    total=[]
+    file_type = ['mp4','avi','rmvb','wmv','mov','mkv','flv','ts']
+    exclude_directory_1 = config['common']['failed_output_folder']
+    exclude_directory_2 = config['common']['success_output_folder']
     if directory=='*':
+        remove_total = []
+        for o in file_type:
+            remove_total += glob.glob(r"./" + exclude_directory_1 + "/*." + o)
+            remove_total += glob.glob(r"./" + exclude_directory_2 + "/*." + o)
         for i in os.listdir(os.getcwd()):
-            mp4 += glob.glob(r"./" + i + "/*.mp4")
-            avi += glob.glob(r"./" + i + "/*.avi")
-            rmvb += glob.glob(r"./" + i + "/*.rmvb")
-            wmv += glob.glob(r"./" + i + "/*.wmv")
-            mov += glob.glob(r"./" + i + "/*.mov")
-            mkv += glob.glob(r"./" + i + "/*.mkv")
-            flv += glob.glob(r"./" + i + "/*.flv")
-            ts += glob.glob(r"./" + i + "/*.ts")
-        total = mp4 + avi + rmvb + wmv + mov + mkv + flv + ts
+            for a in file_type:
+                total += glob.glob(r"./" + i + "/*." + a)
+        for b in remove_total:
+            total.remove(b)
         return total
-    mp4 = glob.glob(r"./" + directory + "/*.mp4")
-    avi = glob.glob(r"./" + directory + "/*.avi")
-    rmvb = glob.glob(r"./" + directory + "/*.rmvb")
-    wmv = glob.glob(r"./" + directory + "/*.wmv")
-    mov = glob.glob(r"./" + directory + "/*.mov")
-    mkv = glob.glob(r"./" + directory + "/*.mkv")
-    flv = glob.glob(r"./" + directory + "/*.flv")
-    ts = glob.glob(r"./" + directory + "/*.ts")
-    total = mp4 + avi + rmvb + wmv + mov + mkv + flv + ts
+    for a in file_type:
+        total += glob.glob(r"./" + directory + "/*." + a)
     return total
 def CreatFailedFolder():
     if not os.path.exists('failed/'):  # 新建failed文件夹
@@ -160,7 +150,7 @@ if __name__ =='__main__':
             shutil.move(i, str(os.getcwd()) + '/' + 'failed/')
             continue
 
-
-    CEF('JAV_output')
+    CEF(exclude_directory_1)
+    CEF(exclude_directory_2)
     print("[+]All finished!!!")
     input("[+][+]Press enter key exit, you can check the error messge before you exit.\n[+][+]按回车键结束，你可以在结束之前查看和错误信息。")
