@@ -49,9 +49,9 @@ actor_photo={}
 cover_small=''
 naming_rule  =''#eval(config['Name_Rule']['naming_rule'])
 location_rule=''#eval(config['Name_Rule']['location_rule'])
-program_mode = Config['common']['main_mode']
-failed_folder= Config['common']['failed_output_folder']
-success_folder=Config['common']['success_output_folder']
+program_mode   = Config['common']['main_mode']
+failed_folder  = Config['common']['failed_output_folder']
+success_folder = Config['common']['success_output_folder']
 #=====================本地文件处理===========================
 
 def moveFailedFolder():
@@ -96,6 +96,7 @@ def getDataFromJSON(file_number): #从JSON返回元数据
     global website
     global actor_photo
     global cover_small
+    global json_data
 
     global naming_rule
     global location_rule
@@ -115,8 +116,7 @@ def getDataFromJSON(file_number): #从JSON返回元数据
             json_data = json.loads(javdb.main(file_number))
     # ==
     elif 'fc2' in file_number or 'FC2' in file_number:
-        json_data = json.loads(fc2fans_club.main(
-            file_number))
+        json_data = json.loads(fc2fans_club.main(file_number))
     # ==
     elif 'HEYZO' in number or 'heyzo' in number or 'Heyzo' in number:
         json_data = json.loads(avsox.main(file_number))
@@ -163,24 +163,15 @@ def getDataFromJSON(file_number): #从JSON返回元数据
 
 
     # ====================处理异常字符====================== #\/:*?"<>|
-    if '\\' in title:
-        title=title.replace('\\', ' ')
-    elif r'/' in title:
-        title=title.replace(r'/', '')
-    elif ':' in title:
-        title=title.replace(':', '')
-    elif '*' in title:
-        title=title.replace('*', '')
-    elif '?' in title:
-        title=title.replace('?', '')
-    elif '"' in title:
-        title=title.replace('"', '')
-    elif '<' in title:
-        title=title.replace('<', '')
-    elif '>' in title:
-        title=title.replace('>', '')
-    elif '|' in title:
-        title=title.replace('|', '')
+    title = title.replace('\\', '')
+    title = title.replace('/', '')
+    title = title.replace(':', '')
+    title = title.replace('*', '')
+    title = title.replace('?', '')
+    title = title.replace('"', '')
+    title = title.replace('<', '')
+    title = title.replace('>', '')
+    title = title.replace('|', '')
     # ====================处理异常字符 END================== #\/:*?"<>|
 
     naming_rule   = eval(config['Name_Rule']['naming_rule'])
@@ -205,9 +196,8 @@ def smallCoverCheck():
 def creatFolder(): #创建文件夹
     global actor
     global path
-    if len(actor) > 240:                    #新建成功输出文件夹
+    if len(os.getcwd()+path) > 240:                    #新建成功输出文件夹
         path = success_folder+'/'+location_rule.replace("'actor'","'超多人'",3).replace("actor","'超多人'",3) #path为影片+元数据所在目录
-        #print(path)
     else:
         path = success_folder+'/'+location_rule
         #print(path)
@@ -286,10 +276,6 @@ def imageDownload(filepath): #封面是否下载成功，否则移动到failed
         DownloadFileWithFilename(cover, 'fanart.jpg', path)
         print('[+]Image Downloaded!', path + '/fanart.jpg')
 def PrintFiles(filepath):
-    #global path
-    global title
-    global cn_sub
-    global actor_photo
     try:
         if not os.path.exists(path):
             os.makedirs(path)
@@ -437,15 +423,8 @@ def pasteFileToFolder(filepath, path): #文件路径，番号，后缀，要移�
         print('[-]File Exists! Please check your movie!')
         print('[-]move to the root folder of the program.')
         os._exit(0)
-def pasteFileToFolder_mode2(filepath, path): #文件路径，番号，后缀，要移动至的位置
-    global houzhui
-    houzhui = str(re.search('[.](AVI|RMVB|WMV|MOV|MP4|MKV|FLV|TS|avi|rmvb|wmv|mov|mp4|mkv|flv|ts)$', filepath).group())
-    try:
-        os.rename(filepath, path + houzhui)
-        print('[+]Movie ' + number + ' move to target folder Finished!')
-    except:
-        print('[-]File Exists! Please check your movie!')
-        print('[-]move to the root folder of the program.')
+    except PermissionError:
+        print('[-]Error! Please run as administrator!')
         os._exit(0)
 def renameJpgToBackdrop_copy():
     if option == 'plex':
@@ -453,7 +432,6 @@ def renameJpgToBackdrop_copy():
         shutil.copy(path + '/poster.png', path + '/thumb.png')
     if option == 'emby':
         shutil.copy(path + '/' + number + '.jpg', path + '/Backdrop.jpg')
-
 def renameBackdropToJpg_copy():
     if option == 'plex':
         shutil.copy(path + '/fanart.jpg', path + '/Backdrop.jpg')
@@ -468,6 +446,20 @@ def get_part(filepath):
     except:
         print("[-]failed!Please rename the filename again!")
         moveFailedFolder()
+def debug_mode():
+    try:
+        if config['debug_mode']['switch'] == '1':
+            print('[+] ---Debug info---')
+            for i, v in json_data.items():
+                if i == 'outline':
+                    print('[+] -', i, ':', len(v), 'characters')
+                    continue
+                if i == 'actor_photo' or i == 'year':
+                    continue
+                print('[+] -', i, ':', v)
+            print('[+] ---Debug info---')
+    except:
+        aaa=''
 if __name__ == '__main__':
     filepath=argparse_get_file()[0] #影片的路径
 
@@ -488,14 +480,15 @@ if __name__ == '__main__':
         number = argparse_get_file()[1]
     CreatFailedFolder()
     getDataFromJSON(number)  # 定义番号
+    debug_mode()
     creatFolder()  # 创建文件夹
     if program_mode == '1':
         if part == '-CD1' or multi_part == 0:
+            smallCoverCheck()
             imageDownload(filepath)  # creatFoder会返回番号路径
             if multi_part == 1:
                 number += part
             PrintFiles(filepath)  # 打印文件
-            smallCoverCheck()
             cutImage()  # 裁剪图
             renameJpgToBackdrop_copy()
         else:
@@ -503,4 +496,4 @@ if __name__ == '__main__':
             renameBackdropToJpg_copy()
         pasteFileToFolder(filepath, path)  # 移动文件
     elif program_mode == '2':
-        pasteFileToFolder_mode2(filepath, path)  # 移动文件
+        pasteFileToFolder(filepath, path)  # 移动文件

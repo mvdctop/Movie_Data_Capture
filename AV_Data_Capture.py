@@ -14,7 +14,7 @@ os.chdir(os.getcwd())
 
 # ============global var===========
 
-version='1.2'
+version='1.3'
 
 config = ConfigParser()
 config.read(config_file, encoding='UTF-8')
@@ -69,13 +69,13 @@ def lists_from_test(custom_nuber): #电影列表
     a.append(custom_nuber)
     return a
 def CEF(path):
-    files = os.listdir(path)  # 获取路径下的子文件(夹)列表
-    for file in files:
-        try: #试图删除空目录,非空目录删除会报错
+    try:
+        files = os.listdir(path)  # 获取路径下的子文件(夹)列表
+        for file in files:
             os.removedirs(path + '/' + file)  # 删除这个空文件夹
-            print('[+]Deleting empty folder',path + '/' + file)
-        except:
-            a=''
+            print('[+]Deleting empty folder', path + '/' + file)
+    except:
+        a=''
 def rreplace(self, old, new, *max):
 #从右开始替换文件名中内容，源字符串，将被替换的子字符串， 新字符串，用于替换old子字符串，可选字符串, 替换不超过 max 次
     count = len(self)
@@ -83,30 +83,27 @@ def rreplace(self, old, new, *max):
         count = max[0]
     return new.join(self.rsplit(old, count))
 def getNumber(filepath):
+    filepath = filepath.replace('.\\','')
     try:  # 普通提取番号 主要处理包含减号-的番号
+        filepath = filepath.replace("_", "-")
+        filepath.strip('22-sht.me').strip('-HD').strip('-hd')
+        filename = str(re.sub("\[\d{4}-\d{1,2}-\d{1,2}\] - ", "", filepath))  # 去除文件名中时间
         try:
-            filepath1 = filepath.replace("_", "-")
-            filepath1.strip('22-sht.me').strip('-HD').strip('-hd')
-            filename = str(re.sub("\[\d{4}-\d{1,2}-\d{1,2}\] - ", "", filepath1))  # 去除文件名中时间
             file_number = re.search('\w+-\d+', filename).group()
-            return file_number
-        except:
-            filepath1 = filepath.replace("_", "-")
-            filepath1.strip('22-sht.me').strip('-HD').strip('-hd')
-            filename = str(re.sub("\[\d{4}-\d{1,2}-\d{1,2}\] - ", "", filepath1))  # 去除文件名中时间
-            file_number = re.search('\w+-\w+', filename).group()
-            return file_number
+        except:  # 提取类似mkbd-s120番号
+            file_number = re.search('\w+-\w+\d+', filename).group()
+        return file_number
     except:  # 提取不含减号-的番号
         try:
-            filename1 = str(re.sub("ts6\d", "", filepath)).strip('Tokyo-hot').strip('tokyo-hot')
-            filename0 = str(re.sub(".*?\.com-\d+", "", filename1)).strip('_')
-            file_number = str(re.search('\w+\d{4}', filename0).group(0))
+            filename = str(re.sub("ts6\d", "", filepath)).strip('Tokyo-hot').strip('tokyo-hot')
+            filename = str(re.sub(".*?\.com-\d+", "", filename)).replace('_', '')
+            file_number = str(re.search('\w+\d{4}', filename).group(0))
             return file_number
         except:  # 提取无减号番号
-            filename1 = str(re.sub("ts6\d", "", filepath))  # 去除ts64/265
-            filename0 = str(re.sub(".*?\.com-\d+", "", filename1))
-            file_number2 = str(re.match('\w+', filename0).group())
-            file_number = str(file_number2.replace(re.match("^[A-Za-z]+", file_number2).group(),re.match("^[A-Za-z]+", file_number2).group() + '-'))
+            filename = str(re.sub("ts6\d", "", filepath))  # 去除ts64/265
+            filename = str(re.sub(".*?\.com-\d+", "", filename))
+            file_number = str(re.match('\w+', filename).group())
+            file_number = str(file_number.replace(re.match("^[A-Za-z]+", file_number).group(),re.match("^[A-Za-z]+", file_number).group() + '-'))
             return file_number
 
 def RunCore():
