@@ -90,7 +90,6 @@ pip install pillow
 ###
 
 ## 2.配置config.ini
-config.ini
 >[common]<br>
 >main_mode=1<br>
 >failed_output_folder=failed<br>
@@ -115,13 +114,13 @@ config.ini
 >[directory_capture]<br>
 >directory=<br>
 
-### 全局设置
 ---
-#### 软件模式
+#### 运行模式
 >[common]<br>
 >main_mode=1<br>
 
-1为普通模式，2为整理模式：仅根据女优把电影命名为番号并分类到女优名称的文件夹下
+1为普通模式<br>
+2为整理模式：仅根据女优把电影命名为番号并分类到女优名称的文件夹下
 
 >failed_output_folder=failed<br>
 >success_output_folder=JAV_outputd<br>
