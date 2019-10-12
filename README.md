@@ -165,6 +165,13 @@ pip install pillow
 如果是PLEX，请安装插件：```XBMCnfoMoviesImporter```
 
 ---
+#### 抓取目录选择
+>[directory_capture]<br>
+>directory=<br>
+如果directory后面为空，则抓取和程序同一目录下的影片，设置为``` * ```可抓取软件所在目录下的所有子目录中的影片<br>如果出错请不要加*
+
+
+---
 #### 调试模式
 >[debug_mode]<br>switch=1<br>
 
