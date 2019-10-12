@@ -170,11 +170,7 @@ pip install pillow
 
 如要开启调试模式，请手动输入以上代码到```config.ini```中，开启后可在抓取中显示影片元数据
 
----
-#### 抓取目录选择
->[directory_capture]<br>
->directory=<br>
-如果directory后面为空，则抓取和程序同一目录下的影片，设置为``` * ```可抓取软件所在目录下的所有子目录中的影片
+
 ### 3.(可选)设置自定义目录和影片重命名规则
 >[Name_Rule]<br>
 >location_rule=actor+'/'+number<br>
