@@ -492,6 +492,9 @@ def cutImage():
 def pasteFileToFolder(filepath, path): #文件路径，番号，后缀，要移动至的位置
     global houzhui
     houzhui = str(re.search('[.](AVI|RMVB|WMV|MOV|MP4|MKV|FLV|TS|avi|rmvb|wmv|mov|mp4|mkv|flv|ts)$', filepath).group())
+    if part == '-CD1' and option == 'kodi':
+        global number
+        number += part
     try:
         os.rename(filepath, path + '/' + number + houzhui)
     except FileExistsError:
@@ -517,8 +520,7 @@ def renameBackdropToJpg_copy():
         shutil.copy(path + '/Backdrop.jpg', path + '/' + number + '.jpg')
         print('[+]Image Downloaded!', path + '/' + number + '.jpg')
     if option == 'kodi':
-        shutil.copy(path + '/Backdrop.jpg', path + '/' + number + '-fanart.jpg')
-        print('[+]Image Downloaded!', path + '/' + number + '-fanart.jpg')
+        print('跳过分集图片下载')
 def get_part(filepath):
     try:
         if re.search('-CD\d+', filepath):
@@ -566,6 +568,8 @@ if __name__ == '__main__':
         if part == '-CD1' or multi_part == 0:
             smallCoverCheck()
             imageDownload(filepath)  # creatFoder会返回番号路径
+            if multi_part == 1 and option != 'kodi':
+                number += part
             PrintFiles(filepath)  # 打印文件
             cutImage()  # 裁剪图
             renameJpgToBackdrop_copy()
