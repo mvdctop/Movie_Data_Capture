@@ -54,6 +54,12 @@ failed_folder  = Config['common']['failed_output_folder']
 success_folder = Config['common']['success_output_folder']
 #=====================本地文件处理===========================
 
+def escapePath(path): # Remove escape literals
+    escapeLiterals = Config['escape']['literals']
+    backslash = '\\'
+    for literal in escapeLiterals:
+        path = path.replace(backslash+literal,'')
+    return path
 def moveFailedFolder():
     global filepath
     print('[-]Move to Failed output folder')
@@ -180,7 +186,10 @@ def smallCoverCheck():
     if imagecut == 3:
         if option == 'emby':
             DownloadFileWithFilename(cover_small, '1.jpg', path)
-            img = Image.open(path + '/1.jpg')
+            try:
+                img = Image.open(path + '/1.jpg')
+            except Exception:
+                img = Image.open('1.jpg')
             w = img.width
             h = img.height
             img.save(path + '/' + number + '.png')
@@ -188,7 +197,10 @@ def smallCoverCheck():
             os.remove(path + '/1.jpg')
         if option == 'plex':
             DownloadFileWithFilename(cover_small, '1.jpg', path)
-            img = Image.open(path + '/1.jpg')
+            try:
+                img = Image.open(path + '/1.jpg')
+            except Exception:
+                img = Image.open('1.jpg')
             w = img.width
             h = img.height
             img.save(path + '/poster.png')
@@ -197,15 +209,17 @@ def creatFolder(): #创建文件夹
     global actor
     global path
     if len(os.getcwd()+path) > 240:                    #新建成功输出文件夹
-        path = success_folder+'/'+location_rule.replace("'actor'","'超多人'",3).replace("actor","'超多人'",3) #path为影片+元数据所在目录
+        path = success_folder+'/'+location_rule.replace("'actor'","'manypeople'",3).replace("actor","'manypeople'",3) #path为影片+元数据所在目录
     else:
         path = success_folder+'/'+location_rule
         #print(path)
     if not os.path.exists(path):
+        path = escapePath(path)
         try:
             os.makedirs(path)
         except:
             path = success_folder+'/'+location_rule.replace('/['+number+']-'+title,"/number")
+            path = escapePath(path)
             #print(path)
             os.makedirs(path)
 #=====================资源下载部分===========================
