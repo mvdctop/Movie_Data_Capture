@@ -174,7 +174,7 @@ def getDataFromJSON(file_number): #从JSON返回元数据
     title = title.replace('|', '')
     tmpArr = cover_small.split(',')
     if len(tmpArr) > 0:
-        cover_small = tmpArr[0].strip('\"')
+        cover_small = tmpArr[0].strip('\"').strip('\'')
     # ====================处理异常字符 END================== #\/:*?"<>|
 
     naming_rule   = eval(config['Name_Rule']['naming_rule'])
