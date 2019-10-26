@@ -186,6 +186,14 @@ def smallCoverCheck():
             img.save(path + '/' + number + '.png')
             time.sleep(1)
             os.remove(path + '/1.jpg')
+        if option == 'kodi':
+            DownloadFileWithFilename(cover_small, '1.jpg', path)
+            img = Image.open(path + '/1.jpg')
+            w = img.width
+            h = img.height
+            img.save(path + '/' + number + '-poster.jpg')
+            time.sleep(1)
+            os.remove(path + '/1.jpg')
         if option == 'plex':
             DownloadFileWithFilename(cover_small, '1.jpg', path)
             img = Image.open(path + '/1.jpg')
@@ -270,6 +278,11 @@ def imageDownload(filepath): #封面是否下载成功，否则移动到failed
             print('[+]Image Downloaded!', path + '/' + number + part + '.jpg')
         else:
             print('[+]Image Downloaded!', path + '/' + number + '.jpg')
+    elif option == 'kodi':
+        if DownloadFileWithFilename(cover, number + '-fanart.jpg', path) == 'failed':
+            moveFailedFolder()
+        DownloadFileWithFilename(cover, number + '-fanart.jpg', path)
+        print('[+]Image Downloaded!', path + '/' + number + '-fanart.jpg')
     elif option == 'plex':
         if DownloadFileWithFilename(cover, 'fanart.jpg', path) == 'failed':
             moveFailedFolder()
@@ -373,6 +386,52 @@ def PrintFiles(filepath):
                 print("  <website>" + "https://www.javbus.com/" + number + "</website>", file=code)
                 print("</movie>", file=code)
                 print("[+]Writeed!          " + path + "/" + number + ".nfo")
+        elif option == 'kodi':
+            with open(path + "/" + number + ".nfo", "wt", encoding='UTF-8') as code:
+                print("<movie>", file=code)
+                print(" <title>" + naming_rule + "</title>", file=code)
+                print("  <set>", file=code)
+                print("  </set>", file=code)
+                print("  <studio>" + studio + "+</studio>", file=code)
+                print("  <year>" + year + "</year>", file=code)
+                print("  <outline>" + outline + "</outline>", file=code)
+                print("  <plot>" + outline + "</plot>", file=code)
+                print("  <runtime>" + str(runtime).replace(" ", "") + "</runtime>", file=code)
+                print("  <director>" + director + "</director>", file=code)
+                print("  <poster>" + number + "-poster.jpg</poster>", file=code)
+                print("  <fanart>" + number + '-fanart.jpg' + "</fanart>", file=code)
+                try:
+                    for key, value in actor_photo.items():
+                        print("  <actor>", file=code)
+                        print("   <name>" + key + "</name>", file=code)
+                        if not actor_photo == '':  # or actor_photo == []:
+                            print("   <thumb>" + value + "</thumb>", file=code)
+                        print("  </actor>", file=code)
+                except:
+                    aaaa = ''
+                print("  <maker>" + studio + "</maker>", file=code)
+                print("  <label>", file=code)
+                print("  </label>", file=code)
+                if cn_sub == '1':
+                    print("  <tag>中文字幕</tag>", file=code)
+                try:
+                    for i in tag:
+                        print("  <tag>" + i + "</tag>", file=code)
+                except:
+                    aaaaa = ''
+                try:
+                    for i in tag:
+                        print("  <genre>" + i + "</genre>", file=code)
+                except:
+                    aaaaaaaa = ''
+                if cn_sub == '1':
+                    print("  <genre>中文字幕</genre>", file=code)
+                print("  <num>" + number + "</num>", file=code)
+                print("  <release>" + release + "</release>", file=code)
+                print("  <cover>" + cover + "</cover>", file=code)
+                print("  <website>" + "https://www.javbus.com/" + number + "</website>", file=code)
+                print("</movie>", file=code)
+                print("[+]Writeed!          " + path + "/" + number + ".nfo")
     except IOError as e:
         print("[-]Write Failed!")
         print(e)
@@ -414,9 +473,28 @@ def cutImage():
             w = img.width
             h = img.height
             img.save(path + '/' + number + '.png')
+    elif option == 'kodi':
+        if imagecut == 1:
+            try:
+                img = Image.open(path + '/' + number + '-fanart.jpg')
+                imgSize = img.size
+                w = img.width
+                h = img.height
+                img2 = img.crop((w / 1.9, 0, w, h))
+                img2.save(path + '/' + number + '-poster.jpg')
+            except:
+                print('[-]Cover cut failed!')
+        elif imagecut == 0:
+            img = Image.open(path + '/' + number + '-fanart.jpg')
+            w = img.width
+            h = img.height
+            img.save(path + '/' + number + '-poster.jpg')
 def pasteFileToFolder(filepath, path): #文件路径，番号，后缀，要移动至的位置
     global houzhui
     houzhui = str(re.search('[.](AVI|RMVB|WMV|MOV|MP4|MKV|FLV|TS|avi|rmvb|wmv|mov|mp4|mkv|flv|ts)$', filepath).group())
+    if part == '-CD1' and option == 'kodi':
+        global number
+        number += part
     try:
         os.rename(filepath, path + '/' + number + houzhui)
     except FileExistsError:
@@ -432,6 +510,8 @@ def renameJpgToBackdrop_copy():
         shutil.copy(path + '/poster.png', path + '/thumb.png')
     if option == 'emby':
         shutil.copy(path + '/' + number + '.jpg', path + '/Backdrop.jpg')
+    if option == 'kodi':
+        shutil.copy(path + '/' + number + '-fanart.jpg', path + '/Backdrop.jpg')
 def renameBackdropToJpg_copy():
     if option == 'plex':
         shutil.copy(path + '/fanart.jpg', path + '/Backdrop.jpg')
@@ -439,6 +519,8 @@ def renameBackdropToJpg_copy():
     if option == 'emby':
         shutil.copy(path + '/Backdrop.jpg', path + '/' + number + '.jpg')
         print('[+]Image Downloaded!', path + '/' + number + '.jpg')
+    if option == 'kodi':
+        print('跳过分集图片下载')
 def get_part(filepath):
     try:
         if re.search('-CD\d+', filepath):
@@ -486,7 +568,7 @@ if __name__ == '__main__':
         if part == '-CD1' or multi_part == 0:
             smallCoverCheck()
             imageDownload(filepath)  # creatFoder会返回番号路径
-            if multi_part == 1:
+            if multi_part == 1 and option != 'kodi':
                 number += part
             PrintFiles(filepath)  # 打印文件
             cutImage()  # 裁剪图
