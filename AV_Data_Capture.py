@@ -34,10 +34,13 @@ def moveMovies(fromPath):
         movieFiles = movieFiles + [os.path.join(dirpath, f)
             for dirpath, dirnames, files in os.walk(fromPath)
             for f in fnmatch.filter(files, '*.' + fm)]
-    print(movieFiles)
     for movie in movieFiles:
-        print("Move file " + movie)
-        shutil.move(movie, os.path.curdir)
+        movieName = movie.split('/')[-1]
+        print("Move file " + movieName)
+        if (os.path.exists(os.path.curdir + '/' + movieName)):
+            print(movieName + "exists, skip.")
+        else:
+            shutil.move(movie, os.path.curdir)
 def UpdateCheck():
     if UpdateCheckSwitch() == '1':
         html2 = get_html('https://raw.githubusercontent.com/yoshiko2/AV_Data_Capture/master/update_check.json')
