@@ -54,12 +54,6 @@ failed_folder  = Config['common']['failed_output_folder']
 success_folder = Config['common']['success_output_folder']
 #=====================本地文件处理===========================
 
-def escapePath(path): # Remove escape literals
-    escapeLiterals = Config['escape']['literals']
-    backslash = '\\'
-    for literal in escapeLiterals:
-        path = path.replace(backslash+literal,'')
-    return path
 def moveFailedFolder():
     global filepath
     print('[-]Move to Failed output folder')
@@ -189,10 +183,7 @@ def smallCoverCheck():
     if imagecut == 3:
         if option == 'emby':
             DownloadFileWithFilename(cover_small, '1.jpg', path)
-            try:
-                img = Image.open(path + '/1.jpg')
-            except Exception:
-                img = Image.open('1.jpg')
+            img = Image.open(path + '/1.jpg')
             w = img.width
             h = img.height
             img.save(path + '/' + number + '.png')
@@ -208,10 +199,7 @@ def smallCoverCheck():
             os.remove(path + '/1.jpg')
         if option == 'plex':
             DownloadFileWithFilename(cover_small, '1.jpg', path)
-            try:
-                img = Image.open(path + '/1.jpg')
-            except Exception:
-                img = Image.open('1.jpg')
+            img = Image.open(path + '/1.jpg')
             w = img.width
             h = img.height
             img.save(path + '/poster.png')
@@ -225,12 +213,10 @@ def creatFolder(): #创建文件夹
         path = success_folder+'/'+location_rule
         #print(path)
     if not os.path.exists(path):
-        path = escapePath(path)
         try:
             os.makedirs(path)
         except:
             path = success_folder+'/'+location_rule.replace('/['+number+']-'+title,"/number")
-            path = escapePath(path)
             #print(path)
             os.makedirs(path)
 #=====================资源下载部分===========================

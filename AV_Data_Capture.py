@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python3
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 import glob
@@ -10,7 +10,6 @@ from ADC_function import *
 import json
 import shutil
 from configparser import ConfigParser
-import fnmatch
 os.chdir(os.getcwd())
 
 # ============global var===========
@@ -19,28 +18,11 @@ version='1.3'
 
 config = ConfigParser()
 config.read(config_file, encoding='UTF-8')
-fromPath=config['movie']['path']
+
 Platform = sys.platform
 
 # ==========global var end=========
 
-def moveMovies(fromPath):
-    movieFiles = []
-    if Platform == 'win32':
-        movieFormat = ["avi", "rmvb", "wmv", "mov", "mp4", "mkv", "flv", "ts"]
-    else:
-        movieFormat = ["AVI", "RMVB", "WMV", "MOV", "MP4", "MKV", "FLV", "TS","avi", "rmvb", "wmv", "mov", "mp4", "mkv", "flv", "ts"]
-    for fm in movieFormat:
-        movieFiles = movieFiles + [os.path.join(dirpath, f)
-            for dirpath, dirnames, files in os.walk(fromPath)
-            for f in fnmatch.filter(files, '*.' + fm)]
-    for movie in movieFiles:
-        movieName = movie.split('/')[-1]
-        print("Move file " + movieName)
-        if (os.path.exists(os.path.curdir + '/' + movieName)):
-            print(movieName + "exists, skip.")
-        else:
-            shutil.move(movie, os.path.curdir)
 def UpdateCheck():
     if UpdateCheckSwitch() == '1':
         html2 = get_html('https://raw.githubusercontent.com/yoshiko2/AV_Data_Capture/master/update_check.json')
@@ -146,7 +128,6 @@ if __name__ =='__main__':
     print('[*]=====================================')
     CreatFailedFolder()
     UpdateCheck()
-    moveMovies(fromPath)
     os.chdir(os.getcwd())
 
     count = 0
