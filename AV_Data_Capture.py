@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python3
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 import glob
@@ -9,23 +9,24 @@ import sys
 from ADC_function import *
 import json
 import shutil
-from configparser import ConfigParser
 import fnmatch
+from configparser import ConfigParser
 os.chdir(os.getcwd())
 
 # ============global var===========
 
-version='1.3'
+version='1.4'
 
 config = ConfigParser()
 config.read(config_file, encoding='UTF-8')
-fromPath=config['movie']['path']
+
 Platform = sys.platform
 
 # ==========global var end=========
 
-def moveMovies(fromPath):
+def moveMovies():
     movieFiles = []
+    fromPath = config['movie_location']['path']
     if Platform == 'win32':
         movieFormat = ["avi", "rmvb", "wmv", "mov", "mp4", "mkv", "flv", "ts"]
     else:
@@ -34,13 +35,10 @@ def moveMovies(fromPath):
         movieFiles = movieFiles + [os.path.join(dirpath, f)
             for dirpath, dirnames, files in os.walk(fromPath)
             for f in fnmatch.filter(files, '*.' + fm)]
+    print(movieFiles)
     for movie in movieFiles:
-        movieName = movie.split('/')[-1]
-        print("Move file " + movieName)
-        if (os.path.exists(os.path.curdir + '/' + movieName)):
-            print(movieName + "exists, skip.")
-        else:
-            shutil.move(movie, os.path.curdir)
+        print("Move file " + movie)
+        shutil.move(movie, os.path.curdir)
 def UpdateCheck():
     if UpdateCheckSwitch() == '1':
         html2 = get_html('https://raw.githubusercontent.com/yoshiko2/AV_Data_Capture/master/update_check.json')
@@ -56,24 +54,12 @@ def UpdateCheck():
 def movie_lists():
     global exclude_directory_1
     global exclude_directory_2
-    directory = config['directory_capture']['directory']
     total=[]
     file_type = ['mp4','avi','rmvb','wmv','mov','mkv','flv','ts']
     exclude_directory_1 = config['common']['failed_output_folder']
     exclude_directory_2 = config['common']['success_output_folder']
-    if directory=='*':
-        remove_total = []
-        for o in file_type:
-            remove_total += glob.glob(r"./" + exclude_directory_1 + "/*." + o)
-            remove_total += glob.glob(r"./" + exclude_directory_2 + "/*." + o)
-        for i in os.listdir(os.getcwd()):
-            for a in file_type:
-                total += glob.glob(r"./" + i + "/*." + a)
-        for b in remove_total:
-            total.remove(b)
-        return total
     for a in file_type:
-        total += glob.glob(r"./" + directory + "/*." + a)
+        total += glob.glob(r"./*." + a)
     return total
 def CreatFailedFolder():
     if not os.path.exists('failed/'):  # 新建failed文件夹
@@ -146,7 +132,7 @@ if __name__ =='__main__':
     print('[*]=====================================')
     CreatFailedFolder()
     UpdateCheck()
-    moveMovies(fromPath)
+    moveMovies()
     os.chdir(os.getcwd())
 
     count = 0
