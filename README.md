@@ -92,31 +92,6 @@ pip install pillow
 ###
 
 ## 2.配置config.ini
->[common]<br>
->main_mode=1<br>
->failed_output_folder=failed<br>
->success_output_folder=JAV_output<br>
->
->[proxy]<br>
->proxy=127.0.0.1:1080<br>
->timeout=10<br>
->retry=3<br>
->
->[Name_Rule]<br>
->location_rule=actor+'/'+number<br>
->naming_rule=number+'-'+title<br>
->
->[update]<br>
->update_check=1<br>
->
->[media]<br>
->media_warehouse=emby<br>
->#emby or plex<br>
->
->[directory_capture]<br>
->directory=<br>
-
----
 #### 运行模式
 >[common]<br>
 >main_mode=1<br>
@@ -131,55 +106,65 @@ pip install pillow
 
 ---
 ### 网络设置
-#### * 针对“某些地区”的代理设置
-打开```config.ini```,在```[proxy]```下的```proxy```行设置本地代理地址和端口，支持Shadowxxxx/X,V2XXX本地代理端口:<br>
-例子:```proxy=127.0.0.1:1080```<br>素人系列抓取建议使用日本代理<br>
-**路由器拥有自动代理功能的可以把proxy=后面内容去掉**<br>
-**本地代理软件开全局模式的同志同上**<br>
-**如果遇到tineout错误，可以把文件的proxy=后面的地址和端口删除，并开启vpn全局模式，或者重启电脑，vpn，网卡**<br>
+>[proxy]  
+>proxy=127.0.0.1:1081  
+>timeout=10  
+>retry=3  
+#### 针对某些地区的代理设置
+>proxy=127.0.0.1:1081  
+
+打开```config.ini```,在```[proxy]```下的```proxy```行设置本地代理地址和端口，支持Shadowxxxx/X,V2XXX本地代理端口  
+素人系列抓取建议使用日本代理  
+**路由器拥有自动代理功能的可以把proxy=后面内容去掉**  
+**本地代理软件开全局模式的用户同上**  
+**如果遇到tineout错误，可以把文件的proxy=后面的地址和端口删除，并开启代理软件全局模式，或者重启电脑，代理软件，网卡**  
 #### 连接超时重试设置
->[proxy]<br>
->timeout=10<br>
+>timeout=10  
 
 10为超时重试时间 单位：秒
 
 ---
 #### 连接重试次数设置
->[proxy]<br>
->retry=3<br>
+>retry=3  
 
 3即为重试次数
 
 ---
 #### 检查更新开关
->[update]<br>
->update_check=1<br>
+>[update]  
+>update_check=1  
 
 0为关闭，1为开启，不建议关闭
 
 ---
-##### 媒体库选择 
+### 媒体库选择 
 >[media]<br>
 >media_warehouse=emby<br>
->#emby or plex<br>
+>#emby plex kodi<br>
 
-可选择emby, plex<br>
+可选择emby, plex, kodi<br>
 如果是PLEX，请安装插件：```XBMCnfoMoviesImporter```
 
 ---
-#### 抓取目录选择
->[directory_capture]<br>
->directory=<br>
-如果directory后面为空，则抓取和程序同一目录下的影片，设置为``` * ```可抓取软件所在目录下的所有子目录中的影片<br>如果出错请不要加*
+### 抓取目录
+>[escape]  
+>literals=\  
 
+```literals=``` 标题指定字符删除，例如```iterals=\()```，删除标题中```\()```字符
 
 ---
-#### 调试模式
->[debug_mode]<br>switch=1<br>
+### 抓取目录选择
+>[movie_location]<br>
+>path=<br>
+
+如果directory后面为空，则抓取和程序同一目录下的影片
+
+---
+### 调试模式
+>[debug_mode]<br>switch=1  
 
 如要开启调试模式，请手动输入以上代码到```config.ini```中，开启后可在抓取中显示影片元数据
-
-
+---
 ### 3.(可选)设置自定义目录和影片重命名规则
 >[Name_Rule]<br>
 >location_rule=actor+'/'+number<br>
@@ -210,6 +195,7 @@ pip install pillow
 
 ### 更新开关
 >[update]<br>update_check=1<br>
+
 1为开，0为关
 
 ## 4.建议把软件拷贝和电影的统一目录下
