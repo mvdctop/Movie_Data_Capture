@@ -164,6 +164,7 @@ pip install pillow
 >[debug_mode]<br>switch=1  
 
 如要开启调试模式，请手动输入以上代码到```config.ini```中，开启后可在抓取中显示影片元数据
+
 ---
 ### 3.(可选)设置自定义目录和影片重命名规则
 >[Name_Rule]<br>
