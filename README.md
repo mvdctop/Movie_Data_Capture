@@ -7,6 +7,7 @@
 ![](https://img.shields.io/github/license/yoshiko2/av_data_capture.svg?style=flat-square)
 ![](https://img.shields.io/github/release/yoshiko2/av_data_capture.svg?style=flat-square)
 ![](https://img.shields.io/badge/Python-3.7-yellow.svg?style=flat-square&logo=python)<br>
+[![HitCount](http://hits.dwyl.io/yoshiko2/av_data_capture.svg)](http://hits.dwyl.io/yoshiko2/av_data_capture)
 
 
 **日本电影元数据 抓取工具 | 刮削器**，配合本地影片管理软件EMBY,KODI等管理本地影片，该软件起到分类与元数据抓取作用，利用元数据信息来分类，供本地影片分类整理使用。
@@ -21,6 +22,7 @@
 * [简明教程](#简要教程)
 * [模块安装](#1请安装模块在cmd终端逐条输入以下命令安装)
 * [配置](#2配置configini)
+* [多目录影片处理](#多目录影片处理)
 * [(可选)设置自定义目录和影片重命名规则](#3可选设置自定义目录和影片重命名规则)
 * [运行软件](#5运行-av_data_capturepyexe)
 * [影片原路径处理](#4建议把软件拷贝和电影的统一目录下)
@@ -38,7 +40,6 @@
 * 本软件作者保留最终决定权和最终解释权<br>
 
 **若用户不同意上述条款任意一条，请勿使用该软件**<br>
-
 
 # 你问我答 FAQ
 ### 这软件能下片吗？
@@ -198,6 +199,9 @@ pip install pillow
 >[update]<br>update_check=1<br>
 
 1为开，0为关
+
+## 多目录影片处理
+可以在多个有影片目录的父目录下搜索影片后缀，然后剪切到和程序同一目录下
 
 ## 4.建议把软件拷贝和电影的统一目录下
 如果```config.ini```中```directory=```后面为空的情况下
