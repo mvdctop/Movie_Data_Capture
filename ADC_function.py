@@ -30,7 +30,7 @@ else:
         print("retry=3", file=code)
         print("", file=code)
         print("[Name_Rule]", file=code)
-        print("location_rule='JAV_output/'+actor+'/'+number",file=code)
+        print("location_rule=actor+'/'+number",file=code)
         print("naming_rule=number+'-'+title",file=code)
         print("", file=code)
         print("[update]",file=code)

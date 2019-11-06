@@ -440,8 +440,8 @@ def PrintFiles():
                 print("  <plot>" + outline + "</plot>", file=code)
                 print("  <runtime>" + str(runtime).replace(" ", "") + "</runtime>", file=code)
                 print("  <director>" + director + "</director>", file=code)
-                print("  <poster>" + number + "-poster.jpg</poster>", file=code)
-                print("  <fanart>" + number + '-fanart.jpg' + "</fanart>", file=code)
+                print("  <poster>" + number + c_word + "-poster.jpg</poster>", file=code)
+                print("  <fanart>" + number + c_word + '-fanart.jpg' + "</fanart>", file=code)
                 try:
                     for key, value in actor_photo.items():
                         print("  <actor>", file=code)
