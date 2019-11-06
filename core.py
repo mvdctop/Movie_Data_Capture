@@ -324,10 +324,10 @@ def imageDownload():  # 封面是否下载成功，否则移动到failed
         DownloadFileWithFilename(cover, 'fanart.jpg', path)
         print('[+]Image Downloaded!', path + '/fanart.jpg')
     elif option == 'kodi':
-        if DownloadFileWithFilename(cover, number + '-fanart.jpg', path) == 'failed':
+        if DownloadFileWithFilename(cover, number + c_word + '-fanart.jpg', path) == 'failed':
             moveFailedFolder()
-        DownloadFileWithFilename(cover, number + '-fanart.jpg', path)
-        print('[+]Image Downloaded!', path + '/' + number + '-fanart.jpg')
+        DownloadFileWithFilename(cover, number + c_word + '-fanart.jpg', path)
+        print('[+]Image Downloaded!', path + '/' + number + c_word + '-fanart.jpg')
 
 
 def PrintFiles():
@@ -520,24 +520,24 @@ def cutImage():
     elif option == 'kodi':
         if imagecut == 1:
             try:
-                img = Image.open(path + '/' + number + '-fanart.jpg')
+                img = Image.open(path + '/' + number + c_word + '-fanart.jpg')
                 imgSize = img.size
                 w = img.width
                 h = img.height
                 img2 = img.crop((w / 1.9, 0, w, h))
-                img2.save(path + '/' + number + '-poster.jpg')
+                img2.save(path + '/' + number + c_word + '-poster.jpg')
             except:
                 print('[-]Cover cut failed!')
         elif imagecut == 0:
-            img = Image.open(path + '/' + number + '-fanart.jpg')
+            img = Image.open(path + '/' + number + c_word + '-fanart.jpg')
             w = img.width
             h = img.height
             try:
                 img = img.convert('RGB')
-                img.save(path + '/' + number + '-poster.jpg')
+                img.save(path + '/' + number + c_word + '-poster.jpg')
             except:
                 img = img.convert('RGB')
-                img.save(path + '/' + number + '-poster.jpg')
+                img.save(path + '/' + number + c_word + '-poster.jpg')
 
 
 def pasteFileToFolder(filepath, path):  # 文件路径，番号，后缀，要移动至的位置
@@ -578,9 +578,9 @@ def copyRenameJpgToBackdrop():
         shutil.copy(path + '/fanart.jpg', path + '/Backdrop.jpg')
         shutil.copy(path + '/poster.png', path + '/thumb.png')
     if option == 'emby':
-        shutil.copy(path + '/' + number + '.jpg', path + '/Backdrop.jpg')
+        shutil.copy(path + '/' + number + c_word + '.jpg', path + '/Backdrop.jpg')
     if option == 'kodi':
-        shutil.copy(path + '/' + number + '-fanart.jpg', path + '/Backdrop.jpg')
+        shutil.copy(path + '/' + number + c_word + '-fanart.jpg', path + '/Backdrop.jpg')
 
 
 def get_part(filepath):
