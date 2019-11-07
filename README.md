@@ -265,6 +265,6 @@ COSQ-004.mp4
 开启SMB在Windows上挂载为网络磁盘即可使用本软件，也适用于其他NAS
 ## 9.写在后面
 怎么样，看着自己的日本电影被这样完美地管理，是不是感觉成就感爆棚呢?<br>
-**tg官方电报群:[ 点击进群](https://t.me/AV_Data_Capture_Official)**<br>
+**tg官方电报群:[ 点击进群](https://t.me/joinchat/J54y1g3-a7nxJ_-WS4-KFQ)**<br>
 
 
