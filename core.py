@@ -578,7 +578,7 @@ def copyRenameJpgToBackdrop():
         shutil.copy(path + '/fanart.jpg', path + '/Backdrop.jpg')
         shutil.copy(path + '/poster.png', path + '/thumb.png')
     if option == 'emby':
-        shutil.copy(path + '/' + number + c_word + '.jpg', path + '/Backdrop.jpg')
+        shutil.copy(path + '/' + number + '.jpg', path + '/Backdrop.jpg')
     if option == 'kodi':
         shutil.copy(path + '/' + number + c_word + '-fanart.jpg', path + '/Backdrop.jpg')
 
