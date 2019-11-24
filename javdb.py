@@ -69,66 +69,54 @@ def getOutline(htmlcode):
     return result
 def main(number):
     try:
-        a = get_html('https://javdb.com/search?q=' + number + '&f=all')
+        a = get_html('https://javdb.com/search?q=' + number + '&f=all').replace(u'\xa0', u' ')
         html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
         result1 = str(html.xpath('//*[@id="videos"]/div/div/a/@href')).strip(" ['']")
-        if result1 == '':
-            a = get_html('https://javdb.com/search?q=' + number.replace('-', '_') + '&f=all')
-            html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
-            result1 = str(html.xpath('//*[@id="videos"]/div/div/a/@href')).strip(" ['']")
-        b = get_html('https://javdb1.com' + result1)
-        soup = BeautifulSoup(b, 'lxml')
-        a = str(soup.find(attrs={'class': 'panel'}))
+        b = get_html('https://javdb.com' + result1).replace(u'\xa0', u' ')
         dic = {
             'actor': getActor(a),
             'title': getTitle(b).replace("\\n", '').replace('        ', '').replace(getActor(a), '').replace(getNum(a),
                                                                                                              '').replace(
                 '无码', '').replace('有码', '').lstrip(' '),
-            'studio': getStudio(a),
-            'outline': getOutline(a),
-            'runtime': getRuntime(a),
-            'director': getDirector(a),
-            'release': getRelease(a),
-            'number': getNum(a),
+            'studio': getStudio(b),
+            'outline': getOutline(b),
+            'runtime': getRuntime(b),
+            'director': getDirector(b),
+            'release': getRelease(b),
+            'number': getNum(b),
             'cover': getCover(b),
             'imagecut': 0,
-            'tag': getTag(a),
-            'label': getLabel(a),
-            'year': getYear(getRelease(a)),  # str(re.search('\d{4}',getRelease(a)).group()),
+            'tag': getTag(b),
+            'label': getLabel(b),
+            'year': getYear(getRelease(b)),  # str(re.search('\d{4}',getRelease(a)).group()),
             'actor_photo': '',
-            'website': 'https://javdb1.com' + result1,
+            'website': 'https://javdb.com' + result1,
             'source': 'javdb.py',
         }
         js = json.dumps(dic, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ':'), )  # .encode('UTF-8')
         return js
     except:
-        a = get_html('https://javdb.com/search?q=' + number + '&f=all')
+        a = get_html('https://javdb.com/search?q=' + number + '&f=all').replace(u'\xa0', u' ')
         html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
         result1 = str(html.xpath('//*[@id="videos"]/div/div/a/@href')).strip(" ['']")
-        if result1 == '' or result1 == 'null':
-            a = get_html('https://javdb.com/search?q=' + number.replace('-', '_') + '&f=all')
-            html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
-            result1 = str(html.xpath('//*[@id="videos"]/div/div/a/@href')).strip(" ['']")
-        b = get_html('https://javdb.com' + result1)
-        soup = BeautifulSoup(b, 'lxml')
-        a = str(soup.find(attrs={'class': 'panel'}))
+        b = get_html('https://javdb.com' + result1).replace(u'\xa0', u' ')
         dic = {
-            'actor': getActor(a),
+            'actor': getActor(b),
             'title': getTitle(b).replace("\\n", '').replace('        ', '').replace(getActor(a), '').replace(
-                getNum(a),
+                getNum(b),
                 '').replace(
                 '无码', '').replace('有码', '').lstrip(' '),
-            'studio': getStudio(a),
-            'outline': getOutline(a),
-            'runtime': getRuntime(a),
-            'director': getDirector(a),
-            'release': getRelease(a),
-            'number': getNum(a),
+            'studio': getStudio(b),
+            'outline': getOutline(b),
+            'runtime': getRuntime(b),
+            'director': getDirector(b),
+            'release': getRelease(b),
+            'number': getNum(b),
             'cover': getCover(b),
             'imagecut': 0,
-            'tag': getTag(a),
-            'label': getLabel(a),
-            'year': getYear(getRelease(a)),  # str(re.search('\d{4}',getRelease(a)).group()),
+            'tag': getTag(b),
+            'label': getLabel(b),
+            'year': getYear(getRelease(b)),  # str(re.search('\d{4}',getRelease(a)).group()),
             'actor_photo': '',
             'website': 'https://javdb.com' + result1,
             'source': 'javdb.py',
@@ -136,4 +124,4 @@ def main(number):
         js = json.dumps(dic, ensure_ascii=False, sort_keys=True, indent=4,separators=(',', ':'), )  # .encode('UTF-8')
         return js
 
-#print(main('061519-861'))
+#print(get_html('https://javdb1.com/v/WwZ0Q'))

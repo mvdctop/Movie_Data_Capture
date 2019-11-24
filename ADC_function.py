@@ -7,6 +7,7 @@ import os
 import re
 import time
 import sys
+from lxml import etree
 
 config_file='config.ini'
 config = ConfigParser()
@@ -58,6 +59,12 @@ else:
     except:
         print('[-]Config.ini read failed! Please use the offical file!')
 
+def getDataState(json_data):  # 元数据获取失败检测
+    if json_data['title'] == '' or json_data['title'] == 'None' or json_data['title'] == 'null':
+        return 0
+    else:
+        return 1
+
 def ReadMediaWarehouse():
     return config['media']['media_warehouse']
 
@@ -69,6 +76,12 @@ def UpdateCheckSwitch():
         return '0'
     elif check == '':
         return '0'
+
+def getXpathSingle(htmlcode,xpath):
+    html = etree.fromstring(htmlcode, etree.HTMLParser())
+    result1 = str(html.xpath(xpath)).strip(" ['']")
+    return result1
+
 def get_html(url,cookies = None):#网页请求核心
     try:
         proxy = config['proxy']['proxy']

@@ -15,7 +15,7 @@ os.chdir(os.getcwd())
 
 # ============global var===========
 
-version='1.5'
+version='1.7'
 
 config = ConfigParser()
 config.read(config_file, encoding='UTF-8')
@@ -35,7 +35,6 @@ def moveMovies():
         movieFiles = movieFiles + [os.path.join(dirpath, f)
             for dirpath, dirnames, files in os.walk(fromPath)
             for f in fnmatch.filter(files, '*.' + fm)]
-    print(movieFiles)
     for movie in movieFiles:
         print("Move file " + movie)
         shutil.move(movie, os.path.curdir)
@@ -45,8 +44,8 @@ def UpdateCheck():
         html = json.loads(str(html2))
 
         if not version == html['version']:
-            print('[*]           * New update ' + html['version'] + ' *')
-            print('[*]             * Download *')
+            print('[*]         * New update ' + html['version'] + ' *')
+            print('[*]            * Download *')
             print('[*] ' + html['download'])
             print('[*]=====================================')
     else:

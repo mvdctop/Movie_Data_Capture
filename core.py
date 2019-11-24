@@ -16,8 +16,8 @@ import siro
 import avsox
 import javbus
 import javdb
-
 # =========website========
+
 
 # 初始化全局变量
 Config = ConfigParser()
@@ -89,13 +89,6 @@ def CreatFailedFolder():
             os._exit(0)
 
 
-def getDataState(json_data):  # 元数据获取失败检测
-    if json_data['title'] == '' or json_data['title'] == 'None' or json_data['title'] == 'null':
-        return 0
-    else:
-        return 1
-
-
 def getDataFromJSON(file_number):  # 从JSON返回元数据
     global title
     global studio
@@ -131,7 +124,7 @@ def getDataFromJSON(file_number):  # 从JSON返回元数据
         json_data = json.loads(siro.main(file_number))
         if getDataState(json_data) == 0:  # 如果元数据获取失败，请求番号至其他网站抓取
             json_data = json.loads(javbus.main(file_number))
-        elif getDataState(json_data) == 0:  # 如果元数据获取失败，请求番号至其他网站抓取
+        if getDataState(json_data) == 0:  # 如果元数据获取失败，请求番号至其他网站抓取
             json_data = json.loads(javdb.main(file_number))
     # ==
     elif 'fc2' in file_number or 'FC2' in file_number:
@@ -308,16 +301,16 @@ def DownloadFileWithFilename(url, filename, path):  # path = examle:photo , vide
 
 def imageDownload():  # 封面是否下载成功，否则移动到failed
     if option == 'emby':
-        if DownloadFileWithFilename(cover, number + '.jpg', path) == 'failed':
+        if DownloadFileWithFilename(cover, number + c_word + '.jpg', path) == 'failed':
             moveFailedFolder()
-        DownloadFileWithFilename(cover, number + '.jpg', path)
+        DownloadFileWithFilename(cover, number + c_word + '.jpg', path)
         if multi_part == 1:
-            old_name = os.path.join(path, number + '.jpg')
-            new_name = os.path.join(path, number + '.jpg')
+            old_name = os.path.join(path, number + c_word + '.jpg')
+            new_name = os.path.join(path, number + c_word + '.jpg')
             os.rename(old_name, new_name)
-            print('[+]Image Downloaded!', path + '/' + number + '.jpg')
+            print('[+]Image Downloaded!', path + '/' + number + c_word + '.jpg')
         else:
-            print('[+]Image Downloaded!', path + '/' + number + '.jpg')
+            print('[+]Image Downloaded!', path + '/' + number + c_word + '.jpg')
     elif option == 'plex':
         if DownloadFileWithFilename(cover, 'fanart.jpg', path) == 'failed':
             moveFailedFolder()
@@ -393,9 +386,9 @@ def PrintFiles():
                 print("  <plot>" + outline + "</plot>", file=code)
                 print("  <runtime>" + str(runtime).replace(" ", "") + "</runtime>", file=code)
                 print("  <director>" + director + "</director>", file=code)
-                print("  <poster>" + number + ".png</poster>", file=code)
-                print("  <thumb>" + number + ".png</thumb>", file=code)
-                print("  <fanart>" + number + '.jpg' + "</fanart>", file=code)
+                print("  <poster>" + number + c_word + ".png</poster>", file=code)
+                print("  <thumb>" + number + c_word + ".png</thumb>", file=code)
+                print("  <fanart>" + number + c_word + '.jpg' + "</fanart>", file=code)
                 try:
                     for key, value in actor_photo.items():
                         print("  <actor>", file=code)
@@ -504,19 +497,19 @@ def cutImage():
     elif option == 'emby':
         if imagecut == 1:
             try:
-                img = Image.open(path + '/' + number + '.jpg')
+                img = Image.open(path + '/' + number + c_word + '.jpg')
                 imgSize = img.size
                 w = img.width
                 h = img.height
                 img2 = img.crop((w / 1.9, 0, w, h))
-                img2.save(path + '/' + number + '.png')
+                img2.save(path + '/' + number + c_word + '.png')
             except:
                 print('[-]Cover cut failed!')
         elif imagecut == 0:
-            img = Image.open(path + '/' + number + '.jpg')
+            img = Image.open(path + '/' + number + c_word + '.jpg')
             w = img.width
             h = img.height
-            img.save(path + '/' + number + '.png')
+            img.save(path + '/' + number + c_word + '.png')
     elif option == 'kodi':
         if imagecut == 1:
             try:
@@ -578,7 +571,7 @@ def copyRenameJpgToBackdrop():
         shutil.copy(path + '/fanart.jpg', path + '/Backdrop.jpg')
         shutil.copy(path + '/poster.png', path + '/thumb.png')
     if option == 'emby':
-        shutil.copy(path + '/' + number + '.jpg', path + '/Backdrop.jpg')
+        shutil.copy(path + '/' + number + c_word + '.jpg', path + '/Backdrop.jpg')
     if option == 'kodi':
         shutil.copy(path + '/' + number + c_word + '-fanart.jpg', path + '/Backdrop.jpg')
 
@@ -618,9 +611,9 @@ if __name__ == '__main__':
         part = get_part(filepath)
     if '-c.' in filepath or '-C.' in filepath or '中文' in filepath or '字幕' in filepath:
         cn_sub = '1'
-        c_word = '-C'
+        c_word = '-C' #中文字幕影片后缀
 
-    if argparse_get_file()[1] == '':  # 获取手动拉去影片获取的番号
+    if argparse_get_file()[1] == '':  # 如果第二个运行参数为空，获取从第一个参数影片路径的番号
         try:
             number = str(re.findall(r'(.+?)\.', str(re.search('([^<>/\\\\|:""\\*\\?]+)\\.\\w+$', filepath).group()))).strip("['']").replace('_', '-')
             print("[!]Making Data for   [" + number + "]")
@@ -629,14 +622,14 @@ if __name__ == '__main__':
             moveFailedFolder()
     else:
         number = argparse_get_file()[1]
-    CreatFailedFolder()
+    CreatFailedFolder() # 创建输出失败目录
     getDataFromJSON(number)  # 定义番号
-    debug_mode()
+    debug_mode() # 调试模式检测
     creatFolder()  # 创建文件夹
     if program_mode == '1':
         if multi_part == 1:
             number += part # 这时number会被附加上CD1后缀
-        smallCoverCheck()
+        smallCoverCheck() # 检查小封面
         imageDownload()  # creatFoder会返回番号路径
         cutImage()  # 裁剪图
         copyRenameJpgToBackdrop()
