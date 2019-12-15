@@ -8,6 +8,9 @@ import re
 import time
 import sys
 from lxml import etree
+import sys
+import io
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, errors = 'replace', line_buffering = True)
 
 config_file='config.ini'
 config = ConfigParser()
@@ -103,16 +106,7 @@ def get_html(url,cookies = None):#网页请求核心
                 getweb = requests.get(str(url), headers=headers, timeout=timeout, cookies=cookies)
                 getweb.encoding = 'utf-8'
                 return getweb.text
-        except requests.exceptions.RequestException:
-            i += 1
-            print('[-]Connect retry '+str(i)+'/'+str(retry_count))
-        except requests.exceptions.ConnectionError:
-            i += 1
-            print('[-]Connect retry '+str(i)+'/'+str(retry_count))
-        except requests.exceptions.ProxyError:
-            i += 1
-            print('[-]Connect retry '+str(i)+'/'+str(retry_count))
-        except requests.exceptions.ConnectTimeout:
+        except:
             i += 1
             print('[-]Connect retry '+str(i)+'/'+str(retry_count))
     print('[-]Connect Failed! Please check your Proxy or Network!')

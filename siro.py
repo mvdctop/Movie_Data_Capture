@@ -7,7 +7,7 @@ from ADC_function import *
 def getTitle(a):
     try:
         html = etree.fromstring(a, etree.HTMLParser())
-        result = str(html.xpath('//*[@id="center_column"]/div[2]/h1/text()')).strip(" ['']")
+        result = str(html.xpath('//*[@id="center_column"]/div[1]/h1/text()')).strip(" ['']")
         return result.replace('/', ',')
     except:
         return ''
@@ -62,7 +62,8 @@ def getTag(a):
     return str(result1 + result2).strip('+').replace("', '\\n",",").replace("', '","").replace('"','')
 def getCover(htmlcode):
     html = etree.fromstring(htmlcode, etree.HTMLParser())
-    result = str(html.xpath('//*[@id="center_column"]/div[2]/div[1]/div/div/h2/img/@src')).strip(" ['']")
+    result = str(html.xpath('//*[@id="center_column"]/div[1]/div[1]/div/div/h2/img/@src')).strip(" ['']")
+    #                    /html/body/div[2]/article[2]/div[1]/div[1]/div/div/h2/img/@src
     return result
 def getDirector(a):
     html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
@@ -77,7 +78,7 @@ def getOutline(htmlcode):
     return result
 def main(number2):
     number=number2.upper()
-    htmlcode=get_html('https://www.mgstage.com/product/product_detail/'+str(number)+'/',cookies={'adc':'1'})
+    htmlcode=str(get_html('https://www.mgstage.com/product/product_detail/'+str(number)+'/',cookies={'adc':'1'}))
     soup = BeautifulSoup(htmlcode, 'lxml')
     a = str(soup.find(attrs={'class': 'detail_data'})).replace('\n                                        ','').replace('                                ','').replace('\n                            ','').replace('\n                        ','')
     dic = {
@@ -98,7 +99,7 @@ def main(number2):
         'website':'https://www.mgstage.com/product/product_detail/'+str(number)+'/',
         'source': 'siro.py',
     }
-    js = json.dumps(dic, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ':'),)#.encode('UTF-8')
+    js = json.dumps(dic, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ':'), )  # .encode('UTF-8')
+    print(js)
+    #print(htmlcode)
     return js
-
-#print(main('300maan-373'))
