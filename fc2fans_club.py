@@ -51,8 +51,6 @@ def getYear(release):
 def main(number):
     number=number.replace('PPV','').replace('ppv','').strip('fc2_').strip('fc2-').strip('ppv-').strip('PPV-').strip('FC2_').strip('FC2-').strip('ppv-').strip('PPV-').replace('fc2ppv-','').replace('FC2PPV-','')
     htmlcode2 = ADC_function.get_html('http://adult.contents.fc2.com/article_search.php?id='+str(number).lstrip("FC2-").lstrip("fc2-").lstrip("fc2_").lstrip("fc2-")+'')
-    print('http://adult.contents.fc2.com/article_search.php?id='+str(number).lstrip("FC2-").lstrip("fc2-").lstrip("fc2_").lstrip("fc2-")+'')
-    print(htmlcode2)
     #htmlcode = ADC_function.get_html('http://fc2fans.club/html/FC2-' + number + '.html')
     dic = {
         'title':    getTitle(htmlcode2),
