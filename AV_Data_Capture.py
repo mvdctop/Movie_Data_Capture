@@ -15,7 +15,7 @@ os.chdir(os.getcwd())
 
 # ============global var===========
 
-version='1.8'
+version='1.9'
 
 config = ConfigParser()
 config.read(config_file, encoding='UTF-8')
