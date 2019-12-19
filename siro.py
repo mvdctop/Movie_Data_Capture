@@ -100,6 +100,4 @@ def main(number2):
         'source': 'siro.py',
     }
     js = json.dumps(dic, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ':'), )  # .encode('UTF-8')
-    print(js)
-    #print(htmlcode)
     return js
