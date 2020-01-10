@@ -75,7 +75,8 @@ def getTag(a):
         ',')
 
 
-def getCover_small(html):
+def getCover_small(a):
+    html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
     result = 'http:' + html.xpath(
         '//div[@id=\'videos\']/div[@class=\'grid columns\']/div[@class=\'grid-item column\'][1]/a['
         '@class=\'box\']/div[@class=\'item-image fix-scale-cover\']/img/@src')[0]
@@ -113,7 +114,7 @@ def main(number):
             'actor': getActor(b),
             'title': getTitle(b).replace("\\n", '').replace('        ', '').replace(getActor(a), '').replace(getNum(a),
                                                                                                              '').replace(
-                '无码', '').replace('有码', '').lstrip(' '),
+                '无码', '').replace('有码', '').lstrip(' ').replace(number, ''),
             'studio': getStudio(b),
             'outline': getOutline(b),
             'runtime': getRuntime(b),
@@ -121,7 +122,7 @@ def main(number):
             'release': getRelease(b),
             'number': getNum(b),
             'cover': getCover(b),
-            'cover_small': getCover_small(html),
+            'cover_small': getCover_small(a),
             'imagecut': 3,
             'tag': getTag(b),
             'label': getLabel(b),
@@ -145,7 +146,7 @@ def main(number):
             'title': getTitle(b).replace("\\n", '').replace('        ', '').replace(getActor(a), '').replace(
                 getNum(b),
                 '').replace(
-                '无码', '').replace('有码', '').lstrip(' '),
+                '无码', '').replace('有码', '').lstrip(' ').replace(number, ''),
             'studio': getStudio(b),
             'outline': getOutline(b),
             'runtime': getRuntime(b),
@@ -167,3 +168,5 @@ def main(number):
             dic['number'] = ''
         js = json.dumps(dic, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ':'), )  # .encode('UTF-8')
         return js
+
+# print(get_html('https://javdb1.com/v/WwZ0Q'))
