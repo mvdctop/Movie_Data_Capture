@@ -115,7 +115,7 @@ def main(number):
             'actor': getActor(b),
             'title': getTitle(b).replace("\\n", '').replace('        ', '').replace(getActor(a), '').replace(getNum(a),
                                                                                                              '').replace(
-                '无码', '').replace('有码', '').lstrip(' ').replace(number,''),
+                '无码', '').replace('有码', '').lstrip(' ').replace(number, ''),
             'studio': getStudio(b),
             'outline': getOutline(b),
             'runtime': getRuntime(b),
@@ -141,14 +141,13 @@ def main(number):
         a = get_html('https://javdb.com/search?q=' + number + '&f=all').replace(u'\xa0', u' ')
         html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
         result1 = html.xpath('//*[@id="videos"]/div/div/a/@href')[0]
-        print(html.xpath('//*[@id="videos"]/div/div/a/@href'))
         b = get_html('https://javdb.com' + result1).replace(u'\xa0', u' ')
         dic = {
             'actor': getActor(b),
             'title': getTitle(b).replace("\\n", '').replace('        ', '').replace(getActor(a), '').replace(
                 getNum(b),
                 '').replace(
-                '无码', '').replace('有码', '').lstrip(' ').replace(number,''),
+                '无码', '').replace('有码', '').lstrip(' ').replace(number, ''),
             'studio': getStudio(b),
             'outline': getOutline(b),
             'runtime': getRuntime(b),
