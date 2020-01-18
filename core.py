@@ -128,7 +128,7 @@ def getDataFromJSON(file_number):  # 从JSON返回元数据
             json_data = json.loads(javdb.main(file_number))
     # ==
     elif 'fc2' in file_number or 'FC2' in file_number:
-        json_data = json.loads(fc2fans_club.main(file_number))
+        json_data = json.loads(fc2fans_club.main(file_number.replace('fc2-','').replace('fc2_','').replace('FC2-','').replace('fc2_','')))
     # ==
     elif 'HEYZO' in number or 'heyzo' in number or 'Heyzo' in number:
         json_data = json.loads(avsox.main(file_number))
@@ -537,7 +537,19 @@ def pasteFileToFolder(filepath, path):  # 文件路径，番号，后缀，要�
     global houzhui
     houzhui = str(re.search('[.](AVI|RMVB|WMV|MOV|MP4|MKV|FLV|TS|avi|rmvb|wmv|mov|mp4|mkv|flv|ts)$', filepath).group())
     try:
-        os.rename(filepath, path + '/' + number + c_word + houzhui)
+        if config['common']['soft_link'] == '1':  #如果soft_link=1 使用软链接
+            os.symlink(filepath, path + '/' + number + c_word + houzhui)
+        else:
+            os.rename(filepath, path + '/' + number + c_word + houzhui)
+        if os.path.exists(os.getcwd()+'/'+number + c_word + '.srt'): #字幕移动
+            os.rename(os.getcwd()+'/'+number + c_word + '.srt', path + '/' + number + c_word + '.srt')
+            print('[+]Sub moved!')
+        elif os.path.exists(os.getcwd()+'/'+number + c_word + '.ssa'):
+            os.rename(os.getcwd()+'/'+number + c_word + '.ssa', path + '/' + number + c_word + '.ssa')
+            print('[+]Sub moved!')
+        elif os.path.exists(os.getcwd()+'/'+number + c_word + '.sub'):
+            os.rename(os.getcwd()+'/'+number + c_word + '.sub', path + '/' + number + c_word + '.sub')
+            print('[+]Sub moved!')
     except FileExistsError:
         print('[-]File Exists! Please check your movie!')
         print('[-]move to the root folder of the program.')
@@ -555,7 +567,19 @@ def pasteFileToFolder_mode2(filepath, path):  # 文件路径，番号，后缀�
     houzhui = str(re.search('[.](AVI|RMVB|WMV|MOV|MP4|MKV|FLV|TS|avi|rmvb|wmv|mov|mp4|mkv|flv|ts)$', filepath).group())
     path = success_folder + '/' + location_rule
     try:
-        os.rename(filepath, path + '/' + number + part + c_word + houzhui)
+        if config['common']['soft_link'] == '1':
+            os.symlink(filepath, path + '/' + number + part + c_word + houzhui)
+        else:
+            os.rename(filepath, path + '/' + number + part + c_word + houzhui)
+        if os.path.exists(number+'.srt'): #字幕移动
+            os.rename(number + part + c_word + '.srt', path + '/' + number + part + c_word + '.srt')
+            print('[+]Sub moved!')
+        elif os.path.exists(number + part + c_word+'.ass'):
+            os.rename(number + part + c_word + '.ass', path + '/' + number + part + c_word + '.ass')
+            print('[+]Sub moved!')
+        elif os.path.exists(number + part + c_word+'.sub'):
+            os.rename(number + part + c_word + '.sub', path + '/' + number + part + c_word + '.sub')
+            print('[+]Sub moved!')
         print('[!]Success')
     except FileExistsError:
         print('[-]File Exists! Please check your movie!')
@@ -597,7 +621,7 @@ def debug_mode():
                     continue
                 if i == 'actor_photo' or i == 'year':
                     continue
-                print('[+] -', i, ':', v)
+                print('[+] -', i+str(9-len(i)*'-'), ':', v)
             print('[+] ---Debug info---')
     except:
         aaa = ''

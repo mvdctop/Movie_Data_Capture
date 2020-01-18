@@ -10,7 +10,8 @@ import sys
 from lxml import etree
 import sys
 import io
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer, errors = 'replace', line_buffering = True)
+# sys.stdout = io.TextIOWrapper(sys.stdout.buffer, errors = 'replace', line_buffering = True)
+# sys.setdefaultencoding('utf-8')
 
 config_file='config.ini'
 config = ConfigParser()
