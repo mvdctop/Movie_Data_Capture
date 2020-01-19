@@ -416,7 +416,7 @@ def PrintFiles():
                 if cn_sub == '1':
                     print("  <genre>中文字幕</genre>", file=code)
                 print("  <num>" + number + "</num>", file=code)
-                print("  <release>" + release + "</release>", file=code)
+                print("  <premiered>" + release + "</premiered>", file=code)
                 print("  <cover>" + cover + "</cover>", file=code)
                 print("  <website>" + "https://www.javbus.com/" + number + "</website>", file=code)
                 print("</movie>", file=code)
