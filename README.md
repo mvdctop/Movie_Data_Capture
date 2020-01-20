@@ -108,6 +108,14 @@ pip install pillow
 设置成功输出目录和失败输出目录
 
 ---
+#### 软链接
+>[common]  
+>soft_link=0  
+
+1为开启软链接模式  
+0为关闭
+
+---
 ### 网络设置
 >[proxy]  
 >proxy=127.0.0.1:1081  
@@ -224,6 +232,10 @@ pip install pillow
 ---
 ### 关于 ```Updata_check``` 和 ```JSON``` 相关的错误
 跳转 [网络设置](#网络设置)
+
+---
+### 关于字幕文件移动功能
+字幕文件前缀必须与影片文件前缀一致，才可以使用该功能
 
 ---
 ### 关于```FileNotFoundError: [WinError 3] 系统找不到指定的路径。: 'JAV_output''``` 

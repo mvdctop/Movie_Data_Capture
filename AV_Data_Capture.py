@@ -5,7 +5,6 @@ import glob
 import os
 import time
 import re
-import sys
 from ADC_function import *
 import json
 import shutil
@@ -15,7 +14,7 @@ os.chdir(os.getcwd())
 
 # ============global var===========
 
-version='1.9'
+version='2.1'
 
 config = ConfigParser()
 config.read(config_file, encoding='UTF-8')
@@ -44,10 +43,10 @@ def UpdateCheck():
         html = json.loads(str(html2))
 
         if not version == html['version']:
-            print('[*]         * New update ' + html['version'] + ' *')
-            print('[*]            * Download *')
+            print('[*]                  * New update ' + html['version'] + ' *')
+            print('[*]                     ↓ Download ↓')
             print('[*] ' + html['download'])
-            print('[*]=====================================')
+            print('[*]======================================================')
     else:
         print('[+]Update Check disabled!')
 def movie_lists():
@@ -91,6 +90,8 @@ def getNumber(filepath):
         filepath = filepath.replace("_", "-")
         filepath.strip('22-sht.me').strip('-HD').strip('-hd')
         filename = str(re.sub("\[\d{4}-\d{1,2}-\d{1,2}\] - ", "", filepath))  # 去除文件名中时间
+        if 'FC2' or 'fc2' in filename:
+            filename=filename.replace('-PPV','').replace('PPV-','')
         try:
             file_number = re.search('\w+-\d+', filename).group()
         except:  # 提取类似mkbd-s120番号
@@ -126,9 +127,9 @@ def RunCore():
             os.system('python3 core.py' + '   "' + i + '" --number "' + getNumber(i) + '"')  # 从py文件启动（用于源码py）
 
 if __name__ =='__main__':
-    print('[*]===========AV Data Capture===========')
-    print('[*]             Version '+version)
-    print('[*]=====================================')
+    print('[*]================== AV Data Capture ===================')
+    print('[*]                     Version '+version)
+    print('[*]======================================================')
     CreatFailedFolder()
     UpdateCheck()
     moveMovies()
@@ -137,6 +138,8 @@ if __name__ =='__main__':
     count = 0
     count_all = str(len(movie_lists()))
     print('[+]Find',str(len(movie_lists())),'movies')
+    if config['common']['soft_link'] == '1':
+        print('[!] --- Soft link mode is ENABLE! ----')
     for i in movie_lists(): #遍历电影列表 交给core处理
         count = count + 1
         percentage = str(count/int(count_all)*100)[:4]+'%'
@@ -144,14 +147,18 @@ if __name__ =='__main__':
         try:
             print("[!]Making Data for   [" + i + "], the number is [" + getNumber(i) + "]")
             RunCore()
-            print("[*]=====================================")
+            print("[*]======================================================")
         except:  # 番号提取异常
             print('[-]' + i + ' Cannot catch the number :')
-            print('[-]Move ' + i + ' to failed folder')
-            shutil.move(i, str(os.getcwd()) + '/' + 'failed/')
+            if config['common']['soft_link'] == '1':
+                print('[-]Link',i,'to failed folder')
+                os.symlink(i,str(os.getcwd()) + '/' + 'failed/')
+            else:
+                print('[-]Move ' + i + ' to failed folder')
+                shutil.move(i, str(os.getcwd()) + '/' + 'failed/')
             continue
 
     CEF(exclude_directory_1)
     CEF(exclude_directory_2)
     print("[+]All finished!!!")
-    input("[+][+]Press enter key exit, you can check the error messge before you exit.\n[+][+]按回车键结束，你可以在结束之前查看和错误信息。")
+    input("[+][+]Press enter key exit, you can check the error messge before you exit.")

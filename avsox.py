@@ -71,16 +71,16 @@ def getTag(a):  # 获取演员
     return d
 
 def main(number):
-    a = get_html('https://avsox.asia/cn/search/' + number)
+    a = get_html('https://avsox.host/cn/search/' + number)
     html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
     result1 = str(html.xpath('//*[@id="waterfall"]/div/a/@href')).strip(" ['']")
     if result1 == '' or result1 == 'null' or result1 == 'None':
-        a = get_html('https://avsox.asia/cn/search/' + number.replace('-', '_'))
+        a = get_html('https://avsox.host/cn/search/' + number.replace('-', '_'))
         print(a)
         html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
         result1 = str(html.xpath('//*[@id="waterfall"]/div/a/@href')).strip(" ['']")
         if result1 == '' or result1 == 'null' or result1 == 'None':
-            a = get_html('https://avsox.asia/cn/search/' + number.replace('_', ''))
+            a = get_html('https://avsox.host/cn/search/' + number.replace('_', ''))
             print(a)
             html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
             result1 = str(html.xpath('//*[@id="waterfall"]/div/a/@href')).strip(" ['']")
@@ -109,4 +109,4 @@ def main(number):
     js = json.dumps(dic, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ':'), )  # .encode('UTF-8')
     return js
 
-#print(main('041516_541'))
+#print(main('012717_472'))
