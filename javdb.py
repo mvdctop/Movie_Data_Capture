@@ -3,6 +3,9 @@ from lxml import etree
 import json
 from bs4 import BeautifulSoup
 from ADC_function import *
+# import sys
+# import io
+# sys.stdout = io.TextIOWrapper(sys.stdout.buffer, errors = 'replace', line_buffering = True)
 
 def getTitle(a):
     try:
@@ -61,15 +64,13 @@ def getTag(a):
     return str(result1 + result2).strip('+').replace(",\\xa0", "").replace("'", "").replace(' ', '').replace(',,', '').lstrip(',')
 def getCover_small(a):
     html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
-    result = 'http:' + html.xpath(
-        '//div[@id=\'videos\']/div[@class=\'grid columns\']/div[@class=\'grid-item column\'][1]/a['
-        '@class=\'box\']/div[@class=\'item-image fix-scale-cover\']/img/@src')[0]
+    result = html.xpath("//div[@class='item-image fix-scale-cover']/img/@src")[0]
+    if not 'https' in result:
+        result = 'https:' + result
     return result
 def getCover(htmlcode):
     html = etree.fromstring(htmlcode, etree.HTMLParser())
-    result = str(html.xpath('/html/body/section/div/div[2]/div[1]/a/img/@src')).strip(" ['']")
-    if result == '':
-        result = str(html.xpath('/html/body/section/div/div[4]/div[1]/a/img/@src')).strip(" ['']")
+    result = str(html.xpath("//div[@class='column column-video-cover']/a/img/@src")).strip(" ['']")
     return result
 def getDirector(a):
     html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
@@ -138,7 +139,7 @@ def main(number):
             'label': getLabel(b),
             'year': getYear(getRelease(b)),  # str(re.search('\d{4}',getRelease(a)).group()),
             'actor_photo': getActorPhoto(getActor(b)),
-            'website': 'https://javdb.com' + result1,
+            'website': 'https://javdb3.com' + result1,
             'source': 'javdb.py',
         }
         if getNum(b) != number:  # 与搜索到的番号不匹配
@@ -149,4 +150,4 @@ def main(number):
 
 # main('DV-1562')
 # input("[+][+]Press enter key exit, you can check the error messge before you exit.\n[+][+]按回车键结束，你可以在结束之前查看和错误信息。")
-# print(get_html('https://javdb1.com/v/WwZ0Q'))
+# print(main('YMDD-178'))
