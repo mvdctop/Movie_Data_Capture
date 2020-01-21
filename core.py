@@ -140,7 +140,7 @@ def getDataFromJSON(file_number):  # 从JSON返回元数据
         json_data = json.loads(javbus.main(file_number))
         if getDataState(json_data) == 0:  # 如果元数据获取失败，请求番号至其他网站抓取
             json_data = json.loads(avsox.main(file_number))
-        elif getDataState(json_data) == 0:  # 如果元数据获取失败，请求番号至其他网站抓取
+        if getDataState(json_data) == 0:  # 如果元数据获取失败，请求番号至其他网站抓取
             json_data = json.loads(javdb.main(file_number))
 
     # ================================================网站规则添加结束================================================
@@ -183,6 +183,7 @@ def getDataFromJSON(file_number):  # 从JSON返回元数据
     title = title.replace('<', '')
     title = title.replace('>', '')
     title = title.replace('|', '')
+    release = release.replace('/', '-')
     tmpArr = cover_small.split(',')
     if len(tmpArr) > 0:
         cover_small = tmpArr[0].strip('\"').strip('\'')
@@ -346,7 +347,7 @@ def PrintFiles():
                     for key, value in actor_photo.items():
                         print("  <actor>", file=code)
                         print("   <name>" + key + "</name>", file=code)
-                        if not actor_photo == '':  # or actor_photo == []:
+                        if not value == '':  # or actor_photo == []:
                             print("   <thumb>" + value + "</thumb>", file=code)
                         print("  </actor>", file=code)
                 except:
@@ -393,7 +394,7 @@ def PrintFiles():
                     for key, value in actor_photo.items():
                         print("  <actor>", file=code)
                         print("   <name>" + key + "</name>", file=code)
-                        if not actor_photo == '':  # or actor_photo == []:
+                        if not value == '':  # or actor_photo == []:
                             print("   <thumb>" + value + "</thumb>", file=code)
                         print("  </actor>", file=code)
                 except:
@@ -439,7 +440,7 @@ def PrintFiles():
                     for key, value in actor_photo.items():
                         print("  <actor>", file=code)
                         print("   <name>" + key + "</name>", file=code)
-                        if not actor_photo == '':  # or actor_photo == []:
+                        if not value == '':  # or actor_photo == []:
                             print("   <thumb>" + value + "</thumb>", file=code)
                         print("  </actor>", file=code)
                 except:
