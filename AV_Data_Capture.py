@@ -14,7 +14,7 @@ os.chdir(os.getcwd())
 
 # ============global var===========
 
-version='2.2'
+version='2.3'
 
 config = ConfigParser()
 config.read(config_file, encoding='UTF-8')
@@ -23,20 +23,6 @@ Platform = sys.platform
 
 # ==========global var end=========
 
-def moveMovies():
-    movieFiles = []
-    fromPath = config['movie_location']['path']
-    if Platform == 'win32':
-        movieFormat = ["avi", "rmvb", "wmv", "mov", "mp4", "mkv", "flv", "ts"]
-    else:
-        movieFormat = ["AVI", "RMVB", "WMV", "MOV", "MP4", "MKV", "FLV", "TS","avi", "rmvb", "wmv", "mov", "mp4", "mkv", "flv", "ts"]
-    for fm in movieFormat:
-        movieFiles = movieFiles + [os.path.join(dirpath, f)
-            for dirpath, dirnames, files in os.walk(fromPath)
-            for f in fnmatch.filter(files, '*.' + fm)]
-    for movie in movieFiles:
-        print("Move file " + movie)
-        shutil.move(movie, os.path.curdir)
 def UpdateCheck():
     if UpdateCheckSwitch() == '1':
         html2 = get_html('https://raw.githubusercontent.com/yoshiko2/AV_Data_Capture/master/update_check.json')
@@ -53,11 +39,17 @@ def movie_lists():
     global exclude_directory_1
     global exclude_directory_2
     total=[]
-    file_type = ['mp4','avi','rmvb','wmv','mov','mkv','flv','ts']
+    file_type = ['.mp4','.avi','.rmvb','.wmv','.mov','.mkv','.flv','.ts','.MP4', '.AVI', '.RMVB', '.WMV', '.MOV', '.MKV', '.FLV', '.TS',]
     exclude_directory_1 = config['common']['failed_output_folder']
     exclude_directory_2 = config['common']['success_output_folder']
-    for a in file_type:
-        total += glob.glob(r"./*." + a)
+    file_root=os.getcwd()
+    for root,dirs,files in os.walk(file_root):
+        if exclude_directory_1 not in root and exclude_directory_2 not in root:
+            for f in files:
+                if os.path.splitext(f)[1] in file_type:
+                    path = os.path.join(root,f)
+                    path = path.replace(file_root,'.')
+                    total.append(path)
     return total
 def CreatFailedFolder():
     if not os.path.exists('failed/'):  # 新建failed文件夹
@@ -86,7 +78,7 @@ def rreplace(self, old, new, *max):
     return new.join(self.rsplit(old, count))
 def getNumber(filepath):
     filepath = filepath.replace('.\\','')
-    try:  # 普通提取番号 主要处理包含减号-的番号
+    if '-' in filepath or '_' in filepath:  # 普通提取番号 主要处理包含减号-和_的番号
         filepath = filepath.replace("_", "-")
         filepath.strip('22-sht.me').strip('-HD').strip('-hd')
         filename = str(re.sub("\[\d{4}-\d{1,2}-\d{1,2}\] - ", "", filepath))  # 去除文件名中时间
@@ -97,18 +89,11 @@ def getNumber(filepath):
         except:  # 提取类似mkbd-s120番号
             file_number = re.search('\w+-\w+\d+', filename).group()
         return file_number
-    except:  # 提取不含减号-的番号
+    else:  # 提取不含减号-的番号，FANZA CID
         try:
-            filename = str(re.sub("ts6\d", "", filepath)).strip('Tokyo-hot').strip('tokyo-hot')
-            filename = str(re.sub(".*?\.com-\d+", "", filename)).replace('_', '')
-            file_number = str(re.search('\w+\d{4}', filename).group(0))
-            return file_number
-        except:  # 提取无减号番号
-            filename = str(re.sub("ts6\d", "", filepath))  # 去除ts64/265
-            filename = str(re.sub(".*?\.com-\d+", "", filename))
-            file_number = str(re.match('\w+', filename).group())
-            file_number = str(file_number.replace(re.match("^[A-Za-z]+", file_number).group(),re.match("^[A-Za-z]+", file_number).group() + '-'))
-            return file_number
+            return str(re.findall(r'(.+?)\.', str(re.search('([^<>/\\\\|:""\\*\\?]+)\\.\\w+$', filepath).group()))).strip("['']").replace('_', '-')
+        except:
+            return re.search(r'(.+?)\.',filepath)[0]
 
 def RunCore():
     if Platform == 'win32':
@@ -120,7 +105,10 @@ def RunCore():
             os.system('python core.py' + '   "' + i + '" --number "' + getNumber(i) + '"')  # 从py文件启动（用于源码py）
     else:
         if os.path.exists('core.py'):
-            os.system('python3 core.py' + '   "' + i + '" --number "' + getNumber(i) + '"')  # 从py文件启动（用于源码py）
+            try:
+                os.system('python3 core.py' + '   "' + i + '" --number "' + getNumber(i) + '"')  # 从py文件启动（用于源码py）
+            except:
+                os.system('python core.py' + '   "' + i + '" --number "' + getNumber(i) + '"')  # 从py文件启动（用于源码py）
         elif os.path.exists('core.exe'):
             os.system('core.exe' + '   "' + i + '" --number "' + getNumber(i) + '"')  # 从exe启动（用于EXE版程序）
         elif os.path.exists('core.py') and os.path.exists('core.exe'):
@@ -130,17 +118,18 @@ if __name__ =='__main__':
     print('[*]================== AV Data Capture ===================')
     print('[*]                     Version '+version)
     print('[*]======================================================')
+
     CreatFailedFolder()
     UpdateCheck()
-    moveMovies()
     os.chdir(os.getcwd())
+    movie_list=movie_lists()
 
     count = 0
-    count_all = str(len(movie_lists()))
-    print('[+]Find',str(len(movie_lists())),'movies')
+    count_all = str(len(movie_list))
+    print('[+]Find',count_all,'movies')
     if config['common']['soft_link'] == '1':
         print('[!] --- Soft link mode is ENABLE! ----')
-    for i in movie_lists(): #遍历电影列表 交给core处理
+    for i in movie_list: #遍历电影列表 交给core处理
         count = count + 1
         percentage = str(count/int(count_all)*100)[:4]+'%'
         print('[!] - '+percentage+' ['+str(count)+'/'+count_all+'] -')

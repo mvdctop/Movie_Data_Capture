@@ -16,6 +16,7 @@ import siro
 import avsox
 import javbus
 import javdb
+import fanza
 # =========website========
 
 
@@ -135,6 +136,14 @@ def getDataFromJSON(file_number):  # 从JSON返回元数据
     # ==
     elif 'siro' in file_number or 'SIRO' in file_number or 'Siro' in file_number:
         json_data = json.loads(siro.main(file_number))
+    elif not '-' in file_number or '_' in file_number:
+        json_data = json.loads(fanza.main(file_number))
+        if getDataState(json_data) == 0:  # 如果元数据获取失败，请求番号至其他网站抓取
+            json_data = json.loads(javbus.main(file_number))
+        if getDataState(json_data) == 0:  # 如果元数据获取失败，请求番号至其他网站抓取
+            json_data = json.loads(avsox.main(file_number))
+        if getDataState(json_data) == 0:  # 如果元数据获取失败，请求番号至其他网站抓取
+            json_data = json.loads(javdb.main(file_number))
     # ==
     else:
         json_data = json.loads(javbus.main(file_number))
@@ -145,7 +154,7 @@ def getDataFromJSON(file_number):  # 从JSON返回元数据
 
     # ================================================网站规则添加结束================================================
 
-    title = str(json_data['title']).replace(' ', '')
+    title = json_data['title']
     studio = json_data['studio']
     year = json_data['year']
     outline = json_data['outline']
@@ -305,6 +314,18 @@ def imageDownload():  # 封面是否下载成功，否则移动到failed
         if DownloadFileWithFilename(cover, number + c_word + '.jpg', path) == 'failed':
             moveFailedFolder()
         DownloadFileWithFilename(cover, number + c_word + '.jpg', path)
+        if not os.path.getsize(path + '/' + number + c_word + '.jpg') == 0:
+            print('[+]Image Downloaded!', path + '/' + number + c_word + '.jpg')
+            return
+        i = 1
+        while i <= int(config['proxy']['retry']):
+            if os.path.getsize(path + '/' + number + c_word + '.jpg') == 0:
+                print('[!]Image Download Failed! Trying again. [' + config['proxy']['retry'] + '/3]')
+                DownloadFileWithFilename(cover, number + c_word + '.jpg', path)
+                i = i + 1
+                continue
+            else:
+                break
         if multi_part == 1:
             old_name = os.path.join(path, number + c_word + '.jpg')
             new_name = os.path.join(path, number + c_word + '.jpg')
@@ -316,11 +337,38 @@ def imageDownload():  # 封面是否下载成功，否则移动到failed
         if DownloadFileWithFilename(cover, 'fanart.jpg', path) == 'failed':
             moveFailedFolder()
         DownloadFileWithFilename(cover, 'fanart.jpg', path)
+        if not os.path.getsize(path + '/fanart.jpg') == 0:
+            print('[+]Image Downloaded!', path + '/fanart.jpg')
+            return
+        i = 1
+        while i <= int(config['proxy']['retry']):
+            if os.path.getsize(path + '/fanart.jpg') == 0:
+                print('[!]Image Download Failed! Trying again. [' + config['proxy']['retry'] + '/3]')
+                DownloadFileWithFilename(cover, 'fanart.jpg', path)
+                i = i + 1
+                continue
+            else:
+                break
+        if not os.path.getsize(path + '/' + number + c_word + '.jpg') == 0:
+            print('[!]Image Download Failed! Trying again.')
+            DownloadFileWithFilename(cover, number + c_word + '.jpg', path)
         print('[+]Image Downloaded!', path + '/fanart.jpg')
     elif option == 'kodi':
         if DownloadFileWithFilename(cover, number + c_word + '-fanart.jpg', path) == 'failed':
             moveFailedFolder()
         DownloadFileWithFilename(cover, number + c_word + '-fanart.jpg', path)
+        if not os.path.getsize(path + '/' + number + c_word + '-fanart.jpg') == 0:
+            print('[+]Image Downloaded!', path + '/' + number + c_word + '-fanart.jpg')
+            return
+        i = 1
+        while i <= int(config['proxy']['retry']):
+            if os.path.getsize(path + '/' + number + c_word + '-fanart.jpg') == 0:
+                print('[!]Image Download Failed! Trying again. [' + config['proxy']['retry'] + '/3]')
+                DownloadFileWithFilename(cover, number + c_word + '-fanart.jpg', path)
+                i = i + 1
+                continue
+            else:
+                break
         print('[+]Image Downloaded!', path + '/' + number + c_word + '-fanart.jpg')
 
 
@@ -330,6 +378,7 @@ def PrintFiles():
             os.makedirs(path)
         if option == 'plex':
             with open(path + "/" + number + c_word + ".nfo", "wt", encoding='UTF-8') as code:
+                print('<?xml version="1.0" encoding="UTF-8" ?>', file=code)
                 print("<movie>", file=code)
                 print(" <title>" + naming_rule + part + "</title>", file=code)
                 print("  <set>", file=code)
@@ -377,6 +426,7 @@ def PrintFiles():
                 print("[+]Writeed!          " + path + "/" + number + ".nfo")
         elif option == 'emby':
             with open(path + "/" + number + c_word + ".nfo", "wt", encoding='UTF-8') as code:
+                print('<?xml version="1.0" encoding="UTF-8" ?>', file=code)
                 print("<movie>", file=code)
                 print(" <title>" + naming_rule + part + "</title>", file=code)
                 print("  <set>", file=code)
@@ -424,6 +474,7 @@ def PrintFiles():
                 print("[+]Writeed!          " + path + "/" + number + c_word + ".nfo")
         elif option == 'kodi':
             with open(path + "/" + number + c_word + ".nfo", "wt", encoding='UTF-8') as code:
+                print('<?xml version="1.0" encoding="UTF-8" ?>', file=code)
                 print("<movie>", file=code)
                 print(" <title>" + naming_rule + part + "</title>", file=code)
                 print("  <set>", file=code)
@@ -618,11 +669,11 @@ def debug_mode():
             print('[+] ---Debug info---')
             for i, v in json_data.items():
                 if i == 'outline':
-                    print('[+] -', i, ':', len(v), 'characters')
+                    print('[+]  -', i, '    :', len(v), 'characters')
                     continue
                 if i == 'actor_photo' or i == 'year':
                     continue
-                print('[+] -', i+str(9-len(i)*'-'), ':', v)
+                print('[+]  -',"%-11s" % i, ':', v)
             print('[+] ---Debug info---')
     except:
         aaa = ''
