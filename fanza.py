@@ -50,9 +50,9 @@ def getYear(getRelease):
 def getRelease(a):
     html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
     try:
-        result1 = html.xpath("//td[contains(text(),'商品発売日：')]/following-sibling::td/a/text()")[0].lstrip('\n')
+        result1 = html.xpath("//td[contains(text(),'発売日：')]/following-sibling::td/a/text()")[0].lstrip('\n')
     except:
-        result1 = html.xpath("//td[contains(text(),'商品発売日：')]/following-sibling::td/text()")[0].lstrip('\n')
+        result1 = html.xpath("//td[contains(text(),'発売日：')]/following-sibling::td/text()")[0].lstrip('\n')
     return result1
 def getTag(a):
     html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
