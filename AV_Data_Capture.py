@@ -84,6 +84,10 @@ def getNumber(filepath):
         filename = str(re.sub("\[\d{4}-\d{1,2}-\d{1,2}\] - ", "", filepath))  # 去除文件名中时间
         if 'FC2' or 'fc2' in filename:
             filename=filename.replace('-PPV','').replace('PPV-','')
+        if '1000giri' in filename:
+            filename = filename.replace('1000giri-','').replace('-1000giri','')
+            file_number = re.search('\d+-\w+', filename).group()
+            return file_number
         try:
             file_number = re.search('\w+-\d+', filename).group()
         except:  # 提取类似mkbd-s120番号
