@@ -82,24 +82,29 @@ def main(number):
     if '404 Not Found' in htmlcode:
         htmlcode=get_html('https://www.dmm.co.jp/mono/dvd/-/detail/=/cid='+number)
         url = 'https://www.dmm.co.jp/mono/dvd/-/detail/=/cid='+number
-    dic = {
-        'title': getTitle(htmlcode).strip(getActor(htmlcode)),
-        'studio': getStudio(htmlcode),
-        'outline': getOutline(htmlcode),
-        'runtime': getRuntime(htmlcode),
-        'director': getDirector(htmlcode),
-        'actor': getActor(htmlcode),
-        'release': getRelease(htmlcode),
-        'number': getNum(htmlcode),
-        'cover': getCover(htmlcode,number),
-        'imagecut': 1,
-        'tag': getTag(htmlcode),
-        'label':getLabel(htmlcode),
-        'year': getYear(getRelease(htmlcode)),  # str(re.search('\d{4}',getRelease(a)).group()),
-        'actor_photo': '',
-        'website': url,
-        'source': 'siro.py',
-    }
+    try:
+        dic = {
+            'title': getTitle(htmlcode).strip(getActor(htmlcode)),
+            'studio': getStudio(htmlcode),
+            'outline': getOutline(htmlcode),
+            'runtime': getRuntime(htmlcode),
+            'director': getDirector(htmlcode),
+            'actor': getActor(htmlcode),
+            'release': getRelease(htmlcode),
+            'number': getNum(htmlcode),
+            'cover': getCover(htmlcode,number),
+            'imagecut': 1,
+            'tag': getTag(htmlcode),
+            'label':getLabel(htmlcode),
+            'year': getYear(getRelease(htmlcode)),  # str(re.search('\d{4}',getRelease(a)).group()),
+            'actor_photo': '',
+            'website': url,
+            'source': 'siro.py',
+        }
+    except :
+        dic = {
+            'title': '',
+        }
     js = json.dumps(dic, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ':'))  # .encode('UTF-8')
     return js
 

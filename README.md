@@ -159,18 +159,12 @@ pip install pillow
 如果是PLEX，请安装插件：```XBMCnfoMoviesImporter```
 
 ---
-### 抓取目录
+### 排除指定字符和目录
 >[escape]  
 >literals=\  
-
-```literals=``` 标题指定字符删除，例如```iterals=\()```，删除标题中```\()```字符
-
----
-### 抓取目录选择
->[movie_location]<br>
->path=<br>
-
-如果directory后面为空，则抓取和程序同一目录下的影片
+>folders=failed,JAV_output  
+```literals=``` 标题指定字符删除，例如```iterals=\()```，删除标题中```\()```字符  
+```folders=``` 排指定目录，例如```folders=failed,JAV_output```，多目录刮削时跳过failed,JAV_output  
 
 ---
 ### 调试模式
