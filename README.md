@@ -162,9 +162,9 @@ pip install pillow
 ### 排除指定字符和目录
 >[escape]  
 >literals=\  
->folders=failed,JAV_output
-```literals=``` 标题指定字符删除，例如```iterals=\()```，删除标题中```\()```字符
-```folders=``` 排指定目录，例如```folders=failed,JAV_output```，多目录刮削时跳过failed,JAV_output
+>folders=failed,JAV_output  
+```literals=``` 标题指定字符删除，例如```iterals=\()```，删除标题中```\()```字符  
+```folders=``` 排指定目录，例如```folders=failed,JAV_output```，多目录刮削时跳过failed,JAV_output  
 
 ---
 ### 调试模式
