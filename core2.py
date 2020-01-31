@@ -33,7 +33,7 @@ def escapePath(path, Config):  # Remove escape literals
 def moveFailedFolder(filepath, failed_folder):
     print('[-]Move to Failed output folder')
     shutil.move(filepath, str(os.getcwd()) + '/' + failed_folder + '/')
-    return 
+    os._exit(0)
 
 
 def CreatFailedFolder(failed_folder):
@@ -42,7 +42,7 @@ def CreatFailedFolder(failed_folder):
             os.makedirs(failed_folder + '/')
         except:
             print("[-]failed!can not be make Failed output folder\n[-](Please run as Administrator)")
-            return 
+            os._exit(0)
 
 
 def getDataFromJSON(file_number, filepath, failed_folder):  # 从JSON返回元数据
@@ -69,11 +69,17 @@ def getDataFromJSON(file_number, filepath, failed_folder):  # 从JSON返回元�
     # ==
     elif 'siro' in file_number or 'SIRO' in file_number or 'Siro' in file_number:
         json_data = json.loads(siro.main(file_number))
-    # ==
-    else:
+    elif not '-' in file_number or '_' in file_number:
         json_data = json.loads(fanza.main(file_number))
         if getDataState(json_data) == 0:  # 如果元数据获取失败，请求番号至其他网站抓取
             json_data = json.loads(javbus.main(file_number))
+        if getDataState(json_data) == 0:  # 如果元数据获取失败，请求番号至其他网站抓取
+            json_data = json.loads(avsox.main(file_number))
+        if getDataState(json_data) == 0:  # 如果元数据获取失败，请求番号至其他网站抓取
+            json_data = json.loads(javdb.main(file_number))
+    # ==
+    else:
+        json_data = json.loads(javbus.main(file_number))
         if getDataState(json_data) == 0:  # 如果元数据获取失败，请求番号至其他网站抓取
             json_data = json.loads(avsox.main(file_number))
         if getDataState(json_data) == 0:  # 如果元数据获取失败，请求番号至其他网站抓取
@@ -184,9 +190,7 @@ def smallCoverCheck(path, number, imagecut, cover_small, c_word, option, Config,
 def creatFolder(success_folder, location_rule, json_data, Config):  # 创建文件夹
     title, studio, year, outline, runtime, director, actor_photo, release, number, cover, website = get_info(json_data)
     if len(location_rule) > 240:  # 新建成功输出文件夹
-        path = success_folder + '/' + location_rule.replace("'actor'", "'manypeople'", 3).replace("actor",
-                                                                                                  "'manypeople'",
-                                                                                                  3)  # path为影片+元数据所在目录
+        path = success_folder + '/' + location_rule.replace("'actor'", "'manypeople'", 3).replace("actor","'manypeople'",3)  # path为影片+元数据所在目录
     else:
         path = success_folder + '/' + location_rule
         # print(path)
@@ -225,7 +229,7 @@ def DownloadFileWithFilename(url, filename, path, Config, filepath, failed_folde
                                  proxies={"http": "http://" + str(proxy), "https": "https://" + str(proxy)})
                 if r == '':
                     print('[-]Movie Data not found!')
-                    return 
+                    os._exit(0)
                 with open(str(path) + "/" + filename, "wb") as code:
                     code.write(r.content)
                 return
@@ -237,7 +241,7 @@ def DownloadFileWithFilename(url, filename, path, Config, filepath, failed_folde
                 r = requests.get(url, timeout=timeout, headers=headers)
                 if r == '':
                     print('[-]Movie Data not found!')
-                    return 
+                    os._exit(0)
                 with open(str(path) + "/" + filename, "wb") as code:
                     code.write(r.content)
                 return
@@ -553,10 +557,10 @@ def pasteFileToFolder(filepath, path, number, c_word):  # 文件路径，番号�
     except FileExistsError:
         print('[-]File Exists! Please check your movie!')
         print('[-]move to the root folder of the program.')
-        return 
+        os._exit(0)
     except PermissionError:
         print('[-]Error! Please run as administrator!')
-        return 
+        os._exit(0)
 
 
 def pasteFileToFolder_mode2(filepath, path, multi_part, number, part, c_word):  # 文件路径，番号，后缀，要移动至的位置
@@ -581,10 +585,10 @@ def pasteFileToFolder_mode2(filepath, path, multi_part, number, part, c_word):  
     except FileExistsError:
         print('[-]File Exists! Please check your movie!')
         print('[-]move to the root folder of the program.')
-        return 
+        os._exit(0)
     except PermissionError:
         print('[-]Error! Please run as administrator!')
-        return 
+        os._exit(0)
 
 
 def copyRenameJpgToBackdrop(option, path, number, c_word):
@@ -631,6 +635,7 @@ def core_main(file_path, number_th):
     c_word = ''
     option = ''
     cn_sub = ''
+    path = ''
     config_file = 'config.ini'
     Config = ConfigParser()
     Config.read(config_file, encoding='UTF-8')
@@ -657,6 +662,7 @@ def core_main(file_path, number_th):
     CreatFailedFolder(failed_folder)  # 创建输出失败目录
     debug_mode(json_data)  # 调试模式检测
     path = creatFolder(success_folder, json_data['location_rule'], json_data, Config)  # 创建文件夹
+    print(path)
     # =======================================================================刮削模式
     if program_mode == '1':
         if multi_part == 1:

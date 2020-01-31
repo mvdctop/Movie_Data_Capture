@@ -30,8 +30,7 @@ def UpdateCheck(version):
 def movie_lists(escape_folder):
     escape_folder = re.split('[,，]', escape_folder)
     total = []
-    file_type = ['.mp4', '.avi', '.rmvb', '.wmv', '.mov', '.mkv', '.flv', '.ts', '.MP4', '.AVI', '.RMVB', '.WMV',
-                 '.MOV', '.MKV', '.FLV', '.TS', ]
+    file_type = ['.mp4', '.avi', '.rmvb', '.wmv', '.mov', '.mkv', '.flv', '.ts', '.MP4', '.AVI', '.RMVB', '.WMV','.MOV', '.MKV', '.FLV', '.TS', ]
     file_root = os.getcwd()
     for root, dirs, files in os.walk(file_root):
         flag_escape = 0
@@ -75,23 +74,19 @@ def getNumber(filepath):
         filepath.strip('22-sht.me').strip('-HD').strip('-hd')
         filename = str(re.sub("\[\d{4}-\d{1,2}-\d{1,2}\] - ", "", filepath))  # 去除文件名中时间
         if 'FC2' or 'fc2' in filename:
-            filename = filename.replace('-PPV', '').replace('PPV-', '')
-        try:
-            file_number = re.search('\w+-\d+', filename).group()
-        except:  # 提取类似mkbd-s120番号
-            file_number = re.search('\w+-\w+\d+', filename).group()
+            filename = filename.replace('-PPV', '').replace('PPV-', '').replace('FC2PPV-','FC2-').replace('FC2PPV_','FC2-')
+        file_number = re.search('\w+-\w+', filename).group()
         return file_number
     else:  # 提取不含减号-的番号，FANZA CID
         try:
             return str(
-                re.findall(r'(.+?)\.', str(re.search('([^<>/\\\\|:""\\*\\?]+)\\.\\w+$', filepath).group()))).strip(
-                "['']").replace('_', '-')
+                re.findall(r'(.+?)\.', str(re.search('([^<>/\\\\|:""\\*\\?]+)\\.\\w+$', filepath).group()))).strip("['']").replace('_', '-')
         except:
             return re.search(r'(.+?)\.', filepath)[0]
 
 
 if __name__ == '__main__':
-    version = '2.3'
+    version = '2.4'
     config_file = 'config.ini'
     config = ConfigParser()
     config.read(config_file, encoding='UTF-8')
