@@ -109,6 +109,7 @@ pip install pillow
 
 ---
 #### 软链接
+方便PT下载完既想刮削又想继续上传的仓鼠党同志
 >[common]  
 >soft_link=0  
 
@@ -251,13 +252,11 @@ pip install pillow
 ![](https://raw.githubusercontent.com/Pockies/pic/master/741f9461gy1g1cxc31t41j20i804zdgo.jpg)
 
 目前作者已经完善了番号提取机制，功能较为强大，可提取上述文件名的的番号，如果出现提取失败或者异常的情况，请用以下规则命名<br>
-**妈蛋不要喂软件那么多野鸡片子，不让软件好好活了，操**
+
 ```
 COSQ-004.mp4
 ```
 
-针对 **野鸡番号** ，你需要把文件名命名为与抓取网站提供的番号一致（文件拓展名除外），然后把文件拖拽至core.exe/.py<br>
-**野鸡番号**:比如 ```XXX-XXX-1```,  ```1301XX-MINA_YUKA``` 这种**野鸡**番号，在javbus等资料库存在的作品。<br>**重要**：除了 **影片文件名**  ```XXXX-XXX-C```，后面这种-C的是指电影有中文字幕！<br>
 条件：文件名中间要有下划线或者减号"_","-"，没有多余的内容只有番号为最佳，可以让软件更好获取元数据
 对于多影片重命名，可以用[ReNamer](http://www.den4b.com/products/renamer)来批量重命名<br>
 
