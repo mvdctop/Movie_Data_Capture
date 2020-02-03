@@ -9,8 +9,8 @@ from ADC_function import *
 from core import *
 import json
 import shutil
-import fnmatch
 from configparser import ConfigParser
+import argparse
 
 
 def UpdateCheck(version):
@@ -26,6 +26,14 @@ def UpdateCheck(version):
     else:
         print('[+]Update Check disabled!')
 
+def argparse_get_file():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("file", default='',nargs='?', help="Write the file path on here")
+    args = parser.parse_args()
+    if args.file == '':
+        return ''
+    else:
+        return args.file
 
 def movie_lists(escape_folder):
     escape_folder = re.split('[,，]', escape_folder)
@@ -67,8 +75,11 @@ def CEF(path):
         a = ''
 
 
-def getNumber(filepath):
-    filepath = filepath.replace('.\\', '')
+def getNumber(filepath,absolute_path = False):
+    if absolute_path == True:
+        filepath=filepath.replace('\\','/')
+        file_number = str(re.findall(r'(.+?)\.', str(re.search('([^<>/\\\\|:""\\*\\?]+)\\.\\w+$', filepath).group()))).strip("['']").replace('_', '-')
+        return file_number
     if '-' in filepath or '_' in filepath:  # 普通提取番号 主要处理包含减号-和_的番号
         filepath = filepath.replace("_", "-")
         filepath.strip('22-sht.me').strip('-HD').strip('-hd')
@@ -79,14 +90,13 @@ def getNumber(filepath):
         return file_number
     else:  # 提取不含减号-的番号，FANZA CID
         try:
-            return str(
-                re.findall(r'(.+?)\.', str(re.search('([^<>/\\\\|:""\\*\\?]+)\\.\\w+$', filepath).group()))).strip("['']").replace('_', '-')
+            return str(re.findall(r'(.+?)\.', str(re.search('([^<>/\\\\|:""\\*\\?]+)\\.\\w+$', filepath).group()))).strip("['']").replace('_', '-')
         except:
             return re.search(r'(.+?)\.', filepath)[0]
 
 
 if __name__ == '__main__':
-    version = '2.4'
+    version = '2.5'
     config_file = 'config.ini'
     config = ConfigParser()
     config.read(config_file, encoding='UTF-8')
@@ -101,6 +111,19 @@ if __name__ == '__main__':
     CreatFailedFolder(failed_folder)
     os.chdir(os.getcwd())
     movie_list = movie_lists(escape_folder)
+
+    #========== 野鸡番号拖动 ==========
+    number_argparse=argparse_get_file()
+    if not number_argparse == '':
+        print("[!]Making Data for   [" + number_argparse + "], the number is [" + getNumber(number_argparse,absolute_path = True) + "]")
+        core_main(number_argparse, getNumber(number_argparse,absolute_path = True))
+        print("[*]======================================================")
+        CEF(success_folder)
+        CEF(failed_folder)
+        print("[+]All finished!!!")
+        input("[+][+]Press enter key exit, you can check the error messge before you exit.")
+        os._exit(0)
+    # ========== 野鸡番号拖动 ==========
 
     count = 0
     count_all = str(len(movie_list))
@@ -121,8 +144,13 @@ if __name__ == '__main__':
                 print('[-]Link', i, 'to failed folder')
                 os.symlink(i, str(os.getcwd()) + '/' + 'failed/')
             else:
-                print('[-]Move ' + i + ' to failed folder')
-                shutil.move(i, str(os.getcwd()) + '/' + 'failed/')
+                try:
+                    print('[-]Move ' + i + ' to failed folder')
+                    shutil.move(i, str(os.getcwd()) + '/' + 'failed/')
+                except FileExistsError:
+                    print('[!]File exists in failed!')
+                except:
+                    print('[+]skip')
             continue
 
     CEF(success_folder)

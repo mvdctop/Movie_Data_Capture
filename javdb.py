@@ -8,12 +8,9 @@ from ADC_function import *
 # sys.stdout = io.TextIOWrapper(sys.stdout.buffer, errors = 'replace', line_buffering = True)
 
 def getTitle(a):
-    try:
-        html = etree.fromstring(a, etree.HTMLParser())
-        result = str(html.xpath('/html/body/section/div/h2/strong/text()')).strip(" ['']")
-        return re.sub('.*\] ', '', result.replace('/', ',').replace('\\xa0', '').replace(' : ', ''))
-    except:
-        return re.sub('.*\] ', '', result.replace('/', ',').replace('\\xa0', ''))
+    html = etree.fromstring(a, etree.HTMLParser())
+    result = html.xpath("/html/body/section/div/h2/strong/text()")[0]
+    return result
 def getActor(a):  # //*[@id="center_column"]/div[2]/div[1]/div/table/tbody/tr[1]/td/text()
     html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
     result1 = str(html.xpath('//strong[contains(text(),"演員")]/../following-sibling::span/text()')).strip(" ['']")
@@ -83,71 +80,32 @@ def getOutline(htmlcode):
     return result
 def main(number):
     number = number.upper()
-    try:
-        a = get_html('https://javdb.com/search?q=' + number + '&f=all').replace(u'\xa0', u' ')
-        html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
-        result1 = html.xpath('//*[@id="videos"]/div/div/a/@href')[0]
-        b = get_html('https://javdb.com' + result1).replace(u'\xa0', u' ')
-        dic = {
-            'actor': getActor(b),
-            'title': getTitle(b).replace("\\n", '').replace('        ', '').replace(getActor(a), '').replace(getNum(a),
-                                                                                                             '').replace(
-                '无码', '').replace('有码', '').lstrip(' ').replace(number,''),
-            'studio': getStudio(b),
-            'outline': getOutline(b),
-            'runtime': getRuntime(b),
-            'director': getDirector(b),
-            'release': getRelease(b),
-            'number': getNum(b),
-            'cover': getCover(b),
-            'cover_small': getCover_small(a),
-            'imagecut': 3,
-            'tag': getTag(b),
-            'label': getLabel(b),
-            'year': getYear(getRelease(b)),  # str(re.search('\d{4}',getRelease(a)).group()),
-            'actor_photo': getActorPhoto(getActor(b)),
-            'website': 'https://javdb.com' + result1,
-            'source': 'javdb.py',
-        }
-        if getNum(b) != number:  # 与搜索到的番号不匹配
-            dic['title'] = ''
-            dic['number'] = ''
-        js = json.dumps(dic, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ':'), )  # .encode('UTF-8')
-        return js
-    except:
-        a = get_html('https://javdb.com/search?q=' + number + '&f=all').replace(u'\xa0', u' ')
-        html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
-        result1 = html.xpath('//*[@id="videos"]/div/div/a/@href')[0]
-        print(html.xpath('//*[@id="videos"]/div/div/a/@href'))
-        b = get_html('https://javdb.com' + result1).replace(u'\xa0', u' ')
-        dic = {
-            'actor': getActor(b),
-            'title': getTitle(b).replace("\\n", '').replace('        ', '').replace(getActor(a), '').replace(
-                getNum(b),
-                '').replace(
-                '无码', '').replace('有码', '').lstrip(' ').replace(number,''),
-            'studio': getStudio(b),
-            'outline': getOutline(b),
-            'runtime': getRuntime(b),
-            'director': getDirector(b),
-            'release': getRelease(b),
-            'number': getNum(b),
-            'cover': getCover(b),
-            'cover_small': getCover_small(a),
-            'imagecut': 3,
-            'tag': getTag(b),
-            'label': getLabel(b),
-            'year': getYear(getRelease(b)),  # str(re.search('\d{4}',getRelease(a)).group()),
-            'actor_photo': getActorPhoto(getActor(b)),
-            'website': 'https://javdb3.com' + result1,
-            'source': 'javdb.py',
-        }
-        if getNum(b) != number:  # 与搜索到的番号不匹配
-            dic['title'] = ''
-            dic['number'] = ''
-        js = json.dumps(dic, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ':'), )  # .encode('UTF-8')
-        return js
+    a = get_html('https://javdb.com/search?q=' + number + '&f=all')
+    html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
+    result1 = html.xpath('//*[@id="videos"]/div/div/a/@href')[0]
+    b = get_html('https://javdb.com' + result1)
+    dic = {
+        'actor': getActor(b),
+        'title': getTitle(b),
+        'studio': getStudio(b),
+        'outline': getOutline(b),
+        'runtime': getRuntime(b),
+        'director': getDirector(b),
+        'release': getRelease(b),
+        'number': getNum(b),
+        'cover': getCover(b),
+        'cover_small': getCover_small(a),
+        'imagecut': 3,
+        'tag': getTag(b),
+        'label': getLabel(b),
+        'year': getYear(getRelease(b)),  # str(re.search('\d{4}',getRelease(a)).group()),
+        'actor_photo': getActorPhoto(getActor(b)),
+        'website': 'https://javdb.com' + result1,
+        'source': 'javdb.py',
+    }
+    js = json.dumps(dic, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ':'), )  # .encode('UTF-8')
+    return js
 
 # main('DV-1562')
 # input("[+][+]Press enter key exit, you can check the error messge before you exit.\n[+][+]按回车键结束，你可以在结束之前查看和错误信息。")
-# print(main('YMDD-178'))
+#print(main('ipx-292'))

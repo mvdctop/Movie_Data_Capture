@@ -57,10 +57,10 @@ def getRelease(a):
 def getTag(a):
     html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
     try:
-        result1 = str(html.xpath("//td[contains(text(),'ジャンル：')]/following-sibling::td/a/text()")).strip(" ['']")
+        result1 = html.xpath("//td[contains(text(),'ジャンル：')]/following-sibling::td/a/text()")
     except:
-        result1 = str(html.xpath("//td[contains(text(),'ジャンル：')]/following-sibling::td/text()")).strip(" ['']")
-    return result1.replace("', '",",")
+        result1 = html.xpath("//td[contains(text(),'ジャンル：')]/following-sibling::td/text()")
+    return result1
 def getCover(htmlcode,number):
     html = etree.fromstring(htmlcode, etree.HTMLParser())
     result = html.xpath('//*[@id="'+number+'"]/@href')[0]
@@ -110,4 +110,4 @@ def main(number):
 
 # main('DV-1562')
 # input("[+][+]Press enter key exit, you can check the error messge before you exit.\n[+][+]按回车键结束，你可以在结束之前查看和错误信息。")
-#print(main('n0635'))
+#print(main('ipx292'))

@@ -85,6 +85,11 @@ def getDataFromJSON(file_number, filepath, failed_folder):  # 从JSON返回元�
     actor_list = str(json_data['actor']).strip("[ ]").replace("'", '').split(',')  # 字符串转列表
     release = json_data['release']
     number = json_data['number']
+    studio = json_data['studio']
+    source = json_data['source']
+    runtime = json_data['runtime']
+    outline = json_data['runtime']
+    label = json_data['label']
     try:
         cover_small = json_data['cover_small']
     except:
@@ -93,9 +98,11 @@ def getDataFromJSON(file_number, filepath, failed_folder):  # 从JSON返回元�
     tag = str(json_data['tag']).strip("[ ]").replace("'", '').replace(" ", '').split(',')  # 字符串转列表 @
     actor = str(actor_list).strip("[ ]").replace("'", '').replace(" ", '')
 
+
     if title == '' or number == '':
         print('[-]Movie Data not found!')
         moveFailedFolder(filepath, failed_folder)
+        return
 
     # if imagecut == '3':
     #     DownloadFileWithFilename()
@@ -255,12 +262,14 @@ def DownloadFileWithFilename(url, filename, path, Config, filepath, failed_folde
             print('[-]Image Download :  Connect retry ' + str(i) + '/' + str(retry_count))
     print('[-]Connect Failed! Please check your Proxy or Network!')
     moveFailedFolder(filepath, failed_folder)
+    return
 
 
 def imageDownload(option, cover, number, c_word, path, multi_part, Config, filepath, failed_folder):  # 封面是否下载成功，否则移动到failed
     if option == 'emby':
         if DownloadFileWithFilename(cover, number + c_word + '.jpg', path, Config, filepath, failed_folder) == 'failed':
             moveFailedFolder(filepath, failed_folder)
+            return
         DownloadFileWithFilename(cover, number + c_word + '.jpg', path, Config, filepath, failed_folder)
         if not os.path.getsize(path + '/' + number + c_word + '.jpg') == 0:
             print('[+]Image Downloaded!', path + '/' + number + c_word + '.jpg')
@@ -284,6 +293,7 @@ def imageDownload(option, cover, number, c_word, path, multi_part, Config, filep
     elif option == 'plex':
         if DownloadFileWithFilename(cover, 'fanart.jpg', path, Config, filepath, failed_folder) == 'failed':
             moveFailedFolder(filepath, failed_folder)
+            return
         DownloadFileWithFilename(cover, 'fanart.jpg', path, Config, filepath, failed_folder)
         if not os.path.getsize(path + '/fanart.jpg') == 0:
             print('[+]Image Downloaded!', path + '/fanart.jpg')
@@ -304,6 +314,7 @@ def imageDownload(option, cover, number, c_word, path, multi_part, Config, filep
     elif option == 'kodi':
         if DownloadFileWithFilename(cover, number + c_word + '-fanart.jpg', path, Config, filepath, failed_folder) == 'failed':
             moveFailedFolder(filepath, failed_folder)
+            return
         DownloadFileWithFilename(cover, number + c_word + '-fanart.jpg', path, Config, filepath, failed_folder)
         if not os.path.getsize(path + '/' + number + c_word + '-fanart.jpg') == 0:
             print('[+]Image Downloaded!', path + '/' + number + c_word + '-fanart.jpg')
@@ -472,10 +483,12 @@ def PrintFiles(option, path, c_word, naming_rule, part, cn_sub, json_data, filep
         print("[-]Write Failed!")
         print(e)
         moveFailedFolder(filepath, failed_folder)
+        return
     except Exception as e1:
         print(e1)
         print("[-]Write Failed!")
         moveFailedFolder(filepath, failed_folder)
+        return
 
 
 def cutImage(option, imagecut, path, number, c_word):
@@ -606,6 +619,7 @@ def get_part(filepath, failed_folder):
     except:
         print("[-]failed!Please rename the filename again!")
         moveFailedFolder(filepath, failed_folder)
+        return
 
 
 def debug_mode(json_data):
