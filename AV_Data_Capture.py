@@ -38,7 +38,7 @@ def argparse_get_file():
 def movie_lists(escape_folder):
     escape_folder = re.split('[,，]', escape_folder)
     total = []
-    file_type = ['.mp4', '.avi', '.rmvb', '.wmv', '.mov', '.mkv', '.flv', '.ts', '.MP4', '.AVI', '.RMVB', '.WMV','.MOV', '.MKV', '.FLV', '.TS', ]
+    file_type = ['.mp4', '.avi', '.rmvb', '.wmv', '.mov', '.mkv', '.flv', '.ts', '.webm', '.MP4', '.AVI', '.RMVB', '.WMV','.MOV', '.MKV', '.FLV', '.TS', '.WEBM', ]
     file_root = os.getcwd()
     for root, dirs, files in os.walk(file_root):
         flag_escape = 0
