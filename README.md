@@ -1,6 +1,6 @@
 # AV Data Capture (CLI)
 
-CLI版本
+CLI版本  
 <a title="Hits" target="_blank" href="https://github.com/yoshiko2/AV_Data_Capture"><img src="https://hits.b3log.org/yoshiko2/AV_Data_Capture.svg"></a>
 ![](https://img.shields.io/badge/build-passing-brightgreen.svg?style=flat-square)
 ![](https://img.shields.io/github/downloads/yoshiko2/av_data_capture/total.svg?style=flat-square)
