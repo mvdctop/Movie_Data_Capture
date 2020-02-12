@@ -548,7 +548,7 @@ def cutImage(option, imagecut, path, number, c_word):
 
 
 def pasteFileToFolder(filepath, path, number, c_word):  # 文件路径，番号，后缀，要移动至的位置
-    houzhui = str(re.search('[.](AVI|RMVB|WMV|MOV|MP4|MKV|FLV|TS|avi|rmvb|wmv|mov|mp4|mkv|flv|ts)$', filepath).group())
+    houzhui = str(re.search('[.](AVI|RMVB|WMV|MOV|MP4|MKV|FLV|TS|WEBM|avi|rmvb|wmv|mov|mp4|mkv|flv|ts|webm)$', filepath).group())
     try:
         if config['common']['soft_link'] == '1':  # 如果soft_link=1 使用软链接
             os.symlink(filepath, path + '/' + number + c_word + houzhui)
@@ -575,7 +575,7 @@ def pasteFileToFolder(filepath, path, number, c_word):  # 文件路径，番号�
 def pasteFileToFolder_mode2(filepath, path, multi_part, number, part, c_word):  # 文件路径，番号，后缀，要移动至的位置
     if multi_part == 1:
         number += part  # 这时number会被附加上CD1后缀
-    houzhui = str(re.search('[.](AVI|RMVB|WMV|MOV|MP4|MKV|FLV|TS|avi|rmvb|wmv|mov|mp4|mkv|flv|ts)$', filepath).group())
+    houzhui = str(re.search('[.](AVI|RMVB|WMV|MOV|MP4|MKV|FLV|TS|WEBM|avi|rmvb|wmv|mov|mp4|mkv|flv|ts|webm)$', filepath).group())
     try:
         if config['common']['soft_link'] == '1':
             os.symlink(filepath, path + '/' + number + part + c_word + houzhui)
