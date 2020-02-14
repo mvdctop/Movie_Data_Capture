@@ -33,7 +33,7 @@ def escapePath(path, Config):  # Remove escape literals
 def moveFailedFolder(filepath, failed_folder):
     print('[-]Move to Failed output folder')
     shutil.move(filepath, str(os.getcwd()) + '/' + failed_folder + '/')
-    return 
+    os._exit(0)
 
 
 def CreatFailedFolder(failed_folder):
@@ -42,7 +42,7 @@ def CreatFailedFolder(failed_folder):
             os.makedirs(failed_folder + '/')
         except:
             print("[-]failed!can not be make Failed output folder\n[-](Please run as Administrator)")
-            return 
+            os._exit(0)
 
 
 def getDataFromJSON(file_number, filepath, failed_folder):  # 从JSON返回元数据
@@ -69,11 +69,17 @@ def getDataFromJSON(file_number, filepath, failed_folder):  # 从JSON返回元�
     # ==
     elif 'siro' in file_number or 'SIRO' in file_number or 'Siro' in file_number:
         json_data = json.loads(siro.main(file_number))
-    # ==
-    else:
+    elif not '-' in file_number or '_' in file_number:
         json_data = json.loads(fanza.main(file_number))
         if getDataState(json_data) == 0:  # 如果元数据获取失败，请求番号至其他网站抓取
             json_data = json.loads(javbus.main(file_number))
+        if getDataState(json_data) == 0:  # 如果元数据获取失败，请求番号至其他网站抓取
+            json_data = json.loads(avsox.main(file_number))
+        if getDataState(json_data) == 0:  # 如果元数据获取失败，请求番号至其他网站抓取
+            json_data = json.loads(javdb.main(file_number))
+    # ==
+    else:
+        json_data = json.loads(javbus.main(file_number))
         if getDataState(json_data) == 0:  # 如果元数据获取失败，请求番号至其他网站抓取
             json_data = json.loads(avsox.main(file_number))
         if getDataState(json_data) == 0:  # 如果元数据获取失败，请求番号至其他网站抓取
@@ -85,12 +91,6 @@ def getDataFromJSON(file_number, filepath, failed_folder):  # 从JSON返回元�
     actor_list = str(json_data['actor']).strip("[ ]").replace("'", '').split(',')  # 字符串转列表
     release = json_data['release']
     number = json_data['number']
-    studio = json_data['studio']
-    source = json_data['source']
-    runtime = json_data['runtime']
-    outline = json_data['runtime']
-    label = json_data['label']
-    year = json_data['year']
     try:
         cover_small = json_data['cover_small']
     except:
@@ -99,11 +99,9 @@ def getDataFromJSON(file_number, filepath, failed_folder):  # 从JSON返回元�
     tag = str(json_data['tag']).strip("[ ]").replace("'", '').replace(" ", '').split(',')  # 字符串转列表 @
     actor = str(actor_list).strip("[ ]").replace("'", '').replace(" ", '')
 
-
     if title == '' or number == '':
         print('[-]Movie Data not found!')
         moveFailedFolder(filepath, failed_folder)
-        return
 
     # if imagecut == '3':
     #     DownloadFileWithFilename()
@@ -135,7 +133,6 @@ def getDataFromJSON(file_number, filepath, failed_folder):  # 从JSON返回元�
     json_data['tag'] = tag
     json_data['naming_rule'] = naming_rule
     json_data['location_rule'] = location_rule
-    json_data['year'] = year
     return json_data
 
 
@@ -193,9 +190,7 @@ def smallCoverCheck(path, number, imagecut, cover_small, c_word, option, Config,
 def creatFolder(success_folder, location_rule, json_data, Config):  # 创建文件夹
     title, studio, year, outline, runtime, director, actor_photo, release, number, cover, website = get_info(json_data)
     if len(location_rule) > 240:  # 新建成功输出文件夹
-        path = success_folder + '/' + location_rule.replace("'actor'", "'manypeople'", 3).replace("actor",
-                                                                                                  "'manypeople'",
-                                                                                                  3)  # path为影片+元数据所在目录
+        path = success_folder + '/' + location_rule.replace("'actor'", "'manypeople'", 3).replace("actor","'manypeople'",3)  # path为影片+元数据所在目录
     else:
         path = success_folder + '/' + location_rule
         # print(path)
@@ -234,7 +229,7 @@ def DownloadFileWithFilename(url, filename, path, Config, filepath, failed_folde
                                  proxies={"http": "http://" + str(proxy), "https": "https://" + str(proxy)})
                 if r == '':
                     print('[-]Movie Data not found!')
-                    return 
+                    os._exit(0)
                 with open(str(path) + "/" + filename, "wb") as code:
                     code.write(r.content)
                 return
@@ -246,7 +241,7 @@ def DownloadFileWithFilename(url, filename, path, Config, filepath, failed_folde
                 r = requests.get(url, timeout=timeout, headers=headers)
                 if r == '':
                     print('[-]Movie Data not found!')
-                    return 
+                    os._exit(0)
                 with open(str(path) + "/" + filename, "wb") as code:
                     code.write(r.content)
                 return
@@ -264,14 +259,12 @@ def DownloadFileWithFilename(url, filename, path, Config, filepath, failed_folde
             print('[-]Image Download :  Connect retry ' + str(i) + '/' + str(retry_count))
     print('[-]Connect Failed! Please check your Proxy or Network!')
     moveFailedFolder(filepath, failed_folder)
-    return
 
 
 def imageDownload(option, cover, number, c_word, path, multi_part, Config, filepath, failed_folder):  # 封面是否下载成功，否则移动到failed
     if option == 'emby':
         if DownloadFileWithFilename(cover, number + c_word + '.jpg', path, Config, filepath, failed_folder) == 'failed':
             moveFailedFolder(filepath, failed_folder)
-            return
         DownloadFileWithFilename(cover, number + c_word + '.jpg', path, Config, filepath, failed_folder)
         if not os.path.getsize(path + '/' + number + c_word + '.jpg') == 0:
             print('[+]Image Downloaded!', path + '/' + number + c_word + '.jpg')
@@ -295,7 +288,6 @@ def imageDownload(option, cover, number, c_word, path, multi_part, Config, filep
     elif option == 'plex':
         if DownloadFileWithFilename(cover, 'fanart.jpg', path, Config, filepath, failed_folder) == 'failed':
             moveFailedFolder(filepath, failed_folder)
-            return
         DownloadFileWithFilename(cover, 'fanart.jpg', path, Config, filepath, failed_folder)
         if not os.path.getsize(path + '/fanart.jpg') == 0:
             print('[+]Image Downloaded!', path + '/fanart.jpg')
@@ -316,7 +308,6 @@ def imageDownload(option, cover, number, c_word, path, multi_part, Config, filep
     elif option == 'kodi':
         if DownloadFileWithFilename(cover, number + c_word + '-fanart.jpg', path, Config, filepath, failed_folder) == 'failed':
             moveFailedFolder(filepath, failed_folder)
-            return
         DownloadFileWithFilename(cover, number + c_word + '-fanart.jpg', path, Config, filepath, failed_folder)
         if not os.path.getsize(path + '/' + number + c_word + '-fanart.jpg') == 0:
             print('[+]Image Downloaded!', path + '/' + number + c_word + '-fanart.jpg')
@@ -485,12 +476,10 @@ def PrintFiles(option, path, c_word, naming_rule, part, cn_sub, json_data, filep
         print("[-]Write Failed!")
         print(e)
         moveFailedFolder(filepath, failed_folder)
-        return
     except Exception as e1:
         print(e1)
         print("[-]Write Failed!")
         moveFailedFolder(filepath, failed_folder)
-        return
 
 
 def cutImage(option, imagecut, path, number, c_word):
@@ -568,10 +557,10 @@ def pasteFileToFolder(filepath, path, number, c_word):  # 文件路径，番号�
     except FileExistsError:
         print('[-]File Exists! Please check your movie!')
         print('[-]move to the root folder of the program.')
-        return 
+        os._exit(0)
     except PermissionError:
         print('[-]Error! Please run as administrator!')
-        return 
+        os._exit(0)
 
 
 def pasteFileToFolder_mode2(filepath, path, multi_part, number, part, c_word):  # 文件路径，番号，后缀，要移动至的位置
@@ -596,10 +585,10 @@ def pasteFileToFolder_mode2(filepath, path, multi_part, number, part, c_word):  
     except FileExistsError:
         print('[-]File Exists! Please check your movie!')
         print('[-]move to the root folder of the program.')
-        return 
+        os._exit(0)
     except PermissionError:
         print('[-]Error! Please run as administrator!')
-        return 
+        os._exit(0)
 
 
 def copyRenameJpgToBackdrop(option, path, number, c_word):
@@ -621,7 +610,6 @@ def get_part(filepath, failed_folder):
     except:
         print("[-]failed!Please rename the filename again!")
         moveFailedFolder(filepath, failed_folder)
-        return
 
 
 def debug_mode(json_data):
@@ -647,6 +635,7 @@ def core_main(file_path, number_th):
     c_word = ''
     option = ''
     cn_sub = ''
+    path = ''
     config_file = 'config.ini'
     Config = ConfigParser()
     Config.read(config_file, encoding='UTF-8')
@@ -673,6 +662,7 @@ def core_main(file_path, number_th):
     CreatFailedFolder(failed_folder)  # 创建输出失败目录
     debug_mode(json_data)  # 调试模式检测
     path = creatFolder(success_folder, json_data['location_rule'], json_data, Config)  # 创建文件夹
+    print(path)
     # =======================================================================刮削模式
     if program_mode == '1':
         if multi_part == 1:

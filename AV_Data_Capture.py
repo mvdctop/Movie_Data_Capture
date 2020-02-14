@@ -96,7 +96,7 @@ def getNumber(filepath,absolute_path = False):
 
 
 if __name__ == '__main__':
-    version = '2.5'
+    version = '2.6'
     config_file = 'config.ini'
     config = ConfigParser()
     config.read(config_file, encoding='UTF-8')
@@ -134,6 +134,9 @@ if __name__ == '__main__':
         count = count + 1
         percentage = str(count / int(count_all) * 100)[:4] + '%'
         print('[!] - ' + percentage + ' [' + str(count) + '/' + count_all + '] -')
+        # print("[!]Making Data for   [" + i + "], the number is [" + getNumber(i) + "]")
+        # core_main(i, getNumber(i))
+        # print("[*]======================================================")
         try:
             print("[!]Making Data for   [" + i + "], the number is [" + getNumber(i) + "]")
             core_main(i, getNumber(i))
