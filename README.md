@@ -127,12 +127,16 @@ soft_link=0
 
 ---
 ### 网络设置
->[proxy]  
->proxy=127.0.0.1:1081  
->timeout=10  
->retry=3  
+```
+[proxy]  
+proxy=127.0.0.1:1081  
+timeout=10  
+retry=3
+```  
 #### 针对某些地区的代理设置
->proxy=127.0.0.1:1081  
+```
+proxy=127.0.0.1:1081  
+```
 
 打开```config.ini```,在```[proxy]```下的```proxy```行设置本地代理地址和端口，支持Shadowxxxx/X,V2XXX本地代理端口  
 素人系列抓取建议使用日本代理  
