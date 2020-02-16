@@ -82,6 +82,9 @@ def main(number):
     if '404 Not Found' in htmlcode:
         htmlcode=get_html('https://www.dmm.co.jp/mono/dvd/-/detail/=/cid='+number)
         url = 'https://www.dmm.co.jp/mono/dvd/-/detail/=/cid='+number
+    if '404 Not Found' in htmlcode:
+        # neither digital nor mono is available
+        return json.dumps({'title': '',})
     try:
         # for some old page, the input number does not match the page
         # for example, the url will be cid=test012
