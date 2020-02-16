@@ -106,7 +106,7 @@ pip install requests pyquery lxml Beautifulsoup4 pillow
 [common]
 main_mode=1
 ```
-1为普通模式，
+1为普通模式，  
 2为整理模式：仅根据女优把电影命名为番号并分类到女优名称的文件夹下
 
 ```
