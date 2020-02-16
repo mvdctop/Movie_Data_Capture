@@ -74,14 +74,14 @@ CLI 版本
 # 如何使用
 ## 下载
 * release的程序可脱离**python环境**运行，可跳过 [模块安装](#模块安装)
-### windows
+### Windows
 Release 下载地址(**仅限Windows**):
 
 [![](https://img.shields.io/badge/%E4%B8%8B%E8%BD%BD-windows-blue.svg?style=for-the-badge&logo=windows)](https://github.com/yoshiko2/AV_Data_Capture/releases)
 
-* 若 windows 用户需要运行源代码版本，请安装 Windows Python 环境:[点击前往](https://www.python.org/downloads/windows/) 选中executable installer下载
+* 若 Windows 用户需要运行源代码版本，请安装 Windows Python 环境:[点击前往](https://www.python.org/downloads/windows/) 选中executable installer下载
 
-### MacOs, Linux
+### MacOS, Linux
 * MacOS, Linux 用户请下载源码包运行
 * MacOS Python环境：[点击前往](https://docs.brew.sh/Homebrew-and-Python)
 * Linux Python环境：Linux用户懂的吧，不解释下载地址
@@ -111,7 +111,7 @@ pip install requests pyquery lxml Beautifulsoup4 pillow
 [common]
 main_mode=1
 ```
-1为普通模式
+1为普通模式，
 2为整理模式：仅根据女优把电影命名为番号并分类到女优名称的文件夹下
 
 ```
@@ -124,8 +124,8 @@ failed_output_folder=failed
 #### 软链接
 方便PT下载完既想刮削又想继续上传的仓鼠党同志
 ```
-[common]  
-soft_link=0  
+[common]
+soft_link=0
 ```
 1为开启软链接模式  
 0为关闭
