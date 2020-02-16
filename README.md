@@ -1,13 +1,13 @@
 # AV Data Capture (CLI)
 
-CLI版本  
+CLI 版本  
 <a title="Hits" target="_blank" href="https://github.com/yoshiko2/AV_Data_Capture"><img src="https://hits.b3log.org/yoshiko2/AV_Data_Capture.svg"></a>
 ![](https://img.shields.io/badge/build-passing-brightgreen.svg?style=flat-square)
 ![](https://img.shields.io/github/downloads/yoshiko2/av_data_capture/total.svg?style=flat-square)
 ![](https://img.shields.io/github/license/yoshiko2/av_data_capture.svg?style=flat-square)
 ![](https://img.shields.io/github/release/yoshiko2/av_data_capture.svg?style=flat-square)
 ![](https://img.shields.io/badge/Python-3.7-yellow.svg?style=flat-square&logo=python)<br>
-[GUI版本](https://github.com/moyy996/AVDC)  
+[GUI 版本](https://github.com/moyy996/AVDC)  
 <a title="Hits" target="_blank" href="https://github.com/moyy996/avdc"><img src="https://hits.b3log.org/moyy996/AVDC.svg"></a>
 ![](https://img.shields.io/badge/build-passing-brightgreen.svg?style=flat-square)
 ![](https://img.shields.io/github/downloads/moyy996/avdc/total.svg?style=flat-square)
@@ -74,24 +74,25 @@ CLI版本
 # 如何使用
 ## 下载
 * release的程序可脱离**python环境**运行，可跳过 [模块安装](#模块安装)
-
+### windows
 Release 下载地址(**仅限Windows**):
 
 [![](https://img.shields.io/badge/%E4%B8%8B%E8%BD%BD-windows-blue.svg?style=for-the-badge&logo=windows)](https://github.com/yoshiko2/AV_Data_Capture/releases)
 
-* MacOS, Linux 用户请下载源码包运行
+* 若 windows 用户需要运行源代码版本，请安装 Windows Python 环境:[点击前往](https://www.python.org/downloads/windows/) 选中executable installer下载
 
-* Windows Python环境:[点击前往](https://www.python.org/downloads/windows/) 选中executable installer下载
+### MacOs, Linux
+* MacOS, Linux 用户请下载源码包运行
 * MacOS Python环境：[点击前往](https://docs.brew.sh/Homebrew-and-Python)
 * Linux Python环境：Linux用户懂的吧，不解释下载地址
 
 ## 简要教程:
 1. 把软件拉到和电影的同一目录
-2. 设置ini文件的代理（路由器拥有自动代理功能的可以把proxy=后面内容去掉）
+2. 设置 config.ini 文件的代理（路由器拥有自动代理功能的可以把 proxy= 后面内容去掉）
 3. 运行软件等待完成
 4. 把JAV_output导入至 Kodi, Emby 中。
 
-详细请看以下完整文档**
+详细请看以下完整文档
 
 # 完整文档
 
@@ -169,56 +170,66 @@ update_check=1
 ---
 ### 媒体库选择 
 ```
->[media]
->media_warehouse=emby
->#emby plex kodi
+[media]
+media_warehouse=emby
+#emby plex kodi
 ```
 可选择emby, plex, kodi
 如果是PLEX，请安装插件：```XBMCnfoMoviesImporter```
 
 ---
 ### 排除指定字符和目录
->[escape]  
->literals=\  
->folders=failed,JAV_output  
+```
+[escape]  
+literals=\  
+folders=failed,JAV_output
+```
+
 ```literals=``` 标题指定字符删除，例如```iterals=\()```，删除标题中```\()```字符  
 ```folders=``` 排指定目录，例如```folders=failed,JAV_output```，多目录刮削时跳过failed,JAV_output  
 
 ---
 ### 调试模式
->[debug_mode]<br>switch=1  
+```
+[debug_mode]
+switch=1  
+```
 
 如要开启调试模式，请手动输入以上代码到```config.ini```中，开启后可在抓取中显示影片元数据
 
 ---
 ### (可选)设置自定义目录和影片重命名规则
 ```
->[Name_Rule]
->location_rule=actor+'/'+number
->naming_rule=number+'-'+title
+[Name_Rule]
+location_rule=actor+'/'+number
+naming_rule=number+'-'+title
 ```
 已有默认配置
 
 ---
 #### 命名参数
->title = 片名<br>
->actor = 演员<br>
->studio = 公司<br>
->director = 导演<br>
->release = 发售日<br>
->year = 发行年份<br>
->number = 番号<br>
->cover = 封面链接<br>
->tag = 类型<br>
->outline = 简介<br>
->runtime = 时长<br>
+```
+title = 片名
+actor = 演员
+studio = 公司
+director = 导演
+release = 发售日
+year = 发行年份
+number = 番号
+cover = 封面链接
+tag = 类型
+outline = 简介
+runtime = 时长
+```
 
 上面的参数以下都称之为**变量**
 
 #### 例子：
-自定义规则方法：有两种元素，变量和字符，无论是任何一种元素之间连接必须要用加号 **+** ，比如：```'naming_rule=['+number+']-'+title```，其中冒号 ' ' 内的文字是字符，没有冒号包含的文字是变量，元素之间连接必须要用加号 **+** <br>
-目录结构规则：默认 ```location_rule=actor+'/'+number```<br> **不推荐修改时在这里添加title**，有时title过长，因为Windows API问题，抓取数据时新建文件夹容易出错。<br>
-影片命名规则：默认 ```naming_rule=number+'-'+title```<br> **在EMBY,KODI等本地媒体库显示的标题，不影响目录结构下影片文件的命名**，依旧是 番号+后缀。
+自定义规则方法：有两种元素，变量和字符，无论是任何一种元素之间连接必须要用加号 **+** ，比如：```'naming_rule=['+number+']-'+title```，其中冒号 ' ' 内的文字是字符，没有冒号包含的文字是变量，元素之间连接必须要用加号 **+** 
+目录结构规则：默认 ```location_rule=actor+'/'+number```
+**不推荐修改时在这里添加title**，有时title过长，因为Windows API问题，抓取数据时新建文件夹容易出错。
+影片命名规则：默认 ```naming_rule=number+'-'+title```
+**在EMBY,KODI等本地媒体库显示的标题，不影响目录结构下影片文件的命名**，依旧是 番号+后缀。
 
 ---
 
