@@ -59,7 +59,7 @@ CLI版本
 ## 软件收费吗？
 * 软件永久免费。**除了作者<ruby>钦<rt>yìng</rt></ruby>点以外**
 ## 软件运行异常怎么办？
-* 认真看 [异常处理（重要）](#5异常处理重要)
+* 认真看 [异常处理（重要）](#异常处理重要)
 ## 为什么软件要单线程运行？
 * 如果多线程爬取会触发网站反爬机制，而且也违背了些道德，故单线程运行
 
@@ -73,8 +73,13 @@ CLI版本
 
 # 如何使用
 ## 下载
-* release的程序可脱离**python环境**运行，可跳过 [模块安装](#1请安装模块在cmd终端逐条输入以下命令安装)<br>Release 下载地址(**仅限Windows**):<br>[![](https://img.shields.io/badge/%E4%B8%8B%E8%BD%BD-windows-blue.svg?style=for-the-badge&logo=windows)](https://github.com/yoshiko2/AV_Data_Capture/releases)<br>
-* Linux,MacOS请下载源码包运行
+* release的程序可脱离**python环境**运行，可跳过 [模块安装](#模块安装)
+
+Release 下载地址(**仅限Windows**):
+
+[![](https://img.shields.io/badge/%E4%B8%8B%E8%BD%BD-windows-blue.svg?style=for-the-badge&logo=windows)](https://github.com/yoshiko2/AV_Data_Capture/releases)
+
+* MacOS, Linux 用户请下载源码包运行
 
 * Windows Python环境:[点击前往](https://www.python.org/downloads/windows/) 选中executable installer下载
 * MacOS Python环境：[点击前往](https://docs.brew.sh/Homebrew-and-Python)
@@ -84,7 +89,7 @@ CLI版本
 1. 把软件拉到和电影的同一目录
 2. 设置ini文件的代理（路由器拥有自动代理功能的可以把proxy=后面内容去掉）
 3. 运行软件等待完成
-4. 把JAV_output导入至 KODI, EMBY 中。
+4. 把JAV_output导入至 Kodi, Emby 中。
 
 详细请看以下完整文档**
 
