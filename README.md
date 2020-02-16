@@ -57,7 +57,7 @@ CLI 版本
 ## 什么是元数据（metadata）？
 * 元数据包括了影片的封面，导演，演员，简介，类型......
 ## 软件收费吗？
-* 软件永久免费。**除了作者<ruby>钦<rt>yìng</rt></ruby>点以外**
+* 本软件永久免费。**除了作者<ruby>钦<rt>yìng</rt></ruby>点以外**
 ## 软件运行异常怎么办？
 * 认真看 [异常处理（重要）](#异常处理重要)
 ## 为什么软件要单线程运行？
@@ -67,7 +67,7 @@ CLI 版本
 [点击跳转至作者博客文章](https://yoshiko2.github.io/2019/10/18/AVDC/)
 
 # 效果图
-**图片来自网络**，由于相关法律法规，具体效果请自行联想
+**图片来自网络**，图片仅供参考，具体效果请自行联想
 ![preview_picture_1](https://i.loli.net/2019/07/04/5d1cf9bb1b08b86592.jpg)
 ![preview_picture_2](https://i.loli.net/2019/07/04/5d1cf9bb2696937880.jpg)
 
@@ -79,18 +79,18 @@ Release 下载地址(**仅限Windows**):
 
 [![](https://img.shields.io/badge/%E4%B8%8B%E8%BD%BD-windows-blue.svg?style=for-the-badge&logo=windows)](https://github.com/yoshiko2/AV_Data_Capture/releases)
 
-* 若 Windows 用户需要运行源代码版本，请安装 Windows Python 环境:[点击前往](https://www.python.org/downloads/windows/) 选中executable installer下载
+* 若 Windows 用户需要运行源代码版本，请安装 Windows Python 环境:[点击前往](https://www.python.org/downloads/windows/) 选中 executable installer 下载
 
 ### MacOS, Linux
 * MacOS, Linux 用户请下载源码包运行
-* MacOS Python环境：[点击前往](https://docs.brew.sh/Homebrew-and-Python)
-* Linux Python环境：Linux用户懂的吧，不解释下载地址
+* MacOS Python环境：开箱即用，[可选安装最新版本](https://docs.brew.sh/Homebrew-and-Python)
+* Linux Python环境：开箱即用，可选安装最新版本，恕 Linux 版本众多请自行搜索
 
 ## 简要教程:
 1. 把软件拉到和电影的同一目录
 2. 设置 config.ini 文件的代理（路由器拥有自动代理功能的可以把 proxy= 后面内容去掉）
 3. 运行软件等待完成
-4. 把JAV_output导入至 Kodi, Emby 中。
+4. 把 JAV_output 导入至 Kodi, Emby, Jellyfin 中。
 
 详细请看以下完整文档
 
@@ -283,8 +283,9 @@ update_check=1
 
 ---
 ### 关于番号提取失败或者异常
-**目前可以提取元素的影片:JAVBUS上有元数据的电影，素人系列:300Maan,259luxu,siro等,FC2系列**<br>
->下一张图片来自 Pockies 的 blog 原作者已授权<br>
+**目前可以提取元素的影片:JAVBUS上有元数据的电影，素人系列:300Maan,259luxu,siro等,FC2系列**
+
+>下一张图片来自 Pockies 的 blog 原作者已授权
 
 ![](https://raw.githubusercontent.com/Pockies/pic/master/741f9461gy1g1cxc31t41j20i804zdgo.jpg)
 
