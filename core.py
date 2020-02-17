@@ -652,6 +652,13 @@ def core_main(file_path, number_th):
     filepath = file_path  # 影片的路径
     number = number_th
     json_data = getDataFromJSON(number, filepath, failed_folder)  # 定义番号
+    if json_data["number"] != number:
+        # fix issue #119
+        # the root cause is we normalize the search id
+        # PrintFiles() will use the normalized id from website,
+        # but pasteFileToFolder() still use the input raw search id
+        # so the solution is: use the normalized search id
+        number = json_data["number"]
     imagecut = json_data['imagecut']
     tag = json_data['tag']
     # =======================================================================判断-C,-CD后缀
