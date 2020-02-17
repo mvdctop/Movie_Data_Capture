@@ -212,15 +212,7 @@ def creatFolder(success_folder, location_rule, json_data, Config):  # 创建文�
 
 # =====================资源下载部分===========================
 def DownloadFileWithFilename(url, filename, path, Config, filepath, failed_folder):  # path = examle:photo , video.in the Project Folder!
-    retry_count = 0
-    proxy = ''
-    timeout = 0
-    try:
-        proxy = Config['proxy']['proxy']
-        timeout = int(Config['proxy']['timeout'])
-        retry_count = int(Config['proxy']['retry'])
-    except:
-        print('[-]Proxy config error! Please check the config.')
+    proxy, timeout, retry_count = get_network_settings()
     i = 0
 
     while i < retry_count:

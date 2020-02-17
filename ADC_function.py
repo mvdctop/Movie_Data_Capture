@@ -63,6 +63,17 @@ else:
     except:
         print('[-]Config.ini read failed! Please use the offical file!')
 
+def get_network_settings():
+    try:
+        proxy = config["proxy"]["proxy"]
+        timeout = int(config["proxy"]["timeout"])
+        retry_count = int(config["proxy"]["retry"])
+        assert timeout > 0
+        assert retry_count > 0
+    except:
+        raise ValueError("[-]Proxy config error! Please check the config.")
+    return proxy, timeout, retry_count
+
 def getDataState(json_data):  # 元数据获取失败检测
     if json_data['title'] == '' or json_data['title'] == 'None' or json_data['title'] == 'null':
         return 0
@@ -87,16 +98,11 @@ def getXpathSingle(htmlcode,xpath):
     return result1
 
 def get_html(url,cookies = None):#网页请求核心
-    try:
-        proxy = config['proxy']['proxy']
-        timeout = int(config['proxy']['timeout'])
-        retry_count = int(config['proxy']['retry'])
-    except:
-        print('[-]Proxy config error! Please check the config.')
+    proxy, timeout, retry_count = get_network_settings()
     i = 0
     while i < retry_count:
         try:
-            if not str(config['proxy']['proxy']) == '':
+            if not proxy == '':
                 proxies = {"http": "http://" + proxy,"https": "https://" + proxy}
                 headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3100.0 Safari/537.36'}
                 getweb = requests.get(str(url), headers=headers, timeout=timeout,proxies=proxies, cookies=cookies)
