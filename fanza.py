@@ -82,7 +82,15 @@ def main(number):
     if '404 Not Found' in htmlcode:
         htmlcode=get_html('https://www.dmm.co.jp/mono/dvd/-/detail/=/cid='+number)
         url = 'https://www.dmm.co.jp/mono/dvd/-/detail/=/cid='+number
+    if '404 Not Found' in htmlcode:
+        # neither digital nor mono is available
+        return json.dumps({'title': '',})
     try:
+        # for some old page, the input number does not match the page
+        # for example, the url will be cid=test012
+        # but the hinban on the page is test00012
+        # so get the hinban first, and then pass it to following functions
+        number = getNum(htmlcode)
         dic = {
             'title': getTitle(htmlcode).strip(getActor(htmlcode)),
             'studio': getStudio(htmlcode),
@@ -91,15 +99,15 @@ def main(number):
             'director': getDirector(htmlcode),
             'actor': getActor(htmlcode),
             'release': getRelease(htmlcode),
-            'number': getNum(htmlcode),
-            'cover': getCover(htmlcode,number),
+            'number': number,
+            'cover': getCover(htmlcode, number),
             'imagecut': 1,
             'tag': getTag(htmlcode),
             'label':getLabel(htmlcode),
             'year': getYear(getRelease(htmlcode)),  # str(re.search('\d{4}',getRelease(a)).group()),
             'actor_photo': '',
             'website': url,
-            'source': 'siro.py',
+            'source': 'fanza.py',
         }
     except :
         dic = {
