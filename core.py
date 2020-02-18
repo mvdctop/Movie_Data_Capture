@@ -12,7 +12,7 @@ from configparser import ConfigParser
 import argparse
 # =========website========
 import fc2fans_club
-import siro
+import mgstage
 import avsox
 import javbus
 import javdb
@@ -46,38 +46,40 @@ def CreatFailedFolder(failed_folder):
 
 
 def getDataFromJSON(file_number, filepath, failed_folder):  # 从JSON返回元数据
-    # ================================================网站规则添加开始================================================
+    """
+    iterate through all services and fetch the data
+    """
 
-    if re.match('^\d{5,}', file_number):
-        json_data = json.loads(avsox.main(file_number))
-        if getDataState(json_data) == 0:  # 如果元数据获取失败，请求番号至其他网站抓取
-            json_data = json.loads(javdb.main(file_number))
-    # ==
-    elif re.match('\d+\D+', file_number):
-        json_data = json.loads(siro.main(file_number))
-        if getDataState(json_data) == 0:  # 如果元数据获取失败，请求番号至其他网站抓取
-            json_data = json.loads(javbus.main(file_number))
-        if getDataState(json_data) == 0:  # 如果元数据获取失败，请求番号至其他网站抓取
-            json_data = json.loads(javdb.main(file_number))
-    # ==
-    elif 'fc2' in file_number or 'FC2' in file_number:
-        json_data = json.loads(fc2fans_club.main(
-            file_number.replace('fc2-', '').replace('fc2_', '').replace('FC2-', '').replace('fc2_', '')))
-    # ==
-    elif 'HEYZO' in file_number or 'heyzo' in file_number or 'Heyzo' in file_number:
-        json_data = json.loads(avsox.main(file_number))
-    # ==
-    elif 'siro' in file_number or 'SIRO' in file_number or 'Siro' in file_number:
-        json_data = json.loads(siro.main(file_number))
-    # ==
-    else:
-        json_data = json.loads(fanza.main(file_number))
-        if getDataState(json_data) == 0:  # 如果元数据获取失败，请求番号至其他网站抓取
-            json_data = json.loads(javbus.main(file_number))
-        if getDataState(json_data) == 0:  # 如果元数据获取失败，请求番号至其他网站抓取
-            json_data = json.loads(avsox.main(file_number))
-        if getDataState(json_data) == 0:  # 如果元数据获取失败，请求番号至其他网站抓取
-            json_data = json.loads(javdb.main(file_number))
+    func_mapping = {
+        "avsox": avsox.main,
+        "fc2": fc2fans_club.main,
+        "fanza": fanza.main,
+        "javdb": javdb.main,
+        "javbus": javbus.main,
+        "mgstage": mgstage.main,
+    }
+
+    # default fetch order list, from the begining to the end
+    sources = ["fanza", "mgstage", "fc2", "javbus", "avsox", "javdb"]
+
+    # if the input file name matches centain rules,
+    # move some web service to the begining of the list
+    if re.match(r"^\d{5,}", file_number) or (
+        "HEYZO" in file_number or "heyzo" in file_number or "Heyzo" in file_number
+    ):
+        sources.insert(0, sources.pop(sources.index("avsox")))
+    elif re.match(r"\d+\D+", file_number) or (
+        "siro" in file_number or "SIRO" in file_number or "Siro" in file_number
+    ):
+        sources.insert(0, sources.pop(sources.index("mgstage")))
+    elif "fc2" in file_number or "FC2" in file_number:
+        sources.insert(0, sources.pop(sources.index("fc2")))
+
+    for source in sources:
+        json_data = json.loads(func_mapping[source](file_number))
+        # if any service return a valid return, break
+        if getDataState(json_data) != 0:
+            break
 
     # ================================================网站规则添加结束================================================
 

@@ -100,7 +100,7 @@ def main(number2):
         'year': getYear(getRelease(a)),  # str(re.search('\d{4}',getRelease(a)).group()),
         'actor_photo': '',
         'website':'https://www.mgstage.com/product/product_detail/'+str(number)+'/',
-        'source': 'siro.py',
+        'source': 'mgstage.py',
     }
     js = json.dumps(dic, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ':'), )  # .encode('UTF-8')
     return js
