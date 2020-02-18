@@ -61,7 +61,7 @@ def getTag(a):
     return str(result1 + result2).strip('+').replace(",\\xa0", "").replace("'", "").replace(' ', '').replace(',,', '').lstrip(',')
 def getCover_small(a, index=0):
     # same issue mentioned below,
-    # javdb sometime returns multiple result
+    # javdb sometime returns multiple results
     # DO NOT just get the firt one, get the one with correct index number
     html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
     result = html.xpath("//div[@class='item-image fix-scale-cover']/img/@src")[index]
@@ -86,7 +86,7 @@ def main(number):
         number = number.upper()
         query_result = get_html('https://javdb.com/search?q=' + number + '&f=all')
         html = etree.fromstring(query_result, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
-        # javdb sometime returns multiple result,
+        # javdb sometime returns multiple results,
         # and the first elememt maybe not the one we are looking for
         # iterate all candidates and find the match one
         urls = html.xpath('//*[@id="videos"]/div/div/a/@href')
