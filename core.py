@@ -423,7 +423,7 @@ def PrintFiles(option, path, c_word, naming_rule, part, cn_sub, json_data, filep
                 print("  <num>" + number + "</num>", file=code)
                 print("  <premiered>" + release + "</premiered>", file=code)
                 print("  <cover>" + cover + "</cover>", file=code)
-                print("  <website>" + "https://www.javbus.com/" + number + "</website>", file=code)
+                print("  <website>" + website + "</website>", file=code)
                 print("</movie>", file=code)
                 print("[+]Writeed!          " + path + "/" + number + c_word + ".nfo")
         elif option == 'kodi':
@@ -470,7 +470,7 @@ def PrintFiles(option, path, c_word, naming_rule, part, cn_sub, json_data, filep
                 print("  <num>" + number + "</num>", file=code)
                 print("  <release>" + release + "</release>", file=code)
                 print("  <cover>" + cover + "</cover>", file=code)
-                print("  <website>" + "https://www.javbus.com/" + number + "</website>", file=code)
+                print("  <website>" + website + "</website>", file=code)
                 print("</movie>", file=code)
                 print("[+]Writeed!          " + path + "/" + number + c_word + ".nfo")
     except IOError as e:
