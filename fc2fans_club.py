@@ -104,52 +104,57 @@ def getYear_fc2com(release):
         return ''
 
 def main(number):
-    htmlcode2 = ADC_function.get_html('https://adult.contents.fc2.com/article/'+number+'/')
-    htmlcode = ADC_function.get_html('https://fc2club.com//html/FC2-' + number + '.html')
-    actor = getActor(htmlcode)
-    if getActor(htmlcode) == '':
-        actor = 'FC2系列'
-    dic = {
-        'title':    getTitle(htmlcode),
-        'studio':   getStudio(htmlcode),
-        'year': '',#str(re.search('\d{4}',getRelease(number)).group()),
-        'outline':  '',#getOutline(htmlcode2),
-        'runtime':  getYear(getRelease(htmlcode)),
-        'director': getStudio(htmlcode),
-        'actor':    actor,
-        'release':  getRelease(number),
-        'number':  'FC2-'+number,
-        'label': '',
-        'cover':    getCover(htmlcode,number,htmlcode2),
-        'imagecut': 0,
-        'tag':      getTag(htmlcode),
-        'actor_photo':'',
-        'website':  'https://fc2club.com//html/FC2-' + number + '.html',
-        'source':'https://fc2club.com//html/FC2-' + number + '.html',
-    }
-    if dic['title'] == '':
-        htmlcode2 = ADC_function.get_html('https://adult.contents.fc2.com/article/' + number + '/',cookies={'wei6H':'1'})
+    try:
+        htmlcode2 = ADC_function.get_html('https://adult.contents.fc2.com/article/'+number+'/')
+        htmlcode = ADC_function.get_html('https://fc2club.com//html/FC2-' + number + '.html')
         actor = getActor(htmlcode)
         if getActor(htmlcode) == '':
             actor = 'FC2系列'
         dic = {
-            'title': getTitle_fc2com(htmlcode2),
-            'studio': getStudio_fc2com(htmlcode2),
-            'year': '',  # str(re.search('\d{4}',getRelease(number)).group()),
-            'outline': getOutline_fc2com(htmlcode2),
-            'runtime': getYear_fc2com(getRelease(htmlcode2)),
-            'director': getStudio_fc2com(htmlcode2),
-            'actor': actor,
-            'release': getRelease_fc2com(number),
-            'number': 'FC2-' + number,
-            'cover': getCover_fc2com(htmlcode2),
-            'imagecut': 0,
-            'tag': getTag_fc2com(number),
+            'title':    getTitle(htmlcode),
+            'studio':   getStudio(htmlcode),
+            'year': '',#str(re.search('\d{4}',getRelease(number)).group()),
+            'outline':  '',#getOutline(htmlcode2),
+            'runtime':  getYear(getRelease(htmlcode)),
+            'director': getStudio(htmlcode),
+            'actor':    actor,
+            'release':  getRelease(number),
+            'number':  'FC2-'+number,
             'label': '',
-            'actor_photo': '',
-            'website': 'http://adult.contents.fc2.com/article/' + number + '/',
-            'source': 'http://adult.contents.fc2.com/article/' + number + '/',
+            'cover':    getCover(htmlcode,number,htmlcode2),
+            'imagecut': 0,
+            'tag':      getTag(htmlcode),
+            'actor_photo':'',
+            'website':  'https://fc2club.com//html/FC2-' + number + '.html',
+            'source':'https://fc2club.com//html/FC2-' + number + '.html',
         }
+        if dic['title'] == '':
+            htmlcode2 = ADC_function.get_html('https://adult.contents.fc2.com/article/' + number + '/',cookies={'wei6H':'1'})
+            actor = getActor(htmlcode)
+            if getActor(htmlcode) == '':
+                actor = 'FC2系列'
+            dic = {
+                'title': getTitle_fc2com(htmlcode2),
+                'studio': getStudio_fc2com(htmlcode2),
+                'year': '',  # str(re.search('\d{4}',getRelease(number)).group()),
+                'outline': getOutline_fc2com(htmlcode2),
+                'runtime': getYear_fc2com(getRelease(htmlcode2)),
+                'director': getStudio_fc2com(htmlcode2),
+                'actor': actor,
+                'release': getRelease_fc2com(number),
+                'number': 'FC2-' + number,
+                'cover': getCover_fc2com(htmlcode2),
+                'imagecut': 0,
+                'tag': getTag_fc2com(number),
+                'label': '',
+                'actor_photo': '',
+                'website': 'http://adult.contents.fc2.com/article/' + number + '/',
+                'source': 'http://adult.contents.fc2.com/article/' + number + '/',
+            }
+    except Exception as e:
+        # (TODO) better handle this
+        # print(e)
+        dic = {"title": ""}
     js = json.dumps(dic, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ':'),)#.encode('UTF-8')
     return js
 
