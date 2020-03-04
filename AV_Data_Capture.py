@@ -145,11 +145,11 @@ if __name__ == '__main__':
             print('[-]' + i + ' Cannot catch the number :')
             if config['common']['soft_link'] == '1':
                 print('[-]Link', i, 'to failed folder')
-                os.symlink(i, str(os.getcwd()) + '/' + 'failed/')
+                os.symlink(i, str(os.getcwd()) + '/' + failed_folder + '/')
             else:
                 try:
                     print('[-]Move ' + i + ' to failed folder')
-                    shutil.move(i, str(os.getcwd()) + '/' + 'failed/')
+                    shutil.move(i, str(os.getcwd()) + '/' + failed_folder + '/')
                 except FileExistsError:
                     print('[!]File exists in failed!')
                 except:
