@@ -115,17 +115,20 @@ def getTag(text):
 def getCover(text, number):
     html = etree.fromstring(text, etree.HTMLParser())
     cover_number = number
-    if "_" in cover_number:
-        # fanza modify _ to \u0005f for image id
-        cover_number = cover_number.replace("_", r"\u005f")
     try:
         result = html.xpath('//*[@id="' + cover_number + '"]/@href')[0]
     except:
-        # (TODO) handle more edge case
-        # print(html)
-        # raise exception here, same behavior as before
-        # people's major requirement is fetching the picture
-        raise ValueError("can not find image")
+        # sometimes fanza modify _ to \u0005f for image id
+        if "_" in cover_number:
+            cover_number = cover_number.replace("_", r"\u005f")
+        try:
+            result = html.xpath('//*[@id="' + cover_number + '"]/@href')[0]
+        except:
+            # (TODO) handle more edge case
+            # print(html)
+            # raise exception here, same behavior as before
+            # people's major requirement is fetching the picture
+            raise ValueError("can not find image")
     return result
 
 
