@@ -188,7 +188,7 @@ def smallCoverCheck(path, number, imagecut, cover_small, c_word, option, Config,
                 img = Image.open('1.jpg')
             w = img.width
             h = img.height
-            img.save(path + '/poster.png')
+            img.save(path + '/poster.jpg')
             os.remove(path + '/1.jpg')
 
 
@@ -345,7 +345,7 @@ def PrintFiles(option, path, c_word, naming_rule, part, cn_sub, json_data, filep
                 print("  <plot>" + outline + "</plot>", file=code)
                 print("  <runtime>" + str(runtime).replace(" ", "") + "</runtime>", file=code)
                 print("  <director>" + director + "</director>", file=code)
-                print("  <poster>poster.png</poster>", file=code)
+                print("  <poster>poster.jpg</poster>", file=code)
                 print("  <thumb>thumb.png</thumb>", file=code)
                 print("  <fanart>fanart.jpg</fanart>", file=code)
                 try:
@@ -496,14 +496,14 @@ def cutImage(option, imagecut, path, number, c_word):
                 w = img.width
                 h = img.height
                 img2 = img.crop((w / 1.9, 0, w, h))
-                img2.save(path + '/poster.png')
+                img2.save(path + '/poster.jpg')
             except:
                 print('[-]Cover cut failed!')
         elif imagecut == 0:
             img = Image.open(path + '/fanart.jpg')
             w = img.width
             h = img.height
-            img.save(path + '/poster.png')
+            img.save(path + '/poster.jpg')
     elif option == 'emby':
         if imagecut == 1:
             try:
@@ -599,7 +599,7 @@ def pasteFileToFolder_mode2(filepath, path, multi_part, number, part, c_word):  
 def copyRenameJpgToBackdrop(option, path, number, c_word):
     if option == 'plex':
         shutil.copy(path + '/fanart.jpg', path + '/Backdrop.jpg')
-        shutil.copy(path + '/poster.png', path + '/thumb.png')
+        shutil.copy(path + '/poster.jpg', path + '/thumb.png')
     if option == 'emby':
         shutil.copy(path + '/' + number + c_word + '.jpg', path + '/Backdrop.jpg')
     if option == 'kodi':
