@@ -60,7 +60,7 @@ def getDataFromJSON(file_number, filepath, failed_folder):  # 从JSON返回元�
     }
 
     # default fetch order list, from the begining to the end
-    sources = ["fanza", "mgstage", "fc2", "javbus", "avsox", "javdb"]
+    sources = ["javbus", "javdb", "fanza", "mgstage", "fc2",  "avsox"]
 
     # if the input file name matches centain rules,
     # move some web service to the begining of the list

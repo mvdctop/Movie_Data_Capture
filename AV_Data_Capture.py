@@ -96,7 +96,7 @@ def getNumber(filepath,absolute_path = False):
 
 
 if __name__ == '__main__':
-    version = '2.8'
+    version = '2.8.2'
     config_file = 'config.ini'
     config = ConfigParser()
     config.read(config_file, encoding='UTF-8')
@@ -104,7 +104,7 @@ if __name__ == '__main__':
     failed_folder = config['common']['failed_output_folder']  # 失败输出目录
     escape_folder = config['escape']['folders']  # 多级目录刮削需要排除的目录
     print('[*]================== AV Data Capture ===================')
-    print('[*]                     Version ' + version)
+    print('[*]                    Version ' + version)
     print('[*]======================================================')
 
     UpdateCheck(version)
