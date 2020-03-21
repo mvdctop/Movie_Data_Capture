@@ -17,6 +17,7 @@ import avsox
 import javbus
 import javdb
 import fanza
+import jav321
 import requests
 
 
@@ -57,10 +58,11 @@ def getDataFromJSON(file_number, filepath, failed_folder):  # 从JSON返回元�
         "javdb": javdb.main,
         "javbus": javbus.main,
         "mgstage": mgstage.main,
+        "jav321": jav321.main,
     }
 
     # default fetch order list, from the begining to the end
-    sources = ["javbus", "javdb", "fanza", "mgstage", "fc2",  "avsox"]
+    sources = ["javbus", "javdb", "fanza", "mgstage", "fc2",  "avsox", "jav321"]
 
     # if the input file name matches centain rules,
     # move some web service to the begining of the list
