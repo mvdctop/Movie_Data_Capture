@@ -119,18 +119,3 @@ def get_html(url,cookies = None):#网页请求核心
     print('[-]Connect Failed! Please check your Proxy or Network!')
 
 
-def post_html(url: str, query: dict) -> requests.Response:
-    proxy, timeout, retry_count = get_network_settings()
-
-    if proxy:
-        proxies = {"http": "http://" + proxy, "https": "https://" + proxy}
-    else:
-        proxies = {}
-
-    for i in range(retry_count):
-        try:
-            result = requests.post(url, data=query, proxies=proxies)
-            return result
-        except requests.exceptions.ProxyError:
-            print("[-]Connect retry {}/{}".format(i+1, retry_count))
-    print("[-]Connect Failed! Please check your Proxy or Network!")
