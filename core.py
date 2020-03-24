@@ -18,6 +18,7 @@ import javbus
 import javdb
 import fanza
 import requests
+import random
 
 
 # =====================本地文件处理===========================
@@ -128,6 +129,11 @@ def getDataFromJSON(file_number, filepath, failed_folder):  # 从JSON返回元�
 
     naming_rule = eval(config['Name_Rule']['naming_rule'])
     location_rule = eval(config['Name_Rule']['location_rule'])
+    if 'actor' in config['Name_Rule']['location_rule'] and len(actor) > 100:
+        print(config['Name_Rule']['location_rule'])
+        location_rule = eval(config['Name_Rule']['location_rule'].replace("actor","'多人作品'"))
+    if 'title' in config['Name_Rule']['location_rule'] and len(title) > 100:
+        location_rule = eval(config['Name_Rule']['location_rule'].replace("title",'number'))
 
     # 返回处理后的json_data
     json_data['title'] = title
@@ -193,7 +199,7 @@ def smallCoverCheck(path, number, imagecut, cover_small, c_word, option, Config,
 
 
 def creatFolder(success_folder, location_rule, json_data, Config):  # 创建文件夹
-    title, studio, year, outline, runtime, director, actor_photo, release, number, cover, website = get_info(json_data)
+    title, studio, year, outline, runtime, director, actor_photo, release, number, cover, website= get_info(json_data)
     if len(location_rule) > 240:  # 新建成功输出文件夹
         path = success_folder + '/' + location_rule.replace("'actor'", "'manypeople'", 3).replace("actor",
                                                                                                   "'manypeople'",
@@ -208,6 +214,7 @@ def creatFolder(success_folder, location_rule, json_data, Config):  # 创建文�
         except:
             path = success_folder + '/' + location_rule.replace('/[' + number + ']-' + title, "/number")
             path = escapePath(path, Config)
+
             os.makedirs(path)
     return path
 

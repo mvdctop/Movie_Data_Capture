@@ -134,27 +134,27 @@ if __name__ == '__main__':
         count = count + 1
         percentage = str(count / int(count_all) * 100)[:4] + '%'
         print('[!] - ' + percentage + ' [' + str(count) + '/' + count_all + '] -')
-        # print("[!]Making Data for   [" + i + "], the number is [" + getNumber(i) + "]")
-        # core_main(i, getNumber(i))
-        # print("[*]======================================================")
-        try:
-            print("[!]Making Data for   [" + i + "], the number is [" + getNumber(i) + "]")
-            core_main(i, getNumber(i))
-            print("[*]======================================================")
-        except:  # 番号提取异常
-            print('[-]' + i + ' Cannot catch the number :')
-            if config['common']['soft_link'] == '1':
-                print('[-]Link', i, 'to failed folder')
-                os.symlink(i, str(os.getcwd()) + '/' + failed_folder + '/')
-            else:
-                try:
-                    print('[-]Move ' + i + ' to failed folder')
-                    shutil.move(i, str(os.getcwd()) + '/' + failed_folder + '/')
-                except FileExistsError:
-                    print('[!]File exists in failed!')
-                except:
-                    print('[+]skip')
-            continue
+        print("[!]Making Data for   [" + i + "], the number is [" + getNumber(i) + "]")
+        core_main(i, getNumber(i))
+        print("[*]======================================================")
+        # try:
+        #     print("[!]Making Data for   [" + i + "], the number is [" + getNumber(i) + "]")
+        #     core_main(i, getNumber(i))
+        #     print("[*]======================================================")
+        # except:  # 番号提取异常
+        #     print('[-]' + i + ' Cannot catch the number :')
+        #     if config['common']['soft_link'] == '1':
+        #         print('[-]Link', i, 'to failed folder')
+        #         os.symlink(i, str(os.getcwd()) + '/' + failed_folder + '/')
+        #     else:
+        #         try:
+        #             print('[-]Move ' + i + ' to failed folder')
+        #             shutil.move(i, str(os.getcwd()) + '/' + failed_folder + '/')
+        #         except FileExistsError:
+        #             print('[!]File exists in failed!')
+        #         except:
+        #             print('[+]skip')
+        #     continue
 
     CEF(success_folder)
     CEF(failed_folder)
