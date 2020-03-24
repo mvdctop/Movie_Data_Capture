@@ -96,7 +96,7 @@ def getNumber(filepath,absolute_path = False):
 
 
 if __name__ == '__main__':
-    version = '2.8.2'
+    version = '2.8.3'
     config_file = 'config.ini'
     config = ConfigParser()
     config.read(config_file, encoding='UTF-8')
