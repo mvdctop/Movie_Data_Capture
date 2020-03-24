@@ -77,17 +77,19 @@ def getDirector(a):
     return str(result1 + result2).strip('+').replace("', '",'').replace('"','')
 def getOutline(htmlcode):
     html = etree.fromstring(htmlcode, etree.HTMLParser())
-    result = str(html.xpath('//*[@id="introduction"]/dd/p[1]/text()')).strip(" ['']")
+    result = str(html.xpath('//p/text()')).strip(" ['']")
     return result
 def main(number2):
     number=number2.upper()
     htmlcode=str(get_html('https://www.mgstage.com/product/product_detail/'+str(number)+'/',cookies={'adc':'1'}))
     soup = BeautifulSoup(htmlcode, 'lxml')
     a = str(soup.find(attrs={'class': 'detail_data'})).replace('\n                                        ','').replace('                                ','').replace('\n                            ','').replace('\n                        ','')
+    b = str(soup.find(attrs={'id': 'introduction'})).replace('\n                                        ','').replace('                                ','').replace('\n                            ','').replace('\n                        ','')
+    print(b)
     dic = {
         'title': getTitle(htmlcode).replace("\\n",'').replace('        ',''),
         'studio': getStudio(a),
-        'outline': getOutline(htmlcode),
+        'outline': getOutline(b),
         'runtime': getRuntime(a),
         'director': getDirector(a),
         'actor': getActor(a),
@@ -104,5 +106,6 @@ def main(number2):
     }
     js = json.dumps(dic, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ':'), )  # .encode('UTF-8')
     return js
+    #print(htmlcode)
 
-#print(main('SIRO-3607'))
+print(main('SIRO-3607'))
