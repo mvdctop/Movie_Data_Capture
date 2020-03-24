@@ -72,7 +72,7 @@ def getDataFromJSON(file_number, filepath, failed_folder):  # 从JSON返回元�
     elif re.match(r"\d+\D+", file_number) or (
         "siro" in file_number or "SIRO" in file_number or "Siro" in file_number
     ):
-        sources.insert(0, sources.pop(sources.index("mgstage")))
+        sources.insert(0, sources.pop(sources.index("fanza")))
     elif "fc2" in file_number or "FC2" in file_number:
         sources.insert(0, sources.pop(sources.index("fc2")))
 
@@ -144,6 +144,7 @@ def getDataFromJSON(file_number, filepath, failed_folder):  # 从JSON返回元�
     json_data['naming_rule'] = naming_rule
     json_data['location_rule'] = location_rule
     json_data['year'] = year
+    json_data['actor_list'] = actor_list
     return json_data
 
 
@@ -334,7 +335,7 @@ def imageDownload(option, cover, number, c_word, path, multi_part, Config, filep
         print('[+]Image Downloaded!', path + '/' + number + c_word + '-fanart.jpg')
 
 
-def PrintFiles(option, path, c_word, naming_rule, part, cn_sub, json_data, filepath, failed_folder, tag):
+def PrintFiles(option, path, c_word, naming_rule, part, cn_sub, json_data, filepath, failed_folder, tag, actor_list):
     title, studio, year, outline, runtime, director, actor_photo, release, number, cover, website = get_info(json_data)
     try:
         if not os.path.exists(path):
@@ -356,11 +357,9 @@ def PrintFiles(option, path, c_word, naming_rule, part, cn_sub, json_data, filep
                 print("  <thumb>thumb.png</thumb>", file=code)
                 print("  <fanart>fanart.jpg</fanart>", file=code)
                 try:
-                    for key, value in actor_photo.items():
+                    for key in actor_list:
                         print("  <actor>", file=code)
                         print("   <name>" + key + "</name>", file=code)
-                        if not value == '':  # or actor_photo == []:
-                            print("   <thumb>" + value + "</thumb>", file=code)
                         print("  </actor>", file=code)
                 except:
                     aaaa = ''
@@ -404,11 +403,9 @@ def PrintFiles(option, path, c_word, naming_rule, part, cn_sub, json_data, filep
                 print("  <thumb>" + number + c_word + ".png</thumb>", file=code)
                 print("  <fanart>" + number + c_word + '.jpg' + "</fanart>", file=code)
                 try:
-                    for key, value in actor_photo.items():
+                    for key in actor_list:
                         print("  <actor>", file=code)
                         print("   <name>" + key + "</name>", file=code)
-                        if not value == '':  # or actor_photo == []:
-                            print("   <thumb>" + value + "</thumb>", file=code)
                         print("  </actor>", file=code)
                 except:
                     aaaa = ''
@@ -451,11 +448,9 @@ def PrintFiles(option, path, c_word, naming_rule, part, cn_sub, json_data, filep
                 print("  <poster>" + number + c_word + "-poster.jpg</poster>", file=code)
                 print("  <fanart>" + number + c_word + '-fanart.jpg' + "</fanart>", file=code)
                 try:
-                    for key, value in actor_photo.items():
+                    for key in actor_list:
                         print("  <actor>", file=code)
                         print("   <name>" + key + "</name>", file=code)
-                        if not value == '':  # or actor_photo == []:
-                            print("   <thumb>" + value + "</thumb>", file=code)
                         print("  </actor>", file=code)
                 except:
                     aaaa = ''
@@ -689,7 +684,7 @@ def core_main(file_path, number_th):
         imageDownload(option, json_data['cover'], number, c_word, path, multi_part, Config, filepath, failed_folder)  # creatFoder会返回番号路径
         cutImage(option, imagecut, path, number, c_word)  # 裁剪图
         copyRenameJpgToBackdrop(option, path, number, c_word)
-        PrintFiles(option, path, c_word, json_data['naming_rule'], part, cn_sub, json_data, filepath, failed_folder, tag)  # 打印文件
+        PrintFiles(option, path, c_word, json_data['naming_rule'], part, cn_sub, json_data, filepath, failed_folder, tag, json_data['actor_list'])  # 打印文件
         pasteFileToFolder(filepath, path, number, c_word)  # 移动文件
         # =======================================================================整理模式
     elif program_mode == '2':
