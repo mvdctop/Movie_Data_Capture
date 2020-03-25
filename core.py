@@ -17,6 +17,7 @@ import avsox
 import javbus
 import javdb
 import fanza
+import jav321
 import requests
 import random
 
@@ -58,6 +59,7 @@ def getDataFromJSON(file_number, filepath, failed_folder):  # 从JSON返回元�
         "javdb": javdb.main,
         "javbus": javbus.main,
         "mgstage": mgstage.main,
+        "jav321": jav321.main,
     }
 
     # default fetch order list, from the begining to the end
