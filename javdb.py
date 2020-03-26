@@ -70,7 +70,7 @@ def getCover_small(a, index=0):
     return result
 def getCover(htmlcode):
     html = etree.fromstring(htmlcode, etree.HTMLParser())
-    result = str(html.xpath("//div[@class='column column-video-cover']/a/img/@src")).strip(" ['']")
+    result = str(html.xpath("//div[contains(@class, 'column-video-cover')]/a/img/@src")).strip(" ['']")
     return result
 def getDirector(a):
     html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
