@@ -85,7 +85,7 @@ def main(number2):
     soup = BeautifulSoup(htmlcode, 'lxml')
     a = str(soup.find(attrs={'class': 'detail_data'})).replace('\n                                        ','').replace('                                ','').replace('\n                            ','').replace('\n                        ','')
     b = str(soup.find(attrs={'id': 'introduction'})).replace('\n                                        ','').replace('                                ','').replace('\n                            ','').replace('\n                        ','')
-    print(b)
+    # print(b)
     dic = {
         'title': getTitle(htmlcode).replace("\\n",'').replace('        ',''),
         'studio': getStudio(a),
