@@ -93,7 +93,7 @@ def getDataFromJSON(file_number, filepath, failed_folder):  # 从JSON返回元�
     studio = json_data['studio']
     source = json_data['source']
     runtime = json_data['runtime']
-    outline = json_data['runtime']
+    outline = json_data['outline']
     label = json_data['label']
     year = json_data['year']
     try:
