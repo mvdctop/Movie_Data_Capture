@@ -35,18 +35,24 @@ def argparse_get_file():
     else:
         return args.file
 
-def movie_lists(root, escape_folder):
-    for folder in escape_folder:
-        if folder in root:
-            return []
+def movie_lists(escape_folder):
+    escape_folder = re.split('[,，]', escape_folder)
     total = []
     file_type = ['.mp4', '.avi', '.rmvb', '.wmv', '.mov', '.mkv', '.flv', '.ts', '.webm', '.MP4', '.AVI', '.RMVB', '.WMV','.MOV', '.MKV', '.FLV', '.TS', '.WEBM', ]
-    for entry in os.scandir(root):
-        f = entry.path
-        if entry.is_dir():
-            total += movie_lists(f, escape_folder)
-        elif os.path.splitext(f)[1] in file_type:
-            total.append(f)
+    file_root = os.getcwd()
+    for root, dirs, files in os.walk(file_root):
+        flag_escape = 0
+        for folder in escape_folder:
+            if folder in root:
+                flag_escape = 1
+                break
+        if flag_escape == 1:
+            continue
+        for f in files:
+            if os.path.splitext(f)[1] in file_type:
+                path = os.path.join(root, f)
+                path = path.replace(file_root, '.')
+                total.append(path)
     return total
 
 
@@ -90,22 +96,21 @@ def getNumber(filepath,absolute_path = False):
 
 
 if __name__ == '__main__':
-    version = '2.8.3'
+    version = '2.9'
     config_file = 'config.ini'
     config = ConfigParser()
     config.read(config_file, encoding='UTF-8')
     success_folder = config['common']['success_output_folder']
     failed_folder = config['common']['failed_output_folder']  # 失败输出目录
     escape_folder = config['escape']['folders']  # 多级目录刮削需要排除的目录
-    escape_folder = re.split('[,，]', escape_folder)
     print('[*]================== AV Data Capture ===================')
-    print('[*]                    Version ' + version)
+    print('[*]                     Version ' + version)
     print('[*]======================================================')
 
     UpdateCheck(version)
     CreatFailedFolder(failed_folder)
     os.chdir(os.getcwd())
-    movie_list = movie_lists('.', escape_folder)
+    movie_list = movie_lists(escape_folder)
 
     #========== 野鸡番号拖动 ==========
     number_argparse=argparse_get_file()
