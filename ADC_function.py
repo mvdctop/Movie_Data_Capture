@@ -24,34 +24,37 @@ if os.path.exists(config_file):
 else:
     print('[+]config.ini: not found, creating...',end='')
     with open("config.ini", "wt", encoding='UTF-8') as code:
-        print("[common]", file=code)
-        print("main_mode = 1", file=code)
-        print("failed_output_folder = failed", file=code)
-        print("success_output_folder = JAV_output", file=code)
-        print("", file=code)
-        print("[proxy]",file=code)
-        print("proxy=127.0.0.1:1081",file=code)
-        print("timeout=10", file=code)
-        print("retry=3", file=code)
-        print("", file=code)
-        print("[Name_Rule]", file=code)
-        print("location_rule=actor+'/'+number",file=code)
-        print("naming_rule=number+'-'+title",file=code)
-        print("", file=code)
-        print("[update]",file=code)
-        print("update_check=1",file=code)
-        print("", file=code)
-        print("[media]", file=code)
-        print("media_warehouse=emby", file=code)
-        print("#emby plex kodi", file=code)
-        print("", file=code)
-        print("[escape]", file=code)
-        print("literals=\\", file=code)
-        print("", file=code)
-        print("[movie_location]", file=code)
-        print("path=", file=code)
-        print("", file=code)
-        print('.',end='')
+        file_text = """[common]
+main_mode=1
+failed_output_folder=failed
+success_output_folder=JAV_output
+soft_link=0
+
+[proxy]
+proxy=192.168.2.2:1080
+timeout=10
+retry=3
+
+[Name_Rule]
+location_rule=actor+'/'+number
+naming_rule=number+'-'+title
+
+[update]
+update_check=1
+
+[media]
+media_warehouse=emby
+#emby or plex or kodi ,emby=jellyfin
+
+[escape]
+literals=\()/
+folders=failed,JAV_output
+
+[debug_mode]
+switch=0
+
+"""
+        print(file_text, file=code)
     time.sleep(2)
     print('.')
     print('[+]config.ini: created!')
