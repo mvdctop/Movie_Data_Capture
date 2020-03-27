@@ -141,8 +141,9 @@ if __name__ == '__main__':
             print("[!]Making Data for   [" + i + "], the number is [" + getNumber(i) + "]")
             core_main(i, getNumber(i))
             print("[*]======================================================")
-        except:  # 番号提取异常
-            print('[-]' + i + ' Cannot catch the number :')
+        except Exception as e:  # 番号提取异常
+            print('[-]' + i + ' ERRPR :')
+            print('[-]',e)
             if config['common']['soft_link'] == '1':
                 print('[-]Link', i, 'to failed folder')
                 os.symlink(i, str(os.getcwd()) + '/' + failed_folder + '/')
