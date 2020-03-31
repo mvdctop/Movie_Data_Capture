@@ -177,6 +177,8 @@ def main(number):
         "https://www.dmm.co.jp/mono/dvd/-/detail/=/cid=",
         "https://www.dmm.co.jp/digital/anime/-/detail/=/cid=",
         "https://www.dmm.co.jp/mono/anime/-/detail/=/cid=",
+        "https://www.dmm.co.jp/digital/videoc/-/detail/=/cid=",
+        "https://www.dmm.co.jp/digital/nikkatsu/-/detail/=/cid=",
     ]
     chosen_url = ""
     for url in fanza_urls:

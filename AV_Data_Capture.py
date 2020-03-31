@@ -13,14 +13,14 @@ from configparser import ConfigParser
 import argparse
 
 
-def UpdateCheck(version):
+def UpdateCheck_Notice(htmlcode,version):
     if UpdateCheckSwitch() == '1':
-        html2 = get_html('https://raw.githubusercontent.com/yoshiko2/AV_Data_Capture/master/update_check.json')
-        html = json.loads(str(html2))
+        html = json.loads(str(htmlcode))
 
         if not version == html['version']:
-            print('[*]                  * New update ' + html['version'] + ' *')
-            print('[*]                     ↓ Download ↓')
+            line1 = '* New update ' + html['version'] + ' *'
+            print('[*]' + line1.center(54))
+            print('[*]' + '↓ Download ↓'.center(54))
             print('[*] ' + html['download'])
             print('[*]======================================================')
     else:
@@ -91,7 +91,7 @@ def getNumber(filepath,absolute_path = False):
 
 
 if __name__ == '__main__':
-    version = '2.9'
+    version = '3.0'
     config_file = 'config.ini'
     config = ConfigParser()
     config.read(config_file, encoding='UTF-8')
@@ -99,11 +99,13 @@ if __name__ == '__main__':
     failed_folder = config['common']['failed_output_folder']  # 失败输出目录
     escape_folder = config['escape']['folders']  # 多级目录刮削需要排除的目录
     escape_folder = re.split('[,，]', escape_folder)
+    version_print = 'Version ' + version
+    htmlcode = get_html('https://raw.githubusercontent.com/yoshiko2/AV_Data_Capture/master/update_check.json')
     print('[*]================== AV Data Capture ===================')
-    print('[*]                     Version ' + version)
+    print('[*]' + version_print.center(54))
     print('[*]======================================================')
 
-    UpdateCheck(version)
+    UpdateCheck_Notice(htmlcode,version)
     CreatFailedFolder(failed_folder)
     os.chdir(os.getcwd())
     movie_list = movie_lists('.', escape_folder)
@@ -147,10 +149,8 @@ if __name__ == '__main__':
                 try:
                     print('[-]Move ' + i + ' to failed folder')
                     shutil.move(i, str(os.getcwd()) + '/' + failed_folder + '/')
-                except FileExistsError:
-                    print('[!]File exists in failed!')
-                except:
-                    print('[+]skip')
+                except Exception as e2:
+                    print('[!]', e2)
             continue
 
     CEF(success_folder)
