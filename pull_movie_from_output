@@ -1,2 +1,0 @@
-import os
-os.system('mv JAV_output/*/*/*.mp4 ./')
