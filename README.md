@@ -68,16 +68,13 @@ CLI 版本
 ## 下载
 * release的程序可脱离**python环境**运行，可跳过 [模块安装](#模块安装)
 ### Windows
-Release 下载地址(**仅限Windows**):
+下载地址:
 
-[![](https://img.shields.io/badge/%E4%B8%8B%E8%BD%BD-windows-blue.svg?style=for-the-badge&logo=windows)](https://github.com/yoshiko2/AV_Data_Capture/releases)
+[![](https://img.shields.io/badge/%E4%B8%8B%E8%BD%BD-windows-brightgreen.svg?style=for-the-badge&logo=windows)](https://github.com/yoshiko2/AV_Data_Capture/releases)
+[![](https://img.shields.io/badge/%E4%B8%8B%E8%BD%BD-linux-blue.svg?style=for-the-badge&logo=linux)](https://github.com/yoshiko2/AV_Data_Capture/releases)
 
-* 若 Windows 用户需要运行源代码版本，请安装 Windows Python 环境:[点击前往](https://www.python.org/downloads/windows/) 选中 executable installer 下载
-
-### MacOS, Linux
-* MacOS, Linux 用户请下载源码包运行
-* MacOS Python环境：开箱即用，[可选安装最新版本](https://docs.brew.sh/Homebrew-and-Python)
-* Linux Python环境：开箱即用，可选安装最新版本，恕 Linux 版本众多请自行搜索
+### MacOS，FreeBSD 等系统或高级用户 For Advenced User
+* 请clone源码包运行，并手动安装Python3环境
 
 ## 简要教程:
 1. 把软件拉到和电影的同一目录
