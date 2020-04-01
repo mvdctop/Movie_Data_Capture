@@ -64,11 +64,8 @@ CLI 版本
 ![preview_picture_2](https://i.loli.net/2019/07/04/5d1cf9bb2696937880.jpg)
 
 # 下载
-
-## 下载地址:  
 [![](https://img.shields.io/badge/%E4%B8%8B%E8%BD%BD-windows-brightgreen.svg?style=for-the-badge&logo=windows)](https://github.com/yoshiko2/AV_Data_Capture/releases)
 [![](https://img.shields.io/badge/%E4%B8%8B%E8%BD%BD-linux-blue.svg?style=for-the-badge&logo=linux)](https://github.com/yoshiko2/AV_Data_Capture/releases)  
-以上直接运行，无需配置环境
 
 ### MacOS，FreeBSD等unix系操作系统 | For Advenced User
 * 请clone源码包运行，并手动安装Python3环境
