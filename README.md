@@ -23,10 +23,9 @@ CLI 版本
 # 目录
 * [声明](#声明)
 * [FAQ](#FAQ)
-* [故事](#故事)
 * [效果图](#效果图)
+* [下载](#下载)
 * [如何使用](#如何使用)
-    * [下载](#下载)
     * [简要教程](#简要教程)
 * [完整文档](#完整文档)
     * [模块安装](#模块安装)
@@ -64,18 +63,17 @@ CLI 版本
 ![preview_picture_1](https://i.loli.net/2019/07/04/5d1cf9bb1b08b86592.jpg)
 ![preview_picture_2](https://i.loli.net/2019/07/04/5d1cf9bb2696937880.jpg)
 
-# 如何使用
-## 下载
-* release的程序可脱离**python环境**运行，可跳过 [模块安装](#模块安装)
-### Windows
-下载地址:
+# 下载
 
+## 下载地址:  
 [![](https://img.shields.io/badge/%E4%B8%8B%E8%BD%BD-windows-brightgreen.svg?style=for-the-badge&logo=windows)](https://github.com/yoshiko2/AV_Data_Capture/releases)
-[![](https://img.shields.io/badge/%E4%B8%8B%E8%BD%BD-linux-blue.svg?style=for-the-badge&logo=linux)](https://github.com/yoshiko2/AV_Data_Capture/releases)
+[![](https://img.shields.io/badge/%E4%B8%8B%E8%BD%BD-linux-blue.svg?style=for-the-badge&logo=linux)](https://github.com/yoshiko2/AV_Data_Capture/releases)  
+以上直接运行，无需配置环境
 
-### MacOS，FreeBSD 等系统或高级用户 For Advenced User
+### MacOS，FreeBSD等unix系操作系统 | For Advenced User
 * 请clone源码包运行，并手动安装Python3环境
 
+# 如何使用
 ## 简要教程:
 1. 把软件拉到和电影的同一目录
 2. 设置 config.ini 文件的代理（路由器拥有自动代理功能的可以把 proxy= 后面内容去掉）
