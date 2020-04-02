@@ -13,18 +13,21 @@ from configparser import ConfigParser
 import argparse
 
 
-def UpdateCheck_Notice(htmlcode,version):
-    if UpdateCheckSwitch() == '1':
-        html = json.loads(str(htmlcode))
+def check_update(current_version):
+    if UpdateCheckSwitch() == "1":
+        data = json.loads(get_html("https://api.github.com/repos/yoshiko2/AV_Data_Capture/releases/latest"))
 
-        if not version == html['version']:
-            line1 = '* New update ' + html['version'] + ' *'
-            print('[*]' + line1.center(54))
-            print('[*]' + '↓ Download ↓'.center(54))
-            print('[*] ' + html['download'])
-            print('[*]======================================================')
+        remote_version = data["tag_name"]
+        download_url = data["html_url"]
+
+        if current_version != remote_version:
+            line1 = "* New update " + remote_version + " *"
+            print("[*]" + line1.center(54))
+            print("[*]" + "↓ Download ↓".center(54))
+            print("[*] " + download_url)
+            print("[*]======================================================")
     else:
-        print('[+]Update Check disabled!')
+        print("[+]Update Check disabled!")
 
 def argparse_get_file():
     parser = argparse.ArgumentParser()
@@ -101,12 +104,11 @@ if __name__ == '__main__':
     escape_folder = config['escape']['folders']  # 多级目录刮削需要排除的目录
     escape_folder = re.split('[,，]', escape_folder)
     version_print = 'Version ' + version
-    htmlcode = get_html('https://raw.githubusercontent.com/yoshiko2/AV_Data_Capture/master/update_check.json')
     print('[*]================== AV Data Capture ===================')
     print('[*]' + version_print.center(54))
     print('[*]======================================================')
 
-    UpdateCheck_Notice(htmlcode,version)
+    check_update(version)
     CreatFailedFolder(failed_folder)
     os.chdir(os.getcwd())
     movie_list = movie_lists('.', escape_folder)
