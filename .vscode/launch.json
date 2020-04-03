@@ -1,0 +1,12 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "AV_Data_Capture",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/AV_Data_capture.py",
+            "console": "integratedTerminal"
+        }
+    ]
+}
