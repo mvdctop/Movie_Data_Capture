@@ -80,7 +80,8 @@ def getNumber(filepath,absolute_path = False):
         filepath.strip('22-sht.me').strip('-HD').strip('-hd')
         filename = str(re.sub("\[\d{4}-\d{1,2}-\d{1,2}\] - ", "", filepath))  # 去除文件名中时间
         if 'FC2' or 'fc2' in filename:
-            filename = filename.replace('-PPV', '').replace('PPV-', '').replace('FC2PPV-','FC2-').replace('FC2PPV_','FC2-')
+            filename = filename.replace('-PPV', '').replace('PPV-', '').replace('FC2PPV-', 'FC2-').replace('FC2PPV_', 'FC2-')
+            filename = filename.replace('-ppv', '').replace('ppv-', '').replace('fc2ppv-', 'FC2-').replace('fc2ppv_', 'FC2-')
         file_number = re.search(r'\w+-\w+', filename, re.A).group()
         return file_number
     else:  # 提取不含减号-的番号，FANZA CID
