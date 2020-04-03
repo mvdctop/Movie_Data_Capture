@@ -105,6 +105,7 @@ def getYear_fc2com(release):
 
 def main(number):
     try:
+        number = number.replace('FC2-', '').replace('fc2-', '')
         htmlcode2 = ADC_function.get_html('https://adult.contents.fc2.com/article/'+number+'/')
         htmlcode = ADC_function.get_html('https://fc2club.com//html/FC2-' + number + '.html')
         actor = getActor(htmlcode)
