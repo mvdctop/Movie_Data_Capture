@@ -277,17 +277,15 @@ update_check=1
 
 ---
 ### 关于番号提取失败或者异常
-**目前可以提取元素的影片:JAVBUS上有元数据的电影，素人系列:300Maan,259luxu,siro等,FC2系列**
+**可以提取元数据的网站:avsox, javbus, javdb, dmm(fanza), fc2, jav321, mgstage(素人)**
 
->下一张图片来自 Pockies 的 blog 原作者已授权
-
-![](https://raw.githubusercontent.com/Pockies/pic/master/741f9461gy1g1cxc31t41j20i804zdgo.jpg)
-
-目前作者已经完善了番号提取机制，功能较为强大，可提取上述文件名的的番号，如果出现提取失败或者异常的情况，请用以下规则命名
-
-
+目前作者已经完善了番号提取机制，功能较为强大，各大网站的影片请用以下规则命名（dmm(fanza)下载的影片除外）
 ```
 COSQ-004.mp4
+```
+对于dmm(fanza)上下好的电影，请使用影片cid命名，示例如下
+```
+kawd00969.mp4
 ```
 
 条件：文件名中间要有下划线或者减号"_","-"，没有多余的内容只有番号为最佳，可以让软件更好获取元数据
