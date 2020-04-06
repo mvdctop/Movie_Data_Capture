@@ -81,7 +81,7 @@ def getDataFromJSON(file_number, filepath, failed_folder):  # 从JSON返回元�
     for source in sources:
         json_data = json.loads(func_mapping[source](file_number))
         # if any service return a valid return, break
-        if getDataState(json_data) != 0:
+        if get_data_state(json_data):
             break
 
     # ================================================网站规则添加结束================================================
