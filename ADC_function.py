@@ -77,11 +77,15 @@ def get_network_settings():
         raise ValueError("[-]Proxy config error! Please check the config.")
     return proxy, timeout, retry_count
 
-def getDataState(json_data):  # 元数据获取失败检测
-    if json_data['title'] == '' or json_data['title'] == 'None' or json_data['title'] == 'null':
-        return 0
-    else:
-        return 1
+
+def get_data_state(data: dict) -> bool:  # 元数据获取失败检测
+    if data["title"] is None or data["title"] == "" or data["title"] == "null":
+        return False
+
+    if data["number"] is None or data["number"] == "" or data["number"] == "null":
+        return False
+
+    return True
 
 def ReadMediaWarehouse():
     return config['media']['media_warehouse']
