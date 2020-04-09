@@ -167,7 +167,7 @@ def get_info(json_data):  # 返回json里的数据
 
 def smallCoverCheck(path, number, imagecut, cover_small, c_word, Config, filepath, failed_folder):
     if imagecut == 3:
-        DownloadFileWithFilename(cover_small, path + '/' + number + c_word + '-poster.jpg', path, Config, filepath, failed_folder)
+        DownloadFileWithFilename(cover_small, number + c_word + '-poster.jpg', path, Config, filepath, failed_folder)
         print('[+]Image Downloaded! '+ path + '/' + number + c_word + '-poster.jpg')
 
 
