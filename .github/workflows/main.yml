@@ -1,0 +1,40 @@
+name: PyInstaller
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-latest, windows-latest, ubuntu-latest]
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        ref: add-github-actions
+
+    - name: Set up Python 3.7
+      uses: actions/setup-python@v1
+      with:
+        python-version: 3.7
+
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+
+    - name: Build with pyinstaller
+      run: |
+        pyinstaller --onefile AV_Data_Capture.py
+
+    - name: Upload build artifact
+      uses: actions/upload-artifact@v1
+      with:
+        name: AV_Data_Capture-${{ matrix.os }}
+        path: dist
