@@ -239,6 +239,7 @@ update_check=1
 1为开，0为关
 
 ## 运行参数
+以下运行参数均为可选参数
 ### 拖动法
 如果遇到番号比较奇葩的影片，同时存在于可刮削的网站，可用拖动影片之主程序刮削，或者输入以下
 ```
@@ -246,10 +247,12 @@ AV_Data_Capture xxx-xxx-xxx.mp4
 ```
 ### 配置文件选择
 可以用```-c```或者```--config```选择其他配置文件
+默认值为config.ini
 ```
 AV_Data_Capture -c config_other.ini
 ```
 ### 程序退出选择参数
+默认值为1
 ```
 AV_Data_Capture -e 1
 ```
