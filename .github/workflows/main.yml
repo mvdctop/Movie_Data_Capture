@@ -17,8 +17,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-      with:
-        ref: add-github-actions
 
     - name: Set up Python 3.7
       uses: actions/setup-python@v1
