@@ -13,7 +13,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [macos-latest, windows-latest, ubuntu-latest]
+        os: [MacOS-latest, Windows-latest, Linux-latest]
 
     steps:
     - uses: actions/checkout@v2
@@ -29,7 +29,7 @@ jobs:
 
     - name: Build with pyinstaller
       run: |
-        pyinstaller --onefile AV_Data_Capture.py
+        pyinstaller --onefile AV_Data_Capture.py  --hidden-import ADC_function.py --hidden-import core.py
 
     - name: Upload build artifact
       uses: actions/upload-artifact@v1
