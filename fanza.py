@@ -223,6 +223,34 @@ def main(number):
     )  # .encode('UTF-8')
     return js
 
+def main_htmlcode(number):
+    # fanza allow letter + number + underscore, normalize the input here
+    # @note: I only find the usage of underscore as h_test123456789
+    fanza_search_number = number
+    # AV_Data_Capture.py.getNumber() over format the input, restore the h_ prefix
+    if fanza_search_number.startswith("h-"):
+        fanza_search_number = fanza_search_number.replace("h-", "h_")
+
+    fanza_search_number = re.sub(r"[^0-9a-zA-Z_]", "", fanza_search_number).lower()
+
+    fanza_urls = [
+        "https://www.dmm.co.jp/digital/videoa/-/detail/=/cid=",
+        "https://www.dmm.co.jp/mono/dvd/-/detail/=/cid=",
+        "https://www.dmm.co.jp/digital/anime/-/detail/=/cid=",
+        "https://www.dmm.co.jp/mono/anime/-/detail/=/cid=",
+        "https://www.dmm.co.jp/digital/videoc/-/detail/=/cid=",
+        "https://www.dmm.co.jp/digital/nikkatsu/-/detail/=/cid=",
+    ]
+    chosen_url = ""
+    for url in fanza_urls:
+        chosen_url = url + fanza_search_number
+        htmlcode = get_html(chosen_url)
+        if "404 Not Found" not in htmlcode:
+            break
+    if "404 Not Found" in htmlcode:
+        return json.dumps({"title": "",})
+    return htmlcode
+
 
 if __name__ == "__main__":
     # print(main("DV-1562"))

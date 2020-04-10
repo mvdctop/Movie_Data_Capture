@@ -10,6 +10,8 @@ import json
 from ADC_function import *
 from configparser import ConfigParser
 import argparse
+import requests
+import random
 # =========website========
 import fc2fans_club
 import mgstage
@@ -18,8 +20,6 @@ import javbus
 import javdb
 import fanza
 import jav321
-import requests
-import random
 
 
 # =====================本地文件处理===========================
@@ -335,7 +335,7 @@ def cutImage(imagecut, path, number, c_word):
             print('[-]Cover cut failed!')
     elif imagecut == 0:
         shutil.copyfile(path + '/' + number + c_word + '-fanart.jpg',path + '/' + number + c_word + '-poster.jpg')
-        print('[+]Image Copyed!         ' + path + '/' + number + c_word + '-poster.jpg')
+        print('[+]Image Copyed!     ' + path + '/' + number + c_word + '-poster.jpg')
 
 
 def pasteFileToFolder(filepath, path, number, c_word):  # 文件路径，番号，后缀，要移动至的位置
@@ -418,14 +418,13 @@ def debug_mode(json_data):
         aaa = ''
 
 
-def core_main(file_path, number_th):
+def core_main(file_path, number_th, config_file):
     # =======================================================================初始化所需变量
     multi_part = 0
     part = ''
     c_word = ''
     cn_sub = ''
     liuchu = ''
-    config_file = 'config.ini'
     Config = ConfigParser()
     Config.read(config_file, encoding='UTF-8')
     program_mode = Config['common']['main_mode']  # 运行模式

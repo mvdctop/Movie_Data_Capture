@@ -29,14 +29,19 @@ def check_update(current_version):
     else:
         print("[+]Update Check disabled!")
 
-def argparse_get_file():
+def argparse_function(switch):
     parser = argparse.ArgumentParser()
-    parser.add_argument("file", default='',nargs='?', help="Write the file path on here")
+    parser.add_argument("file", default='',nargs='?', help="Single Movie file path.")
+    parser.add_argument("-c", "--config", default='config.ini', nargs='?', help="The config file Path.")
+    parser.add_argument("-e", "--exit", default='1', nargs='?', help="Exit Switch 1:Press enter key to exit.  2:Auto exit.")
     args = parser.parse_args()
-    if args.file == '':
-        return ''
-    else:
-        return args.file
+    if switch == 1:
+        if args.file == '':
+            return ''
+    elif switch == 2:
+        return args.config
+    elif switch == 3:
+        return args.exit
 
 def movie_lists(root, escape_folder):
     for folder in escape_folder:
@@ -95,8 +100,8 @@ def getNumber(filepath,absolute_path = False):
 
 
 if __name__ == '__main__':
-    version = '3.0'
-    config_file = 'config.ini'
+    version = '3.1'
+    config_file = argparse_function(2)
     config = ConfigParser()
     config.read(config_file, encoding='UTF-8')
     success_folder = config['common']['success_output_folder']
@@ -114,7 +119,7 @@ if __name__ == '__main__':
     movie_list = movie_lists('.', escape_folder)
 
     #========== 野鸡番号拖动 ==========
-    number_argparse=argparse_get_file()
+    number_argparse = argparse_function(1)
     if not number_argparse == '':
         print("[!]Making Data for   [" + number_argparse + "], the number is [" + getNumber(number_argparse,absolute_path = True) + "]")
         core_main(number_argparse, getNumber(number_argparse,absolute_path = True))
@@ -140,7 +145,7 @@ if __name__ == '__main__':
         # print("[*]======================================================")
         try:
             print("[!]Making Data for   [" + i + "], the number is [" + getNumber(i) + "]")
-            core_main(i, getNumber(i))
+            core_main(i, getNumber(i), config_file=config_file)
             print("[*]======================================================")
         except Exception as e:  # 番号提取异常
             print('[-]' + i + ' ERRPR :')
@@ -159,4 +164,6 @@ if __name__ == '__main__':
     CEF(success_folder)
     CEF(failed_folder)
     print("[+]All finished!!!")
+    if argparse_function(3) == '2':
+        os._exit(0)
     input("[+][+]Press enter key exit, you can check the error messge before you exit.")
