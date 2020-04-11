@@ -51,6 +51,7 @@ CLI 版本
 
 **若用户不同意上述条款任意一条，请勿使用本软件**
 
+---
 **When you run the software, you accept the following terms**
 * This software is only for **technical exchange and academic exchange**
 * The software author wrote this software to learn Python and improve programming
