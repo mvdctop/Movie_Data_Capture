@@ -30,6 +30,10 @@ jobs:
     - name: Build with pyinstaller
       run: |
         pyinstaller --onefile AV_Data_Capture.py  --hidden-import ADC_function.py --hidden-import core.py
+      
+    - name : Write config file
+      run: |
+        wget -o config.ini https://raw.githubusercontent.com/yoshiko2/AV_Data_Capture/master/config.ini
 
     - name: Upload build artifact
       uses: actions/upload-artifact@v1
