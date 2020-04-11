@@ -51,6 +51,16 @@ CLI 版本
 
 **若用户不同意上述条款任意一条，请勿使用本软件**
 
+**When you run the software, you accept the following terms**
+* This software is only for **technical exchange and academic exchange**
+* The software author wrote this software to learn Python and improve programming
+* Before using this software, please understand and abide by local laws and regulations. If there is any violation of local laws and regulations during the use of this software, please do not use this software
+* When the user uses this software, if the user has any illegal acts in the local area, the user shall bear
+* It is strictly forbidden for users to use this software for commercial and personal intentions
+* The author of this software yoshiko2 reserves the right of final decision and final interpretation
+
+**If the user does not agree with any of the above terms, please do not use this software**
+
 # FAQ
 ### 软件能下片吗？
 * 本软件不提供任何影片下载地址，仅供本地影片分类整理使用
