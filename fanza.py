@@ -96,6 +96,18 @@ def getRelease(text):
         result = html.xpath(
             "//td[contains(text(),'発売日：')]/following-sibling::td/text()"
         )[0].lstrip("\n")
+    if result == "----":
+        try:
+            result = html.xpath(
+                "//td[contains(text(),'配信開始日：')]/following-sibling::td/a/text()"
+            )[0].lstrip("\n")
+        except:
+            try:
+                result = html.xpath(
+                    "//td[contains(text(),'配信開始日：')]/following-sibling::td/text()"
+                )[0].lstrip("\n")
+            except:
+                pass
     return result
 
 
@@ -222,6 +234,7 @@ def main(number):
         data, ensure_ascii=False, sort_keys=True, indent=4, separators=(",", ":")
     )  # .encode('UTF-8')
     return js
+
 
 def main_htmlcode(number):
     # fanza allow letter + number + underscore, normalize the input here
