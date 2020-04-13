@@ -100,7 +100,7 @@ def getNumber(filepath,absolute_path = False):
 
 
 if __name__ == '__main__':
-    version = '3.1'
+    version = '3.1.2'
     config_file = argparse_function(2)
     config = ConfigParser()
     config.read(config_file, encoding='UTF-8')
