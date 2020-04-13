@@ -102,7 +102,7 @@ CLI 版本
 
 在终端 cmd/Powershell/Terminal 中输入以下代码来安装模块
 
-```python
+```
 pip install requests pyquery lxml Beautifulsoup4 pillow
 ```
 
@@ -212,7 +212,7 @@ naming_rule=number+'-'+title
 已有默认配置
 
 ---
-#### 命名参数
+### 命名参数
 ```
 title = 片名
 actor = 演员
@@ -229,13 +229,17 @@ runtime = 时长
 
 上面的参数以下都称之为**变量**
 
-#### 例子：
+### 例子：
 自定义规则方法：有两种元素，变量和字符，无论是任何一种元素之间连接必须要用加号 **+** ，比如：```'naming_rule=['+number+']-'+title```，其中冒号 ' ' 内的文字是字符，没有冒号包含的文字是变量，元素之间连接必须要用加号 **+** 
 
+### locaton_rule
+该为影片路径规则
 目录结构规则：默认 ```location_rule=actor+'/'+number```
 
 **不推荐修改时在这里添加 title**，有时 title 过长，因为 Windows API 问题，抓取数据时新建文件夹容易出错。
 
+### locaton_rule
+该为媒体库内标题的命名规则规则，NFO文件内标题<title>命名规则
 影片命名规则：默认 ```naming_rule=number+'-'+title```
 
 **在 Emby, Kodi等本地媒体库显示的标题，不影响目录结构下影片文件的命名**，依旧是 番号+后缀。
