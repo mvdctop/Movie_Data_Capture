@@ -238,7 +238,7 @@ runtime = 时长
 
 **不推荐修改时在这里添加 title**，有时 title 过长，因为 Windows API 问题，抓取数据时新建文件夹容易出错。
 
-### locaton_rule
+### naming_rule
 该为媒体库内标题的命名规则规则，NFO文件内标题<title>命名规则
 影片命名规则：默认 ```naming_rule=number+'-'+title```
 
