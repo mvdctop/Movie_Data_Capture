@@ -20,7 +20,7 @@ import javbus
 import javdb
 import fanza
 import jav321
-
+import xcity
 
 # =====================本地文件处理===========================
 
@@ -47,7 +47,7 @@ def CreatFailedFolder(failed_folder):
             return 
 
 
-def getDataFromJSON(file_number, filepath, failed_folder):  # 从JSON返回元数据
+def getDataFromJSON(file_number, filepath, failed_folder, sources):  # 从JSON返回元数据
     """
     iterate through all services and fetch the data
     """
@@ -60,10 +60,11 @@ def getDataFromJSON(file_number, filepath, failed_folder):  # 从JSON返回元�
         "javbus": javbus.main,
         "mgstage": mgstage.main,
         "jav321": jav321.main,
+        "xcity" : xcity.main,
     }
 
     # default fetch order list, from the begining to the end
-    sources = ["javbus", "javdb", "fanza", "mgstage", "fc2",  "avsox", "jav321"]
+    sources = sources.split(',')
 
     # if the input file name matches centain rules,
     # move some web service to the begining of the list
@@ -308,7 +309,7 @@ def PrintFiles(path, c_word, naming_rule, part, cn_sub, json_data, filepath, fai
             print("  <cover>" + cover + "</cover>", file=code)
             print("  <website>" + website + "</website>", file=code)
             print("</movie>", file=code)
-            print("[+]Writeed!          " + path + "/" + number + c_word + ".nfo")
+            print("[+]Wrote!            " + path + "/" + number + c_word + ".nfo")
     except IOError as e:
         print("[-]Write Failed!")
         print(e)
@@ -430,9 +431,10 @@ def core_main(file_path, number_th, config_file):
     program_mode = Config['common']['main_mode']  # 运行模式
     failed_folder = Config['common']['failed_output_folder']  # 失败输出目录
     success_folder = Config['common']['success_output_folder']  # 成功输出目录
+    sources = Config['priority']['website'] # 网站优先级
     filepath = file_path  # 影片的路径
     number = number_th
-    json_data = getDataFromJSON(number, filepath, failed_folder)  # 定义番号
+    json_data = getDataFromJSON(number, filepath, failed_folder, sources)  # 定义番号
     if json_data["number"] != number:
         # fix issue #119
         # the root cause is we normalize the search id

@@ -13,58 +13,16 @@ import io
 # sys.stdout = io.TextIOWrapper(sys.stdout.buffer, errors = 'replace', line_buffering = True)
 # sys.setdefaultencoding('utf-8')
 
-config_file='config.ini'
+config_file = 'config.ini'
 config = ConfigParser()
 
 if os.path.exists(config_file):
     try:
         config.read(config_file, encoding='UTF-8')
-    except:
+    except Exception as e:
+        print('[-]'+e)
         print('[-]Config.ini read failed! Please use the offical file!')
-else:
-    print('[+]config.ini: not found, creating...',end='')
-    with open("config.ini", "wt", encoding='UTF-8') as code:
-        file_text = """[common]
-main_mode=1
-failed_output_folder=failed
-success_output_folder=JAV_output
-soft_link=0
 
-[proxy]
-proxy=192.168.2.2:1080
-timeout=10
-retry=3
-
-[Name_Rule]
-location_rule=actor+'/'+number
-naming_rule=number+'-'+title
-
-[update]
-update_check=1
-
-[media]
-media_warehouse=emby
-#emby or plex or kodi ,emby=jellyfin
-
-[escape]
-literals=\()/
-folders=failed,JAV_output
-
-[debug_mode]
-switch=0
-
-"""
-        print(file_text, file=code)
-    time.sleep(2)
-    print('.')
-    print('[+]config.ini: created!')
-    print('[+]Please restart the program!')
-    time.sleep(4)
-    os._exit(0)
-    try:
-        config.read(config_file, encoding='UTF-8')
-    except:
-        print('[-]Config.ini read failed! Please use the offical file!')
 
 def get_network_settings():
     try:

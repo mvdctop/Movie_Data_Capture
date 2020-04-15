@@ -77,7 +77,7 @@ def getDirector(a):
     return str(result1 + result2).strip('+').replace("', '",'').replace('"','')
 def getOutline(htmlcode):
     html = etree.fromstring(htmlcode, etree.HTMLParser())
-    result = str(html.xpath('//p/text()')).strip(" ['']")
+    result = str(html.xpath('//p/text()')).strip(" ['']").replace(u'\\n', '').replace("', '', '", '')
     return result
 def main(number2):
     number=number2.upper()
@@ -108,4 +108,5 @@ def main(number2):
     return js
     #print(htmlcode)
 
-#print(main('SIRO-3607'))
+if __name__ == '__main__':
+    print(main('SIRO-4149'))

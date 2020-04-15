@@ -173,14 +173,12 @@ update_check=1
 0为关闭，1为开启，不建议关闭
 
 ---
-### 媒体库选择 
+### 刮削网站优先级
 ```
-[media]
-media_warehouse=emby
-#emby plex kodi
+[priority]
+website=javbus,javdb,fanza,xcity,mgstage,fc2,avsox,jav321
 ```
-可选择emby, plex, kodi
-如果是PLEX，请安装插件：```XBMCnfoMoviesImporter```
+用```,```英文逗号分开网站，刮削顺序从左往右
 
 ---
 ### 排除指定字符和目录
@@ -267,12 +265,12 @@ AV_Data_Capture xxx-xxx-xxx.mp4
 ```
 AV_Data_Capture -c config_other.ini
 ```
-### 程序退出选择参数
-默认值为```1```
+### 程序自动退出
+
 ```
-AV_Data_Capture -e 1
+AV_Data_Capture -a
 ```
-1为默认值，刮削结束后要按下回车键程序才会结束，如果是2，程序刮削完毕后会自动结束程序
+输入参数即可在刮削结束后自动结束程序
 
 ## 多集影片处理
 **建议使用视频合并合并为一个视频文件**

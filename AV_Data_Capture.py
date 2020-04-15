@@ -33,7 +33,7 @@ def argparse_function(switch):
     parser = argparse.ArgumentParser()
     parser.add_argument("file", default='',nargs='?', help="Single Movie file path.")
     parser.add_argument("-c", "--config", default='config.ini', nargs='?', help="The config file Path.")
-    parser.add_argument("-e", "--exit", default='1', nargs='?', help="Exit Switch 1:Press enter key to exit.  2:Auto exit.")
+    parser.add_argument("-a", "--auto-exit", dest='autoexit', action="store_true", help="Auto exit after program complete")
     args = parser.parse_args()
     if switch == 1:
         if args.file == '':
@@ -41,7 +41,7 @@ def argparse_function(switch):
     elif switch == 2:
         return args.config
     elif switch == 3:
-        return args.exit
+        return args.autoexit
 
 def movie_lists(root, escape_folder):
     for folder in escape_folder:
@@ -100,10 +100,10 @@ def getNumber(filepath,absolute_path = False):
 
 
 if __name__ == '__main__':
-    version = '3.1.2'
+    version = '3.2'
     config_file = argparse_function(2)
     config = ConfigParser()
-    config.read(config_file, encoding='UTF-8')
+    config.read(argparse_function(2), encoding='UTF-8')
     success_folder = config['common']['success_output_folder']
     failed_folder = config['common']['failed_output_folder']  # 失败输出目录
     escape_folder = config['escape']['folders']  # 多级目录刮削需要排除的目录
@@ -148,7 +148,7 @@ if __name__ == '__main__':
             core_main(i, getNumber(i), config_file=config_file)
             print("[*]======================================================")
         except Exception as e:  # 番号提取异常
-            print('[-]' + i + ' ERRPR :')
+            print('[-]' + i + ' ERROR :')
             print('[-]',e)
             if config['common']['soft_link'] == '1':
                 print('[-]Link', i, 'to failed folder')
@@ -164,6 +164,6 @@ if __name__ == '__main__':
     CEF(success_folder)
     CEF(failed_folder)
     print("[+]All finished!!!")
-    if argparse_function(3) == '2':
+    if argparse_function(3) == True:
         os._exit(0)
     input("[+][+]Press enter key exit, you can check the error messge before you exit.")
