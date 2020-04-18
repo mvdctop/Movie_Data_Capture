@@ -257,7 +257,7 @@ def PrintFiles(path, c_word, naming_rule, part, cn_sub, json_data, filepath, fai
         with open(path + "/" + number + c_word + ".nfo", "wt", encoding='UTF-8') as code:
             print('<?xml version="1.0" encoding="UTF-8" ?>', file=code)
             print("<movie>", file=code)
-            print(" <title>" + naming_rule + part + "</title>", file=code)
+            print(" <title>" + naming_rule + "</title>", file=code)
             print("  <set>", file=code)
             print("  </set>", file=code)
             print("  <studio>" + studio + "+</studio>", file=code)
