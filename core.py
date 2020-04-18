@@ -249,12 +249,13 @@ def image_download(cover, number, c_word, path, conf: config.Config, filepath, f
     shutil.copyfile(path + '/' + number + c_word + '-fanart.jpg',path + '/' + number + c_word + '-thumb.jpg')
 
 
-def PrintFiles(path, c_word, naming_rule, part, cn_sub, json_data, filepath, failed_folder, tag, actor_list, liuchu):
+def print_files(path, c_word, naming_rule, part, cn_sub, json_data, filepath, failed_folder, tag, actor_list, liuchu):
     title, studio, year, outline, runtime, director, actor_photo, release, number, cover, website = get_info(json_data)
+
     try:
         if not os.path.exists(path):
             os.makedirs(path)
-        with open(path + "/" + number + c_word + ".nfo", "wt", encoding='UTF-8') as code:
+        with open(path + "/" + number + part + c_word + ".nfo", "wt", encoding='UTF-8') as code:
             print('<?xml version="1.0" encoding="UTF-8" ?>', file=code)
             print("<movie>", file=code)
             print(" <title>" + naming_rule + "</title>", file=code)
@@ -300,7 +301,7 @@ def PrintFiles(path, c_word, naming_rule, part, cn_sub, json_data, filepath, fai
             print("  <cover>" + cover + "</cover>", file=code)
             print("  <website>" + website + "</website>", file=code)
             print("</movie>", file=code)
-            print("[+]Wrote!            " + path + "/" + number + c_word + ".nfo")
+            print("[+]Wrote!            " + path + "/" + number + part + c_word + ".nfo")
     except IOError as e:
         print("[-]Write Failed!")
         print(e)
@@ -426,7 +427,7 @@ def core_main(file_path, number_th, conf: config.Config):
     if json_data["number"] != number:
         # fix issue #119
         # the root cause is we normalize the search id
-        # PrintFiles() will use the normalized id from website,
+        # print_files() will use the normalized id from website,
         # but paste_file_to_folder() still use the input raw search id
         # so the solution is: use the normalized search id
         number = json_data["number"]
@@ -470,7 +471,7 @@ def core_main(file_path, number_th, conf: config.Config):
         cutImage(imagecut, path, number, c_word)
 
         # 打印文件
-        PrintFiles(path, c_word, json_data['naming_rule'], part, cn_sub, json_data, filepath, conf.failed_folder(), tag, json_data['actor_list'], liuchu)
+        print_files(path, c_word, json_data['naming_rule'], part, cn_sub, json_data, filepath, conf.failed_folder(), tag, json_data['actor_list'], liuchu)
 
         # 移动文件
         paste_file_to_folder(filepath, path, number, c_word, conf)
