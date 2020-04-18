@@ -1,33 +1,25 @@
-# -*- coding: utf-8 -*-
-
-import re
-import os
-import os.path
-import shutil
-from PIL import Image
-import time
 import json
+import os.path
+import re
+import shutil
+
+from PIL import Image
 from ADC_function import *
-from configparser import ConfigParser
-import argparse
-import requests
-import random
+
 # =========website========
-import fc2fans_club
-import mgstage
 import avsox
+import fanza
+import fc2fans_club
+import jav321
 import javbus
 import javdb
-import fanza
-import jav321
+import mgstage
 import xcity
 
-# =====================本地文件处理===========================
 
-def escapePath(path, Config):  # Remove escape literals
-    escapeLiterals = Config['escape']['literals']
+def escape_path(path, escape_literals: str):  # Remove escape literals
     backslash = '\\'
-    for literal in escapeLiterals:
+    for literal in escape_literals:
         path = path.replace(backslash + literal, '')
     return path
 
@@ -47,7 +39,7 @@ def CreatFailedFolder(failed_folder):
             return 
 
 
-def getDataFromJSON(file_number, filepath, failed_folder, sources):  # 从JSON返回元数据
+def get_data_from_json(file_number, filepath, conf: config.Config):  # 从JSON返回元数据
     """
     iterate through all services and fetch the data
     """
@@ -64,7 +56,7 @@ def getDataFromJSON(file_number, filepath, failed_folder, sources):  # 从JSON�
     }
 
     # default fetch order list, from the begining to the end
-    sources = sources.split(',')
+    sources = conf.sources().split(',')
 
     # if the input file name matches centain rules,
     # move some web service to the begining of the list
@@ -105,10 +97,9 @@ def getDataFromJSON(file_number, filepath, failed_folder, sources):  # 从JSON�
     tag = str(json_data['tag']).strip("[ ]").replace("'", '').replace(" ", '').split(',')  # 字符串转列表 @
     actor = str(actor_list).strip("[ ]").replace("'", '').replace(" ", '')
 
-
     if title == '' or number == '':
         print('[-]Movie Data not found!')
-        moveFailedFolder(filepath, failed_folder)
+        moveFailedFolder(filepath, conf.failed_folder())
         return
 
     # if imagecut == '3':
@@ -130,13 +121,12 @@ def getDataFromJSON(file_number, filepath, failed_folder, sources):  # 从JSON�
         cover_small = tmpArr[0].strip('\"').strip('\'')
     # ====================处理异常字符 END================== #\/:*?"<>|
 
-    naming_rule = eval(config['Name_Rule']['naming_rule'])
-    location_rule = eval(config['Name_Rule']['location_rule'])
-    if 'actor' in config['Name_Rule']['location_rule'] and len(actor) > 100:
-        print(config['Name_Rule']['location_rule'])
-        location_rule = eval(config['Name_Rule']['location_rule'].replace("actor","'多人作品'"))
-    if 'title' in config['Name_Rule']['location_rule'] and len(title) > 100:
-        location_rule = eval(config['Name_Rule']['location_rule'].replace("title",'number'))
+    location_rule = eval(conf.location_rule())
+    if 'actor' in conf.location_rule() and len(actor) > 100:
+        print(conf.location_rule())
+        location_rule = eval(conf.location_rule().replace("actor","'多人作品'"))
+    if 'title' in conf.location_rule() and len(title) > 100:
+        location_rule = eval(conf.location_rule().replace("title",'number'))
 
     # 返回处理后的json_data
     json_data['title'] = title
@@ -144,7 +134,7 @@ def getDataFromJSON(file_number, filepath, failed_folder, sources):  # 从JSON�
     json_data['release'] = release
     json_data['cover_small'] = cover_small
     json_data['tag'] = tag
-    json_data['naming_rule'] = naming_rule
+    json_data['naming_rule'] = eval(conf.naming_rule())
     json_data['location_rule'] = location_rule
     json_data['year'] = year
     json_data['actor_list'] = actor_list
@@ -166,36 +156,36 @@ def get_info(json_data):  # 返回json里的数据
     return title, studio, year, outline, runtime, director, actor_photo, release, number, cover, website
 
 
-def smallCoverCheck(path, number, imagecut, cover_small, c_word, Config, filepath, failed_folder):
-    if imagecut == 3:
-        DownloadFileWithFilename(cover_small, number + c_word + '-poster.jpg', path, Config, filepath, failed_folder)
-        print('[+]Image Downloaded! '+ path + '/' + number + c_word + '-poster.jpg')
+def small_cover_check(path, number, cover_small, c_word, conf: config.Config, filepath, failed_folder):
+    download_file_with_filename(cover_small, number + c_word + '-poster.jpg', path, conf, filepath, failed_folder)
+    print('[+]Image Downloaded! ' + path + '/' + number + c_word + '-poster.jpg')
 
 
-def creatFolder(success_folder, location_rule, json_data, Config):  # 创建文件夹
+def create_folder(success_folder, location_rule, json_data, conf: config.Config):  # 创建文件夹
     title, studio, year, outline, runtime, director, actor_photo, release, number, cover, website= get_info(json_data)
     if len(location_rule) > 240:  # 新建成功输出文件夹
         path = success_folder + '/' + location_rule.replace("'actor'", "'manypeople'", 3).replace("actor","'manypeople'",3)  # path为影片+元数据所在目录
     else:
         path = success_folder + '/' + location_rule
     if not os.path.exists(path):
-        path = escapePath(path, Config)
+        path = escape_path(path, conf.escape_literals())
         try:
             os.makedirs(path)
         except:
             path = success_folder + '/' + location_rule.replace('/[' + number + ']-' + title, "/number")
-            path = escapePath(path, Config)
+            path = escape_path(path, conf.escape_literals())
 
             os.makedirs(path)
     return path
 
 
 # =====================资源下载部分===========================
-def DownloadFileWithFilename(url, filename, path, Config, filepath, failed_folder):  # path = examle:photo , video.in the Project Folder!
-    proxy, timeout, retry_count = get_network_settings()
-    i = 0
 
-    while i < retry_count:
+# path = examle:photo , video.in the Project Folder!
+def download_file_with_filename(url, filename, path, conf: config.Config, filepath, failed_folder):
+    proxy, timeout, retry_count = conf.proxy()
+
+    for i in range(retry_count):
         try:
             if not proxy == '':
                 if not os.path.exists(path):
@@ -239,16 +229,17 @@ def DownloadFileWithFilename(url, filename, path, Config, filepath, failed_folde
     return
 
 
-def imageDownload(cover, number, c_word, path, multi_part, Config, filepath, failed_folder):  # 封面是否下载成功，否则移动到failed
-    if DownloadFileWithFilename(cover, number + c_word + '-fanart.jpg', path, Config, filepath,failed_folder) == 'failed':
+# 封面是否下载成功，否则移动到failed
+def image_download(cover, number, c_word, path, conf: config.Config, filepath, failed_folder):
+    if download_file_with_filename(cover, number + c_word + '-fanart.jpg', path, conf, filepath, failed_folder) == 'failed':
         moveFailedFolder(filepath, failed_folder)
         return
-    i = 1
-    while i <= int(config['proxy']['retry']):
+
+    _proxy, _timeout, retry = conf.proxy()
+    for i in range(retry):
         if os.path.getsize(path + '/' + number + c_word + '-fanart.jpg') == 0:
-            print('[!]Image Download Failed! Trying again. [' + config['proxy']['retry'] + '/3]')
-            DownloadFileWithFilename(cover, number + c_word + '-fanart.jpg', path, Config, filepath, failed_folder)
-            i = i + 1
+            print('[!]Image Download Failed! Trying again. [{}/3]', i + 1)
+            download_file_with_filename(cover, number + c_word + '-fanart.jpg', path, conf, filepath, failed_folder)
             continue
         else:
             break
@@ -339,10 +330,12 @@ def cutImage(imagecut, path, number, c_word):
         print('[+]Image Copyed!     ' + path + '/' + number + c_word + '-poster.jpg')
 
 
-def pasteFileToFolder(filepath, path, number, c_word):  # 文件路径，番号，后缀，要移动至的位置
+def paste_file_to_folder(filepath, path, number, c_word, conf: config.Config):  # 文件路径，番号，后缀，要移动至的位置
     houzhui = str(re.search('[.](AVI|RMVB|WMV|MOV|MP4|MKV|FLV|TS|WEBM|avi|rmvb|wmv|mov|mp4|mkv|flv|ts|webm)$', filepath).group())
+
     try:
-        if config['common']['soft_link'] == '1':  # 如果soft_link=1 使用软链接
+        # 如果soft_link=1 使用软链接
+        if conf.soft_link():
             os.symlink(filepath, path + '/' + number + c_word + houzhui)
         else:
             os.rename(filepath, path + '/' + number + c_word + houzhui)
@@ -364,12 +357,13 @@ def pasteFileToFolder(filepath, path, number, c_word):  # 文件路径，番号�
         return 
 
 
-def pasteFileToFolder_mode2(filepath, path, multi_part, number, part, c_word):  # 文件路径，番号，后缀，要移动至的位置
+def paste_file_to_folder_mode2(filepath, path, multi_part, number, part, c_word, conf):  # 文件路径，番号，后缀，要移动至的位置
     if multi_part == 1:
         number += part  # 这时number会被附加上CD1后缀
     houzhui = str(re.search('[.](AVI|RMVB|WMV|MOV|MP4|MKV|FLV|TS|WEBM|avi|rmvb|wmv|mov|mp4|mkv|flv|ts|webm)$', filepath).group())
+
     try:
-        if config['common']['soft_link'] == '1':
+        if conf.soft_link():
             os.symlink(filepath, path + '/' + number + part + c_word + houzhui)
         else:
             os.rename(filepath, path + '/' + number + part + c_word + houzhui)
@@ -403,43 +397,37 @@ def get_part(filepath, failed_folder):
         return
 
 
-def debug_mode(json_data):
+def debug_print(data: json):
     try:
-        if config['debug_mode']['switch'] == '1':
-            print('[+] ---Debug info---')
-            for i, v in json_data.items():
-                if i == 'outline':
-                    print('[+]  -', i, '    :', len(v), 'characters')
-                    continue
-                if i == 'actor_photo' or i == 'year':
-                    continue
-                print('[+]  -', "%-11s" % i, ':', v)
-            print('[+] ---Debug info---')
+        print("[+] ---Debug info---")
+        for i, v in data.items():
+            if i == "outline":
+                print("[+]  -", i, "    :", len(v), "characters")
+                continue
+            if i == "actor_photo" or i == "year":
+                continue
+            print("[+]  -", "%-11s" % i, ":", v)
+        print("[+] ---Debug info---")
     except:
-        aaa = ''
+        pass
 
 
-def core_main(file_path, number_th, config_file):
+def core_main(file_path, number_th, conf: config.Config):
     # =======================================================================初始化所需变量
     multi_part = 0
     part = ''
     c_word = ''
     cn_sub = ''
     liuchu = ''
-    Config = ConfigParser()
-    Config.read(config_file, encoding='UTF-8')
-    program_mode = Config['common']['main_mode']  # 运行模式
-    failed_folder = Config['common']['failed_output_folder']  # 失败输出目录
-    success_folder = Config['common']['success_output_folder']  # 成功输出目录
-    sources = Config['priority']['website'] # 网站优先级
+
     filepath = file_path  # 影片的路径
     number = number_th
-    json_data = getDataFromJSON(number, filepath, failed_folder, sources)  # 定义番号
+    json_data = get_data_from_json(number, filepath, conf)  # 定义番号
     if json_data["number"] != number:
         # fix issue #119
         # the root cause is we normalize the search id
         # PrintFiles() will use the normalized id from website,
-        # but pasteFileToFolder() still use the input raw search id
+        # but paste_file_to_folder() still use the input raw search id
         # so the solution is: use the normalized search id
         number = json_data["number"]
     imagecut = json_data['imagecut']
@@ -447,25 +435,45 @@ def core_main(file_path, number_th, config_file):
     # =======================================================================判断-C,-CD后缀
     if '-CD' in filepath or '-cd' in filepath:
         multi_part = 1
-        part = get_part(filepath, failed_folder)
+        part = get_part(filepath, conf.failed_folder())
     if '-c.' in filepath or '-C.' in filepath or '中文' in filepath or '字幕' in filepath:
         cn_sub = '1'
         c_word = '-C'  # 中文字幕影片后缀
     if '流出' in filepath:
         liuchu = '流出'
 
-    CreatFailedFolder(failed_folder)  # 创建输出失败目录
-    debug_mode(json_data)  # 调试模式检测
-    path = creatFolder(success_folder, json_data['location_rule'], json_data, Config)  # 创建文件夹
-    # =======================================================================刮削模式
-    if program_mode == '1':
+    # 创建输出失败目录
+    CreatFailedFolder(conf.failed_folder())
+
+    # 调试模式检测
+    if conf.debug():
+        debug_print(json_data)
+
+    # 创建文件夹
+    path = create_folder(conf.success_folder(), json_data['location_rule'], json_data, conf)
+
+    # main_mode
+    #  1: 刮削模式 / Scraping mode
+    #  2: 整理模式 / Organizing mode
+    if conf.main_mode() == 1:
         if multi_part == 1:
             number += part  # 这时number会被附加上CD1后缀
-        smallCoverCheck(path, number, imagecut, json_data['cover_small'], c_word, Config, filepath, failed_folder)  # 检查小封面
-        imageDownload(json_data['cover'], number, c_word, path, multi_part, Config, filepath, failed_folder)  # creatFoder会返回番号路径
-        cutImage(imagecut, path, number, c_word)  # 裁剪图
-        PrintFiles(path, c_word, json_data['naming_rule'], part, cn_sub, json_data, filepath, failed_folder, tag, json_data['actor_list'],liuchu)  # 打印文件
-        pasteFileToFolder(filepath, path, number, c_word)  # 移动文件
-        # =======================================================================整理模式
-    elif program_mode == '2':
-        pasteFileToFolder_mode2(filepath, path, multi_part, number, part, c_word)  # 移动文件
+
+        # 检查小封面
+        if imagecut == 3:
+            small_cover_check(path, number, json_data['cover_small'], c_word, conf, filepath, conf.failed_folder())
+
+        # creatFolder会返回番号路径
+        image_download(json_data['cover'], number, c_word, path, conf, filepath, conf.failed_folder())
+
+        # 裁剪图
+        cutImage(imagecut, path, number, c_word)
+
+        # 打印文件
+        PrintFiles(path, c_word, json_data['naming_rule'], part, cn_sub, json_data, filepath, conf.failed_folder(), tag, json_data['actor_list'], liuchu)
+
+        # 移动文件
+        paste_file_to_folder(filepath, path, number, c_word, conf)
+    elif conf.main_mode() == 2:
+        # 移动文件
+        paste_file_to_folder_mode2(filepath, path, multi_part, number, part, c_word, conf)

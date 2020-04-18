@@ -1,33 +1,20 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
-import glob
-import os
-import time
-import re
-from ADC_function import *
-from core import *
-import json
-import shutil
-from configparser import ConfigParser
 import argparse
+from core import *
 
 
 def check_update(current_version):
-    if UpdateCheckSwitch() == "1":
-        data = json.loads(get_html("https://api.github.com/repos/yoshiko2/AV_Data_Capture/releases/latest"))
+    data = json.loads(get_html("https://api.github.com/repos/yoshiko2/AV_Data_Capture/releases/latest"))
 
-        remote_version = data["tag_name"]
-        download_url = data["html_url"]
+    remote_version = data["tag_name"]
+    download_url = data["html_url"]
 
-        if current_version != remote_version:
-            line1 = "* New update " + remote_version + " *"
-            print("[*]" + line1.center(54))
-            print("[*]" + "↓ Download ↓".center(54))
-            print("[*] " + download_url)
-            print("[*]======================================================")
-    else:
-        print("[+]Update Check disabled!")
+    if current_version != remote_version:
+        line1 = "* New update " + remote_version + " *"
+        print("[*]" + line1.center(54))
+        print("[*]" + "↓ Download ↓".center(54))
+        print("[*] " + download_url)
+        print("[*]======================================================")
+
 
 def argparse_function(switch):
     parser = argparse.ArgumentParser()
@@ -59,7 +46,7 @@ def movie_lists(root, escape_folder):
     return total
 
 
-def CreatFailedFolder(failed_folder):
+def create_failed_folder(failed_folder):
     if not os.path.exists(failed_folder + '/'):  # 新建failed文件夹
         try:
             os.makedirs(failed_folder + '/')
@@ -101,22 +88,21 @@ def getNumber(filepath,absolute_path = False):
 
 if __name__ == '__main__':
     version = '3.2'
+
     config_file = argparse_function(2)
-    config = ConfigParser()
-    config.read(argparse_function(2), encoding='UTF-8')
-    success_folder = config['common']['success_output_folder']
-    failed_folder = config['common']['failed_output_folder']  # 失败输出目录
-    escape_folder = config['escape']['folders']  # 多级目录刮削需要排除的目录
-    escape_folder = re.split('[,，]', escape_folder)
+    conf = config.Config(path=config_file)
+
     version_print = 'Version ' + version
     print('[*]================== AV Data Capture ===================')
     print('[*]' + version_print.center(54))
     print('[*]======================================================')
 
-    check_update(version)
-    CreatFailedFolder(failed_folder)
+    if conf.update_check():
+        check_update(version)
+
+    create_failed_folder(conf.failed_folder())
     os.chdir(os.getcwd())
-    movie_list = movie_lists('.', escape_folder)
+    movie_list = movie_lists(".", re.split("[,，]", conf.escape_folder()))
 
     #========== 野鸡番号拖动 ==========
     number_argparse = argparse_function(1)
@@ -124,8 +110,8 @@ if __name__ == '__main__':
         print("[!]Making Data for   [" + number_argparse + "], the number is [" + getNumber(number_argparse,absolute_path = True) + "]")
         core_main(number_argparse, getNumber(number_argparse,absolute_path = True))
         print("[*]======================================================")
-        CEF(success_folder)
-        CEF(failed_folder)
+        CEF(conf.success_folder())
+        CEF(conf.failed_folder())
         print("[+]All finished!!!")
         input("[+][+]Press enter key exit, you can check the error messge before you exit.")
         os._exit(0)
@@ -134,7 +120,7 @@ if __name__ == '__main__':
     count = 0
     count_all = str(len(movie_list))
     print('[+]Find', count_all, 'movies')
-    if config['common']['soft_link'] == '1':
+    if conf.soft_link():
         print('[!] --- Soft link mode is ENABLE! ----')
     for i in movie_list:  # 遍历电影列表 交给core处理
         count = count + 1
@@ -145,24 +131,24 @@ if __name__ == '__main__':
         # print("[*]======================================================")
         try:
             print("[!]Making Data for   [" + i + "], the number is [" + getNumber(i) + "]")
-            core_main(i, getNumber(i), config_file=config_file)
+            core_main(i, getNumber(i), conf)
             print("[*]======================================================")
         except Exception as e:  # 番号提取异常
             print('[-]' + i + ' ERROR :')
             print('[-]',e)
-            if config['common']['soft_link'] == '1':
+            if conf.soft_link():
                 print('[-]Link', i, 'to failed folder')
-                os.symlink(i, str(os.getcwd()) + '/' + failed_folder + '/')
+                os.symlink(i, str(os.getcwd()) + '/' + conf.failed_folder() + '/')
             else:
                 try:
                     print('[-]Move ' + i + ' to failed folder')
-                    shutil.move(i, str(os.getcwd()) + '/' + failed_folder + '/')
+                    shutil.move(i, str(os.getcwd()) + '/' + conf.failed_folder() + '/')
                 except Exception as e2:
                     print('[!]', e2)
             continue
 
-    CEF(success_folder)
-    CEF(failed_folder)
+    CEF(conf.success_folder())
+    CEF(conf.failed_folder())
     print("[+]All finished!!!")
     if argparse_function(3) == True:
         os._exit(0)
