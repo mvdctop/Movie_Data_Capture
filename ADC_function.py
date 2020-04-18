@@ -1,39 +1,7 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
 import requests
-from configparser import ConfigParser
-import os
-import re
-import time
-import sys
 from lxml import etree
-import sys
-import io
-# sys.stdout = io.TextIOWrapper(sys.stdout.buffer, errors = 'replace', line_buffering = True)
-# sys.setdefaultencoding('utf-8')
 
-config_file = 'config.ini'
-config = ConfigParser()
-
-if os.path.exists(config_file):
-    try:
-        config.read(config_file, encoding='UTF-8')
-    except Exception as e:
-        print('[-]'+e)
-        print('[-]Config.ini read failed! Please use the offical file!')
-
-
-def get_network_settings():
-    try:
-        proxy = config["proxy"]["proxy"]
-        timeout = int(config["proxy"]["timeout"])
-        retry_count = int(config["proxy"]["retry"])
-        assert timeout > 0
-        assert retry_count > 0
-    except:
-        raise ValueError("[-]Proxy config error! Please check the config.")
-    return proxy, timeout, retry_count
+import config
 
 
 def get_data_state(data: dict) -> bool:  # 元数据获取失败检测
@@ -45,27 +13,18 @@ def get_data_state(data: dict) -> bool:  # 元数据获取失败检测
 
     return True
 
-def ReadMediaWarehouse():
-    return config['media']['media_warehouse']
-
-def UpdateCheckSwitch():
-    check=str(config['update']['update_check'])
-    if check == '1':
-        return '1'
-    elif check == '0':
-        return '0'
-    elif check == '':
-        return '0'
 
 def getXpathSingle(htmlcode,xpath):
     html = etree.fromstring(htmlcode, etree.HTMLParser())
     result1 = str(html.xpath(xpath)).strip(" ['']")
     return result1
 
-def get_html(url,cookies = None):#网页请求核心
-    proxy, timeout, retry_count = get_network_settings()
-    i = 0
-    while i < retry_count:
+
+# 网页请求核心
+def get_html(url, cookies=None):
+    proxy, timeout, retry_count = config.Config().proxy()
+
+    for i in range(retry_count):
         try:
             if not proxy == '':
                 proxies = {"http": "http://" + proxy,"https": "https://" + proxy}
@@ -78,14 +37,15 @@ def get_html(url,cookies = None):#网页请求核心
                 getweb = requests.get(str(url), headers=headers, timeout=timeout, cookies=cookies)
                 getweb.encoding = 'utf-8'
                 return getweb.text
-        except:
-            i += 1
-            print('[-]Connect retry '+str(i)+'/'+str(retry_count))
+        except requests.exceptions.ProxyError:
+            print("[-]Connect retry {}/{}".format(i + 1, retry_count))
     print('[-]Connect Failed! Please check your Proxy or Network!')
+    input("Press ENTER to exit!")
+    exit()
 
 
 def post_html(url: str, query: dict) -> requests.Response:
-    proxy, timeout, retry_count = get_network_settings()
+    proxy, timeout, retry_count = config.Config().proxy()
 
     if proxy:
         proxies = {"http": "http://" + proxy, "https": "https://" + proxy}
@@ -99,3 +59,5 @@ def post_html(url: str, query: dict) -> requests.Response:
         except requests.exceptions.ProxyError:
             print("[-]Connect retry {}/{}".format(i+1, retry_count))
     print("[-]Connect Failed! Please check your Proxy or Network!")
+    input("Press ENTER to exit!")
+    exit()
