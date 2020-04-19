@@ -102,3 +102,10 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+# movie files
+*.mp4
+
+# success/failed folder
+JAV_output/**/*
+failed/*

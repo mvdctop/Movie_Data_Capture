@@ -52,14 +52,14 @@ def get_data_from_json(file_number, filepath, conf: config.Config):  # 从JSON�
         "javbus": javbus.main,
         "mgstage": mgstage.main,
         "jav321": jav321.main,
-        "xcity" : xcity.main,
+        "xcity": xcity.main,
     }
 
-    # default fetch order list, from the begining to the end
+    # default fetch order list, from the beginning to the end
     sources = conf.sources().split(',')
 
-    # if the input file name matches centain rules,
-    # move some web service to the begining of the list
+    # if the input file name matches certain rules,
+    # move some web service to the beginning of the list
     if re.match(r"^\d{5,}", file_number) or (
         "HEYZO" in file_number or "heyzo" in file_number or "Heyzo" in file_number
     ):
@@ -71,11 +71,18 @@ def get_data_from_json(file_number, filepath, conf: config.Config):  # 从JSON�
     elif "fc2" in file_number or "FC2" in file_number:
         sources.insert(0, sources.pop(sources.index("fc2")))
 
+    json_data = {}
     for source in sources:
         json_data = json.loads(func_mapping[source](file_number))
         # if any service return a valid return, break
         if get_data_state(json_data):
             break
+
+    # Return if data not found in all sources
+    if not json_data:
+        print('[-]Movie Data not found!')
+        moveFailedFolder(filepath, conf.failed_folder())
+        return
 
     # ================================================网站规则添加结束================================================
 
@@ -424,6 +431,11 @@ def core_main(file_path, number_th, conf: config.Config):
     filepath = file_path  # 影片的路径
     number = number_th
     json_data = get_data_from_json(number, filepath, conf)  # 定义番号
+
+    # Return if blank dict returned (data not found)
+    if not json_data:
+        return
+
     if json_data["number"] != number:
         # fix issue #119
         # the root cause is we normalize the search id
