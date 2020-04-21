@@ -207,7 +207,7 @@ def main(number):
         # so get the hinban first, and then pass it to following functions
         fanza_hinban = getNum(htmlcode)
         data = {
-            "title": getTitle(htmlcode).strip(getActor(htmlcode)),
+            "title": getTitle(htmlcode).strip(),
             "studio": getStudio(htmlcode),
             "outline": getOutline(htmlcode),
             "runtime": getRuntime(htmlcode),
