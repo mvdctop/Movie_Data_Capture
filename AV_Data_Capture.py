@@ -16,19 +16,14 @@ def check_update(current_version):
         print("[*]======================================================")
 
 
-def argparse_function(switch):
+def argparse_function() -> [str, str, bool]:
     parser = argparse.ArgumentParser()
-    parser.add_argument("file", default='',nargs='?', help="Single Movie file path.")
+    parser.add_argument("file", default='', nargs='?', help="Single Movie file path.")
     parser.add_argument("-c", "--config", default='config.ini', nargs='?', help="The config file Path.")
     parser.add_argument("-a", "--auto-exit", dest='autoexit', action="store_true", help="Auto exit after program complete")
     args = parser.parse_args()
-    if switch == 1:
-        if args.file == '':
-            return ''
-    elif switch == 2:
-        return args.config
-    elif switch == 3:
-        return args.autoexit
+
+    return args.file, args.config, args.autoexit
 
 def movie_lists(root, escape_folder):
     for folder in escape_folder:
@@ -86,10 +81,36 @@ def getNumber(filepath,absolute_path = False):
             return re.search(r'(.+?)\.', filepath)[0]
 
 
+def create_data_and_move(file_path: str, c: config.Config):
+    # Normalized number, eg: 111xxx-222.mp4 -> xxx-222.mp4
+    n_number = getNumber(file_path, absolute_path=True)
+
+    try:
+        print("[!]Making Data for [{}], the number is [{}]".format(file_path, n_number))
+        core_main(file_path, n_number, c)
+        print("[*]======================================================")
+    except Exception as err:
+        print("[-] [{}] ERROR:".format(file_path))
+        print('[-]', err)
+
+        if c.soft_link():
+            print("[-]Link {} to failed folder".format(file_path))
+            os.symlink(file_path, str(os.getcwd()) + "/" + conf.failed_folder() + "/")
+        else:
+            try:
+                print("[-]Move [{}] to failed folder".format(file_path))
+                shutil.move(file_path, str(os.getcwd()) + "/" + conf.failed_folder() + "/")
+            except Exception as err:
+                print('[!]', err)
+
+
 if __name__ == '__main__':
     version = '3.2'
 
-    config_file = argparse_function(2)
+    # Parse command line args
+    single_file_path, config_file, auto_exit = argparse_function()
+
+    # Read config.ini
     conf = config.Config(path=config_file)
 
     version_print = 'Version ' + version
@@ -104,17 +125,14 @@ if __name__ == '__main__':
     os.chdir(os.getcwd())
     movie_list = movie_lists(".", re.split("[,，]", conf.escape_folder()))
 
-    #========== 野鸡番号拖动 ==========
-    number_argparse = argparse_function(1)
-    if not number_argparse == '':
-        print("[!]Making Data for   [" + number_argparse + "], the number is [" + getNumber(number_argparse,absolute_path = True) + "]")
-        core_main(number_argparse, getNumber(number_argparse,absolute_path = True))
-        print("[*]======================================================")
+    # ========== 野鸡番号拖动 ==========
+    if not single_file_path == '':
+        create_data_and_move(single_file_path, conf)
         CEF(conf.success_folder())
         CEF(conf.failed_folder())
         print("[+]All finished!!!")
         input("[+][+]Press enter key exit, you can check the error messge before you exit.")
-        os._exit(0)
+        exit()
     # ========== 野鸡番号拖动 ==========
 
     count = 0
@@ -122,34 +140,15 @@ if __name__ == '__main__':
     print('[+]Find', count_all, 'movies')
     if conf.soft_link():
         print('[!] --- Soft link mode is ENABLE! ----')
-    for i in movie_list:  # 遍历电影列表 交给core处理
+    for movie_path in movie_list:  # 遍历电影列表 交给core处理
         count = count + 1
         percentage = str(count / int(count_all) * 100)[:4] + '%'
         print('[!] - ' + percentage + ' [' + str(count) + '/' + count_all + '] -')
-        # print("[!]Making Data for   [" + i + "], the number is [" + getNumber(i) + "]")
-        # core_main(i, getNumber(i))
-        # print("[*]======================================================")
-        try:
-            print("[!]Making Data for   [" + i + "], the number is [" + getNumber(i) + "]")
-            core_main(i, getNumber(i), conf)
-            print("[*]======================================================")
-        except Exception as e:  # 番号提取异常
-            print('[-]' + i + ' ERROR :')
-            print('[-]',e)
-            if conf.soft_link():
-                print('[-]Link', i, 'to failed folder')
-                os.symlink(i, str(os.getcwd()) + '/' + conf.failed_folder() + '/')
-            else:
-                try:
-                    print('[-]Move ' + i + ' to failed folder')
-                    shutil.move(i, str(os.getcwd()) + '/' + conf.failed_folder() + '/')
-                except Exception as e2:
-                    print('[!]', e2)
-            continue
+        create_data_and_move(movie_path, conf)
 
     CEF(conf.success_folder())
     CEF(conf.failed_folder())
     print("[+]All finished!!!")
-    if argparse_function(3) == True:
-        os._exit(0)
-    input("[+][+]Press enter key exit, you can check the error messge before you exit.")
+    if auto_exit:
+        exit(0)
+    input("[+][+]Press enter key exit, you can check the error message before you exit.")

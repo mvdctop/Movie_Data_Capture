@@ -5,6 +5,9 @@ import config
 
 
 def get_data_state(data: dict) -> bool:  # 元数据获取失败检测
+    if "title" not in data or "number" not in data:
+        return False
+
     if data["title"] is None or data["title"] == "" or data["title"] == "null":
         return False
 
