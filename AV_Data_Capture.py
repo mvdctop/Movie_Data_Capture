@@ -2,14 +2,20 @@ import argparse
 from core import *
 
 
-def check_update(current_version):
+def check_update(local_version):
     data = json.loads(get_html("https://api.github.com/repos/yoshiko2/AV_Data_Capture/releases/latest"))
 
-    remote_version = data["tag_name"]
+    try:
+        remote = float(data["tag_name"])
+        local = float(local_version)
+    except ValueError:
+        print("[-] Check update failed! Skipped.")
+        return
+
     download_url = data["html_url"]
 
-    if current_version != remote_version:
-        line1 = "* New update " + remote_version + " *"
+    if local < remote:
+        line1 = "* New update " + str(remote) + " *"
         print("[*]" + line1.center(54))
         print("[*]" + "↓ Download ↓".center(54))
         print("[*] " + download_url)
