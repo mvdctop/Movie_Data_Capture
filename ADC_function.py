@@ -1,5 +1,6 @@
 import requests
 from lxml import etree
+import cloudscraper
 
 import config
 
@@ -23,23 +24,39 @@ def getXpathSingle(htmlcode,xpath):
     return result1
 
 
+def get_proxy(proxy: str) -> dict:
+    if proxy:
+        proxies = {"http": "http://" + proxy, "https": "https://" + proxy}
+    else:
+        proxies = {}
+
+    return proxies
+
+
 # 网页请求核心
-def get_html(url, cookies=None):
+def get_html(url, cookies: dict = None, ua: str = None, return_type: str = None):
     proxy, timeout, retry_count = config.Config().proxy()
+    proxies = get_proxy(proxy)
+
+    if ua is None:
+        headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3100.0 Safari/537.36"} # noqa
+    else:
+        headers = {"User-Agent": ua}
 
     for i in range(retry_count):
         try:
             if not proxy == '':
-                proxies = {"http": "http://" + proxy,"https": "https://" + proxy}
-                headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3100.0 Safari/537.36'}
-                getweb = requests.get(str(url), headers=headers, timeout=timeout,proxies=proxies, cookies=cookies)
-                getweb.encoding = 'utf-8'
-                return getweb.text
+                result = requests.get(str(url), headers=headers, timeout=timeout, proxies=proxies, cookies=cookies)
             else:
-                headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36'}
-                getweb = requests.get(str(url), headers=headers, timeout=timeout, cookies=cookies)
-                getweb.encoding = 'utf-8'
-                return getweb.text
+                result = requests.get(str(url), headers=headers, timeout=timeout, cookies=cookies)
+
+            result.encoding = "utf-8"
+
+            if return_type == "object":
+                return result
+            else:
+                return result.text
+
         except requests.exceptions.ProxyError:
             print("[-]Connect retry {}/{}".format(i + 1, retry_count))
     print('[-]Connect Failed! Please check your Proxy or Network!')
@@ -49,11 +66,7 @@ def get_html(url, cookies=None):
 
 def post_html(url: str, query: dict) -> requests.Response:
     proxy, timeout, retry_count = config.Config().proxy()
-
-    if proxy:
-        proxies = {"http": "http://" + proxy, "https": "https://" + proxy}
-    else:
-        proxies = {}
+    proxies = get_proxy(proxy)
 
     for i in range(retry_count):
         try:
@@ -64,3 +77,25 @@ def post_html(url: str, query: dict) -> requests.Response:
     print("[-]Connect Failed! Please check your Proxy or Network!")
     input("Press ENTER to exit!")
     exit()
+
+
+def get_javlib_cookie() -> [dict, str]:
+    proxy, timeout, retry_count = config.Config().proxy()
+    proxies = get_proxy(proxy)
+
+    raw_cookie = {}
+    user_agent = ""
+
+    # Get __cfduid/cf_clearance and user-agent
+    for i in range(retry_count):
+        try:
+            raw_cookie, user_agent = cloudscraper.get_cookie_string(
+                "http://www.m45e.com/",
+                proxies=proxies
+            )
+        except requests.exceptions.ProxyError:
+            print("[-] ProxyError, retry {}/{}".format(i+1, retry_count))
+        except cloudscraper.exceptions.CloudflareIUAMError:
+            print("[-] IUAMError, retry {}/{}".format(i+1, retry_count))
+
+    return raw_cookie, user_agent

@@ -25,11 +25,35 @@ jobs:
 
     - name: Install dependencies
       run: |
+        python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: Build with pyinstaller
+#    - name: Show cloudsraper package location
+#      run: |
+#        python -c 'import cloudscraper as _; print(_.__path__)'
+
+    - name: Build with pyinstaller (windows)
+      if: matrix.os == 'windows-latest'
       run: |
-        pyinstaller --onefile AV_Data_Capture.py  --hidden-import ADC_function.py --hidden-import core.py
+        pyinstaller --onefile AV_Data_Capture.py --hidden-import ADC_function.py --hidden-import core.py --add-data='C:\\hostedtoolcache\\windows\\Python\\3.7.6\\x64\\lib\\site-packages\\cloudscraper\\;cloudscraper'
+
+    - name: Build with pyinstaller (mac)
+      if: matrix.os == 'macos-latest'
+      run: |
+        pyinstaller \
+          --onefile AV_Data_Capture.py \
+          --hidden-import ADC_function.py \
+          --hidden-import core.py \
+          --add-data='/Users/runner/hostedtoolcache/Python/3.7.6/x64/lib/python3.7/site-packages/cloudscraper/:cloudscraper'
+
+    - name: Build with pyinstaller (ubuntu)
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        pyinstaller \
+          --onefile AV_Data_Capture.py \
+          --hidden-import ADC_function.py \
+          --hidden-import core.py \
+          --add-data='/opt/hostedtoolcache/Python/3.7.6/x64/lib/python3.7/site-packages/cloudscraper/:cloudscraper'
 
     - name: Copy config.ini
       run: |

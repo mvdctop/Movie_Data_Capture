@@ -15,6 +15,7 @@ import javbus
 import javdb
 import mgstage
 import xcity
+import javlib
 
 
 def escape_path(path, escape_literals: str):  # Remove escape literals
@@ -53,6 +54,7 @@ def get_data_from_json(file_number, filepath, conf: config.Config):  # ä»ŽJSONè¿
         "mgstage": mgstage.main,
         "jav321": jav321.main,
         "xcity": xcity.main,
+        "javlib": javlib.main,
     }
 
     # default fetch order list, from the beginning to the end
