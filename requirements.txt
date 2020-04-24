@@ -4,3 +4,4 @@ lxml
 beautifulsoup4
 pillow
 pyinstaller
+cloudscraper
