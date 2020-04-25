@@ -28,6 +28,10 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
+    - name: Test number_perser.get_number
+      run: |
+        python number_parser.py -v
+
 #    - name: Show cloudsraper package location
 #      run: |
 #        python -c 'import cloudscraper as _; print(_.__path__)'
