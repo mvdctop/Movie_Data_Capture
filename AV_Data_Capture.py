@@ -1,5 +1,6 @@
 import argparse
 from core import *
+from number_parser import get_number
 
 
 def check_update(local_version):
@@ -66,30 +67,9 @@ def CEF(path):
         a = ''
 
 
-def getNumber(filepath,absolute_path = False):
-    if absolute_path == True:
-        filepath=filepath.replace('\\','/')
-        file_number = str(re.findall(r'(.+?)\.', str(re.search('([^<>/\\\\|:""\\*\\?]+)\\.\\w+$', filepath).group()))).strip("['']").replace('_', '-')
-        return file_number
-    if '-' in filepath or '_' in filepath:  # 普通提取番号 主要处理包含减号-和_的番号
-        filepath = filepath.replace("_", "-")
-        filepath.strip('22-sht.me').strip('-HD').strip('-hd')
-        filename = str(re.sub("\[\d{4}-\d{1,2}-\d{1,2}\] - ", "", filepath))  # 去除文件名中时间
-        if 'FC2' or 'fc2' in filename:
-            filename = filename.replace('-PPV', '').replace('PPV-', '').replace('FC2PPV-', 'FC2-').replace('FC2PPV_', 'FC2-')
-            filename = filename.replace('-ppv', '').replace('ppv-', '').replace('fc2ppv-', 'FC2-').replace('fc2ppv_', 'FC2-')
-        file_number = re.search(r'\w+-\w+', filename, re.A).group()
-        return file_number
-    else:  # 提取不含减号-的番号，FANZA CID
-        try:
-            return str(re.findall(r'(.+?)\.', str(re.search('([^<>/\\\\|:""\\*\\?]+)\\.\\w+$', filepath).group()))).strip("['']").replace('_', '-')
-        except:
-            return re.search(r'(.+?)\.', filepath)[0]
-
-
 def create_data_and_move(file_path: str, c: config.Config):
     # Normalized number, eg: 111xxx-222.mp4 -> xxx-222.mp4
-    n_number = getNumber(file_path, absolute_path=True)
+    n_number = get_number(file_path)
 
     try:
         print("[!]Making Data for [{}], the number is [{}]".format(file_path, n_number))
