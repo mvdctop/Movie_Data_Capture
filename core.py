@@ -2,6 +2,7 @@ import json
 import os.path
 import re
 import shutil
+import platform
 
 from PIL import Image
 from ADC_function import *
@@ -131,11 +132,14 @@ def get_data_from_json(file_number, filepath, conf: config.Config):  # 从JSON�
     # ====================处理异常字符 END================== #\/:*?"<>|
 
     location_rule = eval(conf.location_rule())
-    if 'actor' in conf.location_rule() and len(actor) > 100:
-        print(conf.location_rule())
-        location_rule = eval(conf.location_rule().replace("actor","'多人作品'"))
-    if 'title' in conf.location_rule() and len(title) > 100:
-        location_rule = eval(conf.location_rule().replace("title",'number'))
+
+    # Process only Windows.
+    if platform.system() == "Windows":
+        if 'actor' in conf.location_rule() and len(actor) > 100:
+            print(conf.location_rule())
+            location_rule = eval(conf.location_rule().replace("actor","'多人作品'"))
+        if 'title' in conf.location_rule() and len(title) > 100:
+            location_rule = eval(conf.location_rule().replace("title",'number'))
 
     # 返回处理后的json_data
     json_data['title'] = title
