@@ -1,0 +1,13 @@
+version: "2.2"
+services:
+  jav:
+    user: "${JAVUID}:${JAVGID}"
+    image: jav:local
+    build: .
+    volumes:
+      - ./config.ini:/jav/config.ini
+      - ${JAV_PATH}:/jav/data
+    command:
+      - python
+      - /jav/AV_Data_Capture.py
+      - -a
