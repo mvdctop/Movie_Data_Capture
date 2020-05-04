@@ -93,6 +93,15 @@ CLI 版本
 3. 运行软件等待完成
 4. 把 JAV_output 导入至 Kodi, Emby, Jellyfin 中。
 
+## 使用 Docker
+Docker容器可以方便在在NAS上使用。
+
+1. 将docker目录中的内容下载下来
+2. 构建镜像 `sudo docker-compose build jav`
+3. 运行容器 `JAVUID=$(id -u) JAVGID=$(id -g) JAV_PATH=<FullPathToLibrary> sudo docker up -d jav`
+4. 容器运行结束后会自动退出，处理好的内容会存入`<FullPathToLibrary>/organized`, 失败的内容会移入`<FullPathToLibrary>/failure_output`.
+5. 注意目前容器不支持配置代理。所以必须在路由器上配置好透明代理，或者在build之前自行修改`config.ini`的内容。
+
 详细请看以下完整文档
 
 # 完整文档
