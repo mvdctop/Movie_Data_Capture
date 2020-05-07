@@ -80,9 +80,9 @@ CLI 版本
 ![preview_picture_2](https://i.loli.net/2019/07/04/5d1cf9bb2696937880.jpg)
 
 # 下载
-[下载地址](https://github.com/yoshiko2/AV_Data_Capture/releases)
+### [下载地址](https://github.com/yoshiko2/AV_Data_Capture/releases)
 
-### MacOS，FreeBSD等unix系操作系统 | For Advenced User
+### For Advenced User|高级用户|开发者
 * 请clone源码包运行，并手动安装Python3环境
 
 # 如何使用
