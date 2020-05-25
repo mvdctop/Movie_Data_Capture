@@ -9,7 +9,7 @@ def check_update(local_version):
     try:
         remote = float(data["tag_name"])
         local = float(local_version)
-    except ValueError:
+    except:
         print("[-] Check update failed! Skipped.")
         return
 
