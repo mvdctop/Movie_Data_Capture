@@ -1,0 +1,9 @@
+version: "1"
+rules:
+  - base: mod
+    upstream: yoshiko2:master
+    mergeMethod: merge
+  - base: master
+    upstream: yoshiko2:master
+    mergeMethod: hardreset
+label: ":arrow_heading_down: pull"

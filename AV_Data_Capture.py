@@ -1,3 +1,4 @@
+import os
 import argparse
 from core import *
 from number_parser import get_number
@@ -28,9 +29,10 @@ def argparse_function() -> [str, str, bool]:
     parser.add_argument("file", default='', nargs='?', help="Single Movie file path.")
     parser.add_argument("-c", "--config", default='config.ini', nargs='?', help="The config file Path.")
     parser.add_argument("-a", "--auto-exit", dest='autoexit', action="store_true", help="Auto exit after program complete")
+    parser.add_argument("-e", "--existed", default='existed.txt', nargs='?', help="The file Path of the list of existed videos.")
     args = parser.parse_args()
 
-    return args.file, args.config, args.autoexit
+    return args.file, args.config, args.autoexit, args.existed
 
 def movie_lists(root, escape_folder):
     for folder in escape_folder:
@@ -67,9 +69,13 @@ def CEF(path):
         a = ''
 
 
-def create_data_and_move(file_path: str, c: config.Config):
+def create_data_and_move(file_path: str, c: config.Config, existed: list):
     # Normalized number, eg: 111xxx-222.mp4 -> xxx-222.mp4
     n_number = get_number(file_path)
+
+    if n_number.lower() in existed:
+        print('Existed!')
+        return
 
     try:
         print("[!]Making Data for [{}], the number is [{}]".format(file_path, n_number))
@@ -94,7 +100,7 @@ if __name__ == '__main__':
     version = '3.4'
 
     # Parse command line args
-    single_file_path, config_file, auto_exit = argparse_function()
+    single_file_path, config_file, auto_exit, existed = argparse_function()
 
     # Read config.ini
     conf = config.Config(path=config_file)
@@ -106,6 +112,13 @@ if __name__ == '__main__':
 
     if conf.update_check():
         check_update(version)
+
+    if os.path.exists(existed):
+        with open(existed, 'r') as f:
+            existed_list = f.readlines()
+            existed_list = [ str(x).lower() for x in existed_list ]
+    else:
+        existed_list = []
 
     create_failed_folder(conf.failed_folder())
     os.chdir(os.getcwd())
@@ -130,7 +143,7 @@ if __name__ == '__main__':
         count = count + 1
         percentage = str(count / int(count_all) * 100)[:4] + '%'
         print('[!] - ' + percentage + ' [' + str(count) + '/' + count_all + '] -')
-        create_data_and_move(movie_path, conf)
+        create_data_and_move(movie_path, conf, existed_list)
 
     CEF(conf.success_folder())
     CEF(conf.failed_folder())
