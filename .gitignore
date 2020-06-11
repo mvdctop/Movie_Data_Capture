@@ -109,3 +109,6 @@ venv.bak/
 # success/failed folder
 JAV_output/**/*
 failed/*
+test/*
+venv/*
+existed.txt
