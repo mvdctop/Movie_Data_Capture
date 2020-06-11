@@ -105,8 +105,8 @@ def getYear_fc2com(release):
 
 def main(number):
     try:
-        number = number.replace('FC2-', '').replace('fc2-', '')
-        htmlcode2 = ADC_function.get_html('https://adult.contents.fc2.com/article/'+number+'/')
+        fc2number = number.replace('FC2-', '').replace('fc2-', '')
+        htmlcode2 = ADC_function.get_html('https://adult.contents.fc2.com/article/'+fc2number+'/')
         htmlcode = ADC_function.get_html('https://fc2club.com//html/FC2-' + number + '.html')
         actor = getActor(htmlcode)
         if getActor(htmlcode) == '':
@@ -130,7 +130,7 @@ def main(number):
             'source':'https://fc2club.com//html/FC2-' + number + '.html',
         }
         if dic['title'] == '':
-            htmlcode2 = ADC_function.get_html('https://adult.contents.fc2.com/article/' + number + '/',cookies={'wei6H':'1'})
+            htmlcode2 = ADC_function.get_html('https://adult.contents.fc2.com/article/' + fc2number + '/',cookies={'wei6H':'1'})
             actor = getActor(htmlcode)
             if getActor(htmlcode) == '':
                 actor = 'FC2系列'
@@ -142,15 +142,15 @@ def main(number):
                 'runtime': getYear_fc2com(getRelease(htmlcode2)),
                 'director': getStudio_fc2com(htmlcode2),
                 'actor': actor,
-                'release': getRelease_fc2com(number),
-                'number': 'FC2-' + number,
+                'release': getRelease_fc2com(fc2number),
+                'number': 'FC2-' + fc2number,
                 'cover': getCover_fc2com(htmlcode2),
                 'imagecut': 0,
-                'tag': getTag_fc2com(number),
+                'tag': getTag_fc2com(fc2number),
                 'label': '',
                 'actor_photo': '',
-                'website': 'http://adult.contents.fc2.com/article/' + number + '/',
-                'source': 'http://adult.contents.fc2.com/article/' + number + '/',
+                'website': 'http://adult.contents.fc2.com/article/' + fc2number + '/',
+                'source': 'http://adult.contents.fc2.com/article/' + fc2number + '/',
             }
     except Exception as e:
         # (TODO) better handle this
