@@ -196,17 +196,17 @@ def create_folder(success_folder, location_rule, json_data, conf: config.Config)
 
 # path = examle:photo , video.in the Project Folder!
 def download_file_with_filename(url, filename, path, conf: config.Config, filepath, failed_folder):
-    proxy, timeout, retry_count = conf.proxy()
+    proxy, timeout, retry_count, proxytype = config.Config().proxy()
 
     for i in range(retry_count):
         try:
             if not proxy == '':
                 if not os.path.exists(path):
                     os.makedirs(path)
+                proxies = get_proxy(proxy, proxytype)
                 headers = {
                     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36'}
-                r = requests.get(url, headers=headers, timeout=timeout,
-                                 proxies={"http": "http://" + str(proxy), "https": "https://" + str(proxy)})
+                r = requests.get(url, headers=headers, timeout=timeout, proxies=proxies)
                 if r == '':
                     print('[-]Movie Data not found!')
                     return 
@@ -248,7 +248,7 @@ def image_download(cover, number, c_word, path, conf: config.Config, filepath, f
         moveFailedFolder(filepath, failed_folder)
         return
 
-    _proxy, _timeout, retry = conf.proxy()
+    _proxy, _timeout, retry, _proxytype = conf.proxy()
     for i in range(retry):
         if os.path.getsize(path + '/' + number + c_word + '-fanart.jpg') == 0:
             print('[!]Image Download Failed! Trying again. [{}/3]', i + 1)
