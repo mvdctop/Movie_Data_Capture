@@ -75,9 +75,12 @@ def getOutline(htmlcode):  #获取演员
     except:
         return ''
 def getSerise(htmlcode):
-    html = etree.fromstring(htmlcode, etree.HTMLParser())
-    result = str(html.xpath('/html/body/div[5]/div[1]/div[2]/p[7]/a/text()')).strip(" ['']")
-    return result
+    try:
+        html = etree.fromstring(htmlcode, etree.HTMLParser())
+        result = str(html.xpath('/html/body/div[5]/div[1]/div[2]/p[7]/a/text()')).strip(" ['']")
+        return result
+    except:
+        return ''
 def getTag(htmlcode):  # 获取演员
     tag = []
     soup = BeautifulSoup(htmlcode, 'lxml')
@@ -113,6 +116,7 @@ def main_uncensored(number):
         'actor_photo': '',
         'website': 'https://www.javbus.com/' + number,
         'source': 'javbus.py',
+        'series': getSerise(htmlcode),
     }
     js = json.dumps(dic, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ':'), )  # .encode('UTF-8')
     return js
@@ -143,6 +147,7 @@ def main(number):
                 'actor_photo': getActorPhoto(htmlcode),
                 'website': 'https://www.javbus.com/' + number,
                 'source': 'javbus.py',
+                'series': getSerise(htmlcode),
             }
             js = json.dumps(dic, ensure_ascii=False, sort_keys=True, indent=4,
                             separators=(',', ':'), )  # .encode('UTF-8')
@@ -157,3 +162,6 @@ def main(number):
             data, ensure_ascii=False, sort_keys=True, indent=4, separators=(",", ":")
         )
         return js
+
+if __name__ == "__main__" :
+    print(main('ipx-292'))

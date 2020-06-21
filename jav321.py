@@ -13,7 +13,6 @@ def main(number: str) -> json:
         data = parse_info(soup)
         dic = {
             "title": get_title(lx),
-            "studio": "",
             "year": get_year(data),
             "outline": get_outline(lx),
             "director": "",
@@ -46,10 +45,12 @@ def parse_info(soup: BeautifulSoup) -> dict:
         return {
             "actor": get_actor(data_dic),
             "label": get_label(data_dic),
+            "studio": get_studio(data_dic),
             "tag": get_tag(data_dic),
             "number": get_number(data_dic),
             "release": get_release(data_dic),
             "runtime": get_runtime(data_dic),
+            "series": get_series(data_dic),
         }
     else:
         return {}
@@ -84,6 +85,9 @@ def get_cover(lx: html.HtmlElement) -> str:
 def get_outline(lx: html.HtmlElement) -> str:
     return lx.xpath("/html/body/div[2]/div[1]/div[1]/div[2]/div[3]/div/text()")[0]
 
+def get_series2(lx: html.HtmlElement) -> str:
+    return lx.xpath("/html/body/div[2]/div[1]/div[1]/div[2]/div[1]/div[2]/a[11]/text()")[0]
+
 
 def get_actor(data: hash) -> str:
     if "女优" in data:
@@ -102,6 +106,13 @@ def get_label(data: hash) -> str:
 def get_tag(data: hash) -> str:
     if "标签" in data:
         return get_anchor_info(data["标签"])
+    else:
+        return ""
+
+
+def get_studio(data: hash) -> str:
+    if "片商" in data:
+        return get_anchor_info(data["片商"])
     else:
         return ""
 
@@ -134,5 +145,12 @@ def get_year(data: hash) -> str:
         return ""
 
 
+def get_series(data: hash) -> str:
+    if "系列" in data:
+        return get_anchor_info(data["系列"])
+    else:
+        return ""
+
+
 if __name__ == "__main__":
-    print(main("wmc-002"))
+    print(main("soe-259"))

@@ -159,5 +159,5 @@ def main(number):
     js = json.dumps(dic, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ':'),)#.encode('UTF-8')
     return js
 
-
-#print(main('1252953'))
+if __name__ == '__main__':
+    print(main('1252953'))

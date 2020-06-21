@@ -108,7 +108,7 @@ def getRelease(text):
                 )[0].lstrip("\n")
             except:
                 pass
-    return result
+    return result.replace('/','-')
 
 
 def getTag(text):
@@ -174,6 +174,23 @@ def getOutline(text):
     return result
 
 
+def getSeries(text):
+    try:
+        html = etree.fromstring(text, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
+        try:
+            result = html.xpath(
+                "//td[contains(text(),'シリーズ：')]/following-sibling::td/a/text()"
+            )[0]
+        except:
+            result = html.xpath(
+                "//td[contains(text(),'シリーズ：')]/following-sibling::td/text()"
+            )[0]
+        return result
+    except:
+        return ''
+
+
+
 def main(number):
     # fanza allow letter + number + underscore, normalize the input here
     # @note: I only find the usage of underscore as h_test123456789
@@ -225,6 +242,7 @@ def main(number):
             "actor_photo": "",
             "website": chosen_url,
             "source": "fanza.py",
+            "series": getSeries(htmlcode),
         }
     except:
         data = {
@@ -266,7 +284,4 @@ def main_htmlcode(number):
 
 
 if __name__ == "__main__":
-    # print(main("DV-1562"))
-    # input("[+][+]Press enter key exit, you can check the error messge before you exit.\n[+][+]按回车键结束，你可以在结束之前查看和错误信息。")
-    # print(main("ipx292"))
-    pass
+    print(main("DV-1562"))

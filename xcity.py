@@ -70,7 +70,7 @@ def getRelease(a):
     html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
     result1 = str(html.xpath('//*[@id="avodDetails"]/div/div[3]/div[2]/div/ul[2]/li[4]/text()')).strip(" ['']")
     try:
-        return re.findall('\d{4}/\d{2}/\d{2}', result1)[0]
+        return re.findall('\d{4}/\d{2}/\d{2}', result1)[0].replace('/','-')
     except:
         return ''
 
@@ -122,8 +122,7 @@ def main(number):
     try:
         number = number.upper()
         query_result = get_html(
-            'https://xcity.jp/result_published/?genre=%2Fresult_published%2F&q=' + number.replace('-',
-                                                                                                  '') + '&sg=main&num=30')
+            'https://xcity.jp/result_published/?genre=%2Fresult_published%2F&q=' + number.replace('-','') + '&sg=main&num=30')
         html = etree.fromstring(query_result, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
         urls = html.xpath("//table[contains(@class, 'resultList')]/tr[2]/td[1]/a/@href")[0]
         detail_page = get_html('https://xcity.jp' + urls)

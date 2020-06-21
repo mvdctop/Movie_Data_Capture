@@ -86,7 +86,7 @@ def create_data_and_move(file_path: str, c: config.Config):
 
 
 if __name__ == '__main__':
-    version = '3.4.3'
+    version = '3.5'
 
     # Parse command line args
     single_file_path, config_file, auto_exit = argparse_function()

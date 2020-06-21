@@ -98,6 +98,7 @@ def get_data_from_json(file_number, filepath, conf: config.Config):  # 从JSON�
     runtime = json_data['runtime']
     outline = json_data['outline']
     label = json_data['label']
+    series = json_data['series']
     year = json_data['year']
     try:
         cover_small = json_data['cover_small']
@@ -166,7 +167,8 @@ def get_info(json_data):  # 返回json里的数据
     number = json_data['number']
     cover = json_data['cover']
     website = json_data['website']
-    return title, studio, year, outline, runtime, director, actor_photo, release, number, cover, website
+    series = json_data['series']
+    return title, studio, year, outline, runtime, director, actor_photo, release, number, cover, website, series
 
 
 def small_cover_check(path, number, cover_small, c_word, conf: config.Config, filepath, failed_folder):
@@ -263,7 +265,7 @@ def image_download(cover, number, c_word, path, conf: config.Config, filepath, f
 
 
 def print_files(path, c_word, naming_rule, part, cn_sub, json_data, filepath, failed_folder, tag, actor_list, liuchu):
-    title, studio, year, outline, runtime, director, actor_photo, release, number, cover, website = get_info(json_data)
+    title, studio, year, outline, runtime, director, actor_photo, release, number, cover, website, series = get_info(json_data)
 
     try:
         if not os.path.exists(path):
@@ -300,6 +302,7 @@ def print_files(path, c_word, naming_rule, part, cn_sub, json_data, filepath, fa
             try:
                 for i in tag:
                     print("  <tag>" + i + "</tag>", file=code)
+                print("  <tag>" + series + "</tag>", file=code)
             except:
                 aaaaa = ''
             try:

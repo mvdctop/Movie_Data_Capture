@@ -21,8 +21,8 @@ def getActor(a): #//*[@id="center_column"]/div[2]/div[1]/div/table/tbody/tr[1]/t
     return str(result1+result2).strip('+').replace("', '",'').replace('"','').replace('/',',')
 def getStudio(a):
     html = etree.fromstring(a, etree.HTMLParser()) #//table/tr[1]/td[1]/text()
-    result1=str(html.xpath('//th[contains(text(),"シリーズ：")]/../td/a/text()')).strip(" ['']").strip('\\n    ').strip('\\n')
-    result2=str(html.xpath('//th[contains(text(),"シリーズ：")]/../td/text()')).strip(" ['']").strip('\\n    ').strip('\\n')
+    result1=str(html.xpath('//th[contains(text(),"メーカー：")]/../td/a/text()')).strip(" ['']").strip('\\n    ').strip('\\n')
+    result2=str(html.xpath('//th[contains(text(),"メーカー：")]/../td/text()')).strip(" ['']").strip('\\n    ').strip('\\n')
     return str(result1+result2).strip('+').replace("', '",'').replace('"','')
 def getRuntime(a):
     html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
@@ -55,14 +55,14 @@ def getRelease(a):
         '\\n')
     result2 = str(html.xpath('//th[contains(text(),"配信開始日：")]/../td/text()')).strip(" ['']").strip('\\n    ').strip(
         '\\n')
-    return str(result1 + result2).strip('+')
+    return str(result1 + result2).strip('+').replace('/','-')
 def getTag(a):
     html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
     result1 = str(html.xpath('//th[contains(text(),"ジャンル：")]/../td/a/text()')).strip(" ['']").strip('\\n    ').strip(
         '\\n')
     result2 = str(html.xpath('//th[contains(text(),"ジャンル：")]/../td/text()')).strip(" ['']").strip('\\n    ').strip(
         '\\n')
-    return str(result1 + result2).strip('+').replace("', '\\n",",").replace("', '","").replace('"','')
+    return str(result1 + result2).strip('+').replace("', '\\n",",").replace("', '","").replace('"','').replace(',,','').split(',')
 def getCover(htmlcode):
     html = etree.fromstring(htmlcode, etree.HTMLParser())
     result = str(html.xpath('//*[@id="center_column"]/div[1]/div[1]/div/div/h2/img/@src')).strip(" ['']")
@@ -79,6 +79,13 @@ def getOutline(htmlcode):
     html = etree.fromstring(htmlcode, etree.HTMLParser())
     result = str(html.xpath('//p/text()')).strip(" ['']").replace(u'\\n', '').replace("', '', '", '')
     return result
+def getSeries(a):
+    html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
+    result1 = str(html.xpath('//th[contains(text(),"シリーズ")]/../td/a/text()')).strip(" ['']").strip('\\n    ').strip(
+        '\\n')
+    result2 = str(html.xpath('//th[contains(text(),"シリーズ")]/../td/text()')).strip(" ['']").strip('\\n    ').strip(
+        '\\n')
+    return str(result1 + result2).strip('+').replace("', '", '').replace('"', '')
 def main(number2):
     number=number2.upper()
     htmlcode=str(get_html('https://www.mgstage.com/product/product_detail/'+str(number)+'/',cookies={'adc':'1'}))
@@ -103,6 +110,7 @@ def main(number2):
         'actor_photo': '',
         'website':'https://www.mgstage.com/product/product_detail/'+str(number)+'/',
         'source': 'mgstage.py',
+        'series': getSeries(a),
     }
     js = json.dumps(dic, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ':'), )  # .encode('UTF-8')
     return js

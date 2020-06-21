@@ -13,8 +13,8 @@ def getTitle(a):
     return result
 def getActor(a):  # //*[@id="center_column"]/div[2]/div[1]/div/table/tbody/tr[1]/td/text()
     html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
-    result1 = str(html.xpath('//strong[contains(text(),"演員")]/../following-sibling::span/text()')).strip(" ['']")
-    result2 = str(html.xpath('//strong[contains(text(),"演員")]/../following-sibling::span/a/text()')).strip(" ['']")
+    result1 = str(html.xpath('//strong[contains(text(),"演員")]/../span/text()')).strip(" ['']")
+    result2 = str(html.xpath('//strong[contains(text(),"演員")]/../span/a/text()')).strip(" ['']")
     return str(result1 + result2).strip('+').replace(",\\xa0", "").replace("'", "").replace(' ', '').replace(',,', '').lstrip(',').replace(',', ', ')
 def getActorPhoto(actor): #//*[@id="star_qdt"]/li/a/img
     a = actor.split(',')
@@ -25,23 +25,23 @@ def getActorPhoto(actor): #//*[@id="star_qdt"]/li/a/img
     return d
 def getStudio(a):
     html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
-    result1 = str(html.xpath('//strong[contains(text(),"片商")]/../following-sibling::span/text()')).strip(" ['']")
-    result2 = str(html.xpath('//strong[contains(text(),"片商")]/../following-sibling::span/a/text()')).strip(" ['']")
+    result1 = str(html.xpath('//strong[contains(text(),"片商")]/../span/text()')).strip(" ['']")
+    result2 = str(html.xpath('//strong[contains(text(),"片商")]/../span/a/text()')).strip(" ['']")
     return str(result1 + result2).strip('+').replace("', '", '').replace('"', '')
 def getRuntime(a):
     html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
-    result1 = str(html.xpath('//strong[contains(text(),"時長")]/../following-sibling::span/text()')).strip(" ['']")
-    result2 = str(html.xpath('//strong[contains(text(),"時長")]/../following-sibling::span/a/text()')).strip(" ['']")
+    result1 = str(html.xpath('//strong[contains(text(),"時長")]/../span/text()')).strip(" ['']")
+    result2 = str(html.xpath('//strong[contains(text(),"時長")]/../span/a/text()')).strip(" ['']")
     return str(result1 + result2).strip('+').rstrip('mi')
 def getLabel(a):
     html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
-    result1 = str(html.xpath('//strong[contains(text(),"系列")]/../following-sibling::span/text()')).strip(" ['']")
-    result2 = str(html.xpath('//strong[contains(text(),"系列")]/../following-sibling::span/a/text()')).strip(" ['']")
+    result1 = str(html.xpath('//strong[contains(text(),"系列")]/../span/text()')).strip(" ['']")
+    result2 = str(html.xpath('//strong[contains(text(),"系列")]/../span/a/text()')).strip(" ['']")
     return str(result1 + result2).strip('+').replace("', '", '').replace('"', '')
 def getNum(a):
     html = etree.fromstring(a, etree.HTMLParser())
-    result1 = str(html.xpath('//strong[contains(text(),"番號")]/../following-sibling::span/text()')).strip(" ['']")
-    result2 = str(html.xpath('//strong[contains(text(),"番號")]/../following-sibling::span/a/text()')).strip(" ['']")
+    result1 = str(html.xpath('//strong[contains(text(),"番號")]/../span/text()')).strip(" ['']")
+    result2 = str(html.xpath('//strong[contains(text(),"番號")]/../span/a/text()')).strip(" ['']")
     return str(result2 + result1).strip('+')
 def getYear(getRelease):
     try:
@@ -51,14 +51,18 @@ def getYear(getRelease):
         return getRelease
 def getRelease(a):
     html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
-    result1 = str(html.xpath('//strong[contains(text(),"時間")]/../following-sibling::span/text()')).strip(" ['']")
-    result2 = str(html.xpath('//strong[contains(text(),"時間")]/../following-sibling::span/a/text()')).strip(" ['']")
+    result1 = str(html.xpath('//strong[contains(text(),"時間")]/../span/text()')).strip(" ['']")
+    result2 = str(html.xpath('//strong[contains(text(),"時間")]/../span/a/text()')).strip(" ['']")
     return str(result1 + result2).strip('+')
 def getTag(a):
     html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
-    result1 = str(html.xpath('//strong[contains(text(),"类别")]/../following-sibling::span/text()')).strip(" ['']")
-    result2 = str(html.xpath('//strong[contains(text(),"类别")]/../following-sibling::span/a/text()')).strip(" ['']")
-    return str(result1 + result2).strip('+').replace(",\\xa0", "").replace("'", "").replace(' ', '').replace(',,', '').lstrip(',')
+    try:
+        result = html.xpath('//strong[contains(text(),"類別")]/../span/a/text()')
+        return result
+    except:
+        result = html.xpath('//strong[contains(text(),"類別")]/../span/text()')
+        return result
+
 def getCover_small(a, index=0):
     # same issue mentioned below,
     # javdb sometime returns multiple results
@@ -74,17 +78,26 @@ def getCover(htmlcode):
     return result
 def getDirector(a):
     html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
-    result1 = str(html.xpath('//strong[contains(text(),"導演")]/../following-sibling::span/text()')).strip(" ['']")
-    result2 = str(html.xpath('//strong[contains(text(),"導演")]/../following-sibling::span/a/text()')).strip(" ['']")
+    result1 = str(html.xpath('//strong[contains(text(),"導演")]/../span/text()')).strip(" ['']")
+    result2 = str(html.xpath('//strong[contains(text(),"導演")]/../span/a/text()')).strip(" ['']")
     return str(result1 + result2).strip('+').replace("', '", '').replace('"', '')
 def getOutline(htmlcode):
     html = etree.fromstring(htmlcode, etree.HTMLParser())
     result = str(html.xpath('//*[@id="introduction"]/dd/p[1]/text()')).strip(" ['']")
     return result
+def getSeries(a):
+    #/html/body/section/div/div[3]/div[2]/nav/div[7]/span/a
+    html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
+    result1 = str(html.xpath('//strong[contains(text(),"系列")]/../span/text()')).strip(" ['']")
+    result2 = str(html.xpath('//strong[contains(text(),"系列")]/../span/a/text()')).strip(" ['']")
+    return str(result1 + result2).strip('+').replace("', '", '').replace('"', '')
 def main(number):
     try:
         number = number.upper()
-        query_result = get_html('https://javdb.com/search?q=' + number + '&f=all')
+        try:
+            query_result = get_html('https://javdb.com/search?q=' + number + '&f=all')
+        except:
+            query_result = get_html('https://javdb4.com/search?q=' + number + '&f=all')
         html = etree.fromstring(query_result, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
         # javdb sometime returns multiple results,
         # and the first elememt maybe not the one we are looking for
@@ -111,6 +124,7 @@ def main(number):
             'actor_photo': getActorPhoto(getActor(detail_page)),
             'website': 'https://javdb.com' + correct_url,
             'source': 'javdb.py',
+            'series': getSeries(detail_page),
         }
     except Exception as e:
         # print(e)
@@ -120,4 +134,5 @@ def main(number):
 
 # main('DV-1562')
 # input("[+][+]Press enter key exit, you can check the error messge before you exit.\n[+][+]按回车键结束，你可以在结束之前查看和错误信息。")
-#print(main('ipx-292'))
+if __name__ == "__main__":
+    print(main('ipx-292'))
