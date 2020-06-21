@@ -145,11 +145,18 @@ soft_link=0
 ### 网络设置
 ```
 [proxy]  
+type=http
 proxy=127.0.0.1:1081  
 timeout=10  
 retry=3
 ```  
 #### 针对某些地区的代理设置
+
+```
+type=http
+```
+代理类型 http或socks5
+
 ```
 proxy=127.0.0.1:1081  
 ```
@@ -233,6 +240,7 @@ cover = 封面链接
 tag = 类型
 outline = 简介
 runtime = 时长
+series = 系列
 ```
 
 上面的参数以下都称之为**变量**
