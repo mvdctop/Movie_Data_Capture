@@ -177,7 +177,7 @@ def small_cover_check(path, number, cover_small, c_word, conf: config.Config, fi
 
 
 def create_folder(success_folder, location_rule, json_data, conf: config.Config):  # 创建文件夹
-    title, studio, year, outline, runtime, director, actor_photo, release, number, cover, website= get_info(json_data)
+    title, studio, year, outline, runtime, director, actor_photo, release, number, cover, website, series= get_info(json_data)
     if len(location_rule) > 240:  # 新建成功输出文件夹
         path = success_folder + '/' + location_rule.replace("'actor'", "'manypeople'", 3).replace("actor","'manypeople'",3)  # path为影片+元数据所在目录
     else:
