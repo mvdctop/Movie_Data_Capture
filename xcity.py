@@ -32,14 +32,19 @@ def getActorPhoto(actor):  # //*[@id="star_qdt"]/li/a/img
 
 def getStudio(a):
     html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
-    result1 = str(html.xpath('//*[@id="avodDetails"]/div/div[3]/div[2]/div/ul[1]/li[4]/a/span/text()')).strip(" ['']")
-    result2 = str(html.xpath('//strong[contains(text(),"片商")]/../following-sibling::span/a/text()')).strip(" ['']")
-    return str(result1 + result2).strip('+').replace("', '", '').replace('"', '')
+    try:
+        result = str(html.xpath('//*[@id="avodDetails"]/div/div[3]/div[2]/div/ul[1]/li[4]/a/span/text()')).strip(" ['']")
+    except:
+        result = str(html.xpath('//strong[contains(text(),"片商")]/../following-sibling::span/a/text()')).strip(" ['']")
+    return result.strip('+').replace("', '", '').replace('"', '')
 
 
 def getRuntime(a):
     html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
-    result1 = str(html.xpath('//*[@id="avodDetails"]/div/div[3]/div[2]/div/ul[2]/li[3]/text()')).strip(" ['']")
+    try:
+        result1 = html.xpath('//*[@id="avodDetails"]/div/div[3]/div[2]/div/ul[2]/li[3]/text()')[0]
+    except:
+        return ''
     try:
         return re.findall('\d+',result1)[0]
     except:
@@ -48,14 +53,20 @@ def getRuntime(a):
 
 def getLabel(a):
     html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
-    result1 = str(html.xpath('//*[@id="avodDetails"]/div/div[3]/div[2]/div/ul[1]/li[5]/a/span/text()')).strip(" ['']")
-    return result1
+    try:
+        result = html.xpath('//*[@id="avodDetails"]/div/div[3]/div[2]/div/ul[1]/li[5]/a/span/text()')[0]
+        return result
+    except:
+        return ''
 
 
 def getNum(a):
     html = etree.fromstring(a, etree.HTMLParser())
-    result1 = str(html.xpath('//*[@id="hinban"]/text()')).strip(" ['']")
-    return result1
+    try:
+        result = html.xpath('//*[@id="hinban"]/text()')[0]
+        return result
+    except:
+        return ''
 
 
 def getYear(getRelease):
@@ -68,9 +79,12 @@ def getYear(getRelease):
 
 def getRelease(a):
     html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
-    result1 = str(html.xpath('//*[@id="avodDetails"]/div/div[3]/div[2]/div/ul[2]/li[4]/text()')).strip(" ['']")
     try:
-        return re.findall('\d{4}/\d{2}/\d{2}', result1)[0].replace('/','-')
+        result = html.xpath('//*[@id="avodDetails"]/div/div[3]/div[2]/div/ul[2]/li[4]/text()')[0]
+    except:
+        return ''
+    try:
+        return re.findall('\d{4}/\d{2}/\d{2}', result)[0].replace('/','-')
     except:
         return ''
 
@@ -99,23 +113,44 @@ def getCover_small(a, index=0):
 
 def getCover(htmlcode):
     html = etree.fromstring(htmlcode, etree.HTMLParser())
-    result = str(html.xpath('//*[@id="avodDetails"]/div/div[3]/div[1]/p/a/@href')).strip(" ['']")
-    return 'https:'+result
+    try:
+        result = html.xpath('//*[@id="avodDetails"]/div/div[3]/div[1]/p/a/@href')[0]
+        return 'https:' + result
+    except:
+        return ''
 
 
 def getDirector(a):
     html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
-    result1 = str(html.xpath('//*[@id="program_detail_director"]/text()')).strip(" ['']").replace(u'\\n','').replace(u'\\t','')
-    return result1
+    try:
+        result = html.xpath('//*[@id="program_detail_director"]/text()')[0].replace(u'\n','').replace(u'\t', '')
+        return result
+    except:
+        return ''
 
 
 def getOutline(htmlcode):
     html = etree.fromstring(htmlcode, etree.HTMLParser())
-    result = str(html.xpath('//*[@id="avodDetails"]/div/div[3]/div[2]/div/ul[2]/li[5]/p/text()')).strip(" ['']")
+    try:
+        result = html.xpath('//*[@id="avodDetails"]/div/div[3]/div[2]/div/ul[2]/li[5]/p/text()')[0]
+    except:
+        return ''
     try:
         return re.sub('\\\\\w*\d+','',result)
     except:
         return result
+
+def getSeries(htmlcode):
+    html = etree.fromstring(htmlcode, etree.HTMLParser())
+    try:
+        try:
+            result = html.xpath("//span[contains(text(),'シリーズ')]/../a/span/text()")[0]
+            return result
+        except:
+            result = html.xpath("//span[contains(text(),'シリーズ')]/../span/text()")[0]
+            return result
+    except:
+        return ''
 
 
 def main(number):
@@ -142,8 +177,9 @@ def main(number):
             'label': getLabel(detail_page),
             'year': getYear(getRelease(detail_page)),  # str(re.search('\d{4}',getRelease(a)).group()),
             'actor_photo': getActorPhoto(getActor(detail_page)),
-            'website': 'https://javdb.com' + urls,
+            'website': 'https://xcity.jp' + urls,
             'source': 'xcity.py',
+            'series': getSeries(detail_page),
         }
     except Exception as e:
         # print(e)

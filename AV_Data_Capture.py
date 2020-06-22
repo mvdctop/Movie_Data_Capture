@@ -66,23 +66,27 @@ def create_data_and_move(file_path: str, c: config.Config):
     # Normalized number, eg: 111xxx-222.mp4 -> xxx-222.mp4
     n_number = get_number(file_path)
 
-    try:
-        print("[!]Making Data for [{}], the number is [{}]".format(file_path, n_number))
-        core_main(file_path, n_number, c)
-        print("[*]======================================================")
-    except Exception as err:
-        print("[-] [{}] ERROR:".format(file_path))
-        print('[-]', err)
+    print("[!]Making Data for [{}], the number is [{}]".format(file_path, n_number))
+    core_main(file_path, n_number, c)
+    print("[*]======================================================")
 
-        if c.soft_link():
-            print("[-]Link {} to failed folder".format(file_path))
-            os.symlink(file_path, str(os.getcwd()) + "/" + conf.failed_folder() + "/")
-        else:
-            try:
-                print("[-]Move [{}] to failed folder".format(file_path))
-                shutil.move(file_path, str(os.getcwd()) + "/" + conf.failed_folder() + "/")
-            except Exception as err:
-                print('[!]', err)
+    # try:
+    #     print("[!]Making Data for [{}], the number is [{}]".format(file_path, n_number))
+    #     core_main(file_path, n_number, c)
+    #     print("[*]======================================================")
+    # except Exception as err:
+    #     print("[-] [{}] ERROR:".format(file_path))
+    #     print('[-]', err)
+    #
+    #     if c.soft_link():
+    #         print("[-]Link {} to failed folder".format(file_path))
+    #         os.symlink(file_path, str(os.getcwd()) + "/" + conf.failed_folder() + "/")
+    #     else:
+    #         try:
+    #             print("[-]Move [{}] to failed folder".format(file_path))
+    #             shutil.move(file_path, str(os.getcwd()) + "/" + conf.failed_folder() + "/")
+    #         except Exception as err:
+    #             print('[!]', err)
 
 
 if __name__ == '__main__':
