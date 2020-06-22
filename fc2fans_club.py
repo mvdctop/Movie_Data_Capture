@@ -128,6 +128,7 @@ def main(number):
             'actor_photo':'',
             'website':  'https://fc2club.com//html/FC2-' + number + '.html',
             'source':'https://fc2club.com//html/FC2-' + number + '.html',
+            'series': '',
         }
         if dic['title'] == '':
             htmlcode2 = ADC_function.get_html('https://adult.contents.fc2.com/article/' + number + '/',cookies={'wei6H':'1'})
@@ -151,6 +152,7 @@ def main(number):
                 'actor_photo': '',
                 'website': 'http://adult.contents.fc2.com/article/' + number + '/',
                 'source': 'http://adult.contents.fc2.com/article/' + number + '/',
+                'series': '',
             }
     except Exception as e:
         # (TODO) better handle this
