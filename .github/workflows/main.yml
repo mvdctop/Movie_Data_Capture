@@ -65,19 +65,25 @@ jobs:
         name: AV_Data_Capture-CLI-MacOS
 
         path: dist
+        run: |
+          rm -rf AV_Data_Capture-CLI-MacOS.zip
 
     - name: Upload build artifact-2
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v2
       with:
         if: matrix.os == 'ubuntu-latest'
         name: AV_Data_Capture-CLI-Linux
 
         path: dist
-
+        run: |
+          rm -rf AV_Data_Capture-CLI-Linux.zip
+          
     - name: Upload build artifact-3
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v3
       with:
         if: matrix.os == 'windows-latest'
         name: AV_Data_Capture-CLI-Windows
 
         path: dist
+        run: |
+          rm -rf AV_Data_Capture-CLI-Windows.zip
