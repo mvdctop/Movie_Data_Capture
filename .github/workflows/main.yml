@@ -63,3 +63,7 @@ jobs:
       with:
         name: AV_Data_Capture-CLI-${{ matrix.os }}
         path: dist
+        run: |
+          mv AV_Data_Capture-CLI-macos-lastest.zip AV_Data_Capture-CLI-MacOS.zip
+          mv AV_Data_Capture-CLI-ubuntu-lastest.zip AV_Data_Capture-CLI-Linux.zip
+          mv AV_Data_Capture-CLI-windows-lastest.zip AV_Data_Capture-CLI-Windows.zip
