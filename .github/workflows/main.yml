@@ -9,11 +9,8 @@ on:
       - master
 
 jobs:
-  build:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [macos-latest, windows-latest, ubuntu-latest]
+  job1:
+    runs-on: windows-latest
 
     steps:
     - uses: actions/checkout@v2
@@ -36,8 +33,7 @@ jobs:
       run: |
         echo "::set-env name=CLOUDSCRAPER_PATH::$(python -c 'import cloudscraper as _; print(_.__path__[0])' | tail -n 1)"
 
-    - name: Build with pyinstaller (windows)
-      if: matrix.os == 'windows-latest'
+    - name: Build with pyinstaller
       run: |
         pyinstaller `
           --onefile AV_Data_Capture.py `
@@ -45,8 +41,42 @@ jobs:
           --hidden-import core.py `
           --add-data "$env:CLOUDSCRAPER_PATH;cloudscraper"
 
-    - name: Build with pyinstaller (mac/ubuntu)
-      if: matrix.os == 'macos-latest' || matrix.os == 'ubuntu-latest'
+    - name: Copy config.ini
+      run: |
+        cp config.ini dist/
+
+    - name: Upload build artifact
+      uses: actions/upload-artifact@v1
+      with:
+        name: AV_Data_Capture-CLI-Windows
+        path: dist
+      
+      
+  job2:
+    runs-on: macos-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Python 3.7
+      uses: actions/setup-python@v1
+      with:
+        python-version: 3.7
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Test number_perser.get_number
+      run: |
+        python number_parser.py -v
+
+    - name: Set CLOUDSCRAPER_PATH variable
+      run: |
+        echo "::set-env name=CLOUDSCRAPER_PATH::$(python -c 'import cloudscraper as _; print(_.__path__[0])' | tail -n 1)"
+
+    - name: Build with pyinstaller
       run: |
         pyinstaller \
           --onefile AV_Data_Capture.py \
@@ -61,6 +91,47 @@ jobs:
     - name: Upload build artifact
       uses: actions/upload-artifact@v1
       with:
-        name: AV_Data_Capture-CLI-${{ matrix.os }}
+        name: AV_Data_Capture-CLI-MacOS
         path: dist
-      
+
+  job3:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Python 3.7
+      uses: actions/setup-python@v1
+      with:
+        python-version: 3.7
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Test number_perser.get_number
+      run: |
+        python number_parser.py -v
+
+    - name: Set CLOUDSCRAPER_PATH variable
+      run: |
+        echo "::set-env name=CLOUDSCRAPER_PATH::$(python -c 'import cloudscraper as _; print(_.__path__[0])' | tail -n 1)"
+
+    - name: Build with pyinstaller
+      run: |
+        pyinstaller \
+          --onefile AV_Data_Capture.py \
+          --hidden-import ADC_function.py \
+          --hidden-import core.py \
+          --add-data "$CLOUDSCRAPER_PATH:cloudscraper"
+
+    - name: Copy config.ini
+      run: |
+        cp config.ini dist/
+
+    - name: Upload build artifact
+      uses: actions/upload-artifact@v1
+      with:
+        name: AV_Data_Capture-CLI-Linux
+        path: dist
