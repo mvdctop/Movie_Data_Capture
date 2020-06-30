@@ -66,7 +66,7 @@ jobs:
 
         path: dist
         run: |
-          rm -rf AV_Data_Capture-CLI-MacOS.zip
+          rm -rf dist
 
     - name: Upload build artifact-2
       uses: actions/upload-artifact@v2
@@ -76,7 +76,7 @@ jobs:
 
         path: dist
         run: |
-          rm -rf AV_Data_Capture-CLI-Linux.zip
+          rm -rf dist
           
     - name: Upload build artifact-3
       uses: actions/upload-artifact@v3
@@ -85,5 +85,3 @@ jobs:
         name: AV_Data_Capture-CLI-Windows
 
         path: dist
-        run: |
-          rm -rf AV_Data_Capture-CLI-Windows.zip
