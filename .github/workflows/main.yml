@@ -69,7 +69,7 @@ jobs:
           rm -rf dist
 
     - name: Upload build artifact-2
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v1
       with:
         if: matrix.os == 'ubuntu-latest'
         name: AV_Data_Capture-CLI-Linux
@@ -79,7 +79,7 @@ jobs:
           rm -rf dist
           
     - name: Upload build artifact-3
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v1
       with:
         if: matrix.os == 'windows-latest'
         name: AV_Data_Capture-CLI-Windows
