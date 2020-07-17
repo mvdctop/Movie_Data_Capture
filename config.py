@@ -1,12 +1,16 @@
 import os
 import configparser
+import codecs
 
 
 class Config:
     def __init__(self, path: str = "config.ini"):
         if os.path.exists(path):
             self.conf = configparser.ConfigParser()
-            self.conf.read(path, encoding="utf-8")
+            try:
+                self.conf.read(path, encoding="utf-8-sig")
+            except:
+                self.conf.read(path, encoding="utf-8")
         else:
             print("[-] Config file not found! Use the default settings")
             self.conf = self._default_config()

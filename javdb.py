@@ -68,13 +68,22 @@ def getCover_small(a, index=0):
     # javdb sometime returns multiple results
     # DO NOT just get the firt one, get the one with correct index number
     html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
-    result = html.xpath("//div[@class='item-image fix-scale-cover']/img/@src")[index]
-    if not 'https' in result:
-        result = 'https:' + result
-    return result
+    try:
+        result = html.xpath("//div[@class='item-image fix-scale-cover']/img/@src")[index]
+        if not 'https' in result:
+            result = 'https:' + result
+        return result
+    except: # 2020.7.17 Repair Cover Url crawl
+        result = html.xpath("//div[@class='item-image fix-scale-cover']/img/@data-src")[index]
+        if not 'https' in result:
+            result = 'https:' + result
+        return result
 def getCover(htmlcode):
     html = etree.fromstring(htmlcode, etree.HTMLParser())
-    result = str(html.xpath("//div[contains(@class, 'column-video-cover')]/a/img/@src")).strip(" ['']")
+    try:
+        result = html.xpath("//div[contains(@class, 'column-video-cover')]/a/img/@src")[0]
+    except: # 2020.7.17 Repair Cover Url crawl
+        result = html.xpath("//div[contains(@class, 'column-video-cover')]/img/@src")[0]
     return result
 def getDirector(a):
     html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
