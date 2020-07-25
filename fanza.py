@@ -15,7 +15,7 @@ from ADC_function import *
 
 def getTitle(text):
     html = etree.fromstring(text, etree.HTMLParser())
-    result = html.xpath('//*[@id="title"]/text()')[0]
+    result = html.xpath('//*[starts-with(@id, "title")]/text()')[0]
     return result
 
 
@@ -94,9 +94,12 @@ def getRelease(text):
             "//td[contains(text(),'発売日：')]/following-sibling::td/a/text()"
         )[0].lstrip("\n")
     except:
-        result = html.xpath(
-            "//td[contains(text(),'発売日：')]/following-sibling::td/text()"
-        )[0].lstrip("\n")
+        try:
+            result = html.xpath(
+                "//td[contains(text(),'発売日：')]/following-sibling::td/text()"
+            )[0].lstrip("\n")
+        except:
+            result = "----"
     if result == "----":
         try:
             result = html.xpath(
@@ -208,6 +211,7 @@ def main(number):
         "https://www.dmm.co.jp/mono/anime/-/detail/=/cid=",
         "https://www.dmm.co.jp/digital/videoc/-/detail/=/cid=",
         "https://www.dmm.co.jp/digital/nikkatsu/-/detail/=/cid=",
+        "https://www.dmm.co.jp/rental/-/detail/=/cid=",
     ]
     chosen_url = ""
 
@@ -290,3 +294,4 @@ def main_htmlcode(number):
 
 if __name__ == "__main__":
     print(main("DV-1562"))
+    print(main("96fad1217"))
