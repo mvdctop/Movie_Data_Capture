@@ -57,11 +57,11 @@ def getLabel(text):
     html = etree.fromstring(text, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
     try:
         result = html.xpath(
-            "//td[contains(text(),'シリーズ：')]/following-sibling::td/a/text()"
+            "//td[contains(text(),'レーベル：')]/following-sibling::td/a/text()"
         )[0]
     except:
         result = html.xpath(
-            "//td[contains(text(),'シリーズ：')]/following-sibling::td/text()"
+            "//td[contains(text(),'レーベル：')]/following-sibling::td/text()"
         )[0]
     return result
 
