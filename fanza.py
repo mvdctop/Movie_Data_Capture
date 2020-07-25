@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import json
 import re
+from urllib.parse import urlencode
 
 from lxml import etree
 
@@ -108,7 +109,7 @@ def getRelease(text):
                 )[0].lstrip("\n")
             except:
                 pass
-    return result.replace('/','-')
+    return result.replace("/", "-")
 
 
 def getTag(text):
@@ -187,8 +188,7 @@ def getSeries(text):
             )[0]
         return result
     except:
-        return ''
-
+        return ""
 
 
 def main(number):
@@ -210,9 +210,14 @@ def main(number):
         "https://www.dmm.co.jp/digital/nikkatsu/-/detail/=/cid=",
     ]
     chosen_url = ""
+
     for url in fanza_urls:
         chosen_url = url + fanza_search_number
-        htmlcode = get_html(chosen_url)
+        htmlcode = get_html(
+            "https://www.dmm.co.jp/age_check/=/declared=yes/?{}".format(
+                urlencode({"rurl": chosen_url})
+            )
+        )
         if "404 Not Found" not in htmlcode:
             break
     if "404 Not Found" in htmlcode:
