@@ -23,7 +23,7 @@ def main(number: str):
 
     # Scraping
     result = get_html(
-        "http://www.m45e.com/cn/vl_searchbyid.php?keyword={}".format(number),
+        "http://www.javlibrary.com/cn/vl_searchbyid.php?keyword={}".format(number),
         cookies=cookies,
         ua=user_agent,
         return_type="object"

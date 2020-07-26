@@ -331,7 +331,7 @@ def print_files(path, c_word, naming_rule, part, cn_sub, json_data, filepath, fa
 
 
 def cutImage(imagecut, path, number, c_word):
-    if imagecut == 1:
+    if imagecut == 1: # 剪裁大封面
         try:
             img = Image.open(path + '/' + number + c_word + '-fanart.jpg')
             imgSize = img.size
@@ -342,7 +342,7 @@ def cutImage(imagecut, path, number, c_word):
             print('[+]Image Cutted!     ' + path + '/' + number + c_word + '-poster.jpg')
         except:
             print('[-]Cover cut failed!')
-    elif imagecut == 0:
+    elif imagecut == 0: # 复制封面
         shutil.copyfile(path + '/' + number + c_word + '-fanart.jpg',path + '/' + number + c_word + '-poster.jpg')
         print('[+]Image Copyed!     ' + path + '/' + number + c_word + '-poster.jpg')
 
@@ -481,7 +481,7 @@ def core_main(file_path, number_th, conf: config.Config):
         if multi_part == 1:
             number += part  # 这时number会被附加上CD1后缀
 
-        # 检查小封面
+        # 检查小封面, 如果image cut为3，则下载小封面
         if imagecut == 3:
             small_cover_check(path, number, json_data['cover_small'], c_word, conf, filepath, conf.failed_folder())
 

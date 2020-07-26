@@ -23,9 +23,10 @@ def argparse_function() -> [str, str, bool]:
     parser.add_argument("file", default='', nargs='?', help="Single Movie file path.")
     parser.add_argument("-c", "--config", default='config.ini', nargs='?', help="The config file Path.")
     parser.add_argument("-a", "--auto-exit", dest='autoexit', action="store_true", help="Auto exit after program complete")
+    parser.add_argument("-n", "--number", default='', nargs='?',help="Custom file number")
     args = parser.parse_args()
 
-    return args.file, args.config, args.autoexit
+    return args.file, args.config, args.autoexit, args.number
 
 def movie_lists(root, escape_folder):
     for folder in escape_folder:
@@ -88,12 +89,31 @@ def create_data_and_move(file_path: str, c: config.Config):
             except Exception as err:
                 print('[!]', err)
 
+def create_data_and_move_with_custom_number(file_path: str, c: config.Config, custom_number=None):
+    try:
+        print("[!]Making Data for [{}], the number is [{}]".format(file_path, custom_number))
+        core_main(file_path, custom_number, c)
+        print("[*]======================================================")
+    except Exception as err:
+        print("[-] [{}] ERROR:".format(file_path))
+        print('[-]', err)
+
+        if c.soft_link():
+            print("[-]Link {} to failed folder".format(file_path))
+            os.symlink(file_path, str(os.getcwd()) + "/" + conf.failed_folder() + "/")
+        else:
+            try:
+                print("[-]Move [{}] to failed folder".format(file_path))
+                shutil.move(file_path, str(os.getcwd()) + "/" + conf.failed_folder() + "/")
+            except Exception as err:
+                print('[!]', err)
+
 
 if __name__ == '__main__':
-    version = '3.5.2'
+    version = '3.6'
 
     # Parse command line args
-    single_file_path, config_file, auto_exit = argparse_function()
+    single_file_path, config_file, auto_exit, custom_number = argparse_function()
 
     # Read config.ini
     conf = config.Config(path=config_file)
@@ -108,17 +128,19 @@ if __name__ == '__main__':
 
     create_failed_folder(conf.failed_folder())
     os.chdir(os.getcwd())
-    movie_list = movie_lists(".", re.split("[,，]", conf.escape_folder()))
 
-    # ========== 野鸡番号拖动 ==========
+    # ========== Single File ==========
     if not single_file_path == '':
-        create_data_and_move(single_file_path, conf)
+        print('[+]==================== Single File =====================')
+        create_data_and_move_with_custom_number(single_file_path, conf,custom_number)
         CEF(conf.success_folder())
         CEF(conf.failed_folder())
         print("[+]All finished!!!")
         input("[+][+]Press enter key exit, you can check the error messge before you exit.")
         exit()
-    # ========== 野鸡番号拖动 ==========
+    # ========== Single File ==========
+
+    movie_list = movie_lists(".", re.split("[,，]", conf.escape_folder()))
 
     count = 0
     count_all = str(len(movie_list))

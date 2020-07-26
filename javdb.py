@@ -115,6 +115,13 @@ def main(number):
         ids =html.xpath('//*[@id="videos"]/div/div/a/div[contains(@class, "uid")]/text()')
         correct_url = urls[ids.index(number)]
         detail_page = get_html('https://javdb.com' + correct_url)
+
+        # If gray image exists ,then replace with normal cover
+        cover_small = getCover_small(query_result, index=ids.index(number))
+        if 'placeholder' in cover_small:
+            cover_small = getCover(detail_page)
+
+
         dic = {
             'actor': getActor(detail_page),
             'title': getTitle(detail_page),
@@ -125,7 +132,7 @@ def main(number):
             'release': getRelease(detail_page),
             'number': getNum(detail_page),
             'cover': getCover(detail_page),
-            'cover_small': getCover_small(query_result, index=ids.index(number)),
+            'cover_small': cover_small,
             'imagecut': 3,
             'tag': getTag(detail_page),
             'label': getLabel(detail_page),
@@ -144,4 +151,4 @@ def main(number):
 # main('DV-1562')
 # input("[+][+]Press enter key exit, you can check the error messge before you exit.\n[+][+]按回车键结束，你可以在结束之前查看和错误信息。")
 if __name__ == "__main__":
-    print(main('ipx-292'))
+    print(main('snyz-007'))
