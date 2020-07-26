@@ -1,6 +1,5 @@
 import requests
 from lxml import etree
-import cloudscraper
 
 import config
 
@@ -87,6 +86,7 @@ def post_html(url: str, query: dict) -> requests.Response:
 
 
 def get_javlib_cookie() -> [dict, str]:
+    import cloudscraper
     proxy, timeout, retry_count, proxytype = config.Config().proxy()
     proxies = get_proxy(proxy, proxytype)
 
