@@ -6,7 +6,7 @@ CLI 版本
 ![](https://img.shields.io/github/downloads/yoshiko2/av_data_capture/total.svg?style=flat-square)
 ![](https://img.shields.io/github/license/yoshiko2/av_data_capture.svg?style=flat-square)
 ![](https://img.shields.io/github/release/yoshiko2/av_data_capture.svg?style=flat-square)
-![](https://img.shields.io/badge/Python-3.7-yellow.svg?style=flat-square&logo=python)<br>
+![](https://img.shields.io/badge/Python-3.8-yellow.svg?style=flat-square&logo=python)<br>
 [GUI 版本](https://github.com/moyy996/AVDC)  
 <a title="Hits" target="_blank" href="https://github.com/moyy996/avdc"><img src="https://hits.b3log.org/moyy996/AVDC.svg"></a>
 ![](https://img.shields.io/badge/build-passing-brightgreen.svg?style=flat-square)
