@@ -37,7 +37,6 @@ class Config:
             timeout = self.conf.getint(sec, "timeout")
             retry = self.conf.getint(sec, "retry")
             proxytype = self.conf.get(sec, "type")
-            
             return proxy, timeout, retry, proxytype
         except ValueError:
             self._exit("common")
@@ -88,6 +87,7 @@ class Config:
         conf.set(sec2, "proxy", "127.0.0.1:1080")
         conf.set(sec2, "timeout", "10")
         conf.set(sec2, "retry", "3")
+        conf.set(sec2, "type", "http")
 
         sec3 = "Name_Rule"
         conf.add_section(sec3)
