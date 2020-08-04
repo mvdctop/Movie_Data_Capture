@@ -3,6 +3,7 @@ from lxml import etree
 
 import config
 
+SUPPORT_PROXY_TYPE = ("http", "socks5", "socks5h")
 
 def get_data_state(data: dict) -> bool:  # 元数据获取失败检测
     if "title" not in data or "number" not in data:
@@ -27,8 +28,8 @@ def get_proxy(proxy: str, proxytype: str = None) -> dict:
     ''' 获得代理参数，默认http代理
     '''
     if proxy:
-        if proxytype.startswith("socks"):
-            proxies = {"http": "socks5://" + proxy, "https": "socks5://" + proxy}
+        if proxytype in SUPPORT_PROXY_TYPE:
+            proxies = {"http": proxytype + "://" + proxy, "https": proxytype + "://" + proxy}
         else:
             proxies = {"http": "http://" + proxy, "https": "https://" + proxy}
     else:
