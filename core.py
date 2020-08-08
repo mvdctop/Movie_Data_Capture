@@ -348,7 +348,7 @@ def cutImage(imagecut, path, number, c_word):
 
 
 def paste_file_to_folder(filepath, path, number, c_word, conf: config.Config):  # 文件路径，番号，后缀，要移动至的位置
-    houzhui = str(re.search('[.](AVI|RMVB|WMV|MOV|MP4|MKV|FLV|TS|WEBM|avi|rmvb|wmv|mov|mp4|mkv|flv|ts|webm)$', filepath).group())
+    houzhui = str(re.search('[.](AVI|RMVB|WMV|MOV|MP4|MKV|FLV|TS|WEBM|ISO|avi|rmvb|wmv|mov|mp4|mkv|flv|ts|webm|iso)$', filepath).group())
 
     try:
         # 如果soft_link=1 使用软链接
