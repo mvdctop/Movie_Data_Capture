@@ -105,6 +105,7 @@ venv.bak/
 
 # movie files
 *.mp4
+*.iso
 
 # success/failed folder
 JAV_output/**/*
