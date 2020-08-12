@@ -17,6 +17,7 @@ import javdb
 import mgstage
 import xcity
 import javlib
+import dlsite
 
 
 def escape_path(path, escape_literals: str):  # Remove escape literals
@@ -56,6 +57,7 @@ def get_data_from_json(file_number, filepath, conf: config.Config):  # ä»ŽJSONè¿
         "jav321": jav321.main,
         "xcity": xcity.main,
         "javlib": javlib.main,
+        "dlsite": dlsite.main,
     }
 
     # default fetch order list, from the beginning to the end
@@ -73,6 +75,9 @@ def get_data_from_json(file_number, filepath, conf: config.Config):  # ä»ŽJSONè¿
         sources.insert(0, sources.pop(sources.index("fanza")))
     elif "fc2" in file_number or "FC2" in file_number:
         sources.insert(0, sources.pop(sources.index("fc2")))
+
+    elif "RJ" in file_number or "rj" or "VJ" or "vj" in file_number:
+        sources.insert(0, sources.pop(sources.index("dlsite")))
 
     json_data = {}
     for source in sources:

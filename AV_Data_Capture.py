@@ -33,7 +33,7 @@ def movie_lists(root, escape_folder):
         if folder in root:
             return []
     total = []
-    file_type = ['.mp4', '.avi', '.rmvb', '.wmv', '.mov', '.mkv', '.flv', '.ts', '.webm', '.MP4', '.AVI', '.RMVB', '.WMV','.MOV', '.MKV', '.FLV', '.TS', '.WEBM', ]
+    file_type = ['.mp4', '.avi', '.rmvb', '.wmv', '.mov', '.mkv', '.flv', '.ts', '.webm', '.MP4', '.AVI', '.RMVB', '.WMV','.MOV', '.MKV', '.FLV', '.TS', '.WEBM', '.iso','.ISO']
     dirs = os.listdir(root)
     for entry in dirs:
         f = os.path.join(root, entry)
@@ -110,7 +110,7 @@ def create_data_and_move_with_custom_number(file_path: str, c: config.Config, cu
 
 
 if __name__ == '__main__':
-    version = '3.6'
+    version = '3.7'
 
     # Parse command line args
     single_file_path, config_file, auto_exit, custom_number = argparse_function()
