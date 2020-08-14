@@ -1,3 +1,5 @@
+import sys
+sys.path.append('../')
 import json
 import bs4
 from bs4 import BeautifulSoup

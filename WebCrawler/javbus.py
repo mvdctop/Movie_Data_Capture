@@ -1,10 +1,13 @@
+import sys
+sys.path.append('../')
 import re
 from pyquery import PyQuery as pq#need install
 from lxml import etree#need install
 from bs4 import BeautifulSoup#need install
 import json
 from ADC_function import *
-import fanza
+from WebCrawler import fanza
+
 
 def getActorPhoto(htmlcode): #//*[@id="star_qdt"]/li/a/img
     soup = BeautifulSoup(htmlcode, 'lxml')

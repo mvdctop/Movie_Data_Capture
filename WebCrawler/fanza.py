@@ -1,5 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
+import sys
+sys.path.append('../')
 import json
 import re
 from urllib.parse import urlencode

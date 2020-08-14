@@ -63,31 +63,32 @@ def CEF(path):
         a = ''
 
 
-def create_data_and_move(file_path: str, c: config.Config):
+def create_data_and_move(file_path: str, c: config.Config,debug):
     # Normalized number, eg: 111xxx-222.mp4 -> xxx-222.mp4
     n_number = get_number(file_path)
 
-    # print("[!]Making Data for [{}], the number is [{}]".format(file_path, n_number))
-    # core_main(file_path, n_number, c)
-    # print("[*]======================================================")
-
-    try:
+    if debug == True:
         print("[!]Making Data for [{}], the number is [{}]".format(file_path, n_number))
         core_main(file_path, n_number, c)
         print("[*]======================================================")
-    except Exception as err:
-        print("[-] [{}] ERROR:".format(file_path))
-        print('[-]', err)
+    else:
+        try:
+            print("[!]Making Data for [{}], the number is [{}]".format(file_path, n_number))
+            core_main(file_path, n_number, c)
+            print("[*]======================================================")
+        except Exception as err:
+            print("[-] [{}] ERROR:".format(file_path))
+            print('[-]', err)
 
-        if c.soft_link():
-            print("[-]Link {} to failed folder".format(file_path))
-            os.symlink(file_path, str(os.getcwd()) + "/" + conf.failed_folder() + "/")
-        else:
-            try:
-                print("[-]Move [{}] to failed folder".format(file_path))
-                shutil.move(file_path, str(os.getcwd()) + "/" + conf.failed_folder() + "/")
-            except Exception as err:
-                print('[!]', err)
+            if c.soft_link():
+                print("[-]Link {} to failed folder".format(file_path))
+                os.symlink(file_path, str(os.getcwd()) + "/" + conf.failed_folder() + "/")
+            else:
+                try:
+                    print("[-]Move [{}] to failed folder".format(file_path))
+                    shutil.move(file_path, str(os.getcwd()) + "/" + conf.failed_folder() + "/")
+                except Exception as err:
+                    print('[!]', err)
 
 def create_data_and_move_with_custom_number(file_path: str, c: config.Config, custom_number=None):
     try:
@@ -145,13 +146,15 @@ if __name__ == '__main__':
     count = 0
     count_all = str(len(movie_list))
     print('[+]Find', count_all, 'movies')
+    if conf.debug() == True:
+        print('[+]'+' DEBUG MODE ON '.center(54, '-'))
     if conf.soft_link():
         print('[!] --- Soft link mode is ENABLE! ----')
     for movie_path in movie_list:  # 遍历电影列表 交给core处理
         count = count + 1
         percentage = str(count / int(count_all) * 100)[:4] + '%'
         print('[!] - ' + percentage + ' [' + str(count) + '/' + count_all + '] -')
-        create_data_and_move(movie_path, conf)
+        create_data_and_move(movie_path, conf, conf.debug())
 
     CEF(conf.success_folder())
     CEF(conf.failed_folder())

@@ -1,3 +1,5 @@
+import sys
+sys.path.append('../')
 import re
 from lxml import etree
 import json

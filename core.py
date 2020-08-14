@@ -8,16 +8,16 @@ from PIL import Image
 from ADC_function import *
 
 # =========website========
-import avsox
-import fanza
-import fc2fans_club
-import jav321
-import javbus
-import javdb
-import mgstage
-import xcity
-import javlib
-import dlsite
+from WebCrawler import avsox
+from WebCrawler import fanza
+from WebCrawler import fc2fans_club
+from WebCrawler import jav321
+from WebCrawler import javbus
+from WebCrawler import javdb
+from WebCrawler import mgstage
+from WebCrawler import xcity
+from WebCrawler import javlib
+from WebCrawler import dlsite
 
 
 def escape_path(path, escape_literals: str):  # Remove escape literals
