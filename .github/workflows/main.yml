@@ -32,7 +32,7 @@ jobs:
     - name: Set CLOUDSCRAPER_PATH variable
       run: |
         echo "::set-env name=CLOUDSCRAPER_PATH::$(python -c 'import cloudscraper as _; print(_.__path__[0])' | tail -n 1)"
-        echo "::set-env name=VERSION::$(cat AV_Data_Capture.py | grep "version = " | tr -d "version = '")
+        echo "::set-env name=VERSION::$(cat AV_Data_Capture.py | grep "version = " | tr -d "version = '")"
 
     - name: Build with pyinstaller
       run: |
@@ -76,7 +76,7 @@ jobs:
     - name: Set CLOUDSCRAPER_PATH variable
       run: |
         echo "::set-env name=CLOUDSCRAPER_PATH::$(python -c 'import cloudscraper as _; print(_.__path__[0])' | tail -n 1)"
-        echo "::set-env name=VERSION::$(cat AV_Data_Capture.py | grep "version = " | tr -d "version = '")
+        echo "::set-env name=VERSION::$(cat AV_Data_Capture.py | grep "version = " | tr -d "version = '")"
 
     - name: Build with pyinstaller
       run: |
@@ -119,7 +119,7 @@ jobs:
     - name: Set CLOUDSCRAPER_PATH variable
       run: |
         echo "::set-env name=CLOUDSCRAPER_PATH::$(python -c 'import cloudscraper as _; print(_.__path__[0])' | tail -n 1)"
-        echo "::set-env name=VERSION::$(cat AV_Data_Capture.py | grep "version = " | tr -d "version = '")
+        echo "::set-env name=VERSION::$(cat AV_Data_Capture.py | grep "version = " | tr -d "version = '")"
 
     - name: Build with pyinstaller
       run: |
