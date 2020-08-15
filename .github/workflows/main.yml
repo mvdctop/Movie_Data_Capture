@@ -9,7 +9,7 @@ on:
       - master
 
 jobs:
-  job1:
+  Windows:
     runs-on: windows-latest
 
     steps:
@@ -52,7 +52,7 @@ jobs:
         path: dist
       
       
-  job2:
+  MacOS:
     runs-on: macos-latest
 
     steps:
@@ -94,7 +94,7 @@ jobs:
         name: AV_Data_Capture-CLI-MacOS
         path: dist
 
-  job3:
+  Linux:
     runs-on: ubuntu-latest
 
     steps:
