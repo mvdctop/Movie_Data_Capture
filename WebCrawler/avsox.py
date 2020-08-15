@@ -1,5 +1,5 @@
 import sys
-sys.path.append('../')
+sys.path.append('..')
 import re
 from lxml import etree
 import json
@@ -88,12 +88,10 @@ def main(number):
     result1 = str(html.xpath('//*[@id="waterfall"]/div/a/@href')).strip(" ['']")
     if result1 == '' or result1 == 'null' or result1 == 'None':
         a = get_html('https://avsox.host/cn/search/' + number.replace('-', '_'))
-        print(a)
         html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
         result1 = str(html.xpath('//*[@id="waterfall"]/div/a/@href')).strip(" ['']")
         if result1 == '' or result1 == 'null' or result1 == 'None':
             a = get_html('https://avsox.host/cn/search/' + number.replace('_', ''))
-            print(a)
             html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
             result1 = str(html.xpath('//*[@id="waterfall"]/div/a/@href')).strip(" ['']")
     web = get_html(result1)
