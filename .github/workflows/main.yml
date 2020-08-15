@@ -75,6 +75,7 @@ jobs:
     - name: Set CLOUDSCRAPER_PATH variable
       run: |
         echo "::set-env name=CLOUDSCRAPER_PATH::$(python -c 'import cloudscraper as _; print(_.__path__[0])' | tail -n 1)"
+        version=$(cat AV_Data_Capture.py | grep "version = " | tr -d "version = '")
 
     - name: Build with pyinstaller
       run: |
@@ -91,7 +92,7 @@ jobs:
     - name: Upload build artifact
       uses: actions/upload-artifact@v1
       with:
-        name: AV_Data_Capture-CLI-MacOS
+        name: AV_Data_Capture-CLI-$version-MacOS
         path: dist
 
   Linux:
@@ -117,6 +118,7 @@ jobs:
     - name: Set CLOUDSCRAPER_PATH variable
       run: |
         echo "::set-env name=CLOUDSCRAPER_PATH::$(python -c 'import cloudscraper as _; print(_.__path__[0])' | tail -n 1)"
+        version=$(cat AV_Data_Capture.py | grep "version = " | tr -d "version = '")
 
     - name: Build with pyinstaller
       run: |
@@ -133,5 +135,5 @@ jobs:
     - name: Upload build artifact
       uses: actions/upload-artifact@v1
       with:
-        name: AV_Data_Capture-CLI-Linux
+        name: AV_Data_Capture-CLI-$version-Linux
         path: dist
