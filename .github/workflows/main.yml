@@ -11,14 +11,17 @@ on:
 jobs:
   Linux:
     runs-on: ubuntu-latest
-
+    env:
+      run: |
+        echo "::set-env name=VERSION::$(cat AV_Data_Capture.py | grep "version = " | tr -d "version = '")"
+        
     steps:
     - uses: actions/checkout@v2
 
-    - name: Set up Python 3.7
+    - name: Set up Python 3.8
       uses: actions/setup-python@v1
       with:
-        python-version: 3.7
+        python-version: 3.8
 
     - name: Install dependencies
       run: |
@@ -32,10 +35,6 @@ jobs:
     - name: Set CLOUDSCRAPER_PATH variable
       run: |
         echo "::set-env name=CLOUDSCRAPER_PATH::$(python -c 'import cloudscraper as _; print(_.__path__[0])' | tail -n 1)"
-        
-    - id : VERSION
-      run: |
-        echo "::set-output name=VERSION::$(cat AV_Data_Capture.py | grep "version = " | tr -d "version = '")"
 
     - name: Build with pyinstaller
       run: |
@@ -52,7 +51,7 @@ jobs:
     - name: Upload build artifact
       uses: actions/upload-artifact@v1
       with:
-        name: AV_Data_Capture-CLI-${{ VERSION.output.VERSION }}-Linux
+        name: AV_Data_Capture-CLI-${{ env.run.VERSION }}-Linux
         path: dist
 
 
@@ -63,10 +62,10 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Set up Python 3.7
+    - name: Set up Python 3.8
       uses: actions/setup-python@v1
       with:
-        python-version: 3.7
+        python-version: 3.8
 
     - name: Install dependencies
       run: |
@@ -80,11 +79,6 @@ jobs:
     - name: Set CLOUDSCRAPER_PATH variable
       run: |
         echo "::set-env name=CLOUDSCRAPER_PATH::$(python -c 'import cloudscraper as _; print(_.__path__[0])' | tail -n 1)"
-        
-    - name : Set Version variable
-      run: |
-        echo "::set-env name=VERSION::$(cat AV_Data_Capture.py | grep "version = " | tr -d "version = '")"
-        output: |
 
     - name: Build with pyinstaller
       run: |
@@ -101,7 +95,7 @@ jobs:
     - name: Upload build artifact
       uses: actions/upload-artifact@v1
       with:
-        name: AV_Data_Capture-CLI-${{ needs.Linux.VERSION.output.VESRION }}-Windows
+        name: AV_Data_Capture-CLI-${{ Linux.env.run.VERSION }}-Windows
         path: dist
       
       
@@ -112,10 +106,10 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Set up Python 3.7
+    - name: Set up Python 3.8
       uses: actions/setup-python@v1
       with:
-        python-version: 3.7
+        python-version: 3.8
 
     - name: Install dependencies
       run: |
@@ -145,5 +139,5 @@ jobs:
     - name: Upload build artifact
       uses: actions/upload-artifact@v1
       with:
-        name: AV_Data_Capture-CLI-${{ needs.Linux.VERSION.output.VERSION }}-MacOS
+        name: AV_Data_Capture-CLI-${{ Linux.env.run.VERSIONN }}-MacOS
         path: dist
