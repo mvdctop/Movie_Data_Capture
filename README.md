@@ -19,6 +19,16 @@ CLI 版本
 # 官方文档
 * [WIKI](https://github.com/yoshiko2/AV_Data_Capture/wiki/AV-Data-Capture-CLI)
 
+# 车站快速通道
+
+- https://avsox.cyou/cn
+- http://www.javlibrary.com
+- https://www.mgstage.com
+- https://fc2club.com
+- https://javdb.com
+- https://www.javbus.com
+- https://www.jav321.com
+
 # 版本发布
 * [Release](https://github.com/yoshiko2/AV_Data_Capture/releases)
 
