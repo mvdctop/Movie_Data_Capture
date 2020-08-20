@@ -52,7 +52,7 @@ jobs:
     - name: Upload build artifact
       uses: actions/upload-artifact@v1
       with:
-        name: AV_Data_Capture-CLI-${{ VERSION.VERION }}-Linux
+        name: AV_Data_Capture-CLI-${{ VERSION.VERSION }}-Linux
         path: dist
 
 
@@ -101,7 +101,7 @@ jobs:
     - name: Upload build artifact
       uses: actions/upload-artifact@v1
       with:
-        name: AV_Data_Capture-CLI-${{ needs.Linux.VERSION.VERION }}-Windows
+        name: AV_Data_Capture-CLI-${{ needs.Linux.VERSION.VESRION }}-Windows
         path: dist
       
       
@@ -145,5 +145,5 @@ jobs:
     - name: Upload build artifact
       uses: actions/upload-artifact@v1
       with:
-        name: AV_Data_Capture-CLI-${{ needs.Linux.VERSION.VERION }}-MacOS
+        name: AV_Data_Capture-CLI-${{ needs.Linux.VERSION.VERSION }}-MacOS
         path: dist
