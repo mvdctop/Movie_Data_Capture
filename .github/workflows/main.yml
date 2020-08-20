@@ -10,12 +10,17 @@ on:
 
 jobs:
   Linux:
+    outputs:
+      version: ${{ steps.version.outputs.VERSION }}
+      
     runs-on: ubuntu-latest
     env:
-      run: |
-        echo "::set-env name=VERSION::$(cat AV_Data_Capture.py | grep "version = " | tr -d "version = '")"
+      version: ${{ outputs.version }}
         
     steps:
+    - id: version
+      run: echo "::set-output name=VERSION::$(cat AV_Data_Capture.py | grep "version = " | tr -d "version = '")"
+      
     - uses: actions/checkout@v2
 
     - name: Set up Python 3.8
@@ -51,7 +56,7 @@ jobs:
     - name: Upload build artifact
       uses: actions/upload-artifact@v1
       with:
-        name: AV_Data_Capture-CLI-${{ env.run }}-Linux
+        name: AV_Data_Capture-CLI-${{ env.version }}-Linux
         path: dist
 
 
@@ -95,7 +100,7 @@ jobs:
     - name: Upload build artifact
       uses: actions/upload-artifact@v1
       with:
-        name: AV_Data_Capture-CLI-${{ needs.Linux.env.run }}-Windows
+        name: AV_Data_Capture-CLI-${{ needs.Linux.env.version }}-Windows
         path: dist
       
       
@@ -139,5 +144,5 @@ jobs:
     - name: Upload build artifact
       uses: actions/upload-artifact@v1
       with:
-        name: AV_Data_Capture-CLI-${{ needs.Linux.env.run }}-MacOS
+        name: AV_Data_Capture-CLI-${{ needs.Linux.env.version }}-MacOS
         path: dist
