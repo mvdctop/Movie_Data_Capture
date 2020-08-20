@@ -52,7 +52,7 @@ jobs:
     - name: Upload build artifact
       uses: actions/upload-artifact@v1
       with:
-        name: AV_Data_Capture-CLI-${{ VERSION.VERION }}-Linux
+        name: AV_Data_Capture-CLI-${{ jobs.Linux.VERSION.VERION }}-Linux
         path: dist
 
 
@@ -100,7 +100,7 @@ jobs:
     - name: Upload build artifact
       uses: actions/upload-artifact@v1
       with:
-        name: AV_Data_Capture-CLI-${{ Linux.VERSION.VERION }}-Windows
+        name: AV_Data_Capture-CLI-${{ jobs.Linux.VERSION.VERION }}-Windows
         path: dist
       
       
@@ -127,10 +127,6 @@ jobs:
     - name: Set CLOUDSCRAPER_PATH variable
       run: |
         echo "::set-env name=CLOUDSCRAPER_PATH::$(python -c 'import cloudscraper as _; print(_.__path__[0])' | tail -n 1)"
-      
-    - name : Set Version variable
-      run: |
-        echo "::set-env name=VERSION::$(cat AV_Data_Capture.py | grep "version = " | tr -d "version = '")"
 
     - name: Build with pyinstaller
       run: |
@@ -147,5 +143,5 @@ jobs:
     - name: Upload build artifact
       uses: actions/upload-artifact@v1
       with:
-        name: AV_Data_Capture-CLI-${{ Linux.VERSION.VERION }}-MacOS
+        name: AV_Data_Capture-CLI-${{ jobs.Linux.VERSION.VERION }}-MacOS
         path: dist
