@@ -12,7 +12,7 @@ jobs:
   Windows:
     runs-on: windows-latest
     env:
-      VERSION: ${{ VERSION }}
+      VERSION: 3.7
 
     steps:
     - uses: actions/checkout@v2
@@ -38,6 +38,7 @@ jobs:
     - name : Set Version variable
       run: |
         echo "::set-env name=VERSION::$(cat AV_Data_Capture.py | grep "version = " | tr -d "version = '")"
+        output: |
 
     - name: Build with pyinstaller
       run: |
@@ -61,7 +62,7 @@ jobs:
   MacOS:
     runs-on: macos-latest
     env:
-      VERSION: ${{ VERSION }}
+      VERSION: 3.7
 
     steps:
     - uses: actions/checkout@v2
@@ -109,7 +110,7 @@ jobs:
   Linux:
     runs-on: ubuntu-latest
     env:
-      VERSION: ${{ VERSION }}
+      VERSION: 3.7
 
     steps:
     - uses: actions/checkout@v2
