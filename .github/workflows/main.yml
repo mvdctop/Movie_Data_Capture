@@ -11,6 +11,8 @@ on:
 jobs:
   Windows:
     runs-on: windows-latest
+    env:
+      VERSION: $VERSION
 
     steps:
     - uses: actions/checkout@v2
@@ -58,6 +60,8 @@ jobs:
       
   MacOS:
     runs-on: macos-latest
+    env:
+      VERSION: $VERSION
 
     steps:
     - uses: actions/checkout@v2
@@ -104,6 +108,8 @@ jobs:
 
   Linux:
     runs-on: ubuntu-latest
+    env:
+      VERSION: $VERSION
 
     steps:
     - uses: actions/checkout@v2
