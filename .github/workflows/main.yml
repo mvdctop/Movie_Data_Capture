@@ -10,8 +10,6 @@ on:
 
 jobs:
   Windows:
-    env:
-      VERSION: 3.7.1
     runs-on: windows-latest
 
     steps:
@@ -54,15 +52,15 @@ jobs:
 
     - name: Upload build artifact
       uses: actions/upload-artifact@v1
+      env:
+        VERSION: 3.7.1
       with:
-        name: AV_Data_Capture-CLI-${{ VERSION }}-Windows
+        name: AV_Data_Capture-CLI-${{ env.VERSION }}-Windows
         path: dist
       
       
   MacOS:
     runs-on: macos-latest
-    env:
-        VERSION: 3.7.1
 
     steps:
     - uses: actions/checkout@v2
@@ -106,13 +104,11 @@ jobs:
       env:
         VERSION: 3.7.1
       with:
-        name: AV_Data_Capture-CLI-${{ VERSION }}-MacOS
+        name: AV_Data_Capture-CLI-${{ env.VERSION }}-MacOS
         path: dist
 
   Linux:
     runs-on: ubuntu-latest
-    env:
-        VERSION: 3.7.1
 
     steps:
     - uses: actions/checkout@v2
@@ -156,5 +152,5 @@ jobs:
       env:
         VERSION: 3.7.1
       with:
-        name: AV_Data_Capture-CLI-${{ VERSION }}-Linux
+        name: AV_Data_Capture-CLI-${{ env.VERSION }}-Linux
         path: dist
