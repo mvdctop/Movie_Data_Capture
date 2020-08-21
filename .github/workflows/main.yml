@@ -31,7 +31,7 @@ jobs:
 
     - name: Set VERSION variable
       run: |
-        version=$(python -c 'import AV_Data_Capture; print(AV_Data_Capture.__version__)')
+        version=$(python -c 'import AV_Data_Capture as _; print(_.__version__)')
         echo "::set-env name=VERSION::$version"
 
     - name: Set CLOUDSCRAPER_PATH variable
@@ -79,13 +79,13 @@ jobs:
 
     - name: Set VERSION variable
       run: |
-        $env:version=$(python -c 'import AV_Data_Capture; print(AV_Data_Capture.__version__)')
-        echo "::set-env name=VERSION::$env:version"
+        $version=$(python -c 'import AV_Data_Capture as _; print(_.__version__)')
+        echo "::set-env name=VERSION::$version"
 
     - name: Set CLOUDSCRAPER_PATH variable
       run: |
-        $env:cloudscraper_path=$(python -c 'import cloudscraper as _; print(_.__path__[0])' | select -Last 1)
-        echo "::set-env name=CLOUDSCRAPER_PATH::$env:cloudscraper_path"
+        $cloudscraper_path=$(python -c 'import cloudscraper as _; print(_.__path__[0])' | select -Last 1)
+        echo "::set-env name=CLOUDSCRAPER_PATH::$cloudscraper_path"
 
     - name: Build with PyInstaller
       run: |
@@ -127,7 +127,7 @@ jobs:
 
     - name: Set VERSION variable
       run: |
-        version=$(python -c 'import AV_Data_Capture; print(AV_Data_Capture.__version__)')
+        version=$(python -c 'import AV_Data_Capture as _; print(_.__version__)')
         echo "::set-env name=VERSION::$version"
 
     - name: Set CLOUDSCRAPER_PATH variable
