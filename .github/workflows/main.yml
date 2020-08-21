@@ -10,21 +10,13 @@ on:
 
 jobs:
   Linux:
-    outputs:
-      version: ${{ steps.version.outputs.VERSION }}
-      
     runs-on: ubuntu-latest
-    env:
-      version: ${{ outputs.version }}
-        
+
     steps:
-    - id: version
-      run: echo "::set-output name=VERSION::$(cat AV_Data_Capture.py | grep "version = " | tr -d "version = '")"
-      
     - uses: actions/checkout@v2
 
-    - name: Set up Python 3.8
-      uses: actions/setup-python@v1
+    - name: Setup Python 3.8
+      uses: actions/setup-python@v2
       with:
         python-version: 3.8
 
@@ -37,11 +29,17 @@ jobs:
       run: |
         python number_parser.py -v
 
+    - name: Set VERSION variable
+      run: |
+        version=$(python -c 'import AV_Data_Capture; print(AV_Data_Capture.__version__)')
+        echo "::set-env name=VERSION::$version"
+
     - name: Set CLOUDSCRAPER_PATH variable
       run: |
-        echo "::set-env name=CLOUDSCRAPER_PATH::$(python -c 'import cloudscraper as _; print(_.__path__[0])' | tail -n 1)"
+        cloudscraper_path=$(python -c 'import cloudscraper as _; print(_.__path__[0])' | tail -n 1)
+        echo "::set-env name=CLOUDSCRAPER_PATH::$cloudscraper_path"
 
-    - name: Build with pyinstaller
+    - name: Build with PyInstaller
       run: |
         pyinstaller \
           --onefile AV_Data_Capture.py \
@@ -56,19 +54,17 @@ jobs:
     - name: Upload build artifact
       uses: actions/upload-artifact@v1
       with:
-        name: AV_Data_Capture-CLI-${{ env.version }}-Linux
+        name: AV_Data_Capture-CLI-${{ env.VERSION }}-Linux
         path: dist
-
 
   Windows:
     runs-on: windows-latest
-    needs: Linux
 
     steps:
     - uses: actions/checkout@v2
 
-    - name: Set up Python 3.8
-      uses: actions/setup-python@v1
+    - name: Setup Python 3.8
+      uses: actions/setup-python@v2
       with:
         python-version: 3.8
 
@@ -81,11 +77,17 @@ jobs:
       run: |
         python number_parser.py -v
 
+    - name: Set VERSION variable
+      run: |
+        $env:version=$(python -c 'import AV_Data_Capture; print(AV_Data_Capture.__version__)')
+        echo "::set-env name=VERSION::$env:version"
+
     - name: Set CLOUDSCRAPER_PATH variable
       run: |
-        echo "::set-env name=CLOUDSCRAPER_PATH::$(python -c 'import cloudscraper as _; print(_.__path__[0])' | tail -n 1)"
+        $env:cloudscraper_path=$(python -c 'import cloudscraper as _; print(_.__path__[0])' | select -Last 1)
+        echo "::set-env name=CLOUDSCRAPER_PATH::$env:cloudscraper_path"
 
-    - name: Build with pyinstaller
+    - name: Build with PyInstaller
       run: |
         pyinstaller `
           --onefile AV_Data_Capture.py `
@@ -100,19 +102,17 @@ jobs:
     - name: Upload build artifact
       uses: actions/upload-artifact@v1
       with:
-        name: AV_Data_Capture-CLI-${{ needs.Linux.env.version }}-Windows
+        name: AV_Data_Capture-CLI-${{ env.VERSION }}-Windows
         path: dist
       
-      
   MacOS:
-    needs: Linux
     runs-on: macos-latest
 
     steps:
     - uses: actions/checkout@v2
 
-    - name: Set up Python 3.8
-      uses: actions/setup-python@v1
+    - name: Setup Python 3.8
+      uses: actions/setup-python@v2
       with:
         python-version: 3.8
 
@@ -125,11 +125,17 @@ jobs:
       run: |
         python number_parser.py -v
 
+    - name: Set VERSION variable
+      run: |
+        version=$(python -c 'import AV_Data_Capture; print(AV_Data_Capture.__version__)')
+        echo "::set-env name=VERSION::$version"
+
     - name: Set CLOUDSCRAPER_PATH variable
       run: |
-        echo "::set-env name=CLOUDSCRAPER_PATH::$(python -c 'import cloudscraper as _; print(_.__path__[0])' | tail -n 1)"
+        cloudscraper_path=$(python -c 'import cloudscraper as _; print(_.__path__[0])' | tail -n 1)
+        echo "::set-env name=CLOUDSCRAPER_PATH::$cloudscraper_path"
 
-    - name: Build with pyinstaller
+    - name: Build with PyInstaller
       run: |
         pyinstaller \
           --onefile AV_Data_Capture.py \
@@ -144,5 +150,5 @@ jobs:
     - name: Upload build artifact
       uses: actions/upload-artifact@v1
       with:
-        name: AV_Data_Capture-CLI-${{ needs.Linux.env.version }}-MacOS
+        name: AV_Data_Capture-CLI-${{ env.VERSION }}-MacOS
         path: dist
