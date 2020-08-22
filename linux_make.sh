@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 CLOUDSCRAPER_PATH=$(python -c 'import cloudscraper as _; print(_.__path__[0])' | tail -n 1)
 
