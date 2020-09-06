@@ -118,11 +118,14 @@ def main(number):
         correct_url = urls[ids.index(number)]
         detail_page = get_html('https://javdb.com' + correct_url)
 
+        # no cut image by default
+        imagecut = 3
         # If gray image exists ,then replace with normal cover
         cover_small = getCover_small(query_result, index=ids.index(number))
         if 'placeholder' in cover_small:
+            # replace wit normal cover and cut it
+            imagecut = 1
             cover_small = getCover(detail_page)
-
 
         dic = {
             'actor': getActor(detail_page),
@@ -135,7 +138,7 @@ def main(number):
             'number': getNum(detail_page),
             'cover': getCover(detail_page),
             'cover_small': cover_small,
-            'imagecut': 3,
+            'imagecut': imagecut,
             'tag': getTag(detail_page),
             'label': getLabel(detail_page),
             'year': getYear(getRelease(detail_page)),  # str(re.search('\d{4}',getRelease(a)).group()),
