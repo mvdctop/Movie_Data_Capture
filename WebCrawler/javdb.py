@@ -127,15 +127,21 @@ def main(number):
             imagecut = 1
             cover_small = getCover(detail_page)
 
+        number = getNum(detail_page)
+        title = getTitle(detail_page)
+        if title and number:
+            # remove duplicate title
+            title = title.replace(number, '').strip()
+
         dic = {
             'actor': getActor(detail_page),
-            'title': getTitle(detail_page),
+            'title': title,
             'studio': getStudio(detail_page),
             'outline': getOutline(detail_page),
             'runtime': getRuntime(detail_page),
             'director': getDirector(detail_page),
             'release': getRelease(detail_page),
-            'number': getNum(detail_page),
+            'number': number,
             'cover': getCover(detail_page),
             'cover_small': cover_small,
             'imagecut': imagecut,
@@ -156,4 +162,4 @@ def main(number):
 # main('DV-1562')
 # input("[+][+]Press enter key exit, you can check the error messge before you exit.\n[+][+]按回车键结束，你可以在结束之前查看和错误信息。")
 if __name__ == "__main__":
-    print(main('snyz-007'))
+    print(main('GS-351'))
