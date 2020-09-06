@@ -17,7 +17,7 @@ def getActor(a):  # //*[@id="center_column"]/div[2]/div[1]/div/table/tbody/tr[1]
     html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
     result1 = str(html.xpath('//strong[contains(text(),"演員")]/../span/text()')).strip(" ['']")
     result2 = str(html.xpath('//strong[contains(text(),"演員")]/../span/a/text()')).strip(" ['']")
-    return str(result1 + result2).strip('+').replace(",\\xa0", "").replace("'", "").replace(' ', '').replace(',,', '').lstrip(',').replace(',', ', ')
+    return str(result1 + result2).strip('+').replace(",\\xa0", "").replace("'", "").replace(' ', '').replace(',,', '').replace('N/A', '').lstrip(',').replace(',', ', ')
 def getActorPhoto(actor): #//*[@id="star_qdt"]/li/a/img
     a = actor.split(',')
     d={}
