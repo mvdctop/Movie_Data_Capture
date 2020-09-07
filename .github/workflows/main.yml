@@ -79,7 +79,7 @@ jobs:
 
     - name: Set VERSION variable
       run: |
-        $version=$(python -c 'import AV_Data_Capture as _; print(_.__version__)')
+        $version=$(cat AV_Data_Capture.py | grep "version = " | tr -d "version = '")
         echo "::set-env name=VERSION::$version"
 
     - name: Set CLOUDSCRAPER_PATH variable
