@@ -31,7 +31,7 @@ jobs:
 
     - name: Set VERSION variable
       run: |
-        $version=$(cat AV_Data_Capture.py | grep "version = " | tr -d "version = '")
+        version=$(cat AV_Data_Capture.py | grep "version = " | tr -d "version = '")
         echo "::set-env name=VERSION::$version"
 
     - name: Set CLOUDSCRAPER_PATH variable
@@ -127,7 +127,7 @@ jobs:
 
     - name: Set VERSION variable
       run: |
-        $version=$(cat AV_Data_Capture.py | grep "version = " | tr -d "version = '")
+        $env:version=$(cat AV_Data_Capture.py | grep "version = " | tr -d "version = '")
         echo "::set-env name=VERSION::$version"
 
     - name: Set CLOUDSCRAPER_PATH variable
