@@ -28,19 +28,25 @@ def get_number(filepath: str) -> str:
     """
     filepath = os.path.basename(filepath)
 
-    if '-' in filepath or '_' in filepath:  # 普通提取番号 主要处理包含减号-和_的番号
-        filepath = filepath.replace("_", "-")
-        filepath.strip('22-sht.me').strip('-HD').strip('-hd')
-        filename = str(re.sub("\[\d{4}-\d{1,2}-\d{1,2}\] - ", "", filepath))  # 去除文件名中时间
-        if 'FC2' or 'fc2' in filename:
-            filename = filename.replace('PPV','').replace('ppv','').replace('--','-').replace('_','-')
-        file_number = re.search(r'\w+-\w+', filename, re.A).group()
-        return file_number
-    else:  # 提取不含减号-的番号，FANZA CID
-        try:
-            return str(re.findall(r'(.+?)\.', str(re.search('([^<>/\\\\|:""\\*\\?]+)\\.\\w+$', filepath).group()))).strip("['']").replace('_', '-')
-        except:
-            return re.search(r'(.+?)\.', filepath)[0]
+    try:
+        if '-' in filepath or '_' in filepath:  # 普通提取番号 主要处理包含减号-和_的番号
+            filepath = filepath.replace("_", "-")
+            filepath.strip('22-sht.me').strip('-HD').strip('-hd')
+            filename = str(re.sub("\[\d{4}-\d{1,2}-\d{1,2}\] - ", "", filepath))  # 去除文件名中时间
+            if 'FC2' or 'fc2' in filename:
+                filename = filename.replace('PPV', '').replace('ppv', '').replace('--', '-').replace('_', '-')
+            file_number = re.search(r'\w+-\w+', filename, re.A).group()
+            return file_number
+        else:  # 提取不含减号-的番号，FANZA CID
+            try:
+                return str(
+                    re.findall(r'(.+?)\.', str(re.search('([^<>/\\\\|:""\\*\\?]+)\\.\\w+$', filepath).group()))).strip(
+                    "['']").replace('_', '-')
+            except:
+                return re.search(r'(.+?)\.', filepath)[0]
+    except Exception as e:
+        print('[-]' + str(e))
+        return
 
 
 if __name__ == "__main__":

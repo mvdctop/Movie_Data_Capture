@@ -3,14 +3,15 @@ from core import *
 import os
 from number_parser import get_number
 
-__version__ = '3.7.1'
 
-def check_update():
-    latest = get_html("https://api.github.com/repos/yoshiko2/AV_Data_Capture/releases/latest",
-        return_type="json")["tag_name"]
+def check_update(local_version):
+    data = json.loads(get_html("https://api.github.com/repos/yoshiko2/AV_Data_Capture/releases/latest"))
 
-    if __version__ != latest:
-        line1 = "* New update " + str(latest) + " *"
+    remote = data["tag_name"]
+    local = local_version
+
+    if not local == remote:
+        line1 = "* New update " + str(remote) + " *"
         print("[*]" + line1.center(54))
         print("[*]" + "↓ Download ↓".center(54))
         print("[*] https://github.com/yoshiko2/AV_Data_Capture/releases")
@@ -110,6 +111,7 @@ def create_data_and_move_with_custom_number(file_path: str, c: config.Config, cu
 
 
 if __name__ == '__main__':
+    version = '3.7.2'
 
     # Parse command line args
     single_file_path, config_file, auto_exit, custom_number = argparse_function()
@@ -117,13 +119,13 @@ if __name__ == '__main__':
     # Read config.ini
     conf = config.Config(path=config_file)
 
-    version_print = 'Version ' + __version__
+    version_print = 'Version ' + version
     print('[*]================== AV Data Capture ===================')
     print('[*]' + version_print.center(54))
     print('[*]======================================================')
 
     if conf.update_check():
-        check_update()
+        check_update(version)
 
     create_failed_folder(conf.failed_folder())
     os.chdir(os.getcwd())

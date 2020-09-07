@@ -83,9 +83,12 @@ def get_data_from_json(file_number, filepath, conf: config.Config):  # ä»ŽJSONè¿
 
     json_data = {}
     for source in sources:
-        json_data = json.loads(func_mapping[source](file_number))
-        # if any service return a valid return, break
-        if get_data_state(json_data):
+        try:
+            json_data = json.loads(func_mapping[source](file_number))
+            # if any service return a valid return, break
+            if get_data_state(json_data):
+                break
+        except:
             break
 
     # Return if data not found in all sources
