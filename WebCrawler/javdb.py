@@ -17,7 +17,7 @@ def getActor(a):  # //*[@id="center_column"]/div[2]/div[1]/div/table/tbody/tr[1]
     html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
     result1 = str(html.xpath('//strong[contains(text(),"演員")]/../span/text()')).strip(" ['']")
     result2 = str(html.xpath('//strong[contains(text(),"演員")]/../span/a/text()')).strip(" ['']")
-    return str(result1 + result2).strip('+').replace(",\\xa0", "").replace("'", "").replace(' ', '').replace(',,', '').lstrip(',').replace(',', ', ')
+    return str(result1 + result2).strip('+').replace(",\\xa0", "").replace("'", "").replace(' ', '').replace(',,', '').replace('N/A', '').lstrip(',').replace(',', ', ')
 def getActorPhoto(actor): #//*[@id="star_qdt"]/li/a/img
     a = actor.split(',')
     d={}
@@ -118,24 +118,33 @@ def main(number):
         correct_url = urls[ids.index(number)]
         detail_page = get_html('https://javdb.com' + correct_url)
 
+        # no cut image by default
+        imagecut = 3
         # If gray image exists ,then replace with normal cover
         cover_small = getCover_small(query_result, index=ids.index(number))
         if 'placeholder' in cover_small:
+            # replace wit normal cover and cut it
+            imagecut = 1
             cover_small = getCover(detail_page)
 
+        number = getNum(detail_page)
+        title = getTitle(detail_page)
+        if title and number:
+            # remove duplicate title
+            title = title.replace(number, '').strip()
 
         dic = {
             'actor': getActor(detail_page),
-            'title': getTitle(detail_page),
+            'title': title,
             'studio': getStudio(detail_page),
             'outline': getOutline(detail_page),
             'runtime': getRuntime(detail_page),
             'director': getDirector(detail_page),
             'release': getRelease(detail_page),
-            'number': getNum(detail_page),
+            'number': number,
             'cover': getCover(detail_page),
             'cover_small': cover_small,
-            'imagecut': 3,
+            'imagecut': imagecut,
             'tag': getTag(detail_page),
             'label': getLabel(detail_page),
             'year': getYear(getRelease(detail_page)),  # str(re.search('\d{4}',getRelease(a)).group()),
@@ -153,4 +162,4 @@ def main(number):
 # main('DV-1562')
 # input("[+][+]Press enter key exit, you can check the error messge before you exit.\n[+][+]按回车键结束，你可以在结束之前查看和错误信息。")
 if __name__ == "__main__":
-    print(main('snyz-007'))
+    print(main('GS-351'))
