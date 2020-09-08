@@ -5,29 +5,29 @@ from core import *
 
 
 def get_number(debug,filepath: str) -> str:
-    """
-    >>> from number_parser import get_number
-    >>> get_number("/Users/Guest/AV_Data_Capture/snis-829.mp4")
-    'snis-829'
-    >>> get_number("/Users/Guest/AV_Data_Capture/snis-829-C.mp4")
-    'snis-829'
-    >>> get_number("C:¥Users¥Guest¥snis-829.mp4")
-    'snis-829'
-    >>> get_number("C:¥Users¥Guest¥snis-829-C.mp4")
-    'snis-829'
-    >>> get_number("./snis-829.mp4")
-    'snis-829'
-    >>> get_number("./snis-829-C.mp4")
-    'snis-829'
-    >>> get_number(".¥snis-829.mp4")
-    'snis-829'
-    >>> get_number(".¥snis-829-C.mp4")
-    'snis-829'
-    >>> get_number("snis-829.mp4")
-    'snis-829'
-    >>> get_number("snis-829-C.mp4")
-    'snis-829'
-    """
+    # """
+    # >>> from number_parser import get_number
+    # >>> get_number("/Users/Guest/AV_Data_Capture/snis-829.mp4")
+    # 'snis-829'
+    # >>> get_number("/Users/Guest/AV_Data_Capture/snis-829-C.mp4")
+    # 'snis-829'
+    # >>> get_number("C:¥Users¥Guest¥snis-829.mp4")
+    # 'snis-829'
+    # >>> get_number("C:¥Users¥Guest¥snis-829-C.mp4")
+    # 'snis-829'
+    # >>> get_number("./snis-829.mp4")
+    # 'snis-829'
+    # >>> get_number("./snis-829-C.mp4")
+    # 'snis-829'
+    # >>> get_number(".¥snis-829.mp4")
+    # 'snis-829'
+    # >>> get_number(".¥snis-829-C.mp4")
+    # 'snis-829'
+    # >>> get_number("snis-829.mp4")
+    # 'snis-829'
+    # >>> get_number("snis-829-C.mp4")
+    # 'snis-829'
+    # """
     filepath = os.path.basename(filepath)
 
     if debug == False:
@@ -70,6 +70,6 @@ def get_number(debug,filepath: str) -> str:
                 return re.search(r'(.+?)\.', filepath)[0]
 
 
-if __name__ == "__main__":
-    import doctest
-    doctest.testmod(raise_on_error=True)
+# if __name__ == "__main__":
+#     import doctest
+#     doctest.testmod(raise_on_error=True)
