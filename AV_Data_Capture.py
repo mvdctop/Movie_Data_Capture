@@ -22,11 +22,10 @@ def argparse_function() -> [str, str, bool]:
     parser = argparse.ArgumentParser()
     parser.add_argument("file", default='', nargs='?', help="Single Movie file path.")
     parser.add_argument("-c", "--config", default='config.ini', nargs='?', help="The config file Path.")
-    parser.add_argument("-a", "--auto-exit", dest='autoexit', action="store_true", help="Auto exit after program complete")
     parser.add_argument("-n", "--number", default='', nargs='?',help="Custom file number")
     args = parser.parse_args()
 
-    return args.file, args.config, args.autoexit, args.number
+    return args.file, args.config, args.number
 
 def movie_lists(root, escape_folder):
     for folder in escape_folder:
@@ -65,7 +64,7 @@ def CEF(path):
 
 def create_data_and_move(file_path: str, c: config.Config,debug):
     # Normalized number, eg: 111xxx-222.mp4 -> xxx-222.mp4
-    n_number = get_number(file_path)
+    n_number = get_number(debug,file_path)
 
     if debug == True:
         print("[!]Making Data for [{}], the number is [{}]".format(file_path, n_number))
@@ -80,15 +79,21 @@ def create_data_and_move(file_path: str, c: config.Config,debug):
             print("[-] [{}] ERROR:".format(file_path))
             print('[-]', err)
 
-            if c.soft_link():
-                print("[-]Link {} to failed folder".format(file_path))
-                os.symlink(file_path, str(os.getcwd()) + "/" + conf.failed_folder() + "/")
-            else:
-                try:
-                    print("[-]Move [{}] to failed folder".format(file_path))
-                    shutil.move(file_path, str(os.getcwd()) + "/" + conf.failed_folder() + "/")
-                except Exception as err:
-                    print('[!]', err)
+            # 3.7.2 New: Move or not move to failed folder.
+            if c.failed_move() == False:
+                if c.soft_link():
+                    print("[-]Link {} to failed folder".format(file_path))
+                    os.symlink(file_path, str(os.getcwd()) + "/" + conf.failed_folder() + "/")
+            elif c.failed_move() == True:
+                if c.soft_link():
+                    print("[-]Link {} to failed folder".format(file_path))
+                    os.symlink(file_path, str(os.getcwd()) + "/" + conf.failed_folder() + "/")
+                else:
+                    try:
+                        print("[-]Move [{}] to failed folder".format(file_path))
+                        shutil.move(file_path, str(os.getcwd()) + "/" + conf.failed_folder() + "/")
+                    except Exception as err:
+                        print('[!]', err)
 
 def create_data_and_move_with_custom_number(file_path: str, c: config.Config, custom_number=None):
     try:
@@ -114,7 +119,7 @@ if __name__ == '__main__':
     version = '3.7.2'
 
     # Parse command line args
-    single_file_path, config_file, auto_exit, custom_number = argparse_function()
+    single_file_path, config_file, custom_number = argparse_function()
 
     # Read config.ini
     conf = config.Config(path=config_file)
@@ -159,6 +164,6 @@ if __name__ == '__main__':
     CEF(conf.success_folder())
     CEF(conf.failed_folder())
     print("[+]All finished!!!")
-    if auto_exit:
+    if conf.auto_exit():
         os._exit(0)
     input("[+][+]Press enter key exit, you can check the error message before you exit.")

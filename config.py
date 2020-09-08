@@ -29,6 +29,10 @@ class Config:
 
     def soft_link(self) -> bool:
         return self.conf.getboolean("common", "soft_link")
+    def failed_move(self) -> bool:
+        return self.conf.getboolean("common", "failed_move")
+    def auto_exit(self) -> bool:
+        return self.conf.getboolean("common", "auto_exit")
 
     def proxy(self) -> [str, int, int, str]:
         try:
@@ -81,6 +85,8 @@ class Config:
         conf.set(sec1, "failed_output_folder", "failed")
         conf.set(sec1, "success_output_folder", "JAV_output")
         conf.set(sec1, "soft_link", "0")
+        conf.set(sec1, "failed_move", "1")
+        conf.set(sec1, "auto_exit", "0")
 
         sec2 = "proxy"
         conf.add_section(sec2)
@@ -120,6 +126,8 @@ if __name__ == "__main__":
     print(config.failed_folder())
     print(config.success_folder())
     print(config.soft_link())
+    print(config.failed_move())
+    print(config.auto_exit())
     print(config.proxy())
     print(config.naming_rule())
     print(config.location_rule())
