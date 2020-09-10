@@ -25,9 +25,17 @@ def getTitle(htmlcode):  #获取标题
         return title2
     except:
         return title
-def getStudio(htmlcode): #获取厂商
+def getStudio(htmlcode): #获取厂商 已修改
     html = etree.fromstring(htmlcode,etree.HTMLParser())
-    result = str(html.xpath('/html/body/div[5]/div[1]/div[2]/p[5]/a/text()')).strip(" ['']")
+    #result = str(html.xpath('/html/body/div[5]/div[1]/div[2]/p[5]/a/text()')).strip(" ['']")
+    # 如果记录中冇导演，厂商排在第4位
+    if 'メーカー:' == str(html.xpath('/html/body/div[5]/div[1]/div[2]/p[4]/span/text()')).strip(" ['']"):
+        result = str(html.xpath('/html/body/div[5]/div[1]/div[2]/p[4]/a/text()')).strip(" ['']")
+    # 如果记录中有导演，厂商排在第5位
+    elif 'メーカー:' == str(html.xpath('/html/body/div[5]/div[1]/div[2]/p[5]/span/text()')).strip(" ['']"):
+        result = str(html.xpath('/html/body/div[5]/div[1]/div[2]/p[5]/a/text()')).strip(" ['']")
+    else:
+        result = ''
     return result
 def getYear(htmlcode):   #获取年份
     html = etree.fromstring(htmlcode,etree.HTMLParser())
@@ -41,10 +49,12 @@ def getRelease(htmlcode): #获取出版日期
     html = etree.fromstring(htmlcode, etree.HTMLParser())
     result = str(html.xpath('/html/body/div[5]/div[1]/div[2]/p[2]/text()')).strip(" ['']")
     return result
-def getRuntime(htmlcode): #获取分钟
-    soup = BeautifulSoup(htmlcode, 'lxml')
-    a = soup.find(text=re.compile('分鐘'))
-    return a
+def getRuntime(htmlcode): #获取分钟 已修改
+    #soup = BeautifulSoup(htmlcode, 'lxml')
+    #a = soup.find(text=re.compile('分鐘'))
+    html = etree.fromstring(htmlcode, etree.HTMLParser())
+    result = str(html.xpath('/html/body/div[5]/div[1]/div[2]/p[3]/text()')).strip(" ['']分鐘")
+    return result
 def getActor(htmlcode):   #获取女优
     b=[]
     soup=BeautifulSoup(htmlcode,'lxml')
@@ -56,19 +66,31 @@ def getNum(htmlcode):     #获取番号
     html = etree.fromstring(htmlcode, etree.HTMLParser())
     result = str(html.xpath('/html/body/div[5]/div[1]/div[2]/p[1]/span[2]/text()')).strip(" ['']")
     return result
-def getDirector(htmlcode): #获取导演
+def getDirector(htmlcode): #获取导演 已修改
     html = etree.fromstring(htmlcode, etree.HTMLParser())
-    result = str(html.xpath('/html/body/div[5]/div[1]/div[2]/p[4]/a/text()')).strip(" ['']")
+    #result = str(html.xpath('/html/body/div[5]/div[1]/div[2]/p[4]/a/text()')).strip(" ['']")
+    if '監督:' == str(html.xpath('/html/body/div[5]/div[1]/div[2]/p[4]/span/text()')).strip(" ['']"):
+        result = str(html.xpath('/html/body/div[5]/div[1]/div[2]/p[4]/a/text()')).strip(" ['']")
+    else:
+        result = ''         # 记录中有可能没有导演数据
     return result
-def getOutline(htmlcode):  #获取演员
+def getOutline(htmlcode):  #获取剧情
     doc = pq(htmlcode)
     result = str(doc('tr td div.mg-b20.lh4 p.mg-b20').text())
     return result
-def getSerise(htmlcode):
+def getSerise(htmlcode):   #获取系列 已修改
     html = etree.fromstring(htmlcode, etree.HTMLParser())
-    result = str(html.xpath('/html/body/div[5]/div[1]/div[2]/p[7]/a/text()')).strip(" ['']")
+    #result = str(html.xpath('/html/body/div[5]/div[1]/div[2]/p[7]/a/text()')).strip(" ['']")
+    # 如果记录中冇导演，系列排在第6位
+    if 'シリーズ:' == str(html.xpath('/html/body/div[5]/div[1]/div[2]/p[6]/span/text()')).strip(" ['']"):
+        result = str(html.xpath('/html/body/div[5]/div[1]/div[2]/p[6]/a/text()')).strip(" ['']")
+    # 如果记录中有导演，系列排在第7位
+    elif 'シリーズ:' == str(html.xpath('/html/body/div[5]/div[1]/div[2]/p[7]/span/text()')).strip(" ['']"):
+        result = str(html.xpath('/html/body/div[5]/div[1]/div[2]/p[7]/a/text()')).strip(" ['']")
+    else:
+        result = ''
     return result
-def getTag(htmlcode):  # 获取演员
+def getTag(htmlcode):  # 获取标签
     tag = []
     soup = BeautifulSoup(htmlcode, 'lxml')
     a = soup.find_all(attrs={'class': 'genre'})
@@ -81,7 +103,7 @@ def getTag(htmlcode):  # 获取演员
 
 def main(number):
     try:
-        htmlcode = get_html('https://www.javbus.com/' + number)
+        htmlcode = get_html('https://www.javbus.com/ja/' + number)
         try:
             dww_htmlcode = get_html("https://www.dmm.co.jp/mono/dvd/-/detail/=/cid=" + number.replace("-", ''))
         except:
@@ -101,7 +123,7 @@ def main(number):
             'tag': getTag(htmlcode),
             'label': getSerise(htmlcode),
             'actor_photo': getActorPhoto(htmlcode),
-            'website': 'https://www.javbus.com/' + number,
+            'website': 'https://www.javbus.com/ja/' + number,
             'source' : 'javbus.py',
         }
         js = json.dumps(dic, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ':'), )  # .encode('UTF-8')
@@ -110,10 +132,10 @@ def main(number):
         return main_uncensored(number)
 
 def main_uncensored(number):
-    htmlcode = get_html('https://www.javbus.com/' + number)
+    htmlcode = get_html('https://www.javbus.com/ja/' + number)
     dww_htmlcode = get_html("https://www.dmm.co.jp/mono/dvd/-/detail/=/cid=" + number.replace("-", ''))
     if getTitle(htmlcode) == '':
-        htmlcode = get_html('https://www.javbus.com/' + number.replace('-','_'))
+        htmlcode = get_html('https://www.javbus.com/ja/' + number.replace('-','_'))
         dww_htmlcode = get_html("https://www.dmm.co.jp/mono/dvd/-/detail/=/cid=" + number.replace("-", ''))
     dic = {
         'title': str(re.sub('\w+-\d+-','',getTitle(htmlcode))).replace(getNum(htmlcode)+'-',''),
@@ -130,7 +152,7 @@ def main_uncensored(number):
         'label': getSerise(htmlcode),
         'imagecut': 0,
         'actor_photo': '',
-        'website': 'https://www.javbus.com/' + number,
+        'website': 'https://www.javbus.com/ja/' + number,
         'source': 'javbus.py',
     }
     js = json.dumps(dic, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ':'), )  # .encode('UTF-8')
