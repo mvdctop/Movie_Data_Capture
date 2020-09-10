@@ -27,6 +27,7 @@ try:
 except:
     print('[-]Config media_warehouse read failed!')
 title = ''        #标题
+label = ''        #系列
 studio = ''       #片商
 year = ''         #年份
 outline = ''      #简介
@@ -91,6 +92,7 @@ def CreatFailedFolder():
 
 def getDataFromJSON(file_number):  # 从JSON返回元数据
     global title
+    global label
     global studio
     global year
     global outline
@@ -145,7 +147,9 @@ def getDataFromJSON(file_number):  # 从JSON返回元数据
 
     # ================================================网站规则添加结束================================================
 
-    title = str(json_data['title']).replace(' ', '')
+    title = json_data['title']
+    #title = str(json_data['title']).replace(' ', '')
+    label = json_data['label']
     studio = json_data['studio']
     year = json_data['year']
     outline = json_data['outline']
@@ -183,6 +187,44 @@ def getDataFromJSON(file_number):  # 从JSON返回元数据
     title = title.replace('<', '')
     title = title.replace('>', '')
     title = title.replace('|', '')
+    title = title.replace('-', ' ')
+    
+    # ===  替换Studio片假名
+    studio = studio.replace('アイエナジー','Energy')
+    studio = studio.replace('アイデアポケット','Idea Pocket')
+    studio = studio.replace('アキノリ','AKNR')
+    studio = studio.replace('アタッカーズ','Attackers')
+    studio = re.sub('アパッチ.*','Apache',studio)
+    studio = studio.replace('アマチュアインディーズ','SOD')
+    studio = studio.replace('アリスJAPAN','Alice Japan')
+    studio = studio.replace('オーロラプロジェクト・アネックス','Aurora Project Annex')
+    studio = studio.replace('クリスタル映像','Crystal 映像')
+    studio = studio.replace('グローリークエスト','Glory Quest')
+    studio = studio.replace('ダスッ！','DAS！')
+    studio = studio.replace('ディープス','DEEP’s')
+    studio = studio.replace('ドグマ','Dogma')
+    studio = studio.replace('プレステージ','PRESTIGE')
+    studio = studio.replace('ムーディーズ','MOODYZ')
+    studio = studio.replace('メディアステーション','宇宙企画')
+    studio = studio.replace('ワンズファクトリー','WANZ FACTORY')
+    studio = studio.replace('エスワン ナンバーワンスタイル','S1')
+    studio = studio.replace('エスワンナンバーワンスタイル','S1')
+    studio = studio.replace('SODクリエイト','SOD')
+    studio = studio.replace('サディスティックヴィレッジ','SOD')
+    studio = studio.replace('V＆Rプロダクツ','V＆R PRODUCE')
+    studio = studio.replace('V＆RPRODUCE','V＆R PRODUCE')
+    studio = studio.replace('レアルワークス','Real Works')
+    studio = studio.replace('マックスエー','MAX-A')
+    studio = studio.replace('ピーターズMAX','PETERS MAX')
+    studio = studio.replace('プレミアム','PREMIUM')
+    studio = studio.replace('ナチュラルハイ','NATURAL HIGH')
+    studio = studio.replace('マキシング','MAXING')
+    studio = studio.replace('エムズビデオグループ','M’s Video Group')
+    studio = studio.replace('ミニマム','Minimum')
+    studio = studio.replace('ワープエンタテインメント','WAAP Entertainment')
+    studio = re.sub('.*/妄想族','妄想族',studio)
+    studio = studio.replace('/',' ')
+    
     tmpArr = cover_small.split(',')
     if len(tmpArr) > 0:
         cover_small = tmpArr[0].strip('\"').strip('\'')
@@ -202,7 +244,7 @@ def smallCoverCheck():
                 img = Image.open('1.jpg')
             w = img.width
             h = img.height
-            img.save(path + '/' + number + c_word + '.png')
+            img.save(path + '/' + number + ' ' + title + c_word + '.png')
             time.sleep(1)
             os.remove(path + '/1.jpg')
         if option == 'kodi':
@@ -213,7 +255,7 @@ def smallCoverCheck():
                 img = Image.open('1.jpg')
             w = img.width
             h = img.height
-            img.save(path + '/' + number + c_word +'-poster.jpg')
+            img.save(path + '/' + number + ' ' + title + c_word +'-poster.jpg')
             time.sleep(1)
             os.remove(path + '/1.jpg')
         if option == 'plex':
@@ -301,12 +343,12 @@ def DownloadFileWithFilename(url, filename, path):  # path = examle:photo , vide
 
 def imageDownload():  # 封面是否下载成功，否则移动到failed
     if option == 'emby':
-        if DownloadFileWithFilename(cover, number + c_word + '.jpg', path) == 'failed':
+        if DownloadFileWithFilename(cover, number + ' ' + title + c_word + '.jpg', path) == 'failed':
             moveFailedFolder()
-        DownloadFileWithFilename(cover, number + c_word + '.jpg', path)
+        DownloadFileWithFilename(cover, number + ' ' + title + c_word + '.jpg', path)
         if multi_part == 1:
-            old_name = os.path.join(path, number + c_word + '.jpg')
-            new_name = os.path.join(path, number + c_word + '.jpg')
+            old_name = os.path.join(path, number + ' ' + title + c_word + '.jpg')
+            new_name = os.path.join(path, number + ' ' + title + c_word + '.jpg')
             os.rename(old_name, new_name)
             print('[+]Image Downloaded!', path + '/' + number + c_word + '.jpg')
         else:
@@ -317,9 +359,9 @@ def imageDownload():  # 封面是否下载成功，否则移动到failed
         DownloadFileWithFilename(cover, 'fanart.jpg', path)
         print('[+]Image Downloaded!', path + '/fanart.jpg')
     elif option == 'kodi':
-        if DownloadFileWithFilename(cover, number + c_word + '-fanart.jpg', path) == 'failed':
+        if DownloadFileWithFilename(cover, number + ' ' + title + c_word + '-fanart.jpg', path) == 'failed':
             moveFailedFolder()
-        DownloadFileWithFilename(cover, number + c_word + '-fanart.jpg', path)
+        DownloadFileWithFilename(cover, number + ' ' + title + c_word + '-fanart.jpg', path)
         print('[+]Image Downloaded!', path + '/' + number + c_word + '-fanart.jpg')
 
 
@@ -328,12 +370,13 @@ def PrintFiles():
         if not os.path.exists(path):
             os.makedirs(path)
         if option == 'plex':
-            with open(path + "/" + number + c_word + ".nfo", "wt", encoding='UTF-8') as code:
+            with open(path + "/" + number + ' ' + title + c_word + ".nfo", "wt", encoding='UTF-8') as code:
+                print("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>",file=code)
                 print("<movie>", file=code)
                 print(" <title>" + naming_rule + part + "</title>", file=code)
                 print("  <set>", file=code)
                 print("  </set>", file=code)
-                print("  <studio>" + studio + "+</studio>", file=code)
+                print("  <studio>" + studio + "</studio>", file=code)
                 print("  <year>" + year + "</year>", file=code)
                 print("  <outline>" + outline + "</outline>", file=code)
                 print("  <plot>" + outline + "</plot>", file=code)
@@ -352,15 +395,9 @@ def PrintFiles():
                 except:
                     aaaa = ''
                 print("  <maker>" + studio + "</maker>", file=code)
-                print("  <label>", file=code)
-                print("  </label>", file=code)
+                print("  <tag>" + label + "</tag>", file=code)
                 if cn_sub == '1':
                     print("  <tag>中文字幕</tag>", file=code)
-                try:
-                    for i in str(json_data['tag']).strip("[ ]").replace("'", '').replace(" ", '').split(','):
-                        print("  <tag>" + i + "</tag>", file=code)
-                except:
-                    aaaaa = ''
                 try:
                     for i in str(json_data['tag']).strip("[ ]").replace("'", '').replace(" ", '').split(','):
                         print("  <genre>" + i + "</genre>", file=code)
@@ -375,20 +412,21 @@ def PrintFiles():
                 print("</movie>", file=code)
                 print("[+]Writeed!          " + path + "/" + number + ".nfo")
         elif option == 'emby':
-            with open(path + "/" + number + c_word + ".nfo", "wt", encoding='UTF-8') as code:
+            with open(path + "/" + number + ' ' + title + c_word + ".nfo", "wt", encoding='UTF-8') as code:
+                print("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>",file=code)
                 print("<movie>", file=code)
                 print(" <title>" + naming_rule + part + "</title>", file=code)
                 print("  <set>", file=code)
                 print("  </set>", file=code)
-                print("  <studio>" + studio + "+</studio>", file=code)
+                print("  <studio>" + studio + "</studio>", file=code)
                 print("  <year>" + year + "</year>", file=code)
                 print("  <outline>" + outline + "</outline>", file=code)
                 print("  <plot>" + outline + "</plot>", file=code)
                 print("  <runtime>" + str(runtime).replace(" ", "") + "</runtime>", file=code)
                 print("  <director>" + director + "</director>", file=code)
-                print("  <poster>" + number + c_word + ".png</poster>", file=code)
-                print("  <thumb>" + number + c_word + ".png</thumb>", file=code)
-                print("  <fanart>" + number + c_word + '.jpg' + "</fanart>", file=code)
+                print("  <poster>" + number + ' ' + title + c_word + ".png</poster>", file=code)
+                print("  <thumb>" + number + ' ' + title + c_word + ".png</thumb>", file=code)
+                print("  <fanart>" + number + ' ' + title + c_word + '.jpg' + "</fanart>", file=code)
                 try:
                     for key, value in actor_photo.items():
                         print("  <actor>", file=code)
@@ -399,15 +437,9 @@ def PrintFiles():
                 except:
                     aaaa = ''
                 print("  <maker>" + studio + "</maker>", file=code)
-                print("  <label>", file=code)
-                print("  </label>", file=code)
+                print("  <tag>" + label + "</tag>", file=code)
                 if cn_sub == '1':
                     print("  <tag>中文字幕</tag>", file=code)
-                try:
-                    for i in tag:
-                        print("  <tag>" + i + "</tag>", file=code)
-                except:
-                    aaaaa = ''
                 try:
                     for i in tag:
                         print("  <genre>" + i + "</genre>", file=code)
@@ -422,12 +454,13 @@ def PrintFiles():
                 print("</movie>", file=code)
                 print("[+]Writeed!          " + path + "/" + number + c_word + ".nfo")
         elif option == 'kodi':
-            with open(path + "/" + number + c_word + ".nfo", "wt", encoding='UTF-8') as code:
+            with open(path + "/" + number + ' ' + title + c_word + ".nfo", "wt", encoding='UTF-8') as code:
+                print("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>",file=code)
                 print("<movie>", file=code)
                 print(" <title>" + naming_rule + part + "</title>", file=code)
                 print("  <set>", file=code)
                 print("  </set>", file=code)
-                print("  <studio>" + studio + "+</studio>", file=code)
+                print("  <studio>" + studio + "</studio>", file=code)
                 print("  <year>" + year + "</year>", file=code)
                 print("  <outline>" + outline + "</outline>", file=code)
                 print("  <plot>" + outline + "</plot>", file=code)
@@ -445,8 +478,9 @@ def PrintFiles():
                 except:
                     aaaa = ''
                 print("  <maker>" + studio + "</maker>", file=code)
-                print("  <label>", file=code)
-                print("  </label>", file=code)
+                print("  <label>" + label + "</label>", file=code)
+#                print("  <label>", file=code)
+#                print("  </label>", file=code)
                 if cn_sub == '1':
                     print("  <tag>中文字幕</tag>", file=code)
                 try:
@@ -485,7 +519,7 @@ def cutImage():
                 imgSize = img.size
                 w = img.width
                 h = img.height
-                img2 = img.crop((w / 1.9, 0, w, h))
+                img2 = img.crop((w / 1.8912, 0, w, h))
                 img2.save(path + '/poster.png')
             except:
                 print('[-]Cover cut failed!')
@@ -497,47 +531,47 @@ def cutImage():
     elif option == 'emby':
         if imagecut == 1:
             try:
-                img = Image.open(path + '/' + number + c_word + '.jpg')
+                img = Image.open(path + '/' + number + ' ' + title + c_word + '.jpg')
                 imgSize = img.size
                 w = img.width
                 h = img.height
-                img2 = img.crop((w / 1.9, 0, w, h))
-                img2.save(path + '/' + number + c_word + '.png')
+                img2 = img.crop((w / 1.8912, 0, w, h))
+                img2.save(path + '/' + number + ' ' + title + c_word + '.png')
             except:
                 print('[-]Cover cut failed!')
         elif imagecut == 0:
-            img = Image.open(path + '/' + number + c_word + '.jpg')
+            img = Image.open(path + '/' + number + ' ' + title + c_word + '.jpg')
             w = img.width
             h = img.height
-            img.save(path + '/' + number + c_word + '.png')
+            img.save(path + '/' + number + ' ' + title + c_word + '.png')
     elif option == 'kodi':
         if imagecut == 1:
             try:
-                img = Image.open(path + '/' + number + c_word + '-fanart.jpg')
+                img = Image.open(path + '/' + number + ' ' + title + c_word + '-fanart.jpg')
                 imgSize = img.size
                 w = img.width
                 h = img.height
-                img2 = img.crop((w / 1.9, 0, w, h))
-                img2.save(path + '/' + number + c_word + '-poster.jpg')
+                img2 = img.crop((w / 1.8912, 0, w, h))
+                img2.save(path + '/' + number + ' ' + title + c_word + '-poster.jpg')
             except:
                 print('[-]Cover cut failed!')
         elif imagecut == 0:
-            img = Image.open(path + '/' + number + c_word + '-fanart.jpg')
+            img = Image.open(path + '/' + number + ' ' + title + c_word + '-fanart.jpg')
             w = img.width
             h = img.height
             try:
                 img = img.convert('RGB')
-                img.save(path + '/' + number + c_word + '-poster.jpg')
+                img.save(path + '/' + number + ' ' + title + c_word + '-poster.jpg')
             except:
                 img = img.convert('RGB')
-                img.save(path + '/' + number + c_word + '-poster.jpg')
+                img.save(path + '/' + number + ' ' + title + c_word + '-poster.jpg')
 
 
 def pasteFileToFolder(filepath, path):  # 文件路径，番号，后缀，要移动至的位置
     global houzhui
     houzhui = str(re.search('[.](AVI|RMVB|WMV|MOV|MP4|MKV|FLV|TS|avi|rmvb|wmv|mov|mp4|mkv|flv|ts)$', filepath).group())
     try:
-        os.rename(filepath, path + '/' + number + c_word + houzhui)
+        os.rename(filepath, path + '/' + number + ' ' + title + c_word + houzhui)
     except FileExistsError:
         print('[-]File Exists! Please check your movie!')
         print('[-]move to the root folder of the program.')
@@ -555,7 +589,7 @@ def pasteFileToFolder_mode2(filepath, path):  # 文件路径，番号，后缀�
     houzhui = str(re.search('[.](AVI|RMVB|WMV|MOV|MP4|MKV|FLV|TS|avi|rmvb|wmv|mov|mp4|mkv|flv|ts)$', filepath).group())
     path = success_folder + '/' + location_rule
     try:
-        os.rename(filepath, path + '/' + number + part + c_word + houzhui)
+        os.rename(filepath, path + '/' + number + ' ' + title + part + c_word + houzhui)
         print('[!]Success')
     except FileExistsError:
         print('[-]File Exists! Please check your movie!')
@@ -571,9 +605,9 @@ def copyRenameJpgToBackdrop():
         shutil.copy(path + '/fanart.jpg', path + '/Backdrop.jpg')
         shutil.copy(path + '/poster.png', path + '/thumb.png')
     if option == 'emby':
-        shutil.copy(path + '/' + number + c_word + '.jpg', path + '/Backdrop.jpg')
+        shutil.copy(path + '/' + number + ' ' + title + c_word + '.jpg', path + '/Backdrop.jpg')
     if option == 'kodi':
-        shutil.copy(path + '/' + number + c_word + '-fanart.jpg', path + '/Backdrop.jpg')
+        shutil.copy(path + '/' + number + ' ' + title + c_word + '-fanart.jpg', path + '/Backdrop.jpg')
 
 
 def get_part(filepath):
@@ -632,9 +666,9 @@ if __name__ == '__main__':
         smallCoverCheck() # 检查小封面
         imageDownload()  # creatFoder会返回番号路径
         cutImage()  # 裁剪图
-        copyRenameJpgToBackdrop()
+        #copyRenameJpgToBackdrop()
         PrintFiles()  # 打印文件
-        # renameBackdropToJpg_copy()
+        #renameBackdropToJpg_copy()
         pasteFileToFolder(filepath, path)  # 移动文件
     elif program_mode == '2':
         pasteFileToFolder_mode2(filepath, path)  # 移动文件
