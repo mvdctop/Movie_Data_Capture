@@ -152,6 +152,43 @@ def get_data_from_json(file_number, filepath, conf: config.Config):  # 从JSON�
         cover_small = tmpArr[0].strip('\"').strip('\'')
     # ====================处理异常字符 END================== #\/:*?"<>|
 
+    # ===  替换Studio片假名
+    studio = studio.replace('アイエナジー','Energy')
+    studio = studio.replace('アイデアポケット','Idea Pocket')
+    studio = studio.replace('アキノリ','AKNR')
+    studio = studio.replace('アタッカーズ','Attackers')
+    studio = re.sub('アパッチ.*','Apache',studio)
+    studio = studio.replace('アマチュアインディーズ','SOD')
+    studio = studio.replace('アリスJAPAN','Alice Japan')
+    studio = studio.replace('オーロラプロジェクト・アネックス','Aurora Project Annex')
+    studio = studio.replace('クリスタル映像','Crystal 映像')
+    studio = studio.replace('グローリークエスト','Glory Quest')
+    studio = studio.replace('ダスッ！','DAS！')
+    studio = studio.replace('ディープス','DEEP’s')
+    studio = studio.replace('ドグマ','Dogma')
+    studio = studio.replace('プレステージ','PRESTIGE')
+    studio = studio.replace('ムーディーズ','MOODYZ')
+    studio = studio.replace('メディアステーション','宇宙企画')
+    studio = studio.replace('ワンズファクトリー','WANZ FACTORY')
+    studio = studio.replace('エスワン ナンバーワンスタイル','S1')
+    studio = studio.replace('エスワンナンバーワンスタイル','S1')
+    studio = studio.replace('SODクリエイト','SOD')
+    studio = studio.replace('サディスティックヴィレッジ','SOD')
+    studio = studio.replace('V＆Rプロダクツ','V＆R PRODUCE')
+    studio = studio.replace('V＆RPRODUCE','V＆R PRODUCE')
+    studio = studio.replace('レアルワークス','Real Works')
+    studio = studio.replace('マックスエー','MAX-A')
+    studio = studio.replace('ピーターズMAX','PETERS MAX')
+    studio = studio.replace('プレミアム','PREMIUM')
+    studio = studio.replace('ナチュラルハイ','NATURAL HIGH')
+    studio = studio.replace('マキシング','MAXING')
+    studio = studio.replace('エムズビデオグループ','M’s Video Group')
+    studio = studio.replace('ミニマム','Minimum')
+    studio = studio.replace('ワープエンタテインメント','WAAP Entertainment')
+    studio = re.sub('.*/妄想族','妄想族',studio)
+    studio = studio.replace('/',' ')
+    # ===  替换Studio片假名 END
+    
     location_rule = eval(conf.location_rule())
 
     # Process only Windows.
@@ -357,7 +394,7 @@ def cutImage(imagecut, path, number, c_word):
             imgSize = img.size
             w = img.width
             h = img.height
-            img2 = img.crop((w / 1.9, 0, w, h))
+            img2 = img.crop((w - h / 1.5, 0, w, h))
             img2.save(path + '/' + number + c_word + '-poster.jpg')
             print('[+]Image Cutted!     ' + path + '/' + number + c_word + '-poster.jpg')
         except:
