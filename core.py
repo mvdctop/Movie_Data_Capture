@@ -240,6 +240,7 @@ def create_folder(success_folder, location_rule, json_data, conf: config.Config)
         path = success_folder + '/' + location_rule.replace("'actor'", "'manypeople'", 3).replace("actor","'manypeople'",3)  # path为影片+元数据所在目录
     else:
         path = success_folder + '/' + location_rule
+    path = trimblank(path)
     if not os.path.exists(path):
         path = escape_path(path, conf.escape_literals())
         try:
@@ -251,6 +252,15 @@ def create_folder(success_folder, location_rule, json_data, conf: config.Config)
             os.makedirs(path)
     return path
 
+
+def trimblank(s: str):
+    """
+    Clear the blank on the right side of the folder name
+    """
+    if s[-1] == " ":
+        return trimblank(s[:-1])
+    else:
+        return s
 
 # =====================资源下载部分===========================
 
