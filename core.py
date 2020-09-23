@@ -197,7 +197,7 @@ def get_data_from_json(file_number, filepath, conf: config.Config):  # 从JSON�
             print(conf.location_rule())
             location_rule = eval(conf.location_rule().replace("actor","'多人作品'"))
         if 'title' in conf.location_rule() and len(title) > 100:
-            shorttitle = title[0:100] + "..."
+            shorttitle = title[0:100]
             location_rule = location_rule.replace(title, shorttitle)
 
     # 返回处理后的json_data
