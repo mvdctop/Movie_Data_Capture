@@ -50,6 +50,15 @@ class Config:
 
     def location_rule(self) -> str:
         return self.conf.get("Name_Rule", "location_rule")
+    
+    def max_title_len(self) -> int:
+        """
+        Maximum title length
+        """
+        try:
+            return self.conf.getint("Name_Rule", "max_title_len")
+        except ValueError:
+            return 50
 
     def update_check(self) -> bool:
         try:
@@ -99,6 +108,7 @@ class Config:
         conf.add_section(sec3)
         conf.set(sec3, "location_rule", "actor + '/' + number")
         conf.set(sec3, "naming_rule", "number + '-' + title")
+        conf.set(sec3, "max_title_len", "50")
 
         sec4 = "update"
         conf.add_section(sec4)
