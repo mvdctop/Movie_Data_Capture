@@ -57,7 +57,7 @@ class Config:
         """
         try:
             return self.conf.getint("Name_Rule", "max_title_len")
-        except ValueError:
+        except:
             return 50
 
     def update_check(self) -> bool:
