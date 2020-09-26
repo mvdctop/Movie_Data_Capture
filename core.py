@@ -484,13 +484,8 @@ def get_part(filepath, failed_folder):
 def debug_print(data: json):
     try:
         print("[+] ---Debug info---")
-        for i, v in data.items():
-            if i == "outline":
-                print("[+]  -", i, "    :", len(v), "characters")
-                continue
-            if i == "actor_photo" or i == "year":
-                continue
-            print("[+]  -", "%-11s" % i, ":", v)
+
+
         print("[+] ---Debug info---")
     except:
         pass

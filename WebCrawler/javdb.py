@@ -60,10 +60,23 @@ def getTag(a):
     html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
     try:
         result = html.xpath('//strong[contains(text(),"類別")]/../span/a/text()')
-        return result
+        total = []
+        for i in result:
+            try:
+                total.append(translateTag_to_sc(i))
+            except:
+                pass
+        return total
+
     except:
         result = html.xpath('//strong[contains(text(),"類別")]/../span/text()')
-        return result
+        total = []
+        for i in result:
+            try:
+                total.append(translateTag_to_sc(i))
+            except:
+                pass
+        return total
 
 def getCover_small(a, index=0):
     # same issue mentioned below,
@@ -162,4 +175,4 @@ def main(number):
 # main('DV-1562')
 # input("[+][+]Press enter key exit, you can check the error messge before you exit.\n[+][+]按回车键结束，你可以在结束之前查看和错误信息。")
 if __name__ == "__main__":
-    print(main('GS-351'))
+    print(main('ipx-292'))

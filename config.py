@@ -33,6 +33,8 @@ class Config:
         return self.conf.getboolean("common", "failed_move")
     def auto_exit(self) -> bool:
         return self.conf.getboolean("common", "auto_exit")
+    def transalte_to_sc(self) -> bool:
+        return self.conf.getboolean("common", "transalte_to_sc")
 
     def proxy(self) -> [str, int, int, str]:
         try:
@@ -87,13 +89,14 @@ class Config:
         conf.set(sec1, "soft_link", "0")
         conf.set(sec1, "failed_move", "1")
         conf.set(sec1, "auto_exit", "0")
+        conf.set(sec1, "transalte_to_sc", "1")
 
         sec2 = "proxy"
         conf.add_section(sec2)
         conf.set(sec2, "proxy", "127.0.0.1:1080")
         conf.set(sec2, "timeout", "10")
         conf.set(sec2, "retry", "3")
-        conf.set(sec2, "type", "http")
+        conf.set(sec2, "type", "socks5")
 
         sec3 = "Name_Rule"
         conf.add_section(sec3)
