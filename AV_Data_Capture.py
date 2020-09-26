@@ -116,7 +116,7 @@ def create_data_and_move_with_custom_number(file_path: str, c: config.Config, cu
 
 
 if __name__ == '__main__':
-    version = '3.8'
+    version = '3.9'
 
     # Parse command line args
     single_file_path, config_file, custom_number = argparse_function()
