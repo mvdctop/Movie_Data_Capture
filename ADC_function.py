@@ -67,8 +67,6 @@ def get_html(url, cookies: dict = None, ua: str = None, return_type: str = None)
         except requests.exceptions.ConnectionError:
             print("[-]Connect retry {}/{}".format(i + 1, retry_count))
     print('[-]Connect Failed! Please check your Proxy or Network!')
-    input("Press ENTER to exit!")
-    exit()
 
 
 def post_html(url: str, query: dict) -> requests.Response:

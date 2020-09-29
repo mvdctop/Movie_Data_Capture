@@ -68,25 +68,25 @@ def get_data_from_json(file_number, filepath, conf: config.Config):  # ä»ŽJSONè¿
     if "avsox" in sources and (re.match(r"^\d{5,}", file_number) or
         "HEYZO" in file_number or "heyzo" in file_number or "Heyzo" in file_number
     ):
-        if conf.debug() == True:
-            print('[+]select avsox')
+        # if conf.debug() == True:
+        #     print('[+]select avsox')
         sources.insert(0, sources.pop(sources.index("avsox")))
-    elif "fanza" in sources and (re.match(r"\d+\D+", file_number) or
+    elif "mgstage" in sources and (re.match(r"\d+\D+", file_number) or
         "siro" in file_number or "SIRO" in file_number or "Siro" in file_number
     ):
-        if conf.debug() == True:
-            print('[+]select fanza')
-        sources.insert(0, sources.pop(sources.index("fanza")))
+        # if conf.debug() == True:
+            # print('[+]select fanza')
+        sources.insert(0, sources.pop(sources.index("mgstage")))
     elif "fc2" in sources and ("fc2" in file_number or "FC2" in file_number
     ):
-        if conf.debug() == True:
-            print('[+]select fc2')
+        # if conf.debug() == True:
+        #     print('[+]select fc2')
         sources.insert(0, sources.pop(sources.index("fc2")))
     elif "dlsite" in sources and (
         "RJ" in file_number or "rj" in file_number or "VJ" in file_number or "vj" in file_number
     ):
-        if conf.debug() == True:
-            print('[+]select dlsite')
+        # if conf.debug() == True:
+        #     print('[+]select dlsite')
         sources.insert(0, sources.pop(sources.index("dlsite")))
 
     json_data = {}
@@ -486,7 +486,13 @@ def get_part(filepath, failed_folder):
 def debug_print(data: json):
     try:
         print("[+] ---Debug info---")
-
+        for i, v in data.items():
+            if i == 'outline':
+                print('[+]  -', i, '    :', len(v), 'characters')
+                continue
+            if i == 'actor_photo' or i == 'year':
+                continue
+            print('[+]  -', "%-11s" % i, ':', v)
 
         print("[+] ---Debug info---")
     except:
