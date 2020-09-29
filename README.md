@@ -41,6 +41,7 @@ When you run the software, you accept the following terms
 * Before using this software, please understand and abide by local laws and regulations. If there is any violation of local laws and regulations during the use of this software, * please do not use this software
 * When the user uses this software, if the user has any illegal acts in the local area, the user shall bear
 * It is strictly forbidden for users to use this software for commercial and personal intentions
+* Please delete the source code and binary program within 24 hours after downloading
 * The author of this software yoshiko2 reserves the right of final decision and final interpretation
 * If the user does not agree with any of the above terms, please do not use this software
 ---
@@ -51,6 +52,7 @@ When you run the software, you accept the following terms
 * 本ソフトウェアを使用する前に、現地の法令を理解し、遵守してください本ソフトウェアの使用中に現地の法令に違反する場合は、本ソフトウェアを使用しないでください
 * 本ソフトウェアをご利用の際、地域で違法行為を行った場合は、お客様の負担となります。
 * ユーザーがこのソフトウェアを商業的および個人的な目的で使用することは固く禁じられています
+* ダウンロード後24時間以内にソースコードとバイナリプログラムを削除してください
 * このソフトウェアの作者yoshiko2は、最終決定および最終解釈の権利を留保します。
 * ユーザーが上記の条件のいずれかに同意しない場合は、このソフトウェアを使用しないでください
 
