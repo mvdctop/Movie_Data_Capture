@@ -44,7 +44,7 @@ def CreatFailedFolder(failed_folder):
 
 def get_data_from_json(file_number, filepath, conf: config.Config):  # 从JSON返回元数据
     """
-    iterate through all services and fetch the data
+    iterate through all services and fetch the data 
     """
 
     func_mapping = {
