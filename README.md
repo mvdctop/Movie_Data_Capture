@@ -26,6 +26,7 @@ CLI 版本
 当你运行了本软件，即代表你接受了以下条款
 
 * 本软件仅供技术交流，学术交流使用
+* **请勿在热门的社交平台上宣传此项目**
 * 本软件作者编写出该软件旨在学习 Python ，提高编程水平
 * 用户在使用本软件前，请用户了解并遵守当地法律法规，如果本软件使用过程中存在违反当地法律法规的行为，请勿使用该软件
 * 用户在使用本软件时，若用户在当地产生一切违法行为由用户承担
@@ -37,6 +38,7 @@ CLI 版本
 When you run the software, you accept the following terms
 
 * This software is only for technical exchange and academic exchange
+* **Please do not promote this project on popular social platforms**
 * The software author wrote this software to learn Python and improve programming
 * Before using this software, please understand and abide by local laws and regulations. If there is any violation of local laws and regulations during the use of this software, * please do not use this software
 * When the user uses this software, if the user has any illegal acts in the local area, the user shall bear
@@ -48,6 +50,7 @@ When you run the software, you accept the following terms
 このソフトウェアを実行すると、次の条件に同意したことになります
 
 * このソフトウェアは、技術交換、学術交換専用です。
+* **人気のソーシャルプラットフォームでこのプロジェクトを宣伝しないでください**
 * ソフトウェアの作成者は、Pythonを学習してプログラミングを改善するためにこのソフトウェアを作成しました
 * 本ソフトウェアを使用する前に、現地の法令を理解し、遵守してください本ソフトウェアの使用中に現地の法令に違反する場合は、本ソフトウェアを使用しないでください
 * 本ソフトウェアをご利用の際、地域で違法行為を行った場合は、お客様の負担となります。
