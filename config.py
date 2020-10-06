@@ -102,7 +102,7 @@ class Config:
 
         sec2 = "proxy"
         conf.add_section(sec2)
-        conf.set(sec2, "proxy", "127.0.0.1:1080")
+        conf.set(sec2, "proxy", "")
         conf.set(sec2, "timeout", "10")
         conf.set(sec2, "retry", "3")
         conf.set(sec2, "type", "socks5")
