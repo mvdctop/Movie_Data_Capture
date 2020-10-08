@@ -17,7 +17,7 @@ CLI 版本
 #### 本地电影刮削与整理一体化解决方案
 
 # 官方文档
-* [WIKI](https://github.com/yoshiko2/AV_Data_Capture/wiki/AV-Data-Capture-CLI)
+* [WIKI](https://github.com/yoshiko2/AV_Data_Capture/wiki)
 
 # 版本发布
 * [Release](https://github.com/yoshiko2/AV_Data_Capture/releases)
