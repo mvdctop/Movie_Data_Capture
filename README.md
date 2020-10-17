@@ -16,8 +16,9 @@ CLI 版本
 **日本电影元数据 抓取工具 | 刮削器**，配合本地影片管理软件 Emby, Jellyfin, Kodi 等管理本地影片，该软件起到分类与元数据（metadata）抓取作用，利用元数据信息来分类，仅供本地影片分类整理使用。  
 #### 本地电影刮削与整理一体化解决方案
 
-# 官方文档
-* [WIKI](https://github.com/yoshiko2/AV_Data_Capture/wiki)
+# 文档
+* [官方WIKI](https://github.com/yoshiko2/AV_Data_Capture/wiki)
+* [VergilGao's Docker部署](https://github.com/VergilGao/docker-avdc)
 
 # 版本发布
 * [Release](https://github.com/yoshiko2/AV_Data_Capture/releases)
