@@ -37,7 +37,7 @@ CLI 版本
 * 本软件作者yoshiko2保留最终决定权和最终解释权
 * 若用户不同意上述条款任意一条，请勿使用本软件
 ---
-When you run the software, you accept the following terms
+When you view and download the source code or binary program of this project, it means that you have accepted the following terms
 
 * This software is only for technical exchange and academic exchange
 * **Please do not promote this project on popular social platforms**
@@ -50,7 +50,7 @@ When you run the software, you accept the following terms
 * The author of this software yoshiko2 reserves the right of final decision and final interpretation
 * If the user does not agree with any of the above terms, please do not use this software
 ---
-このソフトウェアを実行すると、次の条件に同意したことになります
+このプロジェクトのソースコードまたはバイナリプログラムを表示してダウンロードすると、次の条件に同意したことになります。
 
 * このソフトウェアは、技術交換、学術交換専用です。
 * **人気のソーシャルプラットフォームでこのプロジェクトを宣伝しないでください**
