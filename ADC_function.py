@@ -66,6 +66,9 @@ def get_html(url, cookies: dict = None, ua: str = None, return_type: str = None)
             print("[-]Connect retry {}/{}".format(i + 1, retry_count))
         except requests.exceptions.ConnectionError:
             print("[-]Connect retry {}/{}".format(i + 1, retry_count))
+        except Exception as e:
+            print("[-]Connect retry {}/{}".format(i + 1, retry_count))
+            print("[-]" + str(e))
     print('[-]Connect Failed! Please check your Proxy or Network!')
 
 

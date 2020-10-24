@@ -12,8 +12,16 @@ class Config:
             except:
                 self.conf.read(path, encoding="utf-8")
         else:
-            print("[-] Config file not found! Use the default settings")
-            self.conf = self._default_config()
+            try:
+                self.conf = configparser.ConfigParser()
+                try: # From single crawler debug use only
+                    self.conf.read('../' + path, encoding="utf-8-sig")
+                except:
+                    self.conf.read('../' + path, encoding="utf-8")
+            except Exception as e:
+                print("[-]Config file not found! Use the default settings")
+                print("[-]",e)
+                self.conf = self._default_config()
 
     def main_mode(self) -> str:
         try:
@@ -103,7 +111,7 @@ class Config:
         sec2 = "proxy"
         conf.add_section(sec2)
         conf.set(sec2, "proxy", "")
-        conf.set(sec2, "timeout", "10")
+        conf.set(sec2, "timeout", "5")
         conf.set(sec2, "retry", "3")
         conf.set(sec2, "type", "socks5")
 
