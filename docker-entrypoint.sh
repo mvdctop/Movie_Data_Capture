@@ -8,3 +8,4 @@ apt update
 apt upgrade -y
 pip3 install --upgrade -r requirements.txt
 make
+mv bin/* /bin/
