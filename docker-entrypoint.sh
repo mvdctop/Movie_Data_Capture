@@ -8,4 +8,4 @@ apt update
 apt upgrade -y
 pip3 install --upgrade -r requirements.txt
 make
-mv bin/* /avdc_bin/
+mv bin/* /avdc_bin
