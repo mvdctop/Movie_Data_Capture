@@ -7,10 +7,10 @@ SHELL = /bin/bash
 
 .DEFAULT: make
 make:
-	@echo "[+]make prepare-dev"
-	sudo apt-get -y install python3.7 python3-pip
-	pip3 install -r requirements.txt
-	pip3 install pyinstaller
+	#@echo "[+]make prepare-dev"
+	#sudo apt-get -y install python3.7 python3-pip
+	#pip3 install -r requirements.txt
+	#pip3 install pyinstaller
 
 	#@echo "[+]Set CLOUDSCRAPER_PATH variable"
 	#export cloudscraper_path=$(python3 -c 'import cloudscraper as _; print(_.__path__[0])' | tail -n 1)
