@@ -43,7 +43,10 @@ class Config:
         return self.conf.getboolean("common", "auto_exit")
     def transalte_to_sc(self) -> bool:
         return self.conf.getboolean("common", "transalte_to_sc")
-
+    def is_transalte(self) -> bool:
+        return self.conf.getboolean("transalte", "switch")
+    def transalte_values(self) -> bool:
+        return self.conf.get("transalte", "values")
     def proxy(self) -> [str, int, int, str]:
         try:
             sec = "proxy"
@@ -138,6 +141,11 @@ class Config:
         conf.add_section(sec7)
         conf.set(sec7, "switch", "0")
 
+        sec8 = "transalte"
+        conf.add_section(sec8)
+        conf.set(sec8, "switch", "0")
+        conf.set(sec8, "values", "title,outline")
+
         return conf
 
 
@@ -157,3 +165,5 @@ if __name__ == "__main__":
     print(config.escape_literals())
     print(config.escape_folder())
     print(config.debug())
+    print(config.is_transalte())
+    print(config.transalte_values())
