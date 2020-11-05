@@ -18,11 +18,12 @@ def check_update(local_version):
         print("[*]======================================================")
 
 
-def argparse_function() -> [str, str, bool]:
+def argparse_function(ver: str) -> [str, str, bool]:
     parser = argparse.ArgumentParser()
     parser.add_argument("file", default='', nargs='?', help="Single Movie file path.")
     parser.add_argument("-c", "--config", default='config.ini', nargs='?', help="The config file Path.")
     parser.add_argument("-n", "--number", default='', nargs='?',help="Custom file number")
+    parser.add_argument("--version", action="version", version=ver)
     args = parser.parse_args()
 
     return args.file, args.config, args.number
@@ -119,7 +120,7 @@ if __name__ == '__main__':
     version = '3.9.2'
 
     # Parse command line args
-    single_file_path, config_file, custom_number = argparse_function()
+    single_file_path, config_file, custom_number = argparse_function(version)
 
     # Read config.ini
     conf = config.Config(path=config_file)
