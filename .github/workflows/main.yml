@@ -9,151 +9,65 @@ on:
       - master
 
 jobs:
-  Linux:
-    runs-on: ubuntu-latest
+  build:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
 
     steps:
-    - uses: actions/checkout@v2
+      - uses: actions/checkout@v2
 
-    - name: Setup Python 3.8
-      uses: actions/setup-python@v2
-      with:
-        python-version: 3.8
+      - name: Setup Python 3.8
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        sed -i '$a pyinstaller' requirements.txt
-        pip install -r requirements.txt
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pyinstaller
 
-    - name: Test number_perser.get_number
-      run: |
-        python number_parser.py -v
+      - name: Test number_perser.get_number
+        run: |
+          python number_parser.py -v
 
-    - name: Set VERSION variable
-      run: |
-        version=$(cat AV_Data_Capture.py | grep "version = " | tr -d "version = '")
-        echo "::set-env name=VERSION::$version"
+      - name: Build with PyInstaller for macos/ubuntu
+        if: matrix.os == 'macos-latest' || matrix.os == 'ubuntu-latest'
+        run: |
+          pyinstaller \
+            --onefile AV_Data_Capture.py \
+            --hidden-import ADC_function.py \
+            --hidden-import core.py \
+            --add-data "$(python -c 'import cloudscraper as _; print(_.__path__[0])'):cloudscraper"
 
-    - name: Set CLOUDSCRAPER_PATH variable
-      run: |
-        cloudscraper_path=$(python -c 'import cloudscraper as _; print(_.__path__[0])' | tail -n 1)
-        echo "::set-env name=CLOUDSCRAPER_PATH::$cloudscraper_path"
+      - name: Build with PyInstaller for windows
+        if: matrix.os == 'windows-latest'
+        run: |
+          pyinstaller `
+            --onefile AV_Data_Capture.py `
+            --hidden-import ADC_function.py `
+            --hidden-import core.py `
+            --add-data "$(python -c 'import cloudscraper as _; print(_.__path__[0])');cloudscraper"
 
-    - name: Build with PyInstaller
-      run: |
-        pyinstaller \
-          --onefile AV_Data_Capture.py \
-          --hidden-import ADC_function.py \
-          --hidden-import core.py \
-          --add-data "$CLOUDSCRAPER_PATH:cloudscraper"
+      - name: Copy config.ini
+        run: |
+          cp config.ini dist/
 
-    - name: Copy config.ini
-      run: |
-        cp config.ini dist/
+      - name: Set VERSION variable for macos/ubuntu
+        if: matrix.os == 'macos-latest' || matrix.os == 'ubuntu-latest'
+        run: |
+          echo "VERSION=$(python AV_Data_Capture.py --version)" >> $GITHUB_ENV
 
-    - name: Upload build artifact
-      uses: actions/upload-artifact@v1
-      with:
-        name: AV_Data_Capture-CLI-${{ env.VERSION }}-linux-amd64
-        path: dist
+      - name: Set VERSION variable for windows
+        if: matrix.os == 'windows-latest'
+        run: |
+          echo "VERSION=$(python AV_Data_Capture.py --version)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
-  Windows:
-    runs-on: windows-latest
-
-    steps:
-    - uses: actions/checkout@v2
-
-    - name: Setup Python 3.8
-      uses: actions/setup-python@v2
-      with:
-        python-version: 3.8
-
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        sed -i '$a pyinstaller' requirements.txt
-        pip install -r requirements.txt
-
-    - name: Test number_perser.get_number
-      run: |
-        python number_parser.py -v
-
-    - name: Set VERSION variable
-      run: |
-        $version=$(cat AV_Data_Capture.py | grep "version = " | tr -d "version = '")
-        echo "::set-env name=VERSION::$version"
-
-    - name: Set CLOUDSCRAPER_PATH variable
-      run: |
-        $cloudscraper_path=$(python -c 'import cloudscraper as _; print(_.__path__[0])' | select -Last 1)
-        echo "::set-env name=CLOUDSCRAPER_PATH::$cloudscraper_path"
-
-    - name: Build with PyInstaller
-      run: |
-        pyinstaller `
-          --onefile AV_Data_Capture.py `
-          --hidden-import ADC_function.py `
-          --hidden-import core.py `
-          --add-data "$env:CLOUDSCRAPER_PATH;cloudscraper"
-
-    - name: Copy config.ini
-      run: |
-        cp config.ini dist/
-
-    - name: Upload build artifact
-      uses: actions/upload-artifact@v1
-      with:
-        name: AV_Data_Capture-CLI-${{ env.VERSION }}-windows-amd64
-        path: dist
-      
-  MacOS:
-    runs-on: macos-latest
-
-    steps:
-    - uses: actions/checkout@v2
-
-    - name: Setup Python 3.8
-      uses: actions/setup-python@v2
-      with:
-        python-version: 3.8
-
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        sed -i '' '$a\
-        pyinstaller
-        ' requirements.txt
-        pip install -r requirements.txt
-
-    - name: Test number_perser.get_number
-      run: |
-        python number_parser.py -v
-
-    - name: Set VERSION variable
-      run: |
-        version=$(cat AV_Data_Capture.py | grep "version = " | tr -d "version = '")
-        echo "::set-env name=VERSION::$version"
-
-    - name: Set CLOUDSCRAPER_PATH variable
-      run: |
-        cloudscraper_path=$(python -c 'import cloudscraper as _; print(_.__path__[0])' | tail -n 1)
-        echo "::set-env name=CLOUDSCRAPER_PATH::$cloudscraper_path"
-
-    - name: Build with PyInstaller
-      run: |
-        pyinstaller \
-          --onefile AV_Data_Capture.py \
-          --hidden-import ADC_function.py \
-          --hidden-import core.py \
-          --add-data "$CLOUDSCRAPER_PATH:cloudscraper"
-
-    - name: Copy config.ini
-      run: |
-        cp config.ini dist/
-
-    - name: Upload build artifact
-      uses: actions/upload-artifact@v1
-      with:
-        name: AV_Data_Capture-CLI-${{ env.VERSION }}-macos-amd64
-        path: dist
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v1
+        with:
+          name: AV_Data_Capture-CLI-${{ env.VERSION }}-${{ matrix.os }}-amd64
+          path: dist
