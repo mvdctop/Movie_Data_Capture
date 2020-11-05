@@ -69,5 +69,5 @@ jobs:
       - name: Upload build artifact
         uses: actions/upload-artifact@v1
         with:
-          name: AV_Data_Capture-CLI-${{ env.VERSION }}-${{ matrix.os }}-amd64
+          name: AV_Data_Capture-CLI-${{ env.VERSION }}-${{ runner.os }}-amd64
           path: dist
