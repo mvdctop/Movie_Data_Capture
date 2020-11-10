@@ -453,7 +453,7 @@ def translateTag_to_sc(tag):
         return tag
 
 def translate(src:str,target_language:str="zh_cn"):
-    url = f"https://translate.google.cn/translate_a/single?client=gtx&dt=t&dj=1&ie=UTF-8&sl=auto&tl={target_language}&q={src}"
+    url = "https://translate.google.cn/translate_a/single?client=gtx&dt=t&dj=1&ie=UTF-8&sl=auto&tl={target_language}&q={src}"
     result = get_html(url=url,return_type="object")
 
     translate_list = [i["trans"] for i in result.json()["sentences"]]
