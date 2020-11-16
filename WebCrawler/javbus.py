@@ -141,7 +141,10 @@ def main_uncensored(number):
 def main(number):
     try:
         try:
-            htmlcode = get_html('https://www.javbus.com/' + number)
+            try:
+                htmlcode = get_html('https://www.fanbus.us/' + number)
+            except:
+                htmlcode = get_html('https://www.javbus.com/' + number)
             try:
                 dww_htmlcode = fanza.main_htmlcode(getCID(htmlcode))
             except:
@@ -165,8 +168,7 @@ def main(number):
                 'source': 'javbus.py',
                 'series': getSerise(htmlcode),
             }
-            js = json.dumps(dic, ensure_ascii=False, sort_keys=True, indent=4,
-                            separators=(',', ':'), )  # .encode('UTF-8')
+            js = json.dumps(dic, ensure_ascii=False, sort_keys=True, indent=4,separators=(',', ':'), )  # .encode('UTF-8')
             return js
         except:
             return main_uncensored(number)

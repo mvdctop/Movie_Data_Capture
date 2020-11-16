@@ -50,11 +50,12 @@ class Config:
     def proxy(self) -> [str, int, int, str]:
         try:
             sec = "proxy"
+            switch = self.conf.get(sec, "switch")
             proxy = self.conf.get(sec, "proxy")
             timeout = self.conf.getint(sec, "timeout")
             retry = self.conf.getint(sec, "retry")
             proxytype = self.conf.get(sec, "type")
-            return proxy, timeout, retry, proxytype
+            return switch, proxy, timeout, retry, proxytype
         except ValueError:
             self._exit("common")
 

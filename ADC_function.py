@@ -40,7 +40,7 @@ def get_proxy(proxy: str, proxytype: str = None) -> dict:
 
 # 网页请求核心
 def get_html(url, cookies: dict = None, ua: str = None, return_type: str = None):
-    proxy, timeout, retry_count, proxytype = config.Config().proxy()
+    switch, proxy, timeout, retry_count, proxytype = config.Config().proxy()
     proxies = get_proxy(proxy, proxytype)
 
     if ua is None:
@@ -50,7 +50,7 @@ def get_html(url, cookies: dict = None, ua: str = None, return_type: str = None)
 
     for i in range(retry_count):
         try:
-            if not proxy == '':
+            if switch == 1:
                 result = requests.get(str(url), headers=headers, timeout=timeout, proxies=proxies, cookies=cookies)
             else:
                 result = requests.get(str(url), headers=headers, timeout=timeout, cookies=cookies)
@@ -62,10 +62,6 @@ def get_html(url, cookies: dict = None, ua: str = None, return_type: str = None)
             else:
                 return result.text
 
-        except requests.exceptions.ProxyError:
-            print("[-]Connect retry {}/{}".format(i + 1, retry_count))
-        except requests.exceptions.ConnectionError:
-            print("[-]Connect retry {}/{}".format(i + 1, retry_count))
         except Exception as e:
             print("[-]Connect retry {}/{}".format(i + 1, retry_count))
             print("[-]" + str(e))
@@ -73,23 +69,26 @@ def get_html(url, cookies: dict = None, ua: str = None, return_type: str = None)
 
 
 def post_html(url: str, query: dict) -> requests.Response:
-    proxy, timeout, retry_count, proxytype = config.Config().proxy()
+    switch, proxy, timeout, retry_count, proxytype = config.Config().proxy()
     proxies = get_proxy(proxy, proxytype)
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3100.0 Safari/537.36"}
 
     for i in range(retry_count):
         try:
-            result = requests.post(url, data=query, proxies=proxies)
+            if switch == 1:
+                result = requests.post(url, data=query, proxies=proxies,headers=headers, timeout=timeout)
+            else:
+                result = requests.post(url, data=query, headers=headers, timeout=timeout)
             return result
         except requests.exceptions.ProxyError:
             print("[-]Connect retry {}/{}".format(i+1, retry_count))
     print("[-]Connect Failed! Please check your Proxy or Network!")
-    input("Press ENTER to exit!")
-    exit()
 
 
 def get_javlib_cookie() -> [dict, str]:
     import cloudscraper
-    proxy, timeout, retry_count, proxytype = config.Config().proxy()
+    switch, proxy, timeout, retry_count, proxytype = config.Config().proxy()
     proxies = get_proxy(proxy, proxytype)
 
     raw_cookie = {}
@@ -98,10 +97,15 @@ def get_javlib_cookie() -> [dict, str]:
     # Get __cfduid/cf_clearance and user-agent
     for i in range(retry_count):
         try:
-            raw_cookie, user_agent = cloudscraper.get_cookie_string(
-                "http://www.m45e.com/",
-                proxies=proxies
-            )
+            if switch == 1:
+                raw_cookie, user_agent = cloudscraper.get_cookie_string(
+                    "http://www.m45e.com/",
+                    proxies=proxies
+                )
+            else:
+                raw_cookie, user_agent = cloudscraper.get_cookie_string(
+                    "http://www.m45e.com/"
+                )
         except requests.exceptions.ProxyError:
             print("[-] ProxyError, retry {}/{}".format(i+1, retry_count))
         except cloudscraper.exceptions.CloudflareIUAMError:
@@ -453,7 +457,7 @@ def translateTag_to_sc(tag):
         return tag
 
 def translate(src:str,target_language:str="zh_cn"):
-    url = "https://translate.google.cn/translate_a/single?client=gtx&dt=t&dj=1&ie=UTF-8&sl=auto&tl={target_language}&q={src}"
+    url = "https://translate.google.cn/translate_a/single?client=gtx&dt=t&dj=1&ie=UTF-8&sl=auto&tl=" + target_language + "&q=" + src
     result = get_html(url=url,return_type="object")
 
     translate_list = [i["trans"] for i in result.json()["sentences"]]

@@ -278,11 +278,11 @@ def trimblank(s: str):
 
 # path = examle:photo , video.in the Project Folder!
 def download_file_with_filename(url, filename, path, conf: config.Config, filepath, failed_folder):
-    proxy, timeout, retry_count, proxytype = config.Config().proxy()
+    switch, proxy, timeout, retry_count, proxytype = config.Config().proxy()
 
     for i in range(retry_count):
         try:
-            if not proxy == '':
+            if switch == 1:
                 if not os.path.exists(path):
                     os.makedirs(path)
                 proxies = get_proxy(proxy, proxytype)
@@ -330,7 +330,7 @@ def image_download(cover, number, c_word, path, conf: config.Config, filepath, f
         moveFailedFolder(filepath, failed_folder)
         return
 
-    _proxy, _timeout, retry, _proxytype = conf.proxy()
+    switch, _proxy, _timeout, retry, _proxytype = conf.proxy()
     for i in range(retry):
         if os.path.getsize(path + '/' + number + c_word + '-fanart.jpg') == 0:
             print('[!]Image Download Failed! Trying again. [{}/3]', i + 1)
