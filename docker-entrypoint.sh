@@ -12,4 +12,4 @@ mv bin/* /avdc_bin
 
 cd /avdc_bin
 version=$(./AV_Data_Capture --version)
-zip AV_Data_Capture-CLI-$(echo $version)-linux-$(arch).zip AV_Data_Capture config.ini
+zip AV_Data_Capture-CLI-$(echo $version)-linux-$(dpkg --print-architecture).zip AV_Data_Capture config.ini
