@@ -50,7 +50,7 @@ def get_html(url, cookies: dict = None, ua: str = None, return_type: str = None)
 
     for i in range(retry_count):
         try:
-            if switch == 1:
+            if switch == '1' or switch == 1:
                 result = requests.get(str(url), headers=headers, timeout=timeout, proxies=proxies, cookies=cookies)
             else:
                 result = requests.get(str(url), headers=headers, timeout=timeout, cookies=cookies)
@@ -76,7 +76,7 @@ def post_html(url: str, query: dict) -> requests.Response:
 
     for i in range(retry_count):
         try:
-            if switch == 1:
+            if switch == 1 or switch == '1':
                 result = requests.post(url, data=query, proxies=proxies,headers=headers, timeout=timeout)
             else:
                 result = requests.post(url, data=query, headers=headers, timeout=timeout)
@@ -97,7 +97,7 @@ def get_javlib_cookie() -> [dict, str]:
     # Get __cfduid/cf_clearance and user-agent
     for i in range(retry_count):
         try:
-            if switch == 1:
+            if switch == 1 or switch == '1':
                 raw_cookie, user_agent = cloudscraper.get_cookie_string(
                     "http://www.m45e.com/",
                     proxies=proxies
