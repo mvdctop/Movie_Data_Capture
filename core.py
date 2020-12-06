@@ -49,6 +49,7 @@ def get_data_from_json(file_number, filepath, conf: config.Config):  # ä»ŽJSONè¿
     """
 
     func_mapping = {
+        "airav": airav.main,
         "avsox": avsox.main,
         "fc2": fc2.main,
         "fanza": fanza.main,
