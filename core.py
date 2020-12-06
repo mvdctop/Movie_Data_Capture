@@ -8,6 +8,7 @@ from PIL import Image
 from ADC_function import *
 
 # =========website========
+from WebCrawler import airav
 from WebCrawler import avsox
 from WebCrawler import fanza
 from WebCrawler import fc2
