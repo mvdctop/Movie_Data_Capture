@@ -284,7 +284,7 @@ def download_file_with_filename(url, filename, path, conf: config.Config, filepa
 
     for i in range(retry_count):
         try:
-            if switch == 1:
+            if switch == 1 or switch == '1':
                 if not os.path.exists(path):
                     os.makedirs(path)
                 proxies = get_proxy(proxy, proxytype)
