@@ -8,6 +8,7 @@ from PIL import Image
 from ADC_function import *
 
 # =========website========
+from WebCrawler import airav
 from WebCrawler import avsox
 from WebCrawler import fanza
 from WebCrawler import fc2
@@ -48,6 +49,7 @@ def get_data_from_json(file_number, filepath, conf: config.Config):  # ä»ŽJSONè¿
     """
 
     func_mapping = {
+        "airav": airav.main,
         "avsox": avsox.main,
         "fc2": fc2.main,
         "fanza": fanza.main,
@@ -282,7 +284,7 @@ def download_file_with_filename(url, filename, path, conf: config.Config, filepa
 
     for i in range(retry_count):
         try:
-            if switch == 1:
+            if switch == 1 or switch == '1':
                 if not os.path.exists(path):
                     os.makedirs(path)
                 proxies = get_proxy(proxy, proxytype)
