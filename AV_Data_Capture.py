@@ -1,8 +1,9 @@
 import argparse
-from core import *
 import os
-from number_parser import get_number
+import sys
 
+from number_parser import get_number
+from core import *
 
 def check_update(local_version):
     data = json.loads(get_html("https://api.github.com/repos/yoshiko2/AV_Data_Capture/releases/latest"))
@@ -23,10 +24,11 @@ def argparse_function(ver: str) -> [str, str, bool]:
     parser.add_argument("file", default='', nargs='?', help="Single Movie file path.")
     parser.add_argument("-c", "--config", default='config.ini', nargs='?', help="The config file Path.")
     parser.add_argument("-n", "--number", default='', nargs='?',help="Custom file number")
-    parser.add_argument("--version", action="version", version=ver)
+    parser.add_argument("-a", "--auto-exit", dest='autoexit', action="store_true", help="Auto exit after program complete")
+    parser.add_argument("-v", "--version", action="version", version=ver)
     args = parser.parse_args()
 
-    return args.file, args.config, args.number
+    return args.file, args.config, args.number, args.autoexit
 
 def movie_lists(root, escape_folder):
     for folder in escape_folder:
@@ -50,7 +52,7 @@ def create_failed_folder(failed_folder):
             os.makedirs(failed_folder + '/')
         except:
             print("[-]failed!can not be make folder 'failed'\n[-](Please run as Administrator)")
-            os._exit(0)
+            sys.exit(0)
 
 
 def CEF(path):
@@ -117,10 +119,10 @@ def create_data_and_move_with_custom_number(file_path: str, c: config.Config, cu
 
 
 if __name__ == '__main__':
-    version = '4.0.3'
+    version = '4.1.1'
 
     # Parse command line args
-    single_file_path, config_file, custom_number = argparse_function(version)
+    single_file_path, config_file, custom_number, auto_exit = argparse_function(version)
 
     # Read config.ini
     conf = config.Config(path=config_file)
@@ -144,7 +146,7 @@ if __name__ == '__main__':
         CEF(conf.failed_folder())
         print("[+]All finished!!!")
         input("[+][+]Press enter key exit, you can check the error messge before you exit.")
-        exit()
+        sys.exit(0)
     # ========== Single File ==========
 
     movie_list = movie_lists(".", re.split("[,，]", conf.escape_folder()))
@@ -166,5 +168,8 @@ if __name__ == '__main__':
     CEF(conf.failed_folder())
     print("[+]All finished!!!")
     if conf.auto_exit():
-        os._exit(0)
-    input("[+][+]Press enter key exit, you can check the error message before you exit.")
+        sys.exit(0)
+    if auto_exit:
+        sys.exit(0)
+    input("Press enter key exit, you can check the error message before you exit...")
+    sys.exit(0)
