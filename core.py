@@ -111,23 +111,23 @@ def get_data_from_json(file_number, filepath, conf: config.Config):  # 从JSON�
 
     # ================================================网站规则添加结束================================================
 
-    title = json_data['title']
-    actor_list = str(json_data['actor']).strip("[ ]").replace("'", '').split(',')  # 字符串转列表
-    release = json_data['release']
-    number = json_data['number']
-    studio = json_data['studio']
-    source = json_data['source']
-    runtime = json_data['runtime']
-    outline = json_data['outline']
-    label = json_data['label']
-    series = json_data['series']
-    year = json_data['year']
-    try:
-        cover_small = json_data['cover_small']
-    except:
+    title = json_data.get('title')
+    actor_list = str(json_data.get('actor')).strip("[ ]").replace("'", '').split(',')  # 字符串转列表
+    release = json_data.get('release')
+    number = json_data.get('number')
+    studio = json_data.get('studio')
+    source = json_data.get('source')
+    runtime = json_data.get('runtime')
+    outline = json_data.get('outline')
+    label = json_data.get('label')
+    series = json_data.get('series')
+    year = json_data.get('year')
+
+    if json_data.get('cover_small') == None:
         cover_small = ''
-    imagecut = json_data['imagecut']
-    tag = str(json_data['tag']).strip("[ ]").replace("'", '').replace(" ", '').split(',')  # 字符串转列表 @
+
+    imagecut = json_data.get('imagecut')
+    tag = str(json_data.get('tag')).strip("[ ]").replace("'", '').replace(" ", '').split(',')  # 字符串转列表 @
     actor = str(actor_list).strip("[ ]").replace("'", '').replace(" ", '')
 
     if title == '' or number == '':
@@ -152,6 +152,7 @@ def get_data_from_json(file_number, filepath, conf: config.Config):  # 从JSON�
     tmpArr = cover_small.split(',')
     if len(tmpArr) > 0:
         cover_small = tmpArr[0].strip('\"').strip('\'')
+
     # ====================处理异常字符 END================== #\/:*?"<>|
 
     # ===  替换Studio片假名
@@ -217,26 +218,26 @@ def get_data_from_json(file_number, filepath, conf: config.Config):  # 从JSON�
     naming_rule=""
     for i in conf.naming_rule().split("+"):
         if i not in json_data:
-            naming_rule+=i.strip("'").strip('"')
+            naming_rule += i.strip("'").strip('"')
         else:
-            naming_rule+=json_data[i]
+            naming_rule += json_data.get(i)
     json_data['naming_rule'] = naming_rule
     return json_data
 
 
 def get_info(json_data):  # 返回json里的数据
-    title = json_data['title']
-    studio = json_data['studio']
-    year = json_data['year']
-    outline = json_data['outline']
-    runtime = json_data['runtime']
-    director = json_data['director']
-    actor_photo = json_data['actor_photo']
-    release = json_data['release']
-    number = json_data['number']
-    cover = json_data['cover']
-    website = json_data['website']
-    series = json_data['series']
+    title = json_data.get('title')
+    studio = json_data.get('studio')
+    year = json_data.get('year')
+    outline = json_data.get('outline')
+    runtime = json_data.get('runtime')
+    director = json_data.get('director')
+    actor_photo = json_data.get('actor_photo')
+    release = json_data.get('release')
+    number = json_data.get('number')
+    cover = json_data.get('cover')
+    website = json_data.get('website')
+    series = json_data.get('series')
     label = json_data.get('label', "")
     return title, studio, year, outline, runtime, director, actor_photo, release, number, cover, website, series, label
 
@@ -258,7 +259,7 @@ def create_folder(success_folder, location_rule, json_data, conf: config.Config)
         try:
             os.makedirs(path)
         except:
-            path = success_folder + '/' + location_rule.replace('/[' + number + ']-' + title, "/number")
+            path = success_folder + '/' + location_rule.replace('/[' + number + ')-' + title, "/number")
             path = escape_path(path, conf.escape_literals())
 
             os.makedirs(path)
@@ -532,8 +533,8 @@ def core_main(file_path, number_th, conf: config.Config):
         # but paste_file_to_folder() still use the input raw search id
         # so the solution is: use the normalized search id
         number = json_data["number"]
-    imagecut = json_data['imagecut']
-    tag = json_data['tag']
+    imagecut =  json_data.get('imagecut')
+    tag =  json_data.get('tag')
     # =======================================================================判断-C,-CD后缀
     if '-CD' in filepath or '-cd' in filepath:
         multi_part = 1
@@ -552,7 +553,7 @@ def core_main(file_path, number_th, conf: config.Config):
         debug_print(json_data)
 
     # 创建文件夹
-    path = create_folder(conf.success_folder(), json_data['location_rule'], json_data, conf)
+    path = create_folder(conf.success_folder(),  json_data.get('location_rule'), json_data, conf)
 
     # main_mode
     #  1: 刮削模式 / Scraping mode
@@ -563,16 +564,16 @@ def core_main(file_path, number_th, conf: config.Config):
 
         # 检查小封面, 如果image cut为3，则下载小封面
         if imagecut == 3:
-            small_cover_check(path, number, json_data['cover_small'], c_word, conf, filepath, conf.failed_folder())
+            small_cover_check(path, number,  json_data.get('cover_small'), c_word, conf, filepath, conf.failed_folder())
 
         # creatFolder会返回番号路径
-        image_download(json_data['cover'], number, c_word, path, conf, filepath, conf.failed_folder())
+        image_download( json_data.get('cover'), number, c_word, path, conf, filepath, conf.failed_folder())
 
         # 裁剪图
         cutImage(imagecut, path, number, c_word)
 
         # 打印文件
-        print_files(path, c_word, json_data['naming_rule'], part, cn_sub, json_data, filepath, conf.failed_folder(), tag, json_data['actor_list'], liuchu)
+        print_files(path, c_word,  json_data.get('naming_rule'), part, cn_sub, json_data, filepath, conf.failed_folder(), tag,  json_data.get('actor_list'), liuchu)
 
         # 移动文件
         paste_file_to_folder(filepath, path, number, c_word, conf)
