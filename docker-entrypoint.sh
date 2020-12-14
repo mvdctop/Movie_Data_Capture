@@ -11,5 +11,5 @@ make
 
 cd bin
 version=$(./AV_Data_Capture --version)
-zip AV_Data_Capture-CLI-$(echo $version)-Linux-$(dpkg --print-architecture).zip AV_Data_Capture config.ini
+zip AV_Data_Capture-CLI-$(echo $version)-$(uname)-$(dpkg --print-architecture).zip AV_Data_Capture config.ini
 mv *zip /avdc_bin
