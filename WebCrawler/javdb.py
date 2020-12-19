@@ -26,10 +26,17 @@ def getActorPhoto(actor): #//*[@id="star_qdt"]/li/a/img
         d.update(p)
     return d
 def getStudio(a):
-    html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
-    result1 = str(html.xpath('//strong[contains(text(),"片商")]/../span/text()')).strip(" ['']")
-    result2 = str(html.xpath('//strong[contains(text(),"片商")]/../span/a/text()')).strip(" ['']")
-    return str(result1 + result2).strip('+').replace("', '", '').replace('"', '')
+#     html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
+#     result1 = str(html.xpath('//strong[contains(text(),"片商")]/../span/text()')).strip(" ['']")
+#     result2 = str(html.xpath('//strong[contains(text(),"片商")]/../span/a/text()')).strip(" ['']")
+#     return str(result1 + result2).strip('+').replace("', '", '').replace('"', '')
+    patherr = re.compile(r'<strong>片商\:</strong>[\s\S]*?<a href=\".*?>(.*?)</a></span>')
+    pianshang = patherr.findall(a)
+    if pianshang:
+        result = pianshang[0]
+    else:
+        result = ""
+    return result
 def getRuntime(a):
     html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
     result1 = str(html.xpath('//strong[contains(text(),"時長")]/../span/text()')).strip(" ['']")
@@ -46,11 +53,18 @@ def getNum(a):
     result2 = str(html.xpath('//strong[contains(text(),"番號")]/../span/a/text()')).strip(" ['']")
     return str(result2 + result1).strip('+')
 def getYear(getRelease):
-    try:
-        result = str(re.search('\d{4}', getRelease).group())
-        return result
-    except:
-        return getRelease
+#     try:
+#         result = str(re.search('\d{4}', getRelease).group())
+#         return result
+#     except:
+#         return getRelease
+    patherr = re.compile(r'<strong>日期\:</strong>\s*?.*?<span class="value">(.*?)\-.*?</span>')
+    dates = patherr.findall(getRelease)
+    if dates:
+        result = dates[0]
+    else:
+        result = ''
+    return result
 def getRelease(a):
     html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
     result1 = str(html.xpath('//strong[contains(text(),"時間")]/../span/text()')).strip(" ['']")
