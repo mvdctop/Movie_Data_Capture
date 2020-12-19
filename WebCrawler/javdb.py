@@ -160,7 +160,7 @@ def main(number):
         # no cut image by default
         imagecut = 3
         # If gray image exists ,then replace with normal cover
-                if re.search(r'[a-zA-Z]+\.\d{2}\.\d{2}\.\d{2}', number):
+        if re.search(r'[a-zA-Z]+\.\d{2}\.\d{2}\.\d{2}', number):
             cover_small = getCover_small(query_result)
         else:
             cover_small = getCover_small(query_result, index=ids.index(number))
