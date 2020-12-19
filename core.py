@@ -125,7 +125,9 @@ def get_data_from_json(file_number, filepath, conf: config.Config):  # 从JSON�
 
     if json_data.get('cover_small') == None:
         cover_small = ''
-
+    else:
+        cover_small = json_data.get('cover_small')
+        
     imagecut = json_data.get('imagecut')
     tag = str(json_data.get('tag')).strip("[ ]").replace("'", '').replace(" ", '').split(',')  # 字符串转列表 @
     actor = str(actor_list).strip("[ ]").replace("'", '').replace(" ", '')
