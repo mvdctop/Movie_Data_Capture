@@ -66,10 +66,17 @@ def getYear(getRelease):
         result = ''
     return result
 def getRelease(a):
-    html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
-    result1 = str(html.xpath('//strong[contains(text(),"時間")]/../span/text()')).strip(" ['']")
-    result2 = str(html.xpath('//strong[contains(text(),"時間")]/../span/a/text()')).strip(" ['']")
-    return str(result1 + result2).strip('+')
+#     html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
+#     result1 = str(html.xpath('//strong[contains(text(),"時間")]/../span/text()')).strip(" ['']")
+#     result2 = str(html.xpath('//strong[contains(text(),"時間")]/../span/a/text()')).strip(" ['']")
+#     return str(result1 + result2).strip('+')
+    patherr = re.compile(r'<strong>日期\:</strong>\s*?.*?<span class="value">(.*?)</span>')
+    dates = patherr.findall(a)
+    if dates:
+        result = dates[0]
+    else:
+        result = ''
+    return result
 def getTag(a):
     html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
     try:
