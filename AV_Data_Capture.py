@@ -55,7 +55,7 @@ def create_failed_folder(failed_folder):
             sys.exit(0)
 
 
-def CEF(path):
+def rm_empty_folder(path):
     try:
         files = os.listdir(path)  # 获取路径下的子文件(夹)列表
         for file in files:
@@ -142,8 +142,8 @@ if __name__ == '__main__':
     if not single_file_path == '':
         print('[+]==================== Single File =====================')
         create_data_and_move_with_custom_number(single_file_path, conf,custom_number)
-        CEF(conf.success_folder())
-        CEF(conf.failed_folder())
+        rm_empty_folder(conf.success_folder())
+        rm_empty_folder(conf.failed_folder())
         print("[+]All finished!!!")
         input("[+][+]Press enter key exit, you can check the error messge before you exit.")
         sys.exit(0)
@@ -164,8 +164,8 @@ if __name__ == '__main__':
         print('[!] - ' + percentage + ' [' + str(count) + '/' + count_all + '] -')
         create_data_and_move(movie_path, conf, conf.debug())
 
-    CEF(conf.success_folder())
-    CEF(conf.failed_folder())
+    rm_empty_folder(conf.success_folder())
+    rm_empty_folder(conf.failed_folder())
     print("[+]All finished!!!")
     if conf.auto_exit():
         sys.exit(0)
