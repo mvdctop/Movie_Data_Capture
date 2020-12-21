@@ -1,5 +1,6 @@
 import json
 import os.path
+import pathlib
 import re
 import shutil
 import platform
@@ -422,21 +423,21 @@ def cutImage(imagecut, path, number, c_word):
 
 def paste_file_to_folder(filepath, path, number, c_word, conf: config.Config):  # 文件路径，番号，后缀，要移动至的位置
     houzhui = str(re.search('[.](iso|ISO|AVI|RMVB|WMV|MOV|MP4|MKV|FLV|TS|WEBM|avi|rmvb|wmv|mov|mp4|mkv|flv|ts|webm)$', filepath).group())
-
+    file_parent_origin_path = str(pathlib.Path(filepath).parent)
     try:
         # 如果soft_link=1 使用软链接
         if conf.soft_link():
             os.symlink(filepath, path + '/' + number + c_word + houzhui)
         else:
             os.rename(filepath, path + '/' + number + c_word + houzhui)
-        if os.path.exists(os.getcwd() + '/' + number + c_word + '.srt'):  # 字幕移动
-            os.rename(os.getcwd() + '/' + number + c_word + '.srt', path + '/' + number + c_word + '.srt')
+        if os.path.exists(file_parent_origin_path + '/' + number + c_word + '.srt'):  # 字幕移动
+            os.rename(file_parent_origin_path + '/' + number + c_word + '.srt', path + '/' + number + c_word + '.srt')
             print('[+]Sub moved!')
-        elif os.path.exists(os.getcwd() + '/' + number + c_word + '.ssa'):
-            os.rename(os.getcwd() + '/' + number + c_word + '.ssa', path + '/' + number + c_word + '.ssa')
+        elif os.path.exists(file_parent_origin_path + '/' + number + c_word + '.ssa'):
+            os.rename(file_parent_origin_path + '/' + number + c_word + '.ssa', path + '/' + number + c_word + '.ssa')
             print('[+]Sub moved!')
-        elif os.path.exists(os.getcwd() + '/' + number + c_word + '.sub'):
-            os.rename(os.getcwd() + '/' + number + c_word + '.sub', path + '/' + number + c_word + '.sub')
+        elif os.path.exists(file_parent_origin_path + '/' + number + c_word + '.sub'):
+            os.rename(file_parent_origin_path + '/' + number + c_word + '.sub', path + '/' + number + c_word + '.sub')
             print('[+]Sub moved!')
     except FileExistsError:
         print('[-]File Exists! Please check your movie!')
@@ -451,20 +452,20 @@ def paste_file_to_folder_mode2(filepath, path, multi_part, number, part, c_word,
     if multi_part == 1:
         number += part  # 这时number会被附加上CD1后缀
     houzhui = str(re.search('[.](AVI|RMVB|WMV|MOV|MP4|MKV|FLV|TS|WEBM|avi|rmvb|wmv|mov|mp4|mkv|flv|ts|webm|iso|ISO)$', filepath).group())
-
+    file_parent_origin_path = str(pathlib.Path(filepath).parent)
     try:
         if conf.soft_link():
             os.symlink(filepath, path + '/' + number + part + c_word + houzhui)
         else:
             os.rename(filepath, path + '/' + number + part + c_word + houzhui)
-        if os.path.exists(number + '.srt'):  # 字幕移动
-            os.rename(number + part + c_word + '.srt', path + '/' + number + part + c_word + '.srt')
+        if os.path.exists(file_parent_origin_path + '/' + number + '.srt'):  # 字幕移动
+            os.rename(file_parent_origin_path + '/' + number + part + c_word + '.srt', path + '/' + number + part + c_word + '.srt')
             print('[+]Sub moved!')
-        elif os.path.exists(number + part + c_word + '.ass'):
-            os.rename(number + part + c_word + '.ass', path + '/' + number + part + c_word + '.ass')
+        elif os.path.exists(file_parent_origin_path + '/' + number + part + c_word + '.ass'):
+            os.rename(file_parent_origin_path + '/' + number + part + c_word + '.ass', path + '/' + number + part + c_word + '.ass')
             print('[+]Sub moved!')
-        elif os.path.exists(number + part + c_word + '.sub'):
-            os.rename(number + part + c_word + '.sub', path + '/' + number + part + c_word + '.sub')
+        elif os.path.exists(file_parent_origin_path + '/' + number + part + c_word + '.sub'):
+            os.rename(file_parent_origin_path + '/' + number + part + c_word + '.sub', path + '/' + number + part + c_word + '.sub')
             print('[+]Sub moved!')
         print('[!]Success')
     except FileExistsError:
@@ -511,7 +512,9 @@ def core_main(file_path, number_th, conf: config.Config):
     cn_sub = ''
     liuchu = ''
 
-    filepath = file_path  # 影片的路径
+
+    filepath = file_path  # 影片的路径 绝对路径
+    rootpath = str(pathlib.Path(filepath).parent)
     number = number_th
     json_data = get_data_from_json(number, filepath, conf)  # 定义番号
 
@@ -543,7 +546,7 @@ def core_main(file_path, number_th, conf: config.Config):
         debug_print(json_data)
 
     # 创建文件夹
-    path = create_folder(conf.success_folder(),  json_data.get('location_rule'), json_data, conf)
+    path = create_folder(rootpath + '/' + conf.success_folder(),  json_data.get('location_rule'), json_data, conf)
 
     # main_mode
     #  1: 刮削模式 / Scraping mode
