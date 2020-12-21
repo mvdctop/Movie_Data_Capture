@@ -34,15 +34,6 @@ def moveFailedFolder(filepath, failed_folder):
     return 
 
 
-def CreatFailedFolder(failed_folder):
-    if not os.path.exists(failed_folder + '/'):  # 新建failed文件夹
-        try:
-            os.makedirs(failed_folder + '/')
-        except:
-            print("[-]failed!can not be make Failed output folder\n[-](Please run as Administrator)")
-            return 
-
-
 def get_data_from_json(file_number, filepath, conf: config.Config):  # 从JSON返回元数据
     """
     iterate through all services and fetch the data 
@@ -546,9 +537,6 @@ def core_main(file_path, number_th, conf: config.Config):
         c_word = '-C'  # 中文字幕影片后缀
     if '流出' in filepath:
         liuchu = '流出'
-
-    # 创建输出失败目录
-    CreatFailedFolder(conf.failed_folder())
 
     # 调试模式检测
     if conf.debug():
