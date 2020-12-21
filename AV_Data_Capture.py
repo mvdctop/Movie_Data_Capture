@@ -149,7 +149,7 @@ if __name__ == '__main__':
         sys.exit(0)
     # ========== Single File ==========
 
-    movie_list = movie_lists(".", re.split("[,，]", conf.escape_folder()))
+    movie_list = movie_lists(os.getcwd(), re.split("[,，]", conf.escape_folder()))
 
     count = 0
     count_all = str(len(movie_list))

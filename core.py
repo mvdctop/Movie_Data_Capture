@@ -29,9 +29,16 @@ def escape_path(path, escape_literals: str):  # Remove escape literals
     return path
 
 
-def moveFailedFolder(filepath, failed_folder):
-    print('[-]Move to Failed output folder')
-    shutil.move(filepath, str(os.getcwd()) + '/' + failed_folder + '/')
+def moveFailedFolder(filepath, failed_folder, symlink: bool = False):
+    root_path = str(pathlib.Path(filepath).parent)
+    file_name = pathlib.Path(filepath).name
+    destination_path = root_path + '/' + failed_folder + '/'
+    if symlink:
+        print('[-]Create symlink to Failed output folder')
+        os.symlink(filepath, destination_path + '/' + file_name)
+    else:
+        print('[-]Move to Failed output folder')
+        shutil.move(filepath, destination_path)
     return
 
 
@@ -98,7 +105,7 @@ def get_data_from_json(file_number, filepath, conf: config.Config):  # 从JSON�
     # Return if data not found in all sources
     if not json_data:
         print('[-]Movie Data not found!')
-        moveFailedFolder(filepath, conf.failed_folder())
+        moveFailedFolder(filepath, conf.failed_folder(), conf.soft_link())
         return
 
     # ================================================网站规则添加结束================================================
@@ -126,7 +133,7 @@ def get_data_from_json(file_number, filepath, conf: config.Config):  # 从JSON�
 
     if title == '' or number == '':
         print('[-]Movie Data not found!')
-        moveFailedFolder(filepath, conf.failed_folder())
+        moveFailedFolder(filepath, conf.failed_folder(), conf.soft_link())
         return
 
     # if imagecut == '3':
@@ -315,14 +322,14 @@ def download_file_with_filename(url, filename, path, conf: config.Config, filepa
             i += 1
             print('[-]Image Download :  Connect retry ' + str(i) + '/' + str(retry_count))
     print('[-]Connect Failed! Please check your Proxy or Network!')
-    moveFailedFolder(filepath, failed_folder)
+    moveFailedFolder(filepath, failed_folder, conf.soft_link())
     return
 
 
 # 封面是否下载成功，否则移动到failed
 def image_download(cover, number, c_word, path, conf: config.Config, filepath, failed_folder):
     if download_file_with_filename(cover, number + c_word + '-fanart.jpg', path, conf, filepath, failed_folder) == 'failed':
-        moveFailedFolder(filepath, failed_folder)
+        moveFailedFolder(filepath, failed_folder, conf.soft_link())
         return
 
     switch, _proxy, _timeout, retry, _proxytype = conf.proxy()
@@ -395,13 +402,11 @@ def print_files(path, c_word, naming_rule, part, cn_sub, json_data, filepath, fa
     except IOError as e:
         print("[-]Write Failed!")
         print(e)
-        moveFailedFolder(filepath, failed_folder)
-        return
+        raise e
     except Exception as e1:
         print(e1)
         print("[-]Write Failed!")
-        moveFailedFolder(filepath, failed_folder)
-        return
+        raise e1
 
 
 def cutImage(imagecut, path, number, c_word):
@@ -476,16 +481,12 @@ def paste_file_to_folder_mode2(filepath, path, multi_part, number, part, c_word,
         print('[-]Error! Please run as administrator!')
         return
 
+
 def get_part(filepath, failed_folder):
-    try:
-        if re.search('-CD\d+', filepath):
-            return re.findall('-CD\d+', filepath)[0]
-        if re.search('-cd\d+', filepath):
-            return re.findall('-cd\d+', filepath)[0]
-    except:
-        print("[-]failed!Please rename the filename again!")
-        moveFailedFolder(filepath, failed_folder)
-        return
+    if re.search('-CD\d+', filepath):
+        return re.findall('-CD\d+', filepath)[0]
+    if re.search('-cd\d+', filepath):
+        return re.findall('-cd\d+', filepath)[0]
 
 
 def debug_print(data: json):
@@ -534,7 +535,11 @@ def core_main(file_path, number_th, conf: config.Config):
     # =======================================================================判断-C,-CD后缀
     if '-CD' in filepath or '-cd' in filepath:
         multi_part = 1
-        part = get_part(filepath, conf.failed_folder())
+        try:
+            part = get_part(filepath, conf.failed_folder())
+        except:
+            print("[-]failed!Please rename the filename again!")
+            moveFailedFolder(filepath, conf.failed_folder(),conf.soft_link())
     if '-c.' in filepath or '-C.' in filepath or '中文' in filepath or '字幕' in filepath:
         cn_sub = '1'
         c_word = '-C'  # 中文字幕影片后缀
@@ -566,8 +571,10 @@ def core_main(file_path, number_th, conf: config.Config):
         cutImage(imagecut, path, number, c_word)
 
         # 打印文件
-        print_files(path, c_word,  json_data.get('naming_rule'), part, cn_sub, json_data, filepath, conf.failed_folder(), tag,  json_data.get('actor_list'), liuchu)
-
+        try:
+            print_files(path, c_word,  json_data.get('naming_rule'), part, cn_sub, json_data, filepath, conf.failed_folder(), tag,  json_data.get('actor_list'), liuchu)
+        except:
+            moveFailedFolder(filepath, conf.failed_folder(), conf.soft_link())
         # 移动文件
         paste_file_to_folder(filepath, path, number, c_word, conf)
     elif conf.main_mode() == 2:
