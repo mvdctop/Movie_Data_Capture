@@ -31,7 +31,7 @@ def escape_path(path, escape_literals: str):  # Remove escape literals
 def moveFailedFolder(filepath, failed_folder):
     print('[-]Move to Failed output folder')
     shutil.move(filepath, str(os.getcwd()) + '/' + failed_folder + '/')
-    return 
+    return
 
 
 def get_data_from_json(file_number, filepath, conf: config.Config):  # 从JSON返回元数据

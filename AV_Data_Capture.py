@@ -59,7 +59,7 @@ def rm_empty_folder(path):
     try:
         files = os.listdir(path)  # 获取路径下的子文件(夹)列表
         for file in files:
-            os.removedirs(path + '/' + file)  # 删除这个空文件夹
+            os.rmdir(path + '/' + file)  # 删除这个空文件夹
             print('[+]Deleting empty folder', path + '/' + file)
     except:
         a = ''
