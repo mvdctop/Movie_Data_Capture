@@ -5,8 +5,15 @@ import sys
 from number_parser import get_number
 from core import *
 
+
 def check_update(local_version):
-    data = json.loads(get_html("https://api.github.com/repos/yoshiko2/AV_Data_Capture/releases/latest"))
+    try:
+        data = json.loads(get_html("https://api.github.com/repos/yoshiko2/AV_Data_Capture/releases/latest"))
+    except Exception as e:
+        print("[-] Failed to update! Please check new version manually:")
+        print("[-] https://github.com/yoshiko2/AV_Data_Capture/releases")
+        print("[*]======================================================")
+        return
 
     remote = data["tag_name"]
     local = local_version
@@ -23,19 +30,22 @@ def argparse_function(ver: str) -> [str, str, bool]:
     parser = argparse.ArgumentParser()
     parser.add_argument("file", default='', nargs='?', help="Single Movie file path.")
     parser.add_argument("-c", "--config", default='config.ini', nargs='?', help="The config file Path.")
-    parser.add_argument("-n", "--number", default='', nargs='?',help="Custom file number")
-    parser.add_argument("-a", "--auto-exit", dest='autoexit', action="store_true", help="Auto exit after program complete")
+    parser.add_argument("-n", "--number", default='', nargs='?', help="Custom file number")
+    parser.add_argument("-a", "--auto-exit", dest='autoexit', action="store_true",
+                        help="Auto exit after program complete")
     parser.add_argument("-v", "--version", action="version", version=ver)
     args = parser.parse_args()
 
     return args.file, args.config, args.number, args.autoexit
+
 
 def movie_lists(root, escape_folder):
     for folder in escape_folder:
         if folder in root:
             return []
     total = []
-    file_type = ['.mp4', '.avi', '.rmvb', '.wmv', '.mov', '.mkv', '.flv', '.ts', '.webm', '.MP4', '.AVI', '.RMVB', '.WMV','.MOV', '.MKV', '.FLV', '.TS', '.WEBM', '.iso','.ISO']
+    file_type = ['.mp4', '.avi', '.rmvb', '.wmv', '.mov', '.mkv', '.flv', '.ts', '.webm', '.MP4', '.AVI', '.RMVB',
+                 '.WMV', '.MOV', '.MKV', '.FLV', '.TS', '.WEBM', '.iso', '.ISO']
     dirs = os.listdir(root)
     for entry in dirs:
         f = os.path.join(root, entry)
@@ -65,9 +75,9 @@ def rm_empty_folder(path):
         a = ''
 
 
-def create_data_and_move(file_path: str, c: config.Config,debug):
+def create_data_and_move(file_path: str, c: config.Config, debug):
     # Normalized number, eg: 111xxx-222.mp4 -> xxx-222.mp4
-    n_number = get_number(debug,file_path)
+    n_number = get_number(debug, file_path)
 
     if debug == True:
         print("[!]Making Data for [{}], the number is [{}]".format(file_path, n_number))
@@ -97,6 +107,7 @@ def create_data_and_move(file_path: str, c: config.Config,debug):
                         shutil.move(file_path, str(os.getcwd()) + "/" + conf.failed_folder() + "/")
                     except Exception as err:
                         print('[!]', err)
+
 
 def create_data_and_move_with_custom_number(file_path: str, c: config.Config, custom_number=None):
     try:
@@ -141,7 +152,7 @@ if __name__ == '__main__':
     # ========== Single File ==========
     if not single_file_path == '':
         print('[+]==================== Single File =====================')
-        create_data_and_move_with_custom_number(single_file_path, conf,custom_number)
+        create_data_and_move_with_custom_number(single_file_path, conf, custom_number)
         rm_empty_folder(conf.success_folder())
         rm_empty_folder(conf.failed_folder())
         print("[+]All finished!!!")
@@ -155,7 +166,7 @@ if __name__ == '__main__':
     count_all = str(len(movie_list))
     print('[+]Find', count_all, 'movies')
     if conf.debug() == True:
-        print('[+]'+' DEBUG MODE ON '.center(54, '-'))
+        print('[+]' + ' DEBUG MODE ON '.center(54, '-'))
     if conf.soft_link():
         print('[!] --- Soft link mode is ENABLE! ----')
     for movie_path in movie_list:  # 遍历电影列表 交给core处理
