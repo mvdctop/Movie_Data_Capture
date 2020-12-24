@@ -29,8 +29,9 @@ def escape_path(path, escape_literals: str):  # Remove escape literals
 
 
 def moveFailedFolder(filepath, failed_folder):
-    print('[-]Move to Failed output folder')
-    shutil.move(filepath, str(os.getcwd()) + '/' + failed_folder + '/')
+    if config.Config().failed_move():
+        print('[-]Move to Failed output folder')
+        shutil.move(filepath, str(os.getcwd()) + '/' + failed_folder + '/')
     return 
 
 
