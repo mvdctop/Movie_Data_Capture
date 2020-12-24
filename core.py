@@ -30,15 +30,16 @@ def escape_path(path, escape_literals: str):  # Remove escape literals
 
 
 def moveFailedFolder(filepath, failed_folder):
-    root_path = str(pathlib.Path(filepath).parent)
-    file_name = pathlib.Path(filepath).name
-    destination_path = root_path + '/' + failed_folder + '/'
-    if config.Config.soft_link():
-        print('[-]Create symlink to Failed output folder')
-        os.symlink(filepath, destination_path + '/' + file_name)
-    else:
-        print('[-]Move to Failed output folder')
-        shutil.move(filepath, destination_path)
+    if config.Config().failed_move():
+        root_path = str(pathlib.Path(filepath).parent)
+        file_name = pathlib.Path(filepath).name
+        destination_path = root_path + '/' + failed_folder + '/'
+        if config.Config.soft_link():
+            print('[-]Create symlink to Failed output folder')
+            os.symlink(filepath, destination_path + '/' + file_name)
+        else:
+            print('[-]Move to Failed output folder')
+            shutil.move(filepath, destination_path)
     return
 
 
