@@ -34,7 +34,7 @@ def moveFailedFolder(filepath, failed_folder):
         root_path = str(pathlib.Path(filepath).parent)
         file_name = pathlib.Path(filepath).name
         destination_path = root_path + '/' + failed_folder + '/'
-        if config.Config.soft_link():
+        if config.Config().soft_link():
             print('[-]Create symlink to Failed output folder')
             os.symlink(filepath, destination_path + '/' + file_name)
         else:
