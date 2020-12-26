@@ -522,7 +522,7 @@ def core_main(file_path, number_th, conf: config.Config):
 
 
     filepath = file_path  # 影片的路径 绝对路径
-    rootpath = str(pathlib.Path(filepath).parent)
+    rootpath = os.getcwd() #程序根路径
     number = number_th
     json_data = get_data_from_json(number, filepath, conf)  # 定义番号
 
