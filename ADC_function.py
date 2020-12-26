@@ -463,3 +463,14 @@ def translate(src:str,target_language:str="zh_cn"):
     translate_list = [i["trans"] for i in result.json()["sentences"]]
 
     return "".join(translate_list)
+
+# ========================================================================是否为无码
+def is_uncensored(number):
+    if re.match('^\d{4,}', number) or re.match('n\d{4}', number) or 'HEYZO' in number.upper():
+        return True
+    configs = config.Config().get_uncensored()
+    prefix_list = str(configs[0]).split('|')
+    for pre in prefix_list:
+        if pre.upper() in number.upper():
+            return True
+    return False
