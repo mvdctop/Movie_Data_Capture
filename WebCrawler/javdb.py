@@ -18,18 +18,38 @@ def getActor(a):  # //*[@id="center_column"]/div[2]/div[1]/div/table/tbody/tr[1]
     result1 = str(html.xpath('//strong[contains(text(),"演員")]/../span/text()')).strip(" ['']")
     result2 = str(html.xpath('//strong[contains(text(),"演員")]/../span/a/text()')).strip(" ['']")
     return str(result1 + result2).strip('+').replace(",\\xa0", "").replace("'", "").replace(' ', '').replace(',,', '').replace('N/A', '').lstrip(',').replace(',', ', ')
-def getActorPhoto(actor): #//*[@id="star_qdt"]/li/a/img
-    a = actor.split(',')
-    d={}
-    for i in a:
-        p={i:''}
-        d.update(p)
-    return d
+
+def getaphoto(url):
+    html_page = get_html(url)
+    img_prether = re.compile(r'<span class\=\"avatar\" style\=\"background\-image\: url\((.*?)\)')
+    img_url = img_prether.findall(html_page)
+    if img_prether:
+        return img_url[0]
+    else:
+        return ''
+
+def getActorPhoto(html): #//*[@id="star_qdt"]/li/a/img
+    actorall_prether = re.compile(r'<strong>演員\:</strong>\s*?.*?<span class=\"value\">(.*)\s*?</div>')
+    actorall = actorall_prether.findall(html)
+
+    if actorall:
+        actoralls = actorall[0]
+        actor_prether = re.compile(r'<a href\=\"(.*?)\">(.*?)</a>')
+        actor = actor_prether.findall(actoralls)
+        actor_photo = {}
+        for i in actor:
+            actor_photo[i[1]] = getaphoto('https://javdb.com'+i[0])
+
+        return actor_photo
+
+    else:
+        return {}
+    
 def getStudio(a):
-#     html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
-#     result1 = str(html.xpath('//strong[contains(text(),"片商")]/../span/text()')).strip(" ['']")
-#     result2 = str(html.xpath('//strong[contains(text(),"片商")]/../span/a/text()')).strip(" ['']")
-#     return str(result1 + result2).strip('+').replace("', '", '').replace('"', '')
+    # html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
+    # result1 = str(html.xpath('//strong[contains(text(),"片商")]/../span/text()')).strip(" ['']")
+    # result2 = str(html.xpath('//strong[contains(text(),"片商")]/../span/a/text()')).strip(" ['']")
+    # return str(result1 + result2).strip('+').replace("', '", '').replace('"', '')
     patherr = re.compile(r'<strong>片商\:</strong>[\s\S]*?<a href=\".*?>(.*?)</a></span>')
     pianshang = patherr.findall(a)
     if pianshang:
@@ -37,6 +57,7 @@ def getStudio(a):
     else:
         result = ""
     return result
+    
 def getRuntime(a):
     html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
     result1 = str(html.xpath('//strong[contains(text(),"時長")]/../span/text()')).strip(" ['']")
@@ -53,11 +74,11 @@ def getNum(a):
     result2 = str(html.xpath('//strong[contains(text(),"番號")]/../span/a/text()')).strip(" ['']")
     return str(result2 + result1).strip('+')
 def getYear(getRelease):
-#     try:
-#         result = str(re.search('\d{4}', getRelease).group())
-#         return result
-#     except:
-#         return getRelease
+    # try:
+    #     result = str(re.search('\d{4}', getRelease).group())
+    #     return result
+    # except:
+    #     return getRelease
     patherr = re.compile(r'<strong>日期\:</strong>\s*?.*?<span class="value">(.*?)\-.*?</span>')
     dates = patherr.findall(getRelease)
     if dates:
@@ -65,11 +86,12 @@ def getYear(getRelease):
     else:
         result = ''
     return result
+
 def getRelease(a):
-#     html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
-#     result1 = str(html.xpath('//strong[contains(text(),"時間")]/../span/text()')).strip(" ['']")
-#     result2 = str(html.xpath('//strong[contains(text(),"時間")]/../span/a/text()')).strip(" ['']")
-#     return str(result1 + result2).strip('+')
+    # html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
+    # result1 = str(html.xpath('//strong[contains(text(),"時間")]/../span/text()')).strip(" ['']")
+    # result2 = str(html.xpath('//strong[contains(text(),"時間")]/../span/a/text()')).strip(" ['']")
+    # return str(result1 + result2).strip('+')
     patherr = re.compile(r'<strong>日期\:</strong>\s*?.*?<span class="value">(.*?)</span>')
     dates = patherr.findall(a)
     if dates:
@@ -121,6 +143,30 @@ def getCover_small(a, index=0):
                 result = 'https:' + result
             return result
 
+
+def getTrailer(htmlcode):  # 获取预告片
+    video_pather = re.compile(r'<video id\=\".*?>\s*?<source src=\"(.*?)\"')
+    video = video_pather.findall(htmlcode)
+    if video:
+        if not 'https:' in video[0]:
+            video_url = 'https:' + video[0]
+        else:
+            video_url = video[0]
+    else:
+        video_url = ''
+    return video_url
+
+def getExtrafanart(htmlcode):  # 获取剧照
+    html_pather = re.compile(r'<div class=\"tile\-images preview\-images\">[\s\S]*?</a>\s+?</div>\s+?</div>')
+    html = html_pather.search(htmlcode)
+    if html:
+        html = html.group()
+        extrafanart_pather = re.compile(r'<a class="tile-item" href=\"(.*?)\"')
+        extrafanart_imgs = extrafanart_pather.findall(html)
+        if extrafanart_imgs:
+            return extrafanart_imgs
+    return ''
+
 def getCover(htmlcode):
     html = etree.fromstring(htmlcode, etree.HTMLParser())
     try:
@@ -145,6 +191,10 @@ def getSeries(a):
     return str(result1 + result2).strip('+').replace("', '", '').replace('"', '')
 def main(number):
     try:
+        # if re.search(r'[a-zA-Z]+\.\d{2}\.\d{2}\.\d{2}', number).group():
+        #     pass
+        # else:
+        #     number = number.upper()
         number = number.upper()
         try:
             query_result = get_html('https://javdb.com/search?q=' + number + '&f=all')
@@ -161,7 +211,6 @@ def main(number):
         else:
             ids =html.xpath('//*[@id="videos"]/div/div/a/div[contains(@class, "uid")]/text()')
             correct_url = urls[ids.index(number)]
-       
         detail_page = get_html('https://javdb.com' + correct_url)
 
         # no cut image by default
@@ -171,7 +220,6 @@ def main(number):
             cover_small = getCover_small(query_result)
         else:
             cover_small = getCover_small(query_result, index=ids.index(number))
-        
         if 'placeholder' in cover_small:
             # replace wit normal cover and cut it
             imagecut = 1
@@ -194,17 +242,20 @@ def main(number):
             'number': number,
             'cover': getCover(detail_page),
             'cover_small': cover_small,
+            'trailer': getTrailer(detail_page),
+            'extrafanart': getExtrafanart(detail_page),
             'imagecut': imagecut,
             'tag': getTag(detail_page),
             'label': getLabel(detail_page),
-            'year': getYear(getRelease(detail_page)),  # str(re.search('\d{4}',getRelease(a)).group()),
-            'actor_photo': getActorPhoto(getActor(detail_page)),
+            'year': getYear(detail_page),  # str(re.search('\d{4}',getRelease(a)).group()),
+            'actor_photo': getActorPhoto(detail_page),
             'website': 'https://javdb.com' + correct_url,
             'source': 'javdb.py',
             'series': getSeries(detail_page),
+
         }
     except Exception as e:
-        # print(e)
+        print(e)
         dic = {"title": ""}
     js = json.dumps(dic, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ':'), )  # .encode('UTF-8')
     return js
@@ -212,4 +263,6 @@ def main(number):
 # main('DV-1562')
 # input("[+][+]Press enter key exit, you can check the error messge before you exit.\n[+][+]按回车键结束，你可以在结束之前查看和错误信息。")
 if __name__ == "__main__":
-    print(main('ipx-292'))
+    # print(main('blacked.20.05.30'))
+    # print(main('AGAV-042'))
+    print(main('BANK-022'))
