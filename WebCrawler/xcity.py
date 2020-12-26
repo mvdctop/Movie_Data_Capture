@@ -154,6 +154,20 @@ def getSeries(htmlcode):
     except:
         return ''
 
+def getExtrafanart(htmlcode):  # 获取剧照
+    html_pather = re.compile(r'<div id="sample_images".*?>[\s\S]*?</div>')
+    html = html_pather.search(htmlcode)
+    if html:
+        html = html.group()
+        extrafanart_pather = re.compile(r'<a.*?href=\"(.*?)\"')
+        extrafanart_imgs = extrafanart_pather.findall(html)
+        if extrafanart_imgs:
+            s = []
+            for urli in extrafanart_imgs:
+                urli = 'https:' + urli.replace('/scene/small', '')
+                s.append(urli)
+            return s
+    return ''
 
 def main(number):
     try:
@@ -174,6 +188,7 @@ def main(number):
             'number': getNum(detail_page),
             'cover': getCover(detail_page),
             'cover_small': '',
+            'extrafanart': getExtrafanart(detail_page),
             'imagecut': 1,
             'tag': getTag(detail_page),
             'label': getLabel(detail_page),
