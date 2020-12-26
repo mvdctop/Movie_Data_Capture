@@ -1,5 +1,6 @@
 import json
 import os.path
+import pathlib
 import re
 import shutil
 import platform
@@ -29,18 +30,17 @@ def escape_path(path, escape_literals: str):  # Remove escape literals
 
 
 def moveFailedFolder(filepath, failed_folder):
-    print('[-]Move to Failed output folder')
-    shutil.move(filepath, str(os.getcwd()) + '/' + failed_folder + '/')
-    return 
-
-
-def CreatFailedFolder(failed_folder):
-    if not os.path.exists(failed_folder + '/'):  # 新建failed文件夹
-        try:
-            os.makedirs(failed_folder + '/')
-        except:
-            print("[-]failed!can not be make Failed output folder\n[-](Please run as Administrator)")
-            return 
+    if config.Config().failed_move():
+        root_path = str(pathlib.Path(filepath).parent)
+        file_name = pathlib.Path(filepath).name
+        destination_path = root_path + '/' + failed_folder + '/'
+        if config.Config.soft_link():
+            print('[-]Create symlink to Failed output folder')
+            os.symlink(filepath, destination_path + '/' + file_name)
+        else:
+            print('[-]Move to Failed output folder')
+            shutil.move(filepath, destination_path)
+    return
 
 
 def get_data_from_json(file_number, filepath, conf: config.Config):  # 从JSON返回元数据
@@ -111,23 +111,25 @@ def get_data_from_json(file_number, filepath, conf: config.Config):  # 从JSON�
 
     # ================================================网站规则添加结束================================================
 
-    title = json_data['title']
-    actor_list = str(json_data['actor']).strip("[ ]").replace("'", '').split(',')  # 字符串转列表
-    release = json_data['release']
-    number = json_data['number']
-    studio = json_data['studio']
-    source = json_data['source']
-    runtime = json_data['runtime']
-    outline = json_data['outline']
-    label = json_data['label']
-    series = json_data['series']
-    year = json_data['year']
-    try:
-        cover_small = json_data['cover_small']
-    except:
+    title = json_data.get('title')
+    actor_list = str(json_data.get('actor')).strip("[ ]").replace("'", '').split(',')  # 字符串转列表
+    release = json_data.get('release')
+    number = json_data.get('number')
+    studio = json_data.get('studio')
+    source = json_data.get('source')
+    runtime = json_data.get('runtime')
+    outline = json_data.get('outline')
+    label = json_data.get('label')
+    series = json_data.get('series')
+    year = json_data.get('year')
+
+    if json_data.get('cover_small') == None:
         cover_small = ''
-    imagecut = json_data['imagecut']
-    tag = str(json_data['tag']).strip("[ ]").replace("'", '').replace(" ", '').split(',')  # 字符串转列表 @
+    else:
+        cover_small = json_data.get('cover_small')
+        
+    imagecut = json_data.get('imagecut')
+    tag = str(json_data.get('tag')).strip("[ ]").replace("'", '').replace(" ", '').split(',')  # 字符串转列表 @
     actor = str(actor_list).strip("[ ]").replace("'", '').replace(" ", '')
 
     if title == '' or number == '':
@@ -152,6 +154,7 @@ def get_data_from_json(file_number, filepath, conf: config.Config):  # 从JSON�
     tmpArr = cover_small.split(',')
     if len(tmpArr) > 0:
         cover_small = tmpArr[0].strip('\"').strip('\'')
+
     # ====================处理异常字符 END================== #\/:*?"<>|
 
     # ===  替换Studio片假名
@@ -193,15 +196,13 @@ def get_data_from_json(file_number, filepath, conf: config.Config):  # 从JSON�
     
     location_rule = eval(conf.location_rule())
 
-    # Process only Windows.
-    if platform.system() == "Windows":
-        if 'actor' in conf.location_rule() and len(actor) > 100:
-            print(conf.location_rule())
-            location_rule = eval(conf.location_rule().replace("actor","'多人作品'"))
-        maxlen = conf.max_title_len()
-        if 'title' in conf.location_rule() and len(title) > maxlen:
-            shorttitle = title[0:maxlen]
-            location_rule = location_rule.replace(title, shorttitle)
+    if 'actor' in conf.location_rule() and len(actor) > 100:
+        print(conf.location_rule())
+        location_rule = eval(conf.location_rule().replace("actor","'多人作品'"))
+    maxlen = conf.max_title_len()
+    if 'title' in conf.location_rule() and len(title) > maxlen:
+        shorttitle = title[0:maxlen]
+        location_rule = location_rule.replace(title, shorttitle)
 
     # 返回处理后的json_data
     json_data['title'] = title
@@ -219,26 +220,26 @@ def get_data_from_json(file_number, filepath, conf: config.Config):  # 从JSON�
     naming_rule=""
     for i in conf.naming_rule().split("+"):
         if i not in json_data:
-            naming_rule+=i.strip("'").strip('"')
+            naming_rule += i.strip("'").strip('"')
         else:
-            naming_rule+=json_data[i]
+            naming_rule += json_data.get(i)
     json_data['naming_rule'] = naming_rule
     return json_data
 
 
 def get_info(json_data):  # 返回json里的数据
-    title = json_data['title']
-    studio = json_data['studio']
-    year = json_data['year']
-    outline = json_data['outline']
-    runtime = json_data['runtime']
-    director = json_data['director']
-    actor_photo = json_data['actor_photo']
-    release = json_data['release']
-    number = json_data['number']
-    cover = json_data['cover']
-    website = json_data['website']
-    series = json_data['series']
+    title = json_data.get('title')
+    studio = json_data.get('studio')
+    year = json_data.get('year')
+    outline = json_data.get('outline')
+    runtime = json_data.get('runtime')
+    director = json_data.get('director')
+    actor_photo = json_data.get('actor_photo')
+    release = json_data.get('release')
+    number = json_data.get('number')
+    cover = json_data.get('cover')
+    website = json_data.get('website')
+    series = json_data.get('series')
     label = json_data.get('label', "")
     return title, studio, year, outline, runtime, director, actor_photo, release, number, cover, website, series, label
 
@@ -260,7 +261,7 @@ def create_folder(success_folder, location_rule, json_data, conf: config.Config)
         try:
             os.makedirs(path)
         except:
-            path = success_folder + '/' + location_rule.replace('/[' + number + ']-' + title, "/number")
+            path = success_folder + '/' + location_rule.replace('/[' + number + ')-' + title, "/number")
             path = escape_path(path, conf.escape_literals())
 
             os.makedirs(path)
@@ -284,7 +285,7 @@ def download_file_with_filename(url, filename, path, conf: config.Config, filepa
 
     for i in range(retry_count):
         try:
-            if switch == 1:
+            if switch == 1 or switch == '1':
                 if not os.path.exists(path):
                     os.makedirs(path)
                 proxies = get_proxy(proxy, proxytype)
@@ -429,22 +430,22 @@ def cutImage(imagecut, path, number, c_word):
 
 
 def paste_file_to_folder(filepath, path, number, c_word, conf: config.Config):  # 文件路径，番号，后缀，要移动至的位置
-    houzhui = str(re.search('[.](AVI|RMVB|WMV|MOV|MP4|MKV|FLV|TS|WEBM|avi|rmvb|wmv|mov|mp4|mkv|flv|ts|webm)$', filepath).group())
-
+    houzhui = str(re.search('[.](iso|ISO|AVI|RMVB|WMV|MOV|MP4|MKV|FLV|TS|WEBM|avi|rmvb|wmv|mov|mp4|mkv|flv|ts|webm)$', filepath).group())
+    file_parent_origin_path = str(pathlib.Path(filepath).parent)
     try:
         # 如果soft_link=1 使用软链接
         if conf.soft_link():
             os.symlink(filepath, path + '/' + number + c_word + houzhui)
         else:
             os.rename(filepath, path + '/' + number + c_word + houzhui)
-        if os.path.exists(os.getcwd() + '/' + number + c_word + '.srt'):  # 字幕移动
-            os.rename(os.getcwd() + '/' + number + c_word + '.srt', path + '/' + number + c_word + '.srt')
+        if os.path.exists(file_parent_origin_path + '/' + number + c_word + '.srt'):  # 字幕移动
+            os.rename(file_parent_origin_path + '/' + number + c_word + '.srt', path + '/' + number + c_word + '.srt')
             print('[+]Sub moved!')
-        elif os.path.exists(os.getcwd() + '/' + number + c_word + '.ssa'):
-            os.rename(os.getcwd() + '/' + number + c_word + '.ssa', path + '/' + number + c_word + '.ssa')
+        elif os.path.exists(file_parent_origin_path + '/' + number + c_word + '.ssa'):
+            os.rename(file_parent_origin_path + '/' + number + c_word + '.ssa', path + '/' + number + c_word + '.ssa')
             print('[+]Sub moved!')
-        elif os.path.exists(os.getcwd() + '/' + number + c_word + '.sub'):
-            os.rename(os.getcwd() + '/' + number + c_word + '.sub', path + '/' + number + c_word + '.sub')
+        elif os.path.exists(file_parent_origin_path + '/' + number + c_word + '.sub'):
+            os.rename(file_parent_origin_path + '/' + number + c_word + '.sub', path + '/' + number + c_word + '.sub')
             print('[+]Sub moved!')
     except FileExistsError:
         print('[-]File Exists! Please check your movie!')
@@ -458,21 +459,21 @@ def paste_file_to_folder(filepath, path, number, c_word, conf: config.Config):  
 def paste_file_to_folder_mode2(filepath, path, multi_part, number, part, c_word, conf):  # 文件路径，番号，后缀，要移动至的位置
     if multi_part == 1:
         number += part  # 这时number会被附加上CD1后缀
-    houzhui = str(re.search('[.](AVI|RMVB|WMV|MOV|MP4|MKV|FLV|TS|WEBM|avi|rmvb|wmv|mov|mp4|mkv|flv|ts|webm)$', filepath).group())
-
+    houzhui = str(re.search('[.](AVI|RMVB|WMV|MOV|MP4|MKV|FLV|TS|WEBM|avi|rmvb|wmv|mov|mp4|mkv|flv|ts|webm|iso|ISO)$', filepath).group())
+    file_parent_origin_path = str(pathlib.Path(filepath).parent)
     try:
         if conf.soft_link():
             os.symlink(filepath, path + '/' + number + part + c_word + houzhui)
         else:
             os.rename(filepath, path + '/' + number + part + c_word + houzhui)
-        if os.path.exists(number + '.srt'):  # 字幕移动
-            os.rename(number + part + c_word + '.srt', path + '/' + number + part + c_word + '.srt')
+        if os.path.exists(file_parent_origin_path + '/' + number + '.srt'):  # 字幕移动
+            os.rename(file_parent_origin_path + '/' + number + part + c_word + '.srt', path + '/' + number + part + c_word + '.srt')
             print('[+]Sub moved!')
-        elif os.path.exists(number + part + c_word + '.ass'):
-            os.rename(number + part + c_word + '.ass', path + '/' + number + part + c_word + '.ass')
+        elif os.path.exists(file_parent_origin_path + '/' + number + part + c_word + '.ass'):
+            os.rename(file_parent_origin_path + '/' + number + part + c_word + '.ass', path + '/' + number + part + c_word + '.ass')
             print('[+]Sub moved!')
-        elif os.path.exists(number + part + c_word + '.sub'):
-            os.rename(number + part + c_word + '.sub', path + '/' + number + part + c_word + '.sub')
+        elif os.path.exists(file_parent_origin_path + '/' + number + part + c_word + '.sub'):
+            os.rename(file_parent_origin_path + '/' + number + part + c_word + '.sub', path + '/' + number + part + c_word + '.sub')
             print('[+]Sub moved!')
         print('[!]Success')
     except FileExistsError:
@@ -519,7 +520,9 @@ def core_main(file_path, number_th, conf: config.Config):
     cn_sub = ''
     liuchu = ''
 
-    filepath = file_path  # 影片的路径
+
+    filepath = file_path  # 影片的路径 绝对路径
+    rootpath = str(pathlib.Path(filepath).parent)
     number = number_th
     json_data = get_data_from_json(number, filepath, conf)  # 定义番号
 
@@ -534,8 +537,8 @@ def core_main(file_path, number_th, conf: config.Config):
         # but paste_file_to_folder() still use the input raw search id
         # so the solution is: use the normalized search id
         number = json_data["number"]
-    imagecut = json_data['imagecut']
-    tag = json_data['tag']
+    imagecut =  json_data.get('imagecut')
+    tag =  json_data.get('tag')
     # =======================================================================判断-C,-CD后缀
     if '-CD' in filepath or '-cd' in filepath:
         multi_part = 1
@@ -546,15 +549,12 @@ def core_main(file_path, number_th, conf: config.Config):
     if '流出' in filepath:
         liuchu = '流出'
 
-    # 创建输出失败目录
-    CreatFailedFolder(conf.failed_folder())
-
     # 调试模式检测
     if conf.debug():
         debug_print(json_data)
 
     # 创建文件夹
-    path = create_folder(conf.success_folder(), json_data['location_rule'], json_data, conf)
+    path = create_folder(rootpath + '/' + conf.success_folder(),  json_data.get('location_rule'), json_data, conf)
 
     # main_mode
     #  1: 刮削模式 / Scraping mode
@@ -565,16 +565,16 @@ def core_main(file_path, number_th, conf: config.Config):
 
         # 检查小封面, 如果image cut为3，则下载小封面
         if imagecut == 3:
-            small_cover_check(path, number, json_data['cover_small'], c_word, conf, filepath, conf.failed_folder())
+            small_cover_check(path, number,  json_data.get('cover_small'), c_word, conf, filepath, conf.failed_folder())
 
         # creatFolder会返回番号路径
-        image_download(json_data['cover'], number, c_word, path, conf, filepath, conf.failed_folder())
+        image_download( json_data.get('cover'), number, c_word, path, conf, filepath, conf.failed_folder())
 
         # 裁剪图
         cutImage(imagecut, path, number, c_word)
 
         # 打印文件
-        print_files(path, c_word, json_data['naming_rule'], part, cn_sub, json_data, filepath, conf.failed_folder(), tag, json_data['actor_list'], liuchu)
+        print_files(path, c_word,  json_data.get('naming_rule'), part, cn_sub, json_data, filepath, conf.failed_folder(), tag,  json_data.get('actor_list'), liuchu)
 
         # 移动文件
         paste_file_to_folder(filepath, path, number, c_word, conf)
