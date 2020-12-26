@@ -45,6 +45,35 @@ class Config:
         return self.conf.getboolean("common", "transalte_to_sc")
     def is_transalte(self) -> bool:
         return self.conf.getboolean("transalte", "switch")
+    def is_trailer(self) -> bool:
+        return self.conf.getboolean("trailer", "switch")
+
+    def is_watermark(self) -> bool:
+        return self.conf.getboolean("watermark", "switch")
+
+    def is_extrafanart(self) -> bool:
+        return self.conf.getboolean("extrafanart", "switch")   
+    
+    def watermark_type(self) -> int:
+        return int(self.conf.get("watermark", "water"))
+
+    def get_uncensored(self):
+        try:
+            sec = "uncensored"
+            uncensored_prefix = self.conf.get(sec, "uncensored_prefix")
+            # uncensored_poster = self.conf.get(sec, "uncensored_poster")
+            return uncensored_prefix
+
+        except ValueError:
+            self._exit("uncensored")
+
+    def get_extrafanart(self):
+        try:
+            extrafanart_download = self.conf.get("extrafanart", "extrafanart_folder")
+            return extrafanart_download
+        except ValueError:
+            self._exit("extrafanart_folder")
+            
     def transalte_values(self) -> bool:
         return self.conf.get("transalte", "values")
     def proxy(self) -> [str, int, int, str]:
@@ -58,7 +87,13 @@ class Config:
             return switch, proxy, timeout, retry, proxytype
         except ValueError:
             self._exit("common")
+            
+    def media_rule(self) -> str:
+        return self.conf.get('media', 'media_type').replace(',', '|')
 
+    def sub_rule(self):
+        return self.conf.get('media', 'sub_type').split(',')
+            
     def naming_rule(self) -> str:
         return self.conf.get("Name_Rule", "naming_rule")
 
@@ -146,6 +181,29 @@ class Config:
         conf.add_section(sec8)
         conf.set(sec8, "switch", "0")
         conf.set(sec8, "values", "title,outline")
+        
+        sec9 = "trailer"
+        conf.add_section(sec9)
+        conf.set(sec9, "switch", "0")
+
+        sec10 = "uncensored"
+        conf.add_section(sec10)
+        conf.set(sec10, "uncensored_prefix", "S2M,BT,LAF,SMD")
+
+        sec11 = "media"
+        conf.add_section(sec11)
+        conf.set(sec11, "media_type", ".mp4,.avi,.rmvb,.wmv,.mov,.mkv,.flv,.ts,.webm,.MP4,.AVI,.RMVB,.WMV,.MOV,.MKV,.FLV,.TS,.WEBM,iso,ISO")
+        conf.set(sec11, "sub_type", ".smi,.srt,.idx,.sub,.sup,.psb,.ssa,.ass,.txt,.usf,.xss,.ssf,.rt,.lrc,.sbv,.vtt,.ttml")
+
+        sec12 = "watermark"
+        conf.add_section(sec12)
+        conf.set(sec12, "switch", 1)
+        conf.set(sec12, "water", 2)
+
+        sec13 = "extrafanart"
+        conf.add_section(sec13)
+        conf.set(sec13, "switch", 1)
+        conf.set(sec13, "extrafanart_folder", "extrafanart")
 
         return conf
 
