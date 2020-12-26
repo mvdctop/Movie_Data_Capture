@@ -110,56 +110,65 @@ def getTag(htmlcode):  # 获取标签
         tag.append(i.get_text())
     return tag
 
+def getExtrafanart(htmlcode):  # 获取剧照
+    html_pather = re.compile(r'<div class=\"mobileImgThumbnail\">[\s\S]*?</div></div></div></div>')
+    html = html_pather.search(htmlcode)
+    if html:
+        html = html.group()
+        extrafanart_pather = re.compile(r'<img.*?src=\"(.*?)\"')
+        extrafanart_imgs = extrafanart_pather.findall(html)
+        if extrafanart_imgs:
+            return extrafanart_imgs
+    return ''
+
 def main(number):
     try:
         try:
-            try:
-                htmlcode = get_html('https://cn.airav.wiki/video/' + number)
-                javbus_htmlcode = get_html('https://www.javbus.com/ja/' + number)
+            htmlcode = get_html('https://cn.airav.wiki/video/' + number)
+            javbus_htmlcode = get_html('https://www.javbus.com/ja/' + number)
 
 
-            except:
-                print(number)
-
-            dic = {
-                # 标题可使用airav
-                'title': str(re.sub('\w+-\d+-', '', getTitle(htmlcode))),
-                # 制作商选择使用javbus
-                'studio': getStudio(javbus_htmlcode),
-                # 年份也是用javbus
-                'year': str(re.search('\d{4}', getYear(javbus_htmlcode)).group()),
-                #  简介 使用 airav
-                'outline': getOutline(htmlcode),
-                # 使用javbus
-                'runtime': getRuntime(javbus_htmlcode),
-                # 导演 使用javbus
-                'director': getDirector(javbus_htmlcode),
-                # 作者 使用airav
-                'actor': getActor(htmlcode),
-                # 发售日使用javbus
-                'release': getRelease(javbus_htmlcode),
-                # 番号使用javbus
-                'number': getNum(javbus_htmlcode),
-                # 封面链接 使用javbus
-                'cover': getCover(javbus_htmlcode),
-
-                'imagecut': 1,
-                # 使用 airav
-                'tag': getTag(htmlcode),
-                # 使用javbus
-                'label': getSerise(javbus_htmlcode),
-                # 妈的，airav不提供作者图片
-                'actor_photo': getActorPhoto(javbus_htmlcode),
-
-                'website': 'https://www.airav.wiki/video/' + number,
-                'source': 'airav.py',
-                # 使用javbus
-                'series': getSerise(javbus_htmlcode),
-            }
-            js = json.dumps(dic, ensure_ascii=False, sort_keys=True, indent=4,separators=(',', ':'), )  # .encode('UTF-8')
-            return js
         except:
-            return main_uncensored(number)
+            print(number)
+
+        dic = {
+            # 标题可使用airav
+            'title': str(re.sub('\w+-\d+-', '', getTitle(htmlcode))),
+            # 制作商选择使用javbus
+            'studio': getStudio(javbus_htmlcode),
+            # 年份也是用javbus
+            'year': str(re.search('\d{4}', getYear(javbus_htmlcode)).group()),
+            #  简介 使用 airav
+            'outline': getOutline(htmlcode),
+            # 使用javbus
+            'runtime': getRuntime(javbus_htmlcode),
+            # 导演 使用javbus
+            'director': getDirector(javbus_htmlcode),
+            # 作者 使用airav
+            'actor': getActor(htmlcode),
+            # 发售日使用javbus
+            'release': getRelease(javbus_htmlcode),
+            # 番号使用javbus
+            'number': getNum(javbus_htmlcode),
+            # 封面链接 使用javbus
+            'cover': getCover(javbus_htmlcode),
+            # 剧照获取
+            'extrafanart': getExtrafanart(htmlcode),
+            'imagecut': 1,
+            # 使用 airav
+            'tag': getTag(htmlcode),
+            # 使用javbus
+            'label': getSerise(javbus_htmlcode),
+            # 妈的，airav不提供作者图片
+            'actor_photo': getActorPhoto(javbus_htmlcode),
+
+            'website': 'https://www.airav.wiki/video/' + number,
+            'source': 'airav.py',
+            # 使用javbus
+            'series': getSerise(javbus_htmlcode),
+        }
+        js = json.dumps(dic, ensure_ascii=False, sort_keys=True, indent=4,separators=(',', ':'), )  # .encode('UTF-8')
+        return js
     except:
         data = {
             "title": "",
@@ -171,4 +180,5 @@ def main(number):
 
 
 if __name__ == '__main__':
-    print(main('sdsi-019'))
+    print(main('ADN-188'))
+
