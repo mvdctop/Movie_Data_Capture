@@ -127,6 +127,11 @@ def get_data_from_json(file_number, filepath, conf: config.Config):  # 从JSON�
         cover_small = ''
     else:
         cover_small = json_data.get('cover_small')
+    
+    if json_data.get('trailer') == None:
+        trailer = ''
+    else:
+        trailer = json_data.get('trailer')
         
     imagecut = json_data.get('imagecut')
     tag = str(json_data.get('tag')).strip("[ ]").replace("'", '').replace(" ", '').split(',')  # 字符串转列表 @
@@ -217,6 +222,14 @@ def get_data_from_json(file_number, filepath, conf: config.Config):  # 从JSON�
         translate_values = conf.transalte_values().split(",")
         for translate_value in translate_values:
             json_data[translate_value] = translate(json_data[translate_value])
+            
+    if conf.is_trailer():
+        if trailer:
+            json_data['trailer'] = trailer
+        else:
+            json_data['trailer'] = ''
+    else:
+        json_data['trailer'] = ''
     naming_rule=""
     for i in conf.naming_rule().split("+"):
         if i not in json_data:
