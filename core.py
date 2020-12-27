@@ -236,7 +236,7 @@ def get_data_from_json(file_number, filepath, conf: config.Config):  # ä»ŽJSONè¿
     else:
         json_data['trailer'] = ''
         
-    if conf.get_extrafanart():
+    if conf.is_extrafanart():
         if extrafanart:
             json_data['extrafanart'] = extrafanart
         else:
