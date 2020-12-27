@@ -242,7 +242,7 @@ def get_info(json_data):  # 返回json里的数据
     website = json_data.get('website')
     series = json_data.get('series')
     label = json_data.get('label', "")
-    return title, studio, year, outline, runtime, director, actor_photo, release, number, cover, website, series, label
+    return title, studio, year, outline, runtime, director, actor_photo, release, number, cover, trailer, website, series, label
 
 
 def small_cover_check(path, number, cover_small, c_word, conf: config.Config, filepath, failed_folder):
