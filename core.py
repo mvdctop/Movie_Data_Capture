@@ -554,13 +554,15 @@ def core_main(file_path, number_th, conf: config.Config):
         debug_print(json_data)
 
     # 创建文件夹
-    path = create_folder(rootpath + '/' + conf.success_folder(),  json_data.get('location_rule'), json_data, conf)
+    #path = create_folder(rootpath + '/' + conf.success_folder(),  json_data.get('location_rule'), json_data, conf)
 
     # main_mode
     #  1: 刮削模式 / Scraping mode
     #  2: 整理模式 / Organizing mode
     #  3：不改变路径刮削 
     if conf.main_mode() == 1:
+        # 创建文件夹
+        path = create_folder(rootpath + '/' + conf.success_folder(),  json_data.get('location_rule'), json_data, conf)
         if multi_part == 1:
             number += part  # 这时number会被附加上CD1后缀
 
