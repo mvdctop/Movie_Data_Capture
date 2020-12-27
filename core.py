@@ -522,7 +522,8 @@ def core_main(file_path, number_th, conf: config.Config):
 
 
     filepath = file_path  # 影片的路径 绝对路径
-    rootpath = str(pathlib.Path(filepath).parent)
+    # 下面被注释的变量不需要
+    #rootpath= os.getcwd
     number = number_th
     json_data = get_data_from_json(number, filepath, conf)  # 定义番号
 
@@ -562,7 +563,7 @@ def core_main(file_path, number_th, conf: config.Config):
     #  3：不改变路径刮削 
     if conf.main_mode() == 1:
         # 创建文件夹
-        path = create_folder(rootpath + '/' + conf.success_folder(),  json_data.get('location_rule'), json_data, conf)
+        path = create_folder(conf.success_folder(),  json_data.get('location_rule'), json_data, conf)
         if multi_part == 1:
             number += part  # 这时number会被附加上CD1后缀
 
@@ -583,7 +584,7 @@ def core_main(file_path, number_th, conf: config.Config):
         paste_file_to_folder(filepath, path, number, c_word, conf)
     elif conf.main_mode() == 2:
         # 创建文件夹
-        path = create_folder(rootpath + '/' + conf.success_folder(), json_data.get('location_rule'), json_data, conf)
+        path = create_folder(conf.success_folder(), json_data.get('location_rule'), json_data, conf)
         # 移动文件
         paste_file_to_folder_mode2(filepath, path, multi_part, number, part, c_word, conf)
         poster_path = path + '/' + number + c_word + '-poster.jpg'
