@@ -133,6 +133,11 @@ def get_data_from_json(file_number, filepath, conf: config.Config):  # 从JSON�
     else:
         trailer = json_data.get('trailer')
         
+    if json_data.get('extrafanart') == None:
+        extrafanart = ''
+    else:
+        extrafanart = json_data.get('extrafanart')
+    
     imagecut = json_data.get('imagecut')
     tag = str(json_data.get('tag')).strip("[ ]").replace("'", '').replace(" ", '').split(',')  # 字符串转列表 @
     actor = str(actor_list).strip("[ ]").replace("'", '').replace(" ", '')
@@ -230,6 +235,15 @@ def get_data_from_json(file_number, filepath, conf: config.Config):  # 从JSON�
             json_data['trailer'] = ''
     else:
         json_data['trailer'] = ''
+        
+    if conf.get_extrafanart():
+        if extrafanart:
+            json_data['extrafanart'] = extrafanart
+        else:
+            json_data['extrafanart'] = ''
+    else:
+        json_data['extrafanart'] = ''
+        
     naming_rule=""
     for i in conf.naming_rule().split("+"):
         if i not in json_data:
