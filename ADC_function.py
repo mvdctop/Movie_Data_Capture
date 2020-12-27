@@ -1,6 +1,6 @@
 import requests
 from lxml import etree
-
+import re
 import config
 
 SUPPORT_PROXY_TYPE = ("http", "socks5", "socks5h")
@@ -469,7 +469,7 @@ def is_uncensored(number):
     if re.match('^\d{4,}', number) or re.match('n\d{4}', number) or 'HEYZO' in number.upper():
         return True
     configs = config.Config().get_uncensored()
-    prefix_list = str(configs[0]).split('|')
+    prefix_list = str(configs).split(',')
     for pre in prefix_list:
         if pre.upper() in number.upper():
             return True
