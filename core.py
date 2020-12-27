@@ -251,7 +251,7 @@ def small_cover_check(path, number, cover_small, c_word, conf: config.Config, fi
 
 
 def create_folder(success_folder, location_rule, json_data, conf: config.Config):  # 创建文件夹
-    title, studio, year, outline, runtime, director, actor_photo, release, number, cover, website, series, label = get_info(json_data)
+    title, studio, year, outline, runtime, director, actor_photo, release, number, cover, trailer, website, series, label = get_info(json_data)
     if len(location_rule) > 240:  # 新建成功输出文件夹
         path = success_folder + '/' + location_rule.replace("'actor'", "'manypeople'", 3).replace("actor","'manypeople'",3)  # path为影片+元数据所在目录
     else:
@@ -387,7 +387,7 @@ def image_download(cover, number, c_word, path, conf: config.Config, filepath, f
 
 
 def print_files(path, c_word, naming_rule, part, cn_sub, json_data, filepath, failed_folder, tag, actor_list, liuchu):
-    title, studio, year, outline, runtime, director, actor_photo, release, number, cover, website, series, label = get_info(json_data)
+    title, studio, year, outline, runtime, director, actor_photo, release, number, cover, trailer, website, series, label = get_info(json_data)
 
     try:
         if not os.path.exists(path):
