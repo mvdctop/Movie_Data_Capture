@@ -95,6 +95,18 @@ def getSeries(a):
     result2 = str(html.xpath('//th[contains(text(),"シリーズ")]/../td/text()')).strip(" ['']").strip('\\n    ').strip(
         '\\n')
     return str(result1 + result2).strip('+').replace("', '", '').replace('"', '')
+
+def getExtrafanart(htmlcode):  # 获取剧照
+    html_pather = re.compile(r'<dd>\s*?<ul>[\s\S]*?</ul>\s*?</dd>')
+    html = html_pather.search(htmlcode)
+    if html:
+        html = html.group()
+        extrafanart_pather = re.compile(r'<a class=\"sample_image\" href=\"(.*?)\"')
+        extrafanart_imgs = extrafanart_pather.findall(html)
+        if extrafanart_imgs:
+            return extrafanart_imgs
+    return ''
+
 def main(number2):
     number=number2.upper()
     htmlcode=str(get_html('https://www.mgstage.com/product/product_detail/'+str(number)+'/',cookies={'adc':'1'}))
@@ -115,6 +127,7 @@ def main(number2):
         'imagecut': 0,
         'tag': getTag(a),
         'label':getLabel(a),
+        'extrafanart': getExtrafanart(htmlcode),
         'year': getYear(getRelease(a)),  # str(re.search('\d{4}',getRelease(a)).group()),
         'actor_photo': '',
         'website':'https://www.mgstage.com/product/product_detail/'+str(number)+'/',
