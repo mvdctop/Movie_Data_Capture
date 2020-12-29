@@ -60,6 +60,29 @@ def getYear_fc2com(release):
     except:
         return ''
 
+def getExtrafanart(htmlcode):  # 获取剧照
+    html_pather = re.compile(r'<ul class=\"items_article_SampleImagesArea\"[\s\S]*?</ul>')
+    html = html_pather.search(htmlcode)
+    if html:
+        html = html.group()
+        extrafanart_pather = re.compile(r'<a href=\"(.*?)\"')
+        extrafanart_imgs = extrafanart_pather.findall(html)
+        if extrafanart_imgs:
+            return extrafanart_imgs
+    return ''
+
+def getTrailer(htmlcode):
+    video_pather = re.compile(r'\'[a-zA-Z0-9]{32}\'')
+    video = video_pather.findall(htmlcode)
+    if video:
+        video_url = video[0].replace('\'', '')
+        video_url = 'https://adult.contents.fc2.com/api/v2/videos/1603395/sample?key=' + video_url
+        url_json = eval(ADC_function.get_html(video_url))['path'].replace('\\', '')
+    else:
+        video_url = ''
+
+    return url_json
+
 def main(number):
     try:
         number = number.replace('FC2-', '').replace('fc2-', '')
@@ -70,7 +93,7 @@ def main(number):
         dic = {
             'title': getTitle_fc2com(htmlcode2),
             'studio': getStudio_fc2com(htmlcode2),
-            'year': str(re.search('\d{4}', getRelease_fc2com(htmlcode2)).group()),
+            'year': getYear_fc2com(getRelease_fc2com(htmlcode2)),   
             'outline': '',  # getOutline_fc2com(htmlcode2),
             'runtime': '',
             'director': getStudio_fc2com(htmlcode2),
@@ -79,6 +102,8 @@ def main(number):
             'number': 'FC2-' + number,
             'label': '',
             'cover': getCover_fc2com(htmlcode2),
+            'extrafanart': getExtrafanart(htmlcode2),
+            "trailer": getTrailer(htmlcode2),
             'imagecut': 0,
             'tag': getTag_fc2com(number),
             'actor_photo': '',
@@ -87,10 +112,11 @@ def main(number):
             'series': '',
         }
     except Exception as e:
-        # print(e)
+        print(e)
         dic = {"title": ""}
     js = json.dumps(dic, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ':'), )  # .encode('UTF-8')
     return js
 
 if __name__ == '__main__':
-    print(main('1228742'))
+    print(main('FC2-1603395'))
+

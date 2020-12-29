@@ -107,6 +107,17 @@ def getTag(htmlcode):  # 获取标签
         tag.append(translateTag_to_sc(i.get_text()))
     return tag
 
+def getExtrafanart(htmlcode):  # 获取剧照
+    html_pather = re.compile(r'<div id=\"sample-waterfall\">[\s\S]*?</div></a>\s*?</div>')
+    html = html_pather.search(htmlcode)
+    if html:
+        html = html.group()
+        extrafanart_pather = re.compile(r'<a class=\"sample-box\" href=\"(.*?)\"')
+        extrafanart_imgs = extrafanart_pather.findall(html)
+        if extrafanart_imgs:
+            return extrafanart_imgs
+    return ''
+
 def main_uncensored(number):
     htmlcode = get_html('https://www.javbus.com/ja/' + number)
     if getTitle(htmlcode) == '':
@@ -127,6 +138,7 @@ def main_uncensored(number):
         'number': getNum(htmlcode),
         'cover': getCover(htmlcode),
         'tag': getTag(htmlcode),
+        'extrafanart': getExtrafanart(htmlcode),
         'label': getSerise(htmlcode),
         'imagecut': 0,
         'actor_photo': '',
@@ -162,6 +174,7 @@ def main(number):
                 'cover': getCover(htmlcode),
                 'imagecut': 1,
                 'tag': getTag(htmlcode),
+                'extrafanart': getExtrafanart(htmlcode),
                 'label': getSerise(htmlcode),
                 'actor_photo': getActorPhoto(htmlcode),
                 'website': 'https://www.javbus.com/' + number,

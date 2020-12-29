@@ -209,6 +209,21 @@ def getSeries(text):
     except:
         return ""
 
+def getExtrafanart(htmlcode):  # 获取剧照
+    html_pather = re.compile(r'<div id=\"sample-image-block\"[\s\S]*?<br></div></div>')
+    html = html_pather.search(htmlcode)
+    if html:
+        html = html.group()
+        extrafanart_pather = re.compile(r'<img.*?src=\"(.*?)\"')
+        extrafanart_imgs = extrafanart_pather.findall(html)
+        if extrafanart_imgs:
+            s = []
+            for img_url in extrafanart_imgs:
+                img_urls = img_url.rsplit('-', 1)
+                img_url = img_urls[0] + 'jp-' + img_urls[1]
+                s.append(img_url)
+            return s
+    return ''
 
 def main(number):
     # fanza allow letter + number + underscore, normalize the input here
@@ -260,6 +275,7 @@ def main(number):
             "cover": getCover(htmlcode, fanza_hinban),
             "imagecut": 1,
             "tag": getTag(htmlcode),
+            "extrafanart": getExtrafanart(htmlcode),
             "label": getLabel(htmlcode),
             "year": getYear(
                 getRelease(htmlcode)
@@ -309,5 +325,6 @@ def main_htmlcode(number):
 
 
 if __name__ == "__main__":
-    print(main("DV-1562"))
-    print(main("96fad1217"))
+    # print(main("DV-1562"))
+    # print(main("96fad1217"))
+    print(main("pred00251"))
