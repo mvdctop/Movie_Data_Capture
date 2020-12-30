@@ -648,7 +648,8 @@ def core_main(file_path, number_th, conf: config.Config):
 
 
     filepath = file_path  # 影片的路径 绝对路径
-    rootpath = os.getcwd() #程序根路径
+    # 下面被注释的变量不需要
+    #rootpath= os.getcwd
     number = number_th
     json_data = get_data_from_json(number, filepath, conf)  # 定义番号
 
@@ -691,12 +692,15 @@ def core_main(file_path, number_th, conf: config.Config):
         debug_print(json_data)
 
     # 创建文件夹
-    path = create_folder(rootpath + '/' + conf.success_folder(),  json_data.get('location_rule'), json_data, conf)
+    #path = create_folder(rootpath + '/' + conf.success_folder(),  json_data.get('location_rule'), json_data, conf)
 
     # main_mode
     #  1: 刮削模式 / Scraping mode
     #  2: 整理模式 / Organizing mode
+    #  3：不改变路径刮削 
     if conf.main_mode() == 1:
+        # 创建文件夹
+        path = create_folder(conf.success_folder(),  json_data.get('location_rule'), json_data, conf)
         if multi_part == 1:
             number += part  # 这时number会被附加上CD1后缀
 
@@ -730,6 +734,8 @@ def core_main(file_path, number_th, conf: config.Config):
             add_mark(poster_path, thumb_path, cn_sub, leak, uncensored, conf)
         
     elif conf.main_mode() == 2:
+        # 创建文件夹
+        path = create_folder(conf.success_folder(), json_data.get('location_rule'), json_data, conf)
         # 移动文件
         paste_file_to_folder_mode2(filepath, path, multi_part, number, part, c_word, conf)
         poster_path = path + '/' + number + c_word + '-poster.jpg'
@@ -737,3 +743,35 @@ def core_main(file_path, number_th, conf: config.Config):
         if conf.is_watermark():
             add_mark(poster_path, thumb_path, cn_sub, leak, uncensored, conf)
         
+    elif conf.main_mode() == 3:
+        path = file_path.rsplit('/', 1)[0]
+        path = file_path.rsplit('\\', 1)[0]
+        if multi_part == 1:
+            number += part  # 这时number会被附加上CD1后缀
+
+        # 检查小封面, 如果image cut为3，则下载小封面
+        if imagecut == 3:
+            small_cover_check(path, number, json_data.get('cover_small'), c_word, conf, filepath, conf.failed_folder())
+
+        # creatFolder会返回番号路径
+        image_download(json_data.get('cover'), number, c_word, path, conf, filepath, conf.failed_folder())
+
+        # 下载预告片
+        if json_data.get('trailer'):
+            trailer_download(json_data.get('trailer'), c_word, number, path, filepath, conf, conf.failed_folder())
+
+        # 下载剧照 data, path, conf: config.Config, filepath, failed_folder
+        if json_data.get('extrafanart'):
+            extrafanart_download(json_data.get('extrafanart'), path, conf, filepath, conf.failed_folder())
+
+        # 裁剪图
+        cutImage(imagecut, path, number, c_word)
+
+        # 打印文件
+        print_files(path, c_word, json_data.get('naming_rule'), part, cn_sub, json_data, filepath, conf.failed_folder(),
+                    tag, json_data.get('actor_list'), liuchu)
+
+        poster_path = path + '/' + number + c_word + '-poster.jpg'
+        thumb_path = path + '/' + number + c_word + '-thumb.jpg'
+        if conf.is_watermark():
+            add_mark(poster_path, thumb_path, cn_sub, leak, uncensored, conf)
