@@ -113,6 +113,7 @@ def get_data_from_json(file_number, filepath, conf: config.Config):  # 从JSON�
 
     title = json_data.get('title')
     actor_list = str(json_data.get('actor')).strip("[ ]").replace("'", '').split(',')  # 字符串转列表
+    actor_list = [actor.strip() for actor in actor_list]  # 去除空白
     release = json_data.get('release')
     number = json_data.get('number')
     studio = json_data.get('studio')
