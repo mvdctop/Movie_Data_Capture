@@ -1,4 +1,4 @@
-if ['$(dpkg --print-architecture)' != 'amd64'] || ['$(dpkg --print-architecture)' != 'i386']; then
+if [ '$(dpkg --print-architecture)' != 'amd64' ] || [ '$(dpkg --print-architecture)' != 'i386' ]; then
 	apt install python3 python3-pip git sudo libxml2-dev libxslt-dev build-essential wget nano libcmocka-dev libcmocka0 -y
 	apt install zlib* libjpeg-dev  -y
 	wget https://files.pythonhosted.org/packages/82/96/21ba3619647bac2b34b4996b2dbbea8e74a703767ce24192899d9153c058/pyinstaller-4.0.tar.gz
