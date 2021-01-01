@@ -59,6 +59,8 @@ def get_html(url, cookies: dict = None, ua: str = None, return_type: str = None)
 
             if return_type == "object":
                 return result
+            elif return_type == "content":
+                return result.content
             else:
                 return result.text
 
