@@ -6,6 +6,8 @@ import shutil
 import platform
 
 from PIL import Image
+from io import BytesIO
+
 from ADC_function import *
 
 # =========website========
@@ -513,9 +515,9 @@ def add_mark(poster_path, thumb_path, cn_sub, leak, uncensored, conf:config.Conf
     if uncensored:
         mark_type += ',无码'
     add_mark_thread(thumb_path, cn_sub, leak, uncensored, conf)
-    print('[+]Thumb Add Mark:    ' + mark_type.strip(','))
+    print('[+]Thumb Add Mark:   ' + mark_type.strip(','))
     add_mark_thread(poster_path, cn_sub, leak, uncensored, conf)
-    print('[+]Poster Add Mark:   ' + mark_type.strip(','))
+    print('[+]Poster Add Mark:  ' + mark_type.strip(','))
 
 def add_mark_thread(pic_path, cn_sub, leak, uncensored, conf):
     size = 14
@@ -536,11 +538,11 @@ def add_mark_thread(pic_path, cn_sub, leak, uncensored, conf):
 def add_to_pic(pic_path, img_pic, size, count, mode):
     mark_pic_path = ''
     if mode == 1:
-        mark_pic_path = 'Img/SUB.png'
+        mark_pic_path = BytesIO(get_html("https://raw.githubusercontent.com/yoshiko2/AV_Data_Capture/master/Img/SUB.png",return_type="content"))
     elif mode == 2:
-        mark_pic_path = 'Img/LEAK.png'
+        mark_pic_path = BytesIO(get_html("https://raw.githubusercontent.com/yoshiko2/AV_Data_Capture/master/Img/LEAK.png",return_type="content"))
     elif mode == 3:
-        mark_pic_path = 'Img/UNCENSORED.png'
+        mark_pic_path = BytesIO(get_html("https://raw.githubusercontent.com/yoshiko2/AV_Data_Capture/master/Img/UNCENSORED.png",return_type="content"))
     img_subt = Image.open(mark_pic_path)
     scroll_high = int(img_pic.height / size)
     scroll_wide = int(scroll_high * img_subt.width / img_subt.height)
