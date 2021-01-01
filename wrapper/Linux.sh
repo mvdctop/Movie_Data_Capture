@@ -11,5 +11,5 @@ if ['$(dpkg --print-architecture)' != 'amd64'] || ['$(dpkg --print-architecture)
 	cd ../
 fi
 pip3 install -r requirements.txt
-pyinstaller --onefile AV_Data_Capture.py  --hidden-import ADC_function.py --hidden-import core.py
+pyinstaller --onefile AV_Data_Capture.py  --hidden-import ADC_function.py --hidden-import core.py --add-data "$(python3 -c 'import cloudscraper as _; print(_.__path__[0])' | tail -n 1):cloudscraper"
 cp config.ini ./dist
