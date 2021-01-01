@@ -39,19 +39,18 @@ def argparse_function(ver: str) -> [str, str, bool]:
     return args.file, args.config, args.number, args.autoexit
 
 
-def movie_lists(root, escape_folder):
+def movie_lists(root, escape_folder, c: config.Config):
     for folder in escape_folder:
         if folder in root:
             return []
     total = []
-    file_type = ['.mp4', '.avi', '.rmvb', '.wmv', '.mov', '.mkv', '.flv', '.ts', '.webm', '.MP4', '.AVI', '.RMVB',
-                 '.WMV', '.MOV', '.MKV', '.FLV', '.TS', '.WEBM', '.iso', '.ISO']
+    file_type = c.media_type().upper()
     dirs = os.listdir(root)
     for entry in dirs:
         f = os.path.join(root, entry)
         if os.path.isdir(f):
             total += movie_lists(f, escape_folder)
-        elif os.path.splitext(f)[1] in file_type:
+        elif os.path.splitext(f)[1].upper() in file_type:
             total.append(f)
     return total
 
