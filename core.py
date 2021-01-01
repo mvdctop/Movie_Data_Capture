@@ -572,8 +572,8 @@ def paste_file_to_folder(filepath, path, number, c_word, conf: config.Config):  
         sub_res = conf.sub_rule()
         
         for subname in sub_res:
-            if os.path.exists(os.getcwd() + '/' + number + c_word + subname):  # 字幕移动
-                os.rename(os.getcwd() + '/' + number + c_word + subname, path + '/' + number + c_word + subname)
+            if os.path.exists(number + c_word + subname):  # 字幕移动
+                os.rename(number + c_word + subname, path + '/' + number + c_word + subname)
                 print('[+]Sub moved!')
                 return True
         

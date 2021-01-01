@@ -88,7 +88,7 @@ class Config:
         except ValueError:
             self._exit("common")
             
-    def media_rule(self) -> str:
+    def media_type(self) -> str:
         return self.conf.get('media', 'media_type').replace(',', '|')
 
     def sub_rule(self):
