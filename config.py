@@ -89,7 +89,7 @@ class Config:
             self._exit("common")
             
     def media_type(self) -> str:
-        return self.conf.get('media', 'media_type').replace(',', '|')
+        return self.conf.get('media', 'media_type')
 
     def sub_rule(self):
         return self.conf.get('media', 'sub_type').split(',')
