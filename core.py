@@ -514,6 +514,8 @@ def add_mark(poster_path, thumb_path, cn_sub, leak, uncensored, conf:config.Conf
         mark_type += ',流出'
     if uncensored:
         mark_type += ',无码'
+    if mark_type == '':
+        return
     add_mark_thread(thumb_path, cn_sub, leak, uncensored, conf)
     print('[+]Thumb Add Mark:   ' + mark_type.strip(','))
     add_mark_thread(poster_path, cn_sub, leak, uncensored, conf)
@@ -560,8 +562,7 @@ def add_to_pic(pic_path, img_pic, size, count, mode):
 # ========================结束=================================
 
 def paste_file_to_folder(filepath, path, number, c_word, conf: config.Config):  # 文件路径，番号，后缀，要移动至的位置
-    media_res = conf.media_rule()
-    houzhui = str(re.search(media_res + '$', filepath).group())
+    houzhui = os.path.splitext(filepath)[1].replace(",","")
     file_parent_origin_path = str(pathlib.Path(filepath).parent)
     try:
         # 如果soft_link=1 使用软链接
@@ -589,8 +590,7 @@ def paste_file_to_folder(filepath, path, number, c_word, conf: config.Config):  
 def paste_file_to_folder_mode2(filepath, path, multi_part, number, part, c_word, conf):  # 文件路径，番号，后缀，要移动至的位置
     if multi_part == 1:
         number += part  # 这时number会被附加上CD1后缀
-    media_res = conf.media_rule()
-    houzhui = str(re.search(media_res + '$', filepath).group())
+    houzhui = os.path.splitext(filepath)[1].replace(",","")
     file_parent_origin_path = str(pathlib.Path(filepath).parent)
     try:
         if conf.soft_link():
