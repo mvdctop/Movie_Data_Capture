@@ -39,12 +39,12 @@ def argparse_function(ver: str) -> [str, str, bool]:
     return args.file, args.config, args.number, args.autoexit
 
 
-def movie_lists(root, escape_folder, c: config.Config):
+def movie_lists(root, escape_folder):
     for folder in escape_folder:
         if folder in root:
             return []
     total = []
-    file_type = c.media_type().upper()
+    file_type = conf.media_type().upper().split(",")
     dirs = os.listdir(root)
     for entry in dirs:
         f = os.path.join(root, entry)
@@ -95,15 +95,15 @@ def create_data_and_move(file_path: str, c: config.Config, debug):
             if c.failed_move() == False:
                 if c.soft_link():
                     print("[-]Link {} to failed folder".format(file_path))
-                    os.symlink(file_path, str(os.getcwd()) + "/" + conf.failed_folder() + "/")
+                    os.symlink(file_path, conf.failed_folder() + "/")
             elif c.failed_move() == True:
                 if c.soft_link():
                     print("[-]Link {} to failed folder".format(file_path))
-                    os.symlink(file_path, str(os.getcwd()) + "/" + conf.failed_folder() + "/")
+                    os.symlink(file_path, conf.failed_folder() + "/")
                 else:
                     try:
                         print("[-]Move [{}] to failed folder".format(file_path))
-                        shutil.move(file_path, str(os.getcwd()) + "/" + conf.failed_folder() + "/")
+                        shutil.move(file_path, conf.failed_folder() + "/")
                     except Exception as err:
                         print('[!]', err)
 
@@ -119,11 +119,11 @@ def create_data_and_move_with_custom_number(file_path: str, c: config.Config, cu
 
         if c.soft_link():
             print("[-]Link {} to failed folder".format(file_path))
-            os.symlink(file_path, str(os.getcwd()) + "/" + conf.failed_folder() + "/")
+            os.symlink(file_path, conf.failed_folder() + "/")
         else:
             try:
                 print("[-]Move [{}] to failed folder".format(file_path))
-                shutil.move(file_path, str(os.getcwd()) + "/" + conf.failed_folder() + "/")
+                shutil.move(file_path, conf.failed_folder() + "/")
             except Exception as err:
                 print('[!]', err)
 
@@ -146,7 +146,6 @@ if __name__ == '__main__':
         check_update(version)
 
     create_failed_folder(conf.failed_folder())
-    os.chdir(os.getcwd())
 
     # ========== Single File ==========
     if not single_file_path == '':
@@ -159,7 +158,7 @@ if __name__ == '__main__':
         sys.exit(0)
     # ========== Single File ==========
 
-    movie_list = movie_lists(os.getcwd(), re.split("[,，]", conf.escape_folder()))
+    movie_list = movie_lists(".", re.split("[,，]", conf.escape_folder()))
 
     count = 0
     count_all = str(len(movie_list))
