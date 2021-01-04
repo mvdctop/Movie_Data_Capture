@@ -748,7 +748,7 @@ def core_main(file_path, number_th, conf: config.Config):
         
     elif conf.main_mode() == 3:
         path = file_path.rsplit('/', 1)[0]
-        path = file_path.rsplit('\\', 1)[0]
+        path = path.rsplit('\\', 1)[0]
         if multi_part == 1:
             number += part  # 这时number会被附加上CD1后缀
 
