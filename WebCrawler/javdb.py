@@ -23,7 +23,7 @@ def getaphoto(url):
     html_page = get_html(url)
     img_prether = re.compile(r'<span class\=\"avatar\" style\=\"background\-image\: url\((.*?)\)')
     img_url = img_prether.findall(html_page)
-    if img_prether:
+    if img_url:
         return img_url[0]
     else:
         return ''
