@@ -466,7 +466,8 @@ def print_files(path, c_word, naming_rule, part, cn_sub, json_data, filepath, fa
             print("  <num>" + number + "</num>", file=code)
             print("  <premiered>" + release + "</premiered>", file=code)
             print("  <cover>" + cover + "</cover>", file=code)
-            print("  <trailer>" + trailer + "</trailer>", file=code)
+            if config.Config().is_trailer():
+                print("  <trailer>" + trailer + "</trailer>", file=code)
             print("  <website>" + website + "</website>", file=code)
             print("</movie>", file=code)
             print("[+]Wrote!            " + path + "/" + number + part + c_word + ".nfo")
