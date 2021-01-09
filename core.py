@@ -713,15 +713,19 @@ def core_main(file_path, number_th, conf: config.Config):
 
         # creatFolder会返回番号路径
         image_download( json_data.get('cover'), number, c_word, path, conf, filepath, conf.failed_folder())
-
-        # 下载预告片
-        if json_data.get('trailer'):
-            trailer_download(json_data.get('trailer'), c_word, number, path, filepath, conf, conf.failed_folder())
-
-        # 下载剧照 data, path, conf: config.Config, filepath, failed_folder
-        if json_data.get('extrafanart'):
-            extrafanart_download(json_data.get('extrafanart'), path, conf, filepath, conf.failed_folder())
+        try:
+            # 下载预告片
+            if json_data.get('trailer'):
+                trailer_download(json_data.get('trailer'), c_word, number, path, filepath, conf, conf.failed_folder())
+        except:
+            pass
         
+        try:
+            # 下载剧照 data, path, conf: config.Config, filepath, failed_folder
+            if json_data.get('extrafanart'):
+                extrafanart_download(json_data.get('extrafanart'), path, conf, filepath, conf.failed_folder())
+        except:
+            pass
         # 裁剪图
         cutImage(imagecut, path, number, c_word)
 
