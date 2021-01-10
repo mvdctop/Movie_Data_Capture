@@ -40,6 +40,7 @@ def get_proxy(proxy: str, proxytype: str = None) -> dict:
 
 # 网页请求核心
 def get_html(url, cookies: dict = None, ua: str = None, return_type: str = None):
+    verify=config.Config().cacert_file()
     switch, proxy, timeout, retry_count, proxytype = config.Config().proxy()
     proxies = get_proxy(proxy, proxytype)
 
@@ -51,7 +52,7 @@ def get_html(url, cookies: dict = None, ua: str = None, return_type: str = None)
     for i in range(retry_count):
         try:
             if switch == '1' or switch == 1:
-                result = requests.get(str(url), headers=headers, timeout=timeout, proxies=proxies, cookies=cookies)
+                result = requests.get(str(url), headers=headers, timeout=timeout, proxies=proxies, verify=verify, cookies=cookies)
             else:
                 result = requests.get(str(url), headers=headers, timeout=timeout, cookies=cookies)
 

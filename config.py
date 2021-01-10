@@ -87,6 +87,9 @@ class Config:
             return switch, proxy, timeout, retry, proxytype
         except ValueError:
             self._exit("common")
+
+    def cacert_file(self) -> str:
+        return self.conf.get('proxy', 'cacert_file')
             
     def media_type(self) -> str:
         return self.conf.get('media', 'media_type')
@@ -153,6 +156,8 @@ class Config:
         conf.set(sec2, "timeout", "5")
         conf.set(sec2, "retry", "3")
         conf.set(sec2, "type", "socks5")
+        conf.set(sec2, "cacert_file", "")
+
 
         sec3 = "Name_Rule"
         conf.add_section(sec3)
