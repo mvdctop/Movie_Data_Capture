@@ -229,8 +229,20 @@ def get_data_from_json(file_number, filepath, conf: config.Config):  # 从JSON�
     if conf.is_transalte():
         translate_values = conf.transalte_values().split(",")
         for translate_value in translate_values:
-            json_data[translate_value] = translate(json_data[translate_value])
-            
+            if json_data[translate_value] == "":
+                continue
+            if conf.get_transalte_engine() == "baidu":
+                json_data[translate_value] = translate(
+                    json_data[translate_value],
+                    target_language="zh",
+                    engine=conf.get_transalte_engine(),
+                    app_id=conf.get_transalte_appId(),
+                    key=conf.get_transalte_key(),
+                    delay=conf.get_transalte_delay(),
+                )
+            else:
+                json_data[translate_value] = translate(json_data[translate_value])
+
     if conf.is_trailer():
         if trailer:
             json_data['trailer'] = trailer
@@ -238,7 +250,7 @@ def get_data_from_json(file_number, filepath, conf: config.Config):  # 从JSON�
             json_data['trailer'] = ''
     else:
         json_data['trailer'] = ''
-        
+
     if conf.is_extrafanart():
         if extrafanart:
             json_data['extrafanart'] = extrafanart
@@ -246,11 +258,11 @@ def get_data_from_json(file_number, filepath, conf: config.Config):  # 从JSON�
             json_data['extrafanart'] = ''
     else:
         json_data['extrafanart'] = ''
-        
-    naming_rule=""
-    for i in conf.naming_rule().split("+"):
+
+    naming_rule = ''
+    for i in conf.naming_rule().split('+'):
         if i not in json_data:
-            naming_rule += i.strip("'").strip('"')
+            naming_rule += i.strip(''').strip(''')
         else:
             naming_rule += json_data.get(i)
     json_data['naming_rule'] = naming_rule
@@ -271,7 +283,7 @@ def get_info(json_data):  # 返回json里的数据
     trailer = json_data.get('trailer')
     website = json_data.get('website')
     series = json_data.get('series')
-    label = json_data.get('label', "")
+    label = json_data.get('label', '')
     return title, studio, year, outline, runtime, director, actor_photo, release, number, cover, trailer, website, series, label
 
 
@@ -283,7 +295,7 @@ def small_cover_check(path, number, cover_small, c_word, conf: config.Config, fi
 def create_folder(success_folder, location_rule, json_data, conf: config.Config):  # 创建文件夹
     title, studio, year, outline, runtime, director, actor_photo, release, number, cover, trailer, website, series, label = get_info(json_data)
     if len(location_rule) > 240:  # 新建成功输出文件夹
-        path = success_folder + '/' + location_rule.replace("'actor'", "'manypeople'", 3).replace("actor","'manypeople'",3)  # path为影片+元数据所在目录
+        path = success_folder + '/' + location_rule.replace(''actor'', ''manypeople'', 3).replace('actor',''manypeople'',3)  # path为影片+元数据所在目录
     else:
         path = success_folder + '/' + location_rule
     path = trimblank(path)
@@ -292,7 +304,7 @@ def create_folder(success_folder, location_rule, json_data, conf: config.Config)
         try:
             os.makedirs(path)
         except:
-            path = success_folder + '/' + location_rule.replace('/[' + number + ')-' + title, "/number")
+            path = success_folder + '/' + location_rule.replace('/[' + number + ')-' + title, '/number')
             path = escape_path(path, conf.escape_literals())
 
             os.makedirs(path)
@@ -300,10 +312,10 @@ def create_folder(success_folder, location_rule, json_data, conf: config.Config)
 
 
 def trimblank(s: str):
-    """
+    '''
     Clear the blank on the right side of the folder name
-    """
-    if s[-1] == " ":
+    '''
+    if s[-1] == ' ':
         return trimblank(s[:-1])
     else:
         return s
@@ -326,7 +338,7 @@ def download_file_with_filename(url, filename, path, conf: config.Config, filepa
                 if r == '':
                     print('[-]Movie Data not found!')
                     return 
-                with open(str(path) + "/" + filename, "wb") as code:
+                with open(str(path) + '/' + filename, 'wb') as code:
                     code.write(r.content)
                 return
             else:
@@ -338,7 +350,7 @@ def download_file_with_filename(url, filename, path, conf: config.Config, filepa
                 if r == '':
                     print('[-]Movie Data not found!')
                     return 
-                with open(str(path) + "/" + filename, "wb") as code:
+                with open(str(path) + '/' + filename, 'wb') as code:
                     code.write(r.content)
                 return
         except requests.exceptions.RequestException:
@@ -422,63 +434,63 @@ def print_files(path, c_word, naming_rule, part, cn_sub, json_data, filepath, fa
     try:
         if not os.path.exists(path):
             os.makedirs(path)
-        with open(path + "/" + number + part + c_word + ".nfo", "wt", encoding='UTF-8') as code:
-            print('<?xml version="1.0" encoding="UTF-8" ?>', file=code)
-            print("<movie>", file=code)
-            print(" <title>" + naming_rule + "</title>", file=code)
-            print("  <set>", file=code)
-            print("  </set>", file=code)
-            print("  <studio>" + studio + "+</studio>", file=code)
-            print("  <year>" + year + "</year>", file=code)
-            print("  <outline>" + outline + "</outline>", file=code)
-            print("  <plot>" + outline + "</plot>", file=code)
-            print("  <runtime>" + str(runtime).replace(" ", "") + "</runtime>", file=code)
-            print("  <director>" + director + "</director>", file=code)
-            print("  <poster>" + number + c_word + "-poster.jpg</poster>", file=code)
-            print("  <thumb>" + number + c_word + "-thumb.jpg</thumb>", file=code)
-            print("  <fanart>" + number + c_word + '-fanart.jpg' + "</fanart>", file=code)
+        with open(path + '/' + number + part + c_word + '.nfo', 'wt', encoding='UTF-8') as code:
+            print('<?xml version='1.0' encoding='UTF-8' ?>', file=code)
+            print('<movie>', file=code)
+            print(' <title>' + naming_rule + '</title>', file=code)
+            print('  <set>', file=code)
+            print('  </set>', file=code)
+            print('  <studio>' + studio + '+</studio>', file=code)
+            print('  <year>' + year + '</year>', file=code)
+            print('  <outline>' + outline + '</outline>', file=code)
+            print('  <plot>' + outline + '</plot>', file=code)
+            print('  <runtime>' + str(runtime).replace(' ', '') + '</runtime>', file=code)
+            print('  <director>' + director + '</director>', file=code)
+            print('  <poster>' + number + c_word + '-poster.jpg</poster>', file=code)
+            print('  <thumb>' + number + c_word + '-thumb.jpg</thumb>', file=code)
+            print('  <fanart>' + number + c_word + '-fanart.jpg' + '</fanart>', file=code)
             try:
                 for key in actor_list:
-                    print("  <actor>", file=code)
-                    print("   <name>" + key + "</name>", file=code)
-                    print("  </actor>", file=code)
+                    print('  <actor>', file=code)
+                    print('   <name>' + key + '</name>', file=code)
+                    print('  </actor>', file=code)
             except:
                 aaaa = ''
-            print("  <maker>" + studio + "</maker>", file=code)
-            print("  <label>" + label + "</label>", file=code)
+            print('  <maker>' + studio + '</maker>', file=code)
+            print('  <label>' + label + '</label>', file=code)
             if cn_sub == '1':
-                print("  <tag>中文字幕</tag>", file=code)
+                print('  <tag>中文字幕</tag>', file=code)
             if liuchu == '流出':
-                print("  <tag>流出</tag>", file=code)
+                print('  <tag>流出</tag>', file=code)
             try:
                 for i in tag:
-                    print("  <tag>" + i + "</tag>", file=code)
-                print("  <tag>" + series + "</tag>", file=code)
+                    print('  <tag>' + i + '</tag>', file=code)
+                print('  <tag>' + series + '</tag>', file=code)
             except:
                 aaaaa = ''
             try:
                 for i in tag:
-                    print("  <genre>" + i + "</genre>", file=code)
+                    print('  <genre>' + i + '</genre>', file=code)
             except:
                 aaaaaaaa = ''
             if cn_sub == '1':
-                print("  <genre>中文字幕</genre>", file=code)
-            print("  <num>" + number + "</num>", file=code)
-            print("  <premiered>" + release + "</premiered>", file=code)
-            print("  <cover>" + cover + "</cover>", file=code)
+                print('  <genre>中文字幕</genre>', file=code)
+            print('  <num>' + number + '</num>', file=code)
+            print('  <premiered>' + release + '</premiered>', file=code)
+            print('  <cover>' + cover + '</cover>', file=code)
             if config.Config().is_trailer():
-                print("  <trailer>" + trailer + "</trailer>", file=code)
-            print("  <website>" + website + "</website>", file=code)
-            print("</movie>", file=code)
-            print("[+]Wrote!            " + path + "/" + number + part + c_word + ".nfo")
+                print('  <trailer>' + trailer + '</trailer>', file=code)
+            print('  <website>' + website + '</website>', file=code)
+            print('</movie>', file=code)
+            print('[+]Wrote!            ' + path + '/' + number + part + c_word + '.nfo')
     except IOError as e:
-        print("[-]Write Failed!")
+        print('[-]Write Failed!')
         print(e)
         moveFailedFolder(filepath, failed_folder)
         return
     except Exception as e1:
         print(e1)
-        print("[-]Write Failed!")
+        print('[-]Write Failed!')
         moveFailedFolder(filepath, failed_folder)
         return
 
@@ -541,11 +553,11 @@ def add_mark_thread(pic_path, cn_sub, leak, uncensored, conf):
 def add_to_pic(pic_path, img_pic, size, count, mode):
     mark_pic_path = ''
     if mode == 1:
-        mark_pic_path = BytesIO(get_html("https://raw.githubusercontent.com/yoshiko2/AV_Data_Capture/master/Img/SUB.png",return_type="content"))
+        mark_pic_path = BytesIO(get_html('https://raw.githubusercontent.com/yoshiko2/AV_Data_Capture/master/Img/SUB.png',return_type='content'))
     elif mode == 2:
-        mark_pic_path = BytesIO(get_html("https://raw.githubusercontent.com/yoshiko2/AV_Data_Capture/master/Img/LEAK.png",return_type="content"))
+        mark_pic_path = BytesIO(get_html('https://raw.githubusercontent.com/yoshiko2/AV_Data_Capture/master/Img/LEAK.png',return_type='content'))
     elif mode == 3:
-        mark_pic_path = BytesIO(get_html("https://raw.githubusercontent.com/yoshiko2/AV_Data_Capture/master/Img/UNCENSORED.png",return_type="content"))
+        mark_pic_path = BytesIO(get_html('https://raw.githubusercontent.com/yoshiko2/AV_Data_Capture/master/Img/UNCENSORED.png',return_type='content'))
     img_subt = Image.open(mark_pic_path)
     scroll_high = int(img_pic.height / size)
     scroll_wide = int(scroll_high * img_subt.width / img_subt.height)
@@ -563,7 +575,7 @@ def add_to_pic(pic_path, img_pic, size, count, mode):
 # ========================结束=================================
 
 def paste_file_to_folder(filepath, path, number, c_word, conf: config.Config):  # 文件路径，番号，后缀，要移动至的位置
-    houzhui = os.path.splitext(filepath)[1].replace(",","")
+    houzhui = os.path.splitext(filepath)[1].replace(',','')
     file_parent_origin_path = str(pathlib.Path(filepath).parent)
     try:
         # 如果soft_link=1 使用软链接
@@ -591,7 +603,7 @@ def paste_file_to_folder(filepath, path, number, c_word, conf: config.Config):  
 def paste_file_to_folder_mode2(filepath, path, multi_part, number, part, c_word, conf):  # 文件路径，番号，后缀，要移动至的位置
     if multi_part == 1:
         number += part  # 这时number会被附加上CD1后缀
-    houzhui = os.path.splitext(filepath)[1].replace(",","")
+    houzhui = os.path.splitext(filepath)[1].replace(',','')
     file_parent_origin_path = str(pathlib.Path(filepath).parent)
     try:
         if conf.soft_link():
@@ -621,23 +633,23 @@ def get_part(filepath, failed_folder):
         if re.search('-cd\d+', filepath):
             return re.findall('-cd\d+', filepath)[0]
     except:
-        print("[-]failed!Please rename the filename again!")
+        print('[-]failed!Please rename the filename again!')
         moveFailedFolder(filepath, failed_folder)
         return
 
 
 def debug_print(data: json):
     try:
-        print("[+] ---Debug info---")
+        print('[+] ---Debug info---')
         for i, v in data.items():
             if i == 'outline':
                 print('[+]  -', i, '    :', len(v), 'characters')
                 continue
             if i == 'actor_photo' or i == 'year':
                 continue
-            print('[+]  -', "%-11s" % i, ':', v)
+            print('[+]  -', '%-11s' % i, ':', v)
 
-        print("[+] ---Debug info---")
+        print('[+] ---Debug info---')
     except:
         pass
 
@@ -661,13 +673,13 @@ def core_main(file_path, number_th, conf: config.Config):
     if not json_data:
         return
 
-    if json_data["number"] != number:
+    if json_data['number'] != number:
         # fix issue #119
         # the root cause is we normalize the search id
         # print_files() will use the normalized id from website,
         # but paste_file_to_folder() still use the input raw search id
         # so the solution is: use the normalized search id
-        number = json_data["number"]
+        number = json_data['number']
     imagecut =  json_data.get('imagecut')
     tag =  json_data.get('tag')
     # =======================================================================判断-C,-CD后缀

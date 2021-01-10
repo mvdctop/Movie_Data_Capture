@@ -1,4 +1,7 @@
 import requests
+import hashlib
+import random
+import time
 from lxml import etree
 import re
 import config
@@ -458,13 +461,52 @@ def translateTag_to_sc(tag):
     else:
         return tag
 
-def translate(src:str,target_language:str="zh_cn"):
-    url = "https://translate.google.cn/translate_a/single?client=gtx&dt=t&dj=1&ie=UTF-8&sl=auto&tl=" + target_language + "&q=" + src
-    result = get_html(url=url,return_type="object")
+def translate(
+    src: str,
+    target_language: str = "zh_cn",
+    engine: str = "google-free",
+    app_id: str = "",
+    key: str = "",
+    delay: int = 0,
+):
+    trans_result = ""
+    if engine == "google-free":
+        url = (
+            "https://translate.google.cn/translate_a/single?client=gtx&dt=t&dj=1&ie=UTF-8&sl=auto&tl="
+            + target_language
+            + "&q="
+            + src
+        )
+        result = get_html(url=url, return_type="object")
 
-    translate_list = [i["trans"] for i in result.json()["sentences"]]
+        translate_list = [i["trans"] for i in result.json()["sentences"]]
+        trans_result = trans_result.join(translate_list)
+    elif engine == "baidu":
+        url = "https://fanyi-api.baidu.com/api/trans/vip/translate"
+        salt = random.randint(1, 1435660288)
+        sign = app_id + src + str(salt) + key
+        sign = hashlib.md5(sign.encode()).hexdigest()
+        url += (
+            "?appid="
+            + app_id
+            + "&q="
+            + src
+            + "&from=auto&to="
+            + target_language
+            + "&salt="
+            + str(salt)
+            + "&sign="
+            + sign
+        )
+        result = get_html(url=url, return_type="object")
 
-    return "".join(translate_list)
+        translate_list = [i["dst"] for i in result.json()["trans_result"]]
+        trans_result = trans_result.join(translate_list)
+    else:
+        raise ValueError("Non-existent translation engine")
+    
+    time.sleep(delay)
+    return trans_result
 
 # ========================================================================是否为无码
 def is_uncensored(number):

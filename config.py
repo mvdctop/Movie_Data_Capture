@@ -73,8 +73,15 @@ class Config:
             return extrafanart_download
         except ValueError:
             self._exit("extrafanart_folder")
-            
-    def transalte_values(self) -> bool:
+    def get_transalte_engine(self) -> str:
+        return self.conf.get("transalte","engine")
+    def get_transalte_appId(self) ->str:
+        return self.conf.get("transalte","appid")
+    def get_transalte_key(self) -> str:
+        return self.conf.get("transalte","key")
+    def get_transalte_delay(self) -> int:
+        return self.conf.getint("transalte","delay")
+    def transalte_values(self) -> str:
         return self.conf.get("transalte", "values")
     def proxy(self) -> [str, int, int, str]:
         try:
@@ -180,6 +187,10 @@ class Config:
         sec8 = "transalte"
         conf.add_section(sec8)
         conf.set(sec8, "switch", "0")
+        conf.set(sec8, "engine", "google-free")
+        conf.set(sec8, "appid", "")
+        conf.set(sec8, "key", "")
+        conf.set(sec8, "delay", "1")
         conf.set(sec8, "values", "title,outline")
         
         sec9 = "trailer"
@@ -225,4 +236,8 @@ if __name__ == "__main__":
     print(config.escape_folder())
     print(config.debug())
     print(config.is_transalte())
+    print(config.get_transalte_engine())
+    print(config.get_transalte_appId())
+    print(config.get_transalte_key())
+    print(config.get_transalte_delay())
     print(config.transalte_values())
