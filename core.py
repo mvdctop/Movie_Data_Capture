@@ -240,6 +240,13 @@ def get_data_from_json(file_number, filepath, conf: config.Config):  # ä»ŽJSONè¿
                     key=conf.get_transalte_key(),
                     delay=conf.get_transalte_delay(),
                 )
+            elif conf.get_transalte_engine() == "azure":
+                json_data[translate_value] = translate(
+                    json_data[translate_value],
+                    target_language="zh-Hans",
+                    engine=conf.get_transalte_engine(),
+                    key=conf.get_transalte_key(),
+                )
             else:
                 json_data[translate_value] = translate(json_data[translate_value])
 

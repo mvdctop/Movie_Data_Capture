@@ -1,6 +1,8 @@
 import requests
 import hashlib
 import random
+import uuid
+import json
 import time
 from lxml import etree
 import re
@@ -73,16 +75,20 @@ def get_html(url, cookies: dict = None, ua: str = None, return_type: str = None)
     print('[-]Connect Failed! Please check your Proxy or Network!')
 
 
-def post_html(url: str, query: dict) -> requests.Response:
+def post_html(url: str, query: dict, headers: dict = None) -> requests.Response:
     switch, proxy, timeout, retry_count, proxytype = config.Config().proxy()
     proxies = get_proxy(proxy, proxytype)
-    headers = {
+    headers_ua = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3100.0 Safari/537.36"}
+    if headers is None:
+        headers = headers_ua
+    else:
+        headers.update(headers_ua)
 
     for i in range(retry_count):
         try:
             if switch == 1 or switch == '1':
-                result = requests.post(url, data=query, proxies=proxies,headers=headers, timeout=timeout)
+                result = requests.post(url, data=query, proxies=proxies, headers=headers, timeout=timeout)
             else:
                 result = requests.post(url, data=query, headers=headers, timeout=timeout)
             return result
@@ -502,6 +508,19 @@ def translate(
 
         translate_list = [i["dst"] for i in result.json()["trans_result"]]
         trans_result = trans_result.join(translate_list)
+    elif engine == "azure":
+        url = "https://api.cognitive.microsofttranslator.com/translate?api-version=3.0&to=" + target_language
+        headers = {
+                'Ocp-Apim-Subscription-Key': key,
+                'Ocp-Apim-Subscription-Region': "global",
+                'Content-type': 'application/json',
+                'X-ClientTraceId': str(uuid.uuid4())
+            }
+        body = json.dumps([{'text': src}])
+        result = post_html(url=url,query=body,headers=headers)
+        translate_list = [i["text"] for i in result.json()[0]["translations"]]
+        trans_result = trans_result.join(translate_list)
+
     else:
         raise ValueError("Non-existent translation engine")
     
