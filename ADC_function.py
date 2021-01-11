@@ -64,7 +64,9 @@ def get_html(url, cookies: dict = None, ua: str = None, return_type: str = None)
                 return result.content
             else:
                 return result.text
-
+        except requests.exceptions.ProxyError:
+            print("[-]Proxy error! Please check your Proxy")
+            return
         except Exception as e:
             print("[-]Connect retry {}/{}".format(i + 1, retry_count))
             print("[-]" + str(e))
