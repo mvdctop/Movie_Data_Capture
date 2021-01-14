@@ -75,8 +75,8 @@ class Config:
             self._exit("extrafanart_folder")
     def get_transalte_engine(self) -> str:
         return self.conf.get("transalte","engine")
-    def get_transalte_appId(self) ->str:
-        return self.conf.get("transalte","appid")
+    # def get_transalte_appId(self) ->str:
+    #     return self.conf.get("transalte","appid")
     def get_transalte_key(self) -> str:
         return self.conf.get("transalte","key")
     def get_transalte_delay(self) -> int:
@@ -193,7 +193,7 @@ class Config:
         conf.add_section(sec8)
         conf.set(sec8, "switch", "0")
         conf.set(sec8, "engine", "google-free")
-        conf.set(sec8, "appid", "")
+        # conf.set(sec8, "appid", "")
         conf.set(sec8, "key", "")
         conf.set(sec8, "delay", "1")
         conf.set(sec8, "values", "title,outline")
@@ -242,7 +242,7 @@ if __name__ == "__main__":
     print(config.debug())
     print(config.is_transalte())
     print(config.get_transalte_engine())
-    print(config.get_transalte_appId())
+    # print(config.get_transalte_appId())
     print(config.get_transalte_key())
     print(config.get_transalte_delay())
     print(config.transalte_values())

@@ -231,16 +231,16 @@ def get_data_from_json(file_number, filepath, conf: config.Config):  # ä»ŽJSONè¿
         for translate_value in translate_values:
             if json_data[translate_value] == "":
                 continue
-            if conf.get_transalte_engine() == "baidu":
-                json_data[translate_value] = translate(
-                    json_data[translate_value],
-                    target_language="zh",
-                    engine=conf.get_transalte_engine(),
-                    app_id=conf.get_transalte_appId(),
-                    key=conf.get_transalte_key(),
-                    delay=conf.get_transalte_delay(),
-                )
-            elif conf.get_transalte_engine() == "azure":
+            # if conf.get_transalte_engine() == "baidu":
+            #     json_data[translate_value] = translate(
+            #         json_data[translate_value],
+            #         target_language="zh",
+            #         engine=conf.get_transalte_engine(),
+            #         app_id=conf.get_transalte_appId(),
+            #         key=conf.get_transalte_key(),
+            #         delay=conf.get_transalte_delay(),
+            #     )
+            if conf.get_transalte_engine() == "azure":
                 json_data[translate_value] = translate(
                     json_data[translate_value],
                     target_language="zh-Hans",
