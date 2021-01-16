@@ -2,6 +2,7 @@ import sys
 sys.path.append('../')
 import json
 import bs4
+import re
 from bs4 import BeautifulSoup
 from lxml import html
 from http.cookies import SimpleCookie
@@ -32,7 +33,10 @@ def main(number: str):
     )
     soup = BeautifulSoup(result.text, "html.parser")
     lx = html.fromstring(str(soup))
-
+    
+    fanhao_pather = re.compile(r'<a href=".*?".*?><div class="id">(.*?)</div>')
+    fanhao = fanhao_pather.findall(result.text)
+    
     if "/?v=jav" in result.url:
         dic = {
             "title": get_title(lx, soup),
@@ -52,6 +56,41 @@ def main(number: str):
             "release": get_table_el_td(soup, "video_date"),
             "runtime": get_from_xpath(lx, '//*[@id="video_length"]/table/tr/td[2]/span/text()'),
             "series":'',
+        }
+    elif number.upper() in fanhao:
+        url_pather = re.compile(r'<a href="(.*?)".*?><div class="id">(.*?)</div>')
+        s = {}
+        url_list = url_pather.findall(result.text)
+        for url in url_list:
+            s[url[1]] = 'http://www.javlibrary.com/cn/' + url[0].lstrip('.')
+        av_url = s[number.upper()]
+        result = get_html(
+            av_url,
+            cookies=cookies,
+            ua=user_agent,
+            return_type="object"
+        )
+        soup = BeautifulSoup(result.text, "html.parser")
+        lx = html.fromstring(str(soup))
+
+        dic = {
+            "title": get_title(lx, soup),
+            "studio": get_table_el_single_anchor(soup, "video_maker"),
+            "year": get_table_el_td(soup, "video_date")[:4],
+            "outline": "",
+            "director": get_table_el_single_anchor(soup, "video_director"),
+            "cover": get_cover(lx),
+            "imagecut": 1,
+            "actor_photo": "",
+            "website": result.url,
+            "source": "javlib.py",
+            "actor": get_table_el_multi_anchor(soup, "video_cast"),
+            "label": get_table_el_td(soup, "video_label"),
+            "tag": get_table_el_multi_anchor(soup, "video_genres"),
+            "number": get_table_el_td(soup, "video_id"),
+            "release": get_table_el_td(soup, "video_date"),
+            "runtime": get_from_xpath(lx, '//*[@id="video_length"]/table/tr/td[2]/span/text()'),
+            "series": '',
         }
     else:
         dic = {}
