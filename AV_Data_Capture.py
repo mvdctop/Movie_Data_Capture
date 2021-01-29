@@ -16,7 +16,7 @@ def check_update(local_version):
         data = json.loads(get_html("https://api.github.com/repos/yoshiko2/AV_Data_Capture/releases/latest"))
     except:
         print("[-]Failed to update! Please check new version manually:")
-        print("[-]https://github.com/yoshiko2/AV_Data_Capture/releases")
+        print("[-] https://github.com/yoshiko2/AV_Data_Capture/releases")
         print("[*]======================================================")
         return
 
@@ -132,7 +132,7 @@ def create_data_and_move_with_custom_number(file_path: str, c: config.Config, cu
 
 
 if __name__ == '__main__':
-    version = '4.3.2'
+    version = '4.4.1'
 
     # Parse command line args
     single_file_path, folder_path, config_file, custom_number, auto_exit = argparse_function(version)
@@ -140,8 +140,9 @@ if __name__ == '__main__':
     # Read config.ini
     conf = config.Config(path=config_file)
 
+    print('[*]================== AV Data Capture ===================')
+    print('[*]' + version.center(54))
     print('[*]======================================================')
-    print('[*]' + ('AV Data Capture ver.' + version).center(54))
 
     if conf.update_check():
         check_update(version)
