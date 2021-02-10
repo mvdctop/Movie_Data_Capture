@@ -87,7 +87,7 @@ def get_trailer(html) -> str:
     videourl_pather = re.compile(r'<source src=\"(.*?)\"')
     videourl = videourl_pather.findall(html)
     if videourl:
-        url = videourl[0].replace('cc3001.r18.com', 'cc3001.dmm.co.jp')
+        url = videourl[0].replace('awscc3001.r18.com', 'cc3001.dmm.co.jp').replace('cc3001.r18.com', 'cc3001.dmm.co.jp')
         return url
     else:
         return ''
