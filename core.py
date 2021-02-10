@@ -509,7 +509,7 @@ def cutImage(imagecut, path, number, c_word):
             imgSize = img.size
             w = img.width
             h = img.height
-            img2 = img.crop((w - h / 1.5, 0, w, h))
+            img2 = img.crop((w / 1.9, 0, w, h))
             img2.save(path + '/' + number + c_word + '-poster.jpg')
             print('[+]Image Cutted!     ' + path + '/' + number + c_word + '-poster.jpg')
         except:
