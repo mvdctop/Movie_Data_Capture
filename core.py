@@ -447,7 +447,7 @@ def print_files(path, c_word, naming_rule, part, cn_sub, json_data, filepath, fa
             print(" <title>" + naming_rule + "</title>", file=code)
             print("  <set>", file=code)
             print("  </set>", file=code)
-            print("  <studio>" + studio + "+</studio>", file=code)
+            print("  <studio>" + studio + "</studio>", file=code)
             print("  <year>" + year + "</year>", file=code)
             print("  <outline>" + outline + "</outline>", file=code)
             print("  <plot>" + outline + "</plot>", file=code)
