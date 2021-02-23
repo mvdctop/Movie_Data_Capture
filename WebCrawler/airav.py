@@ -190,7 +190,7 @@ def main(number):
             # 导演 使用javbus
             'director': getDirector(javbus_htmlcode),
             # 作者 使用airav
-            'actor': getActor(htmlcode),
+            'actor': getActor(avbus_htmlcode),
             # 发售日使用javbus
             'release': getRelease(javbus_htmlcode),
             # 番号使用javbus
