@@ -68,15 +68,13 @@ def getRuntime(htmlcode): #获取分钟 已修改
     html = etree.fromstring(htmlcode, etree.HTMLParser())
     result = str(html.xpath('/html/body/div[5]/div[1]/div[2]/p[3]/text()')).strip(" ['']分鐘")
     return result
-
 def getActor(htmlcode):   #获取女优
     b=[]
     soup=BeautifulSoup(htmlcode,'lxml')
-    a=soup.find_all(attrs={'class':'videoAvstarListItem'})
+    a=soup.find_all(attrs={'class':'star-name'})
     for i in a:
         b.append(i.get_text())
     return b
-
 def getNum(htmlcode):     #获取番号
     html = etree.fromstring(htmlcode, etree.HTMLParser())
     result = str(html.xpath('/html/body/div[5]/div[1]/div[2]/p[1]/span[2]/text()')).strip(" ['']")
@@ -190,7 +188,7 @@ def main(number):
             # 导演 使用javbus
             'director': getDirector(javbus_htmlcode),
             # 作者 使用airav
-            'actor': getActor(htmlcode),
+            'actor': getActor(javbus_htmlcode),
             # 发售日使用javbus
             'release': getRelease(javbus_htmlcode),
             # 番号使用javbus
