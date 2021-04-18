@@ -585,13 +585,20 @@ def paste_file_to_folder(filepath, path, number, leak_word, c_word, conf: config
     houzhui = os.path.splitext(filepath)[1].replace(",","")
     file_parent_origin_path = str(pathlib.Path(filepath).parent)
     try:
+        targetpath = path + '/' + number + c_word + houzhui
         # 如果soft_link=1 使用软链接
         if conf.soft_link():
-            os.symlink(filepath, path + '/' + number + leak_word + c_word + houzhui)
+            os.symlink(filepath, targetpath)
         else:
-            os.rename(filepath, path + '/' + number + leak_word + c_word + houzhui)
+            os.rename(filepath, targetpath)
+            # 移走文件后，在原来位置增加一个可追溯的软链接，指向文件新位置
+            # 以便追查文件从原先位置被移动到哪里了，避免因为得到错误番号后改名移动导致的文件失踪
+            # 便于手工找回文件。并将软连接文件名后缀修改，以避免再次被搜刮。
+            targetabspath = os.path.abspath(targetpath)
+            if targetabspath != os.path.abspath(filepath):
+                os.symlink(targetabspath, filepath + '#sym')
         sub_res = conf.sub_rule()
-        
+
         for subname in sub_res:
             if os.path.exists(number + leak_word + c_word + subname):  # 字幕移动
                 os.rename(number + leak_word + c_word + subname, path + '/' + number + leak_word + c_word + subname)
