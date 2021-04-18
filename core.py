@@ -294,9 +294,9 @@ def get_info(json_data):  # 返回json里的数据
     return title, studio, year, outline, runtime, director, actor_photo, release, number, cover, trailer, website, series, label
 
 
-def small_cover_check(path, number, cover_small, c_word, conf: config.Config, filepath, failed_folder):
-    download_file_with_filename(cover_small, number + c_word + '-poster.jpg', path, conf, filepath, failed_folder)
-    print('[+]Image Downloaded! ' + path + '/' + number + c_word + '-poster.jpg')
+def small_cover_check(path, number, cover_small, leak_word, c_word, conf: config.Config, filepath, failed_folder):
+    download_file_with_filename(cover_small, number + leak_word+ c_word + '-poster.jpg', path, conf, filepath, failed_folder)
+    print('[+]Image Downloaded! ' + path + '/' + number + leak_word + c_word + '-poster.jpg')
 
 
 def create_folder(success_folder, location_rule, json_data, conf: config.Config):  # 创建文件夹
@@ -376,20 +376,20 @@ def download_file_with_filename(url, filename, path, conf: config.Config, filepa
     moveFailedFolder(filepath, failed_folder)
     return
 
-def trailer_download(trailer, c_word, number, path, filepath, conf: config.Config, failed_folder):
-    if download_file_with_filename(trailer, number + c_word + '-trailer.mp4', path, conf, filepath, failed_folder) == 'failed':
+def trailer_download(trailer, leak_word, c_word, number, path, filepath, conf: config.Config, failed_folder):
+    if download_file_with_filename(trailer, number + leak_word + c_word + '-trailer.mp4', path, conf, filepath, failed_folder) == 'failed':
         return
     switch, _proxy, _timeout, retry, _proxytype = conf.proxy()
     for i in range(retry):
-        if os.path.getsize(path+'/' + number + c_word + '-trailer.mp4') == 0:
+        if os.path.getsize(path+'/' + number + leak_word + c_word + '-trailer.mp4') == 0:
             print('[!]Video Download Failed! Trying again. [{}/3]', i + 1)
-            download_file_with_filename(trailer, number + c_word + '-trailer.mp4', path, conf, filepath, failed_folder)
+            download_file_with_filename(trailer, number + leak_word + c_word + '-trailer.mp4', path, conf, filepath, failed_folder)
             continue
         else:
             break
-    if os.path.getsize(path + '/' + number + c_word + '-trailer.mp4') == 0:
+    if os.path.getsize(path + '/' + number + leak_word + c_word + '-trailer.mp4') == 0:
         return
-    print('[+]Video Downloaded!', path + '/' + number + c_word + '-trailer.mp4')
+    print('[+]Video Downloaded!', path + '/' + number + leak_word + c_word + '-trailer.mp4')
 
 # 剧照下载成功，否则移动到failed
 def extrafanart_download(data, path, conf: config.Config, filepath, failed_folder):
@@ -416,32 +416,32 @@ def extrafanart_download(data, path, conf: config.Config, filepath, failed_folde
 
 
 # 封面是否下载成功，否则移动到failed
-def image_download(cover, number, c_word, path, conf: config.Config, filepath, failed_folder):
-    if download_file_with_filename(cover, number + c_word + '-fanart.jpg', path, conf, filepath, failed_folder) == 'failed':
+def image_download(cover, number, leak_word, c_word, path, conf: config.Config, filepath, failed_folder):
+    if download_file_with_filename(cover, number + leak_word + c_word + '-fanart.jpg', path, conf, filepath, failed_folder) == 'failed':
         moveFailedFolder(filepath, failed_folder)
         return
 
     switch, _proxy, _timeout, retry, _proxytype = conf.proxy()
     for i in range(retry):
-        if os.path.getsize(path + '/' + number + c_word + '-fanart.jpg') == 0:
+        if os.path.getsize(path + '/' + number + leak_word + c_word + '-fanart.jpg') == 0:
             print('[!]Image Download Failed! Trying again. [{}/3]', i + 1)
-            download_file_with_filename(cover, number + c_word + '-fanart.jpg', path, conf, filepath, failed_folder)
+            download_file_with_filename(cover, number + leak_word + c_word + '-fanart.jpg', path, conf, filepath, failed_folder)
             continue
         else:
             break
-    if os.path.getsize(path + '/' + number + c_word + '-fanart.jpg') == 0:
+    if os.path.getsize(path + '/' + number + leak_word + c_word + '-fanart.jpg') == 0:
         return
-    print('[+]Image Downloaded!', path + '/' + number + c_word + '-fanart.jpg')
-    shutil.copyfile(path + '/' + number + c_word + '-fanart.jpg',path + '/' + number + c_word + '-thumb.jpg')
+    print('[+]Image Downloaded!', path + '/' + number + leak_word + c_word + '-fanart.jpg')
+    shutil.copyfile(path + '/' + number + leak_word + c_word + '-fanart.jpg',path + '/' + number + leak_word + c_word + '-thumb.jpg')
 
 
-def print_files(path, c_word, naming_rule, part, cn_sub, json_data, filepath, failed_folder, tag, actor_list, liuchu):
+def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, filepath, failed_folder, tag, actor_list, liuchu):
     title, studio, year, outline, runtime, director, actor_photo, release, number, cover, trailer, website, series, label = get_info(json_data)
 
     try:
         if not os.path.exists(path):
             os.makedirs(path)
-        with open(path + "/" + number + part + c_word + ".nfo", "wt", encoding='UTF-8') as code:
+        with open(path + "/" + number + part + leak_word + c_word + ".nfo", "wt", encoding='UTF-8') as code:
             print('<?xml version="1.0" encoding="UTF-8" ?>', file=code)
             print("<movie>", file=code)
             print(" <title>" + naming_rule + "</title>", file=code)
@@ -453,9 +453,9 @@ def print_files(path, c_word, naming_rule, part, cn_sub, json_data, filepath, fa
             print("  <plot>" + outline + "</plot>", file=code)
             print("  <runtime>" + str(runtime).replace(" ", "") + "</runtime>", file=code)
             print("  <director>" + director + "</director>", file=code)
-            print("  <poster>" + number + c_word + "-poster.jpg</poster>", file=code)
-            print("  <thumb>" + number + c_word + "-thumb.jpg</thumb>", file=code)
-            print("  <fanart>" + number + c_word + '-fanart.jpg' + "</fanart>", file=code)
+            print("  <poster>" + number + leak_word + c_word + "-poster.jpg</poster>", file=code)
+            print("  <thumb>" + number + leak_word + c_word + "-thumb.jpg</thumb>", file=code)
+            print("  <fanart>" + number + leak_word + c_word + '-fanart.jpg' + "</fanart>", file=code)
             try:
                 for key in actor_list:
                     print("  <actor>", file=code)
@@ -489,7 +489,7 @@ def print_files(path, c_word, naming_rule, part, cn_sub, json_data, filepath, fa
                 print("  <trailer>" + trailer + "</trailer>", file=code)
             print("  <website>" + website + "</website>", file=code)
             print("</movie>", file=code)
-            print("[+]Wrote!            " + path + "/" + number + part + c_word + ".nfo")
+            print("[+]Wrote!            " + path + "/" + number + part + leak_word + c_word + ".nfo")
     except IOError as e:
         print("[-]Write Failed!")
         print(e)
@@ -502,21 +502,21 @@ def print_files(path, c_word, naming_rule, part, cn_sub, json_data, filepath, fa
         return
 
 
-def cutImage(imagecut, path, number, c_word):
+def cutImage(imagecut, path, number, leak_word, c_word):
     if imagecut == 1: # 剪裁大封面
         try:
-            img = Image.open(path + '/' + number + c_word + '-fanart.jpg')
+            img = Image.open(path + '/' + number + leak_word + c_word + '-fanart.jpg')
             imgSize = img.size
             w = img.width
             h = img.height
             img2 = img.crop((w / 1.9, 0, w, h))
-            img2.save(path + '/' + number + c_word + '-poster.jpg')
-            print('[+]Image Cutted!     ' + path + '/' + number + c_word + '-poster.jpg')
+            img2.save(path + '/' + number + leak_word + c_word + '-poster.jpg')
+            print('[+]Image Cutted!     ' + path + '/' + number + leak_word + c_word + '-poster.jpg')
         except:
             print('[-]Cover cut failed!')
     elif imagecut == 0: # 复制封面
-        shutil.copyfile(path + '/' + number + c_word + '-fanart.jpg',path + '/' + number + c_word + '-poster.jpg')
-        print('[+]Image Copyed!     ' + path + '/' + number + c_word + '-poster.jpg')
+        shutil.copyfile(path + '/' + number + c_word + '-fanart.jpg',path + '/' + number + leak_word + c_word + '-poster.jpg')
+        print('[+]Image Copyed!     ' + path + '/' + number + leak_word + c_word + '-poster.jpg')
 
 # 此函数从gui版copy过来用用
 # 参数说明
@@ -581,7 +581,7 @@ def add_to_pic(pic_path, img_pic, size, count, mode):
     img_pic.save(pic_path, quality=95)
 # ========================结束=================================
 
-def paste_file_to_folder(filepath, path, number, c_word, conf: config.Config):  # 文件路径，番号，后缀，要移动至的位置
+def paste_file_to_folder(filepath, path, number, leak_word, c_word, conf: config.Config):  # 文件路径，番号，后缀，要移动至的位置
     houzhui = os.path.splitext(filepath)[1].replace(",","")
     file_parent_origin_path = str(pathlib.Path(filepath).parent)
     try:
@@ -600,8 +600,8 @@ def paste_file_to_folder(filepath, path, number, c_word, conf: config.Config):  
         sub_res = conf.sub_rule()
 
         for subname in sub_res:
-            if os.path.exists(number + c_word + subname):  # 字幕移动
-                os.rename(number + c_word + subname, path + '/' + number + c_word + subname)
+            if os.path.exists(number + leak_word + c_word + subname):  # 字幕移动
+                os.rename(number + leak_word + c_word + subname, path + '/' + number + leak_word + c_word + subname)
                 print('[+]Sub moved!')
                 return True
         
@@ -614,21 +614,21 @@ def paste_file_to_folder(filepath, path, number, c_word, conf: config.Config):  
         return 
 
 
-def paste_file_to_folder_mode2(filepath, path, multi_part, number, part, c_word, conf):  # 文件路径，番号，后缀，要移动至的位置
+def paste_file_to_folder_mode2(filepath, path, multi_part, number, part, leak_word, c_word, conf):  # 文件路径，番号，后缀，要移动至的位置
     if multi_part == 1:
         number += part  # 这时number会被附加上CD1后缀
     houzhui = os.path.splitext(filepath)[1].replace(",","")
     file_parent_origin_path = str(pathlib.Path(filepath).parent)
     try:
         if conf.soft_link():
-            os.symlink(filepath, path + '/' + number + part + c_word + houzhui)
+            os.symlink(filepath, path + '/' + number + part + leak_word + c_word + houzhui)
         else:
-            os.rename(filepath, path + '/' + number + part + c_word + houzhui)
+            os.rename(filepath, path + '/' + number + part + leak_word + c_word + houzhui)
         
         sub_res = conf.sub_rule()
         for subname in sub_res:
-            if os.path.exists(os.getcwd() + '/' + number + c_word + subname):  # 字幕移动
-                os.rename(os.getcwd() + '/' + number + c_word + subname, path + '/' + number + c_word + subname)
+            if os.path.exists(os.getcwd() + '/' + number + leak_word + c_word + subname):  # 字幕移动
+                os.rename(os.getcwd() + '/' + number + leak_word + c_word + subname, path + '/' + number + leak_word + c_word + subname)
                 print('[+]Sub moved!')
                 print('[!]Success')
                 return True
@@ -672,6 +672,7 @@ def core_main(file_path, number_th, conf: config.Config):
     # =======================================================================初始化所需变量
     multi_part = 0
     part = ''
+    leak_word = ''
     c_word = ''
     cn_sub = ''
     liuchu = ''
@@ -711,9 +712,10 @@ def core_main(file_path, number_th, conf: config.Config):
         uncensored = 0
     
     
-    if '流出' in filepath:
+    if '流出' in filepath or 'uncensored' in filepath:
         liuchu = '流出'
         leak = 1
+        leak_word = '-流出' # 流出影片后缀
     else:
         leak = 0
 
@@ -736,14 +738,14 @@ def core_main(file_path, number_th, conf: config.Config):
 
         # 检查小封面, 如果image cut为3，则下载小封面
         if imagecut == 3:
-            small_cover_check(path, number,  json_data.get('cover_small'), c_word, conf, filepath, conf.failed_folder())
+            small_cover_check(path, number,  json_data.get('cover_small'), leak_word, c_word, conf, filepath, conf.failed_folder())
 
         # creatFolder会返回番号路径
-        image_download( json_data.get('cover'), number, c_word, path, conf, filepath, conf.failed_folder())
+        image_download( json_data.get('cover'), number, leak_word, c_word, path, conf, filepath, conf.failed_folder())
         try:
             # 下载预告片
             if json_data.get('trailer'):
-                trailer_download(json_data.get('trailer'), c_word, number, path, filepath, conf, conf.failed_folder())
+                trailer_download(json_data.get('trailer'), leak_word, c_word, number, path, filepath, conf, conf.failed_folder())
         except:
             pass
         
@@ -754,16 +756,16 @@ def core_main(file_path, number_th, conf: config.Config):
         except:
             pass
         # 裁剪图
-        cutImage(imagecut, path, number, c_word)
+        cutImage(imagecut, path, number, leak_word, c_word)
 
         # 打印文件
-        print_files(path, c_word,  json_data.get('naming_rule'), part, cn_sub, json_data, filepath, conf.failed_folder(), tag,  json_data.get('actor_list'), liuchu)
+        print_files(path, leak_word, c_word,  json_data.get('naming_rule'), part, cn_sub, json_data, filepath, conf.failed_folder(), tag,  json_data.get('actor_list'), liuchu)
 
         # 移动文件
-        paste_file_to_folder(filepath, path, number, c_word, conf)
+        paste_file_to_folder(filepath, path, number, leak_word, c_word, conf)
         
-        poster_path = path + '/' + number + c_word + '-poster.jpg'
-        thumb_path = path + '/' + number + c_word + '-thumb.jpg'
+        poster_path = path + '/' + number + leak_word + c_word + '-poster.jpg'
+        thumb_path = path + '/' + number + leak_word + c_word + '-thumb.jpg'
         if conf.is_watermark():
             add_mark(poster_path, thumb_path, cn_sub, leak, uncensored, conf)
         
@@ -771,9 +773,9 @@ def core_main(file_path, number_th, conf: config.Config):
         # 创建文件夹
         path = create_folder(conf.success_folder(), json_data.get('location_rule'), json_data, conf)
         # 移动文件
-        paste_file_to_folder_mode2(filepath, path, multi_part, number, part, c_word, conf)
-        poster_path = path + '/' + number + c_word + '-poster.jpg'
-        thumb_path = path + '/' + number + c_word + '-thumb.jpg'
+        paste_file_to_folder_mode2(filepath, path, multi_part, number, part, leak_word, c_word, conf)
+        poster_path = path + '/' + number + leak_word + c_word + '-poster.jpg'
+        thumb_path = path + '/' + number + leak_word + c_word + '-thumb.jpg'
         if conf.is_watermark():
             add_mark(poster_path, thumb_path, cn_sub, leak, uncensored, conf)
         
@@ -785,27 +787,27 @@ def core_main(file_path, number_th, conf: config.Config):
 
         # 检查小封面, 如果image cut为3，则下载小封面
         if imagecut == 3:
-            small_cover_check(path, number, json_data.get('cover_small'), c_word, conf, filepath, conf.failed_folder())
+            small_cover_check(path, number, json_data.get('cover_small'), leak_word, c_word, conf, filepath, conf.failed_folder())
 
         # creatFolder会返回番号路径
-        image_download(json_data.get('cover'), number, c_word, path, conf, filepath, conf.failed_folder())
+        image_download(json_data.get('cover'), number, leak_word, c_word, path, conf, filepath, conf.failed_folder())
 
         # 下载预告片
         if json_data.get('trailer'):
-            trailer_download(json_data.get('trailer'), c_word, number, path, filepath, conf, conf.failed_folder())
+            trailer_download(json_data.get('trailer'), leak_word, c_word, number, path, filepath, conf, conf.failed_folder())
 
         # 下载剧照 data, path, conf: config.Config, filepath, failed_folder
         if json_data.get('extrafanart'):
             extrafanart_download(json_data.get('extrafanart'), path, conf, filepath, conf.failed_folder())
 
         # 裁剪图
-        cutImage(imagecut, path, number, c_word)
+        cutImage(imagecut, path, number, leak_word, c_word)
 
         # 打印文件
-        print_files(path, c_word, json_data.get('naming_rule'), part, cn_sub, json_data, filepath, conf.failed_folder(),
+        print_files(path, leak_word, c_word, json_data.get('naming_rule'), part, cn_sub, json_data, filepath, conf.failed_folder(),
                     tag, json_data.get('actor_list'), liuchu)
 
-        poster_path = path + '/' + number + c_word + '-poster.jpg'
-        thumb_path = path + '/' + number + c_word + '-thumb.jpg'
+        poster_path = path + '/' + number + leak_word + c_word + '-poster.jpg'
+        thumb_path = path + '/' + number + leak_word + c_word + '-thumb.jpg'
         if conf.is_watermark():
             add_mark(poster_path, thumb_path, cn_sub, leak, uncensored, conf)
