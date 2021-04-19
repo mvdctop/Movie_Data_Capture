@@ -588,7 +588,9 @@ def paste_file_to_folder(filepath, path, number, leak_word, c_word, conf: config
         targetpath = path + '/' + number + c_word + houzhui
         # 如果soft_link=1 使用软链接
         if conf.soft_link():
-            os.symlink(filepath, targetpath)
+            # 采用相对路径，以便网络访问时能正确打开视频
+            filerelpath = os.path.relpath(filepath, path)
+            os.symlink(filerelpath, targetpath)
         else:
             os.rename(filepath, targetpath)
             # 移走文件后，在原来位置增加一个可追溯的软链接，指向文件新位置
@@ -596,7 +598,8 @@ def paste_file_to_folder(filepath, path, number, leak_word, c_word, conf: config
             # 便于手工找回文件。并将软连接文件名后缀修改，以避免再次被搜刮。
             targetabspath = os.path.abspath(targetpath)
             if targetabspath != os.path.abspath(filepath):
-                os.symlink(targetabspath, filepath + '#sym')
+                targetrelpath = os.path.relpath(targetabspath, file_parent_origin_path)
+                os.symlink(targetrelpath, filepath + '#sym')
         sub_res = conf.sub_rule()
 
         for subname in sub_res:
