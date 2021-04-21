@@ -225,8 +225,8 @@ def main(number):
 if __name__ == '__main__':
     #print(main('ADN-188'))
 
-    print(search('ADN-188'))
-    print(search('012717_472'))
-    print(search('080719-976'))
-    print(search('姫川ゆうな'))
+    print(main('ADN-188'))
+    print(main('012717_472'))
+    print(main('080719-976'))
+    print(main('姫川ゆうな'))
 

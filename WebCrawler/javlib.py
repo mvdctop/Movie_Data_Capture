@@ -3,6 +3,7 @@ sys.path.append('../')
 import json
 import bs4
 import re
+import airav
 from bs4 import BeautifulSoup
 from lxml import html
 from http.cookies import SimpleCookie
@@ -42,7 +43,7 @@ def main(number: str):
             "title": get_title(lx, soup),
             "studio": get_table_el_single_anchor(soup, "video_maker"),
             "year": get_table_el_td(soup, "video_date")[:4],
-            "outline": "",
+            "outline": get_outline(number),
             "director": get_table_el_single_anchor(soup, "video_director"),
             "cover": get_cover(lx),
             "imagecut": 1,
@@ -77,7 +78,7 @@ def main(number: str):
             "title": get_title(lx, soup),
             "studio": get_table_el_single_anchor(soup, "video_maker"),
             "year": get_table_el_td(soup, "video_date")[:4],
-            "outline": "",
+            "outline": get_outline(number),
             "director": get_table_el_single_anchor(soup, "video_director"),
             "cover": get_cover(lx),
             "imagecut": 1,
@@ -100,6 +101,15 @@ def main(number: str):
 
 def get_from_xpath(lx: html.HtmlElement, xpath: str) -> str:
     return lx.xpath(xpath)[0].strip()
+
+
+def get_outline(number):
+    try:
+        response = json.loads(airav.main(number))
+        result = response['outline']
+        return result
+    except:
+        return ''
 
 
 def get_table_el_single_anchor(soup: BeautifulSoup, tag_id: str) -> str:
@@ -145,7 +155,7 @@ def get_cover(lx: html.HtmlComment) -> str:
 
 
 if __name__ == "__main__":
-    lists = ["DVMC-003", "GS-0167", "JKREZ-001", "KMHRS-010", "KNSD-023"]
+    lists = ["IPX-292", "STAR-438", "JKREZ-001", "KMHRS-010", "KNSD-023"]
     #lists = ["DVMC-003"]
     for num in lists:
         print(main(num))
