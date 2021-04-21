@@ -113,12 +113,12 @@ def get_javlib_cookie() -> [dict, str]:
         try:
             if switch == 1 or switch == '1':
                 raw_cookie, user_agent = cloudscraper.get_cookie_string(
-                    "http://www.m45e.com/",
+                    "http://www.javlibrary.com/",
                     proxies=proxies
                 )
             else:
                 raw_cookie, user_agent = cloudscraper.get_cookie_string(
-                    "http://www.m45e.com/"
+                    "http://www.javlibrary.com/"
                 )
         except requests.exceptions.ProxyError:
             print("[-] ProxyError, retry {}/{}".format(i+1, retry_count))
