@@ -7,7 +7,7 @@ from bs4 import BeautifulSoup#need install
 import json
 from ADC_function import *
 from WebCrawler import fanza
-import airav
+from WebCrawler import airav
 
 def getActorPhoto(htmlcode): #//*[@id="star_qdt"]/li/a/img
     soup = BeautifulSoup(htmlcode, 'lxml')
@@ -85,8 +85,7 @@ def getOutline(number):  #获取演员
         response = json.loads(airav.main(number))
         result = response['outline']
         return result
-    except Exception as e:
-        print(e)
+    except:
         return ''
 def getSerise(htmlcode):   #获取系列 已修改
     html = etree.fromstring(htmlcode, etree.HTMLParser())

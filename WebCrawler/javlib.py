@@ -3,7 +3,7 @@ sys.path.append('../')
 import json
 import bs4
 import re
-import airav
+from WebCrawler import airav
 from bs4 import BeautifulSoup
 from lxml import html
 from http.cookies import SimpleCookie
