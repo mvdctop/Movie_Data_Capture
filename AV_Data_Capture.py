@@ -20,8 +20,8 @@ def check_update(local_version):
         print("[*]======================================================")
         return
 
-    remote = data["tag_name"].replace(".","")
-    local_version = local_version.replace(".", "")
+    remote = int(data["tag_name"].replace(".",""))
+    local_version = int(local_version.replace(".", ""))
     if local_version < remote:
         print("[*]" + ("* New update " + str(data["tag_name"]) + " *").center(54))
         print("[*]" + "↓ Download ↓".center(54))
