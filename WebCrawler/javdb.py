@@ -197,9 +197,9 @@ def main(number):
         #     number = number.upper()
         number = number.upper()
         try:
-            query_result = get_html('https://javdb.com/search?q=' + number + '&f=all')
+            query_result = get_html('https://javdb8.com/search?q=' + number + '&f=all')
         except:
-            query_result = get_html('https://javdb4.com/search?q=' + number + '&f=all')
+            query_result = get_html('https://javdb.com/search?q=' + number + '&f=all')
         html = etree.fromstring(query_result, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
         # javdb sometime returns multiple results,
         # and the first elememt maybe not the one we are looking for
@@ -211,7 +211,7 @@ def main(number):
         else:
             ids =html.xpath('//*[@id="videos"]/div/div/a/div[contains(@class, "uid")]/text()')
             correct_url = urls[ids.index(number)]
-        detail_page = get_html('https://javdb.com' + correct_url)
+        detail_page = get_html('https://javdb8.com' + correct_url)
 
         # no cut image by default
         imagecut = 3
