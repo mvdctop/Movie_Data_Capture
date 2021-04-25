@@ -587,11 +587,13 @@ def paste_file_to_folder(filepath, path, number, leak_word, c_word, conf: config
     try:
         targetpath = path + '/' + number + c_word + houzhui
         # 如果soft_link=1 使用软链接
-        if conf.soft_link():
+        if conf.soft_link() == 0:
+            os.rename(filepath, path + '/' + number + c_word + houzhui)
+        elif conf.soft_link() == 1:
             # 采用相对路径，以便网络访问时能正确打开视频
             filerelpath = os.path.relpath(filepath, path)
             os.symlink(filerelpath, targetpath)
-        else:
+        elif conf.soft_link() == 2:
             os.rename(filepath, targetpath)
             # 移走文件后，在原来位置增加一个可追溯的软链接，指向文件新位置
             # 以便追查文件从原先位置被移动到哪里了，避免因为得到错误番号后改名移动导致的文件失踪
