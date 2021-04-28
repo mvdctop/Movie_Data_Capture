@@ -103,7 +103,7 @@ def getTag(htmlcode):  # 获取标签
     soup = BeautifulSoup(htmlcode, 'lxml')
     a = soup.find_all(attrs={'class': 'genre'})
     for i in a:
-        if 'onmouseout' in str(i):
+        if 'onmouseout' in str(i) or '多選提交' in str(i):
             continue
         tag.append(translateTag_to_sc(i.get_text()))
     return tag
