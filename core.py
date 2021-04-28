@@ -612,8 +612,8 @@ def paste_file_to_folder(filepath, path, number, leak_word, c_word, conf: config
         sub_res = conf.sub_rule()
 
         for subname in sub_res:
-            if os.path.exists(number + leak_word + c_word + subname):  # 字幕移动
-                os.rename(number + leak_word + c_word + subname, path + '/' + number + leak_word + c_word + subname)
+            if os.path.exists(filepath.replace(houzhui, subname)):  # 字幕移动
+                os.rename(filepath.replace(houzhui, subname), path + '/' + number + leak_word + c_word + subname)
                 print('[+]Sub moved!')
                 return True
         
@@ -639,8 +639,8 @@ def paste_file_to_folder_mode2(filepath, path, multi_part, number, part, leak_wo
         
         sub_res = conf.sub_rule()
         for subname in sub_res:
-            if os.path.exists(os.getcwd() + '/' + number + leak_word + c_word + subname):  # 字幕移动
-                os.rename(os.getcwd() + '/' + number + leak_word + c_word + subname, path + '/' + number + leak_word + c_word + subname)
+            if os.path.exists(filepath.replace(houzhui, subname)):  # 字幕移动
+                os.rename(filepath.replace(houzhui, subname), path + '/' + number + leak_word + c_word + subname)
                 print('[+]Sub moved!')
                 print('[!]Success')
                 return True
