@@ -620,10 +620,10 @@ def paste_file_to_folder(filepath, path, number, leak_word, c_word, conf: config
     houzhui = os.path.splitext(filepath)[1].replace(",","")
     file_parent_origin_path = str(pathlib.Path(filepath).parent)
     try:
-        targetpath = path + '/' + number + c_word + houzhui
+        targetpath = path + '/' + number + leak_word + c_word + houzhui
         # 如果soft_link=1 使用软链接
         if conf.soft_link() == 0:
-            os.rename(filepath, path + '/' + number + c_word + houzhui)
+            os.rename(filepath, targetpath)
         elif conf.soft_link() == 1:
             # 采用相对路径，以便网络访问时能正确打开视频
             filerelpath = os.path.relpath(filepath, path)
@@ -668,7 +668,7 @@ def paste_file_to_folder_mode2(filepath, path, multi_part, number, part, leak_wo
         sub_res = conf.sub_rule()
         for subname in sub_res:
             if os.path.exists(filepath.replace(houzhui, subname)):  # 字幕移动
-                os.rename(filepath.replace(houzhui, subname), path + '/' + number + leak_word + c_word + subname)
+                os.rename(filepath.replace(houzhui, subname), path + '/' + number + part + leak_word + c_word + subname)
                 print('[+]Sub moved!')
                 print('[!]Success')
                 return True
