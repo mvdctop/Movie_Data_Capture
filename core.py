@@ -7,6 +7,7 @@ import platform
 
 from PIL import Image
 from io import BytesIO
+from multiprocessing.pool import ThreadPool
 
 from ADC_function import *
 
@@ -94,16 +95,43 @@ def get_data_from_json(file_number, filepath, conf: config.Config):  # ä»ŽJSONè¿
         sources.insert(0, sources.pop(sources.index("dlsite")))
 
     json_data = {}
-    for source in sources:
-        try:
+
+    if conf.multi_threading():
+        pool = ThreadPool(processes=11)
+        MT = {
+            'avsox'   : pool.apply_async(avsox.main,   (file_number,)),
+            'fanza'   : pool.apply_async(fanza.main,   (file_number,)),
+            'fc2'     : pool.apply_async(fc2.main,     (file_number,)),
+            'jav321'  : pool.apply_async(jav321.main,  (file_number,)),
+            'javbus'  : pool.apply_async(javbus.main,  (file_number,)),
+            'javdb'   : pool.apply_async(javbus.main,  (file_number,)),
+            'mgstage' : pool.apply_async(mgstage.main, (file_number,)),
+            'xcity'   : pool.apply_async(xcity.main,   (file_number,)),
+            'javlib'  : pool.apply_async(javlib.main,  (file_number,)),
+            'dlsite'  : pool.apply_async(dlsite.main,  (file_number,)),
+            'airav'   : pool.apply_async(airav.main,   (file_number,)),
+        }
+
+        for source in sources:
             if conf.debug() == True:
-                print('[+]select',source)
-            json_data = json.loads(func_mapping[source](file_number))
+                print('[+]select', source)
+            json_data = json.loads(MT[source].get())
             # if any service return a valid return, break
             if get_data_state(json_data):
                 break
-        except:
-            break
+        pool.close()
+        pool.terminate()
+    else:
+        for source in sources:
+            try:
+                if conf.debug() == True:
+                    print('[+]select', source)
+                json_data = json.loads(func_mapping[source](file_number))
+                # if any service return a valid return, break
+                if get_data_state(json_data):
+                    break
+            except:
+                break
 
     # Return if data not found in all sources
     if not json_data:
