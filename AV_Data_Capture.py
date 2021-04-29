@@ -6,6 +6,7 @@ import sys
 import shutil
 
 import config
+import time
 from ADC_function import get_html
 from number_parser import get_number
 from core import core_main
@@ -133,7 +134,7 @@ def create_data_and_move_with_custom_number(file_path: str, c: config.Config, cu
 
 
 if __name__ == '__main__':
-    version = '4.5.2'
+    version = '4.6.1'
 
     # Parse command line args
     single_file_path, folder_path, config_file, custom_number, auto_exit = argparse_function(version)
@@ -167,6 +168,9 @@ if __name__ == '__main__':
         count = 0
         count_all = str(len(movie_list))
         print('[+]Find', count_all, 'movies')
+
+        start_time = time.time()
+
         for movie_path in movie_list:  # 遍历电影列表 交给core处理
             count = count + 1
             percentage = str(count / int(count_all) * 100)[:4] + '%'
@@ -175,6 +179,11 @@ if __name__ == '__main__':
 
     rm_empty_folder(conf.success_folder())
     rm_empty_folder(conf.failed_folder())
+
+    end_time = time.time()
+    total_time = end_time - start_time
+    print("[+]Used " + str(round(total_time,2)) + "s")
+
     print("[+]All finished!!!")
     if not (conf.auto_exit() or auto_exit):
         input("Press enter key exit, you can check the error message before you exit...")
