@@ -10,6 +10,7 @@ import config
 
 SUPPORT_PROXY_TYPE = ("http", "socks5", "socks5h")
 
+
 def get_data_state(data: dict) -> bool:  # 元数据获取失败检测
     if "title" not in data or "number" not in data:
         return False
@@ -23,7 +24,7 @@ def get_data_state(data: dict) -> bool:  # 元数据获取失败检测
     return True
 
 
-def getXpathSingle(htmlcode,xpath):
+def getXpathSingle(htmlcode, xpath):
     html = etree.fromstring(htmlcode, etree.HTMLParser())
     result1 = str(html.xpath(xpath)).strip(" ['']")
     return result1
@@ -45,19 +46,22 @@ def get_proxy(proxy: str, proxytype: str = None) -> dict:
 
 # 网页请求核心
 def get_html(url, cookies: dict = None, ua: str = None, return_type: str = None):
-    verify=config.Config().cacert_file()
+    verify = config.Config().cacert_file()
     switch, proxy, timeout, retry_count, proxytype = config.Config().proxy()
     proxies = get_proxy(proxy, proxytype)
+    errors = ""
 
     if ua is None:
-        headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3100.0 Safari/537.36"} # noqa
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3100.0 Safari/537.36"}  # noqa
     else:
         headers = {"User-Agent": ua}
 
     for i in range(retry_count):
         try:
             if switch == '1' or switch == 1:
-                result = requests.get(str(url), headers=headers, timeout=timeout, proxies=proxies, verify=verify, cookies=cookies)
+                result = requests.get(str(url), headers=headers, timeout=timeout, proxies=proxies, verify=verify,
+                                      cookies=cookies)
             else:
                 result = requests.get(str(url), headers=headers, timeout=timeout, cookies=cookies)
 
@@ -74,13 +78,15 @@ def get_html(url, cookies: dict = None, ua: str = None, return_type: str = None)
             return
         except Exception as e:
             print("[-]Connect retry {}/{}".format(i + 1, retry_count))
-            print("[-]" + str(e))
+            errors = str(e)
     print('[-]Connect Failed! Please check your Proxy or Network!')
+    print("[-]" + errors)
 
 
 def post_html(url: str, query: dict, headers: dict = None) -> requests.Response:
     switch, proxy, timeout, retry_count, proxytype = config.Config().proxy()
     proxies = get_proxy(proxy, proxytype)
+    errors = ""
     headers_ua = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3100.0 Safari/537.36"}
     if headers is None:
@@ -95,9 +101,11 @@ def post_html(url: str, query: dict, headers: dict = None) -> requests.Response:
             else:
                 result = requests.post(url, data=query, headers=headers, timeout=timeout)
             return result
-        except requests.exceptions.ProxyError:
-            print("[-]Connect retry {}/{}".format(i+1, retry_count))
+        except Exception as e:
+            print("[-]Connect retry {}/{}".format(i + 1, retry_count))
+            errors = str(e)
     print("[-]Connect Failed! Please check your Proxy or Network!")
+    print("[-]" + errors)
 
 
 def get_javlib_cookie() -> [dict, str]:
@@ -121,11 +129,12 @@ def get_javlib_cookie() -> [dict, str]:
                     "http://www.javlibrary.com/"
                 )
         except requests.exceptions.ProxyError:
-            print("[-] ProxyError, retry {}/{}".format(i+1, retry_count))
+            print("[-] ProxyError, retry {}/{}".format(i + 1, retry_count))
         except cloudscraper.exceptions.CloudflareIUAMError:
-            print("[-] IUAMError, retry {}/{}".format(i+1, retry_count))
+            print("[-] IUAMError, retry {}/{}".format(i + 1, retry_count))
 
     return raw_cookie, user_agent
+
 
 def translateTag_to_sc(tag):
     tranlate_to_sc = config.Config().transalte_to_sc()
@@ -293,56 +302,56 @@ def translateTag_to_sc(tag):
 
                     '可播放': '可播放', '可下載': '可下载', '含字幕': '含字幕', '單體影片': '单体影片', '含預覽圖': '含预览图',
                     '含預覽視頻': '含预览视频', '2020': '2020', '2019': '2019', '2018': '2018', '2017':
-                    '2017', '2016': '2016', '2015': '2015', '2014': '2014', '2013': '2013', '2012':
-                    '2012', '2011': '2011', '2010': '2010', '2009': '2009', '2008': '2008', '2007':
-                    '2007', '2006': '2006', '2005': '2005', '2004': '2004', '2003': '2003', '2002':
-                    '2002', '2001': '2001', '淫亂，真實': '淫乱，真实', '出軌': '出轨', '強姦': '强奸', '亂倫': '乱伦',
+                        '2017', '2016': '2016', '2015': '2015', '2014': '2014', '2013': '2013', '2012':
+                        '2012', '2011': '2011', '2010': '2010', '2009': '2009', '2008': '2008', '2007':
+                        '2007', '2006': '2006', '2005': '2005', '2004': '2004', '2003': '2003', '2002':
+                        '2002', '2001': '2001', '淫亂，真實': '淫乱，真实', '出軌': '出轨', '強姦': '强奸', '亂倫': '乱伦',
                     '溫泉': '温泉', '女同性戀': '女同性恋', '企畫': '企画', '戀腿癖': '恋腿癖', '獵豔': '猎艳', '偷窺': '偷窥',
                     '洗澡': '洗澡', '其他戀物癖': '其他恋物癖', '處女': '处女', '性愛': '性爱', '男同性戀': '男同性恋', '學校作品':
-                    '学校作品', '妄想': '妄想', '韓國': '韩国', '形象俱樂部': '形象俱乐部', '友誼': '友谊', '亞洲': '亚洲', '暗黑系':
-                    '暗黑系', 'M男': 'M男', '天賦': '天赋', '跳舞': '跳舞', '被外國人幹': '被外国人干', '戀物癖': '恋物癖',
+                        '学校作品', '妄想': '妄想', '韓國': '韩国', '形象俱樂部': '形象俱乐部', '友誼': '友谊', '亞洲': '亚洲', '暗黑系':
+                        '暗黑系', 'M男': 'M男', '天賦': '天赋', '跳舞': '跳舞', '被外國人幹': '被外国人干', '戀物癖': '恋物癖',
                     '戀乳癖': '恋乳癖', '惡作劇': '恶作剧', '運動': '运动', '倒追': '倒追', '女同接吻': '女同接吻', '美容院':
-                    '美容院', '奴隸': '奴隶', '白天出軌': '白天出轨', '流汗': '流汗', '性騷擾': '性骚扰', '情侶': '情侣',
+                        '美容院', '奴隸': '奴隶', '白天出軌': '白天出轨', '流汗': '流汗', '性騷擾': '性骚扰', '情侶': '情侣',
                     '爛醉如泥的': '烂醉如泥的', '魔鬼系': '魔鬼系', '處男': '处男', '殘忍畫面': '残忍画面', '性感的': '性感的', '曬黑':
-                    '晒黑', '雙性人': '双性人', '全裸': '全裸', '正太控': '正太控', '觸手': '触手', '正常': '正常', '奇異的':
-                    '奇异的', '蠻橫嬌羞': '蛮横娇羞', '高中女生': '高中女生', '美少女': '美少女', '已婚婦女': '已婚妇女', '藝人': '艺人',
+                        '晒黑', '雙性人': '双性人', '全裸': '全裸', '正太控': '正太控', '觸手': '触手', '正常': '正常', '奇異的':
+                        '奇异的', '蠻橫嬌羞': '蛮横娇羞', '高中女生': '高中女生', '美少女': '美少女', '已婚婦女': '已婚妇女', '藝人': '艺人',
                     '姐姐': '姐姐', '各種職業': '各种职业', '蕩婦': '荡妇', '母親': '母亲', '女生': '女生', '妓女': '妓女',
                     '新娘，年輕妻子': '新娘，年轻妻子', '女教師': '女教师', '白人': '白人', '公主': '公主', '童年朋友': '童年朋友',
                     '婆婆': '婆婆', '飛特族': '飞特族', '亞洲女演員': '亚洲女演员', '女大學生': '女大学生', '偶像': '偶像', '明星臉':
-                    '明星脸', '痴漢': '痴汉', '大小姐': '大小姐', '秘書': '秘书', '護士': '护士', '角色扮演者': '角色扮演者',
+                        '明星脸', '痴漢': '痴汉', '大小姐': '大小姐', '秘書': '秘书', '護士': '护士', '角色扮演者': '角色扮演者',
                     '賽車女郎': '赛车女郎', '家教': '家教', '黑人演員': '黑人演员', '妹妹': '妹妹', '寡婦': '寡妇', '女醫生':
-                    '女医生', '老闆娘，女主人': '老板娘，女主人', '女主播': '女主播', '其他學生': '其他学生', '模特兒': '模特儿', '格鬥家':
-                    '格斗家', '展場女孩': '展场女孩', '禮儀小姐': '礼仪小姐', '女檢察官': '女检察官', '講師': '讲师', '服務生': '服务生',
+                        '女医生', '老闆娘，女主人': '老板娘，女主人', '女主播': '女主播', '其他學生': '其他学生', '模特兒': '模特儿', '格鬥家':
+                        '格斗家', '展場女孩': '展场女孩', '禮儀小姐': '礼仪小姐', '女檢察官': '女检察官', '講師': '讲师', '服務生': '服务生',
                     '伴侶': '伴侣', '車掌小姐': '车掌小姐', '女兒': '女儿', '年輕女孩': '年轻女孩', '眼鏡': '眼镜', '角色扮演':
-                    '角色扮演', '內衣': '内衣', '制服': '制服', '水手服': '水手服', '泳裝': '泳装', '和服，喪服': '和服，丧服',
+                        '角色扮演', '內衣': '内衣', '制服': '制服', '水手服': '水手服', '泳裝': '泳装', '和服，喪服': '和服，丧服',
                     '連褲襪': '连裤袜', '女傭': '女佣', '運動短褲': '运动短裤', '女戰士': '女战士', '校服': '校服', '制服外套':
-                    '制服外套', '修女': '修女', 'COSPLAY服飾': 'COSPLAY服饰', '裸體圍裙': '裸体围裙', '女忍者': '女忍者',
+                        '制服外套', '修女': '修女', 'COSPLAY服飾': 'COSPLAY服饰', '裸體圍裙': '裸体围裙', '女忍者': '女忍者',
                     '身體意識': '身体意识', 'OL': 'OL', '貓耳女': '猫耳女', '學校泳裝': '学校泳装', '迷你裙': '迷你裙', '浴衣':
-                    '浴衣', '猥褻穿著': '猥亵穿着', '緊身衣': '紧身衣', '娃娃': '娃娃', '蘿莉角色扮演': '萝莉角色扮演', '女裝人妖':
-                    '女装人妖', '及膝襪': '及膝袜', '泡泡襪': '泡泡袜', '空中小姐': '空中小姐', '旗袍': '旗袍', '兔女郎': '兔女郎',
+                        '浴衣', '猥褻穿著': '猥亵穿着', '緊身衣': '紧身衣', '娃娃': '娃娃', '蘿莉角色扮演': '萝莉角色扮演', '女裝人妖':
+                        '女装人妖', '及膝襪': '及膝袜', '泡泡襪': '泡泡袜', '空中小姐': '空中小姐', '旗袍': '旗袍', '兔女郎': '兔女郎',
                     '女祭司': '女祭司', '動畫人物': '动画人物', '迷你裙警察': '迷你裙警察', '成熟的女人': '成熟的女人', '巨乳': '巨乳',
                     '蘿莉塔': '萝莉塔', '無毛': '无毛', '屁股': '屁股', '苗條': '苗条', '素人': '素人', '乳房': '乳房',
                     '巨大陰莖': '巨大阴茎', '胖女人': '胖女人', '平胸': '平胸', '高': '高', '美腳': '美脚', '孕婦': '孕妇',
                     '巨大屁股': '巨大屁股', '瘦小身型': '瘦小身型', '變性者': '变性者', '肌肉': '肌肉', '超乳': '超乳', '乳交':
-                    '乳交', '中出': '中出', '多P': '多P', '69': '69', '淫語': '淫语', '女上位': '女上位', '自慰': '自慰',
+                        '乳交', '中出': '中出', '多P': '多P', '69': '69', '淫語': '淫语', '女上位': '女上位', '自慰': '自慰',
                     '顏射': '颜射', '潮吹': '潮吹', '口交': '口交', '舔陰': '舔阴', '肛交': '肛交', '手指插入': '手指插入',
                     '手淫': '手淫', '放尿': '放尿', '足交': '足交', '按摩': '按摩', '吞精': '吞精', '剃毛': '剃毛',
                     '二穴同時挿入': '二穴同时插入', '母乳': '母乳', '濫交': '滥交', '深喉': '深喉', '接吻': '接吻', '拳交': '拳交',
                     '飲尿': '饮尿', '騎乗位': '骑乘位', '排便': '排便', '食糞': '食粪', '凌辱': '凌辱', '捆綁': '捆绑', '緊縛':
-                    '紧缚', '輪姦': '轮奸', '玩具': '玩具', 'SM': 'SM', '戶外': '户外', '乳液': '乳液', '羞恥': '羞耻',
+                        '紧缚', '輪姦': '轮奸', '玩具': '玩具', 'SM': 'SM', '戶外': '户外', '乳液': '乳液', '羞恥': '羞耻',
                     '女優按摩棒': '女优按摩棒', '拘束': '拘束', '調教': '调教', '立即口交': '立即口交', '跳蛋': '跳蛋', '監禁':
-                    '监禁', '導尿': '导尿', '按摩棒': '按摩棒', '插入異物': '插入异物', '灌腸': '灌肠', '藥物': '药物', '露出':
-                    '露出', '汽車性愛': '汽车性爱', '催眠': '催眠', '鴨嘴': '鸭嘴', '糞便': '粪便', '脫衣': '脱衣', '子宮頸':
-                    '子宫颈', '4小時以上作品': '4小时以上作品', '戲劇': '戏剧', '第一人稱攝影': '第一人称摄影', 'HDTV': 'HDTV',
+                        '监禁', '導尿': '导尿', '按摩棒': '按摩棒', '插入異物': '插入异物', '灌腸': '灌肠', '藥物': '药物', '露出':
+                        '露出', '汽車性愛': '汽车性爱', '催眠': '催眠', '鴨嘴': '鸭嘴', '糞便': '粪便', '脫衣': '脱衣', '子宮頸':
+                        '子宫颈', '4小時以上作品': '4小时以上作品', '戲劇': '戏剧', '第一人稱攝影': '第一人称摄影', 'HDTV': 'HDTV',
                     '首次亮相': '首次亮相', '薄馬賽克': '薄马赛克', '數位馬賽克': '数位马赛克', '業餘': '业余', '故事集': '故事集',
                     '經典': '经典', '戀愛': '恋爱', 'VR': 'VR', '給女性觀眾': '给女性观众', '精選，綜合': '精选，综合', '國外進口':
-                    '国外进口', '科幻': '科幻', '行動': '行动', '成人電影': '成人电影', '綜合短篇': '综合短篇', '滑稽模仿': '滑稽模仿',
+                        '国外进口', '科幻': '科幻', '行動': '行动', '成人電影': '成人电影', '綜合短篇': '综合短篇', '滑稽模仿': '滑稽模仿',
                     '男性': '男性', '介紹影片': '介绍影片', '冒險': '冒险', '模擬': '模拟', '愛好，文化': '爱好，文化', '懸疑':
-                    '悬疑', 'R-15': 'R-15', '美少女電影': '美少女电影', '感官作品': '感官作品', '觸摸打字': '触摸打字', '投稿':
-                    '投稿', '紀錄片': '纪录片', '去背影片': '去背影片', '獨立製作': '独立制作', '主觀視角': '主观视角', '戰鬥行動':
-                    '战斗行动', '特效': '特效', '16小時以上作品': '16小时以上作品', '局部特寫': '局部特写', '重印版': '重印版', '歷史劇':
-                    '历史剧', '寫真偶像': '写真偶像', '3D': '3D', '訪問': '访问', '教學': '教学', '恐怖': '恐怖', '西洋片':
-                    '西洋片', '45分鍾以內': '45分钟以内', '45-90分鍾': '45-90分钟', '90-120分鍾': '90-120分钟',
+                        '悬疑', 'R-15': 'R-15', '美少女電影': '美少女电影', '感官作品': '感官作品', '觸摸打字': '触摸打字', '投稿':
+                        '投稿', '紀錄片': '纪录片', '去背影片': '去背影片', '獨立製作': '独立制作', '主觀視角': '主观视角', '戰鬥行動':
+                        '战斗行动', '特效': '特效', '16小時以上作品': '16小时以上作品', '局部特寫': '局部特写', '重印版': '重印版', '歷史劇':
+                        '历史剧', '寫真偶像': '写真偶像', '3D': '3D', '訪問': '访问', '教學': '教学', '恐怖': '恐怖', '西洋片':
+                        '西洋片', '45分鍾以內': '45分钟以内', '45-90分鍾': '45-90分钟', '90-120分鍾': '90-120分钟',
                     '120分鍾以上': '120分钟以上',
 
                     # FANZA
@@ -445,14 +454,13 @@ def translateTag_to_sc(tag):
                         '处男', 'ドキュメンタリー': '记录片', 'ドラッグ・媚薬': '药局', 'ドラマ': '电视剧', 'ニューハーフ': '变性人',
                     'ニーソックス': '过膝袜', '妊婦': '孕妇', '寝取り・寝取られ': '睡下', 'HowTo': 'HowTo',
 
-
-                    #fc2
+                    # fc2
                     '美人': '美女', 'ハメ撮り': '拍鸽子', 'フェチ': '恋物癖',
-                        'コスプレ・制服': 'COSPLAY制服', '自分撮り':'自拍', 'その他': '其他', 'OL・お姉さん': 'OL姐姐', 'ゲイ': '同性恋',
-                        '３P・乱交':'3P・乱交', '野外・露出': '野外露出', '海外': '国外', 'レズ': '女士', 'アニメ': '动画',
-                        'アダルト': '成人', 'アイドル': '空闲', '個人撮影': '个人摄影', '無修正': '无修正', 'コスプレ':'角色扮演',
-                        '下着': '内衣', '水着': '游泳衣', 'パンチラ': '小册子', 'フェラ': '口交', 'モデル': '模型','中出し': '中出', '可愛い': '可爱',
-                         'オリジナル': '原始', '貧乳': '贫乳', 'オナニー': '自慰', 'パイパン': '菠萝', 'ロリ': '萝莉', '生ハメ': '第一人称'
+                    'コスプレ・制服': 'COSPLAY制服', '自分撮り': '自拍', 'その他': '其他', 'OL・お姉さん': 'OL姐姐', 'ゲイ': '同性恋',
+                    '３P・乱交': '3P・乱交', '野外・露出': '野外露出', '海外': '国外', 'レズ': '女士', 'アニメ': '动画',
+                    'アダルト': '成人', 'アイドル': '空闲', '個人撮影': '个人摄影', '無修正': '无修正', 'コスプレ': '角色扮演',
+                    '下着': '内衣', '水着': '游泳衣', 'パンチラ': '小册子', 'フェラ': '口交', 'モデル': '模型', '中出し': '中出', '可愛い': '可爱',
+                    'オリジナル': '原始', '貧乳': '贫乳', 'オナニー': '自慰', 'パイパン': '菠萝', 'ロリ': '萝莉', '生ハメ': '第一人称'
                     }
         try:
             return dict_gen[tag]
@@ -461,21 +469,22 @@ def translateTag_to_sc(tag):
     else:
         return tag
 
+
 def translate(
-    src: str,
-    target_language: str = "zh_cn",
-    engine: str = "google-free",
-    app_id: str = "",
-    key: str = "",
-    delay: int = 0,
+        src: str,
+        target_language: str = "zh_cn",
+        engine: str = "google-free",
+        app_id: str = "",
+        key: str = "",
+        delay: int = 0,
 ):
     trans_result = ""
     if engine == "google-free":
         url = (
-            "https://translate.google.cn/translate_a/single?client=gtx&dt=t&dj=1&ie=UTF-8&sl=auto&tl="
-            + target_language
-            + "&q="
-            + src
+                "https://translate.google.cn/translate_a/single?client=gtx&dt=t&dj=1&ie=UTF-8&sl=auto&tl="
+                + target_language
+                + "&q="
+                + src
         )
         result = get_html(url=url, return_type="object")
 
@@ -505,21 +514,22 @@ def translate(
     elif engine == "azure":
         url = "https://api.cognitive.microsofttranslator.com/translate?api-version=3.0&to=" + target_language
         headers = {
-                'Ocp-Apim-Subscription-Key': key,
-                'Ocp-Apim-Subscription-Region': "global",
-                'Content-type': 'application/json',
-                'X-ClientTraceId': str(uuid.uuid4())
-            }
+            'Ocp-Apim-Subscription-Key': key,
+            'Ocp-Apim-Subscription-Region': "global",
+            'Content-type': 'application/json',
+            'X-ClientTraceId': str(uuid.uuid4())
+        }
         body = json.dumps([{'text': src}])
-        result = post_html(url=url,query=body,headers=headers)
+        result = post_html(url=url, query=body, headers=headers)
         translate_list = [i["text"] for i in result.json()[0]["translations"]]
         trans_result = trans_result.join(translate_list)
 
     else:
         raise ValueError("Non-existent translation engine")
-    
+
     time.sleep(delay)
     return trans_result
+
 
 # ========================================================================是否为无码
 def is_uncensored(number):
