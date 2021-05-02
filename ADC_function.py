@@ -108,32 +108,32 @@ def post_html(url: str, query: dict, headers: dict = None) -> requests.Response:
     print("[-]" + errors)
 
 
-def get_javlib_cookie() -> [dict, str]:
-    import cloudscraper
-    switch, proxy, timeout, retry_count, proxytype = config.Config().proxy()
-    proxies = get_proxy(proxy, proxytype)
-
-    raw_cookie = {}
-    user_agent = ""
-
-    # Get __cfduid/cf_clearance and user-agent
-    for i in range(retry_count):
-        try:
-            if switch == 1 or switch == '1':
-                raw_cookie, user_agent = cloudscraper.get_cookie_string(
-                    "http://www.javlibrary.com/",
-                    proxies=proxies
-                )
-            else:
-                raw_cookie, user_agent = cloudscraper.get_cookie_string(
-                    "http://www.javlibrary.com/"
-                )
-        except requests.exceptions.ProxyError:
-            print("[-] ProxyError, retry {}/{}".format(i + 1, retry_count))
-        except cloudscraper.exceptions.CloudflareIUAMError:
-            print("[-] IUAMError, retry {}/{}".format(i + 1, retry_count))
-
-    return raw_cookie, user_agent
+# def get_javlib_cookie() -> [dict, str]:
+#     import cloudscraper
+#     switch, proxy, timeout, retry_count, proxytype = config.Config().proxy()
+#     proxies = get_proxy(proxy, proxytype)
+#
+#     raw_cookie = {}
+#     user_agent = ""
+#
+#     # Get __cfduid/cf_clearance and user-agent
+#     for i in range(retry_count):
+#         try:
+#             if switch == 1 or switch == '1':
+#                 raw_cookie, user_agent = cloudscraper.get_cookie_string(
+#                     "http://www.javlibrary.com/",
+#                     proxies=proxies
+#                 )
+#             else:
+#                 raw_cookie, user_agent = cloudscraper.get_cookie_string(
+#                     "http://www.javlibrary.com/"
+#                 )
+#         except requests.exceptions.ProxyError:
+#             print("[-] ProxyError, retry {}/{}".format(i + 1, retry_count))
+#         except cloudscraper.exceptions.CloudflareIUAMError:
+#             print("[-] IUAMError, retry {}/{}".format(i + 1, retry_count))
+#
+#     return raw_cookie, user_agent
 
 
 def translateTag_to_sc(tag):
