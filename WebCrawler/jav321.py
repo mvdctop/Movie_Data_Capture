@@ -31,7 +31,7 @@ def main(number: str) -> json:
             **data,
         }
     else:
-        dic = {}
+        dic = {"title": ""}
 
     return json.dumps(dic, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ':'))
 
@@ -59,7 +59,7 @@ def parse_info(soup: BeautifulSoup) -> dict:
             "series": get_series(data_dic),
         }
     else:
-        return {}
+        return {"title": ""}
 
 
 def get_bold_text(h: str) -> str:
