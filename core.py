@@ -21,7 +21,7 @@ from WebCrawler import javbus
 from WebCrawler import javdb
 from WebCrawler import mgstage
 from WebCrawler import xcity
-from WebCrawler import javlib
+# from WebCrawler import javlib
 from WebCrawler import dlsite
 
 
@@ -61,7 +61,7 @@ def get_data_from_json(file_number, filepath, conf: config.Config):  # ä»ŽJSONè¿
         "mgstage": mgstage.main,
         "jav321": jav321.main,
         "xcity": xcity.main,
-        "javlib": javlib.main,
+        # "javlib": javlib.main,
         "dlsite": dlsite.main,
     }
 
@@ -107,7 +107,7 @@ def get_data_from_json(file_number, filepath, conf: config.Config):  # ä»ŽJSONè¿
             'javdb'   : pool.apply_async(javbus.main,  (file_number,)),
             'mgstage' : pool.apply_async(mgstage.main, (file_number,)),
             'xcity'   : pool.apply_async(xcity.main,   (file_number,)),
-            'javlib'  : pool.apply_async(javlib.main,  (file_number,)),
+            # 'javlib'  : pool.apply_async(javlib.main,  (file_number,)),
             'dlsite'  : pool.apply_async(dlsite.main,  (file_number,)),
             'airav'   : pool.apply_async(airav.main,   (file_number,)),
         }
