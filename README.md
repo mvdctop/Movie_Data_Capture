@@ -1,4 +1,4 @@
-# AV Data Capture (CLI)
+<h1 align="center">AV Data Capture - CLI</h1>
 
 CLI 版本  
 ![](https://img.shields.io/badge/build-passing-brightgreen.svg?style=flat)
