@@ -8,7 +8,11 @@ import re
 
 
 def main(number: str) -> json:
-    result = post_html(url="https://www.jav321.com/search", query={"sn": number})
+    try:
+        result = post_html(url="https://www.jav321.com/search", query={"sn": number})
+    except:
+        dic = {"title": ""}
+        return json.dumps(dic, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ':'))
 
     soup = BeautifulSoup(result.text, "html.parser")
     lx = html.fromstring(str(soup))
