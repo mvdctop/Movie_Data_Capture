@@ -10,7 +10,7 @@ import ADC_function
 
 def getTitle_fc2com(htmlcode): #获取厂商
     html = etree.fromstring(htmlcode,etree.HTMLParser())
-    result = html.xpath('/html/head/title/text()')[0]
+    result = html.xpath('//*[@id="top"]/div[1]/section[1]/div/section/div[2]/h3/text()')[0]
     return result
 def getActor_fc2com(htmlcode):
     try:
@@ -86,6 +86,7 @@ def main(number):
     try:
         number = number.replace('FC2-', '').replace('fc2-', '')
         htmlcode2 = ADC_function.get_html('https://adult.contents.fc2.com/article/' + number + '/')
+        #print(htmlcode2)
         actor = getActor_fc2com(htmlcode2)
         if getActor_fc2com(htmlcode2) == '':
             actor = 'FC2系列'
@@ -117,5 +118,5 @@ def main(number):
     return js
 
 if __name__ == '__main__':
-    print(main('FC2-1603395'))
+    print(main('FC2-1787685'))
 
