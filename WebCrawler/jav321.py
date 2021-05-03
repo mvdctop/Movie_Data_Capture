@@ -10,12 +10,11 @@ import re
 def main(number: str) -> json:
     try:
         result = post_html(url="https://www.jav321.com/search", query={"sn": number})
+        soup = BeautifulSoup(result.text, "html.parser")
+        lx = html.fromstring(str(soup))
     except:
         dic = {"title": ""}
         return json.dumps(dic, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ':'))
-
-    soup = BeautifulSoup(result.text, "html.parser")
-    lx = html.fromstring(str(soup))
 
     if "/video/" in result.url:
         data = parse_info(soup)
