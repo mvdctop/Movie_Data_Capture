@@ -75,6 +75,7 @@ def getTag(a):
 def getCover(htmlcode):
     html = etree.fromstring(htmlcode, etree.HTMLParser())
     result = str(html.xpath('//*[@id="center_column"]/div[1]/div[1]/div/div/h2/img/@src')).strip(" ['']")
+    result = str(html.xpath('//*[@id="EnlargeImage"]/@href')).strip(" ['']")
     #                    /html/body/div[2]/article[2]/div[1]/div[1]/div/div/h2/img/@src
     return result
 def getDirector(a):
