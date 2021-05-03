@@ -113,7 +113,7 @@ def create_data_and_move(file_path: str, c: config.Config, debug):
                         print('[!]', err)
 
 
-def create_data_and_move_with_custom_number(file_path: str, c: config.Config, custom_number=None):
+def create_data_and_move_with_custom_number(file_path: str, c: config.Config, custom_number):
     try:
         print("[!]Making Data for [{}], the number is [{}]".format(file_path, custom_number))
         core_main(file_path, custom_number, c)
@@ -159,7 +159,10 @@ if __name__ == '__main__':
 
     if not single_file_path == '': #Single File
         print('[+]==================== Single File =====================')
-        create_data_and_move_with_custom_number(single_file_path, conf, custom_number)
+        if custom_number == '':
+            create_data_and_move_with_custom_number(single_file_path, conf, get_number(conf.debug(), os.path.basename(single_file_path)))
+        else:
+            create_data_and_move_with_custom_number(single_file_path, conf, custom_number)
     else:
         if folder_path == '':
             folder_path = os.path.abspath(".")
