@@ -78,10 +78,9 @@ def getTrailer(htmlcode):
         video_url = video[0].replace('\'', '')
         video_url = 'https://adult.contents.fc2.com/api/v2/videos/1603395/sample?key=' + video_url
         url_json = eval(ADC_function.get_html(video_url))['path'].replace('\\', '')
+        return url_json
     else:
         video_url = ''
-
-    return url_json
 
 def main(number):
     try:
