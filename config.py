@@ -13,7 +13,7 @@ class Config:
                 self.conf.read(path, encoding="utf-8")
         else:
             print("[-]Config file not found!")
-            sys.exit(3)
+            sys.exit(2)
             # self.conf = self._default_config()
             # try:
             #     self.conf = configparser.ConfigParser()
