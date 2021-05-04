@@ -34,14 +34,14 @@ def argparse_function(ver: str) -> [str, str, bool]:
     parser = argparse.ArgumentParser()
     parser.add_argument("file", default='', nargs='?', help="Single Movie file path.")
     parser.add_argument("-p","--path",default='',nargs='?',help="Analysis folder path.")
-    parser.add_argument("-c", "--config", default='config.ini', nargs='?', help="The config file Path.")
+    # parser.add_argument("-c", "--config", default='config.ini', nargs='?', help="The config file Path.")
     parser.add_argument("-n", "--number", default='', nargs='?', help="Custom file number")
     parser.add_argument("-a", "--auto-exit", dest='autoexit', action="store_true",
                         help="Auto exit after program complete")
     parser.add_argument("-v", "--version", action="version", version=ver)
     args = parser.parse_args()
 
-    return args.file, args.path, args.config, args.number, args.autoexit
+    return args.file, args.path, args.number, args.autoexit
 
 
 def movie_lists(root, escape_folder):
@@ -137,14 +137,15 @@ if __name__ == '__main__':
     version = '4.6.2'
 
     # Parse command line args
-    single_file_path, folder_path, config_file, custom_number, auto_exit = argparse_function(version)
+    single_file_path, folder_path, custom_number, auto_exit = argparse_function(version)
 
     print('[*]================== AV Data Capture ===================')
     print('[*]' + version.center(54))
     print('[*]======================================================')
 
     # Read config.ini
-    conf = config.Config(path=config_file)
+    conf = config.Config("config.ini")
+
 
     if conf.update_check():
         check_update(version)

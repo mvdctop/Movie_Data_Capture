@@ -1,7 +1,7 @@
 import os
+import sys
 import configparser
 import codecs
-
 
 class Config:
     def __init__(self, path: str = "config.ini"):
@@ -12,16 +12,20 @@ class Config:
             except:
                 self.conf.read(path, encoding="utf-8")
         else:
-            try:
-                self.conf = configparser.ConfigParser()
-                try: # From single crawler debug use only
-                    self.conf.read('../' + path, encoding="utf-8-sig")
-                except:
-                    self.conf.read('../' + path, encoding="utf-8")
-            except Exception as e:
-                print("[-]Config file not found! Use the default settings")
-                print("[-]",e)
-                self.conf = self._default_config()
+            print("[-]Config file not found!")
+            sys.exit(3)
+            # self.conf = self._default_config()
+            # try:
+            #     self.conf = configparser.ConfigParser()
+            #     try: # From single crawler debug use only
+            #         self.conf.read('../' + path, encoding="utf-8-sig")
+            #     except:
+            #         self.conf.read('../' + path, encoding="utf-8")
+            # except Exception as e:
+            #     print("[-]Config file not found! Use the default settings")
+            #     print("[-]",e)
+            #     sys.exit(3)
+            #     #self.conf = self._default_config()
 
     def main_mode(self) -> str:
         try:
