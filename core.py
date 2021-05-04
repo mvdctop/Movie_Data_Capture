@@ -73,25 +73,17 @@ def get_data_from_json(file_number, filepath, conf: config.Config):  # ä»ŽJSONè¿
     if "avsox" in sources and (re.match(r"^\d{5,}", file_number) or
         "HEYZO" in file_number or "heyzo" in file_number or "Heyzo" in file_number
     ):
-        # if conf.debug() == True:
-        #     print('[+]select avsox')
         sources.insert(0, sources.pop(sources.index("avsox")))
     elif "mgstage" in sources and (re.match(r"\d+\D+", file_number) or
         "siro" in file_number or "SIRO" in file_number or "Siro" in file_number
     ):
-        # if conf.debug() == True:
-            # print('[+]select fanza')
         sources.insert(0, sources.pop(sources.index("mgstage")))
     elif "fc2" in sources and ("fc2" in file_number or "FC2" in file_number
     ):
-        # if conf.debug() == True:
-        #     print('[+]select fc2')
         sources.insert(0, sources.pop(sources.index("fc2")))
     elif "dlsite" in sources and (
         "RJ" in file_number or "rj" in file_number or "VJ" in file_number or "vj" in file_number
     ):
-        # if conf.debug() == True:
-        #     print('[+]select dlsite')
         sources.insert(0, sources.pop(sources.index("dlsite")))
 
     json_data = {}
@@ -99,14 +91,14 @@ def get_data_from_json(file_number, filepath, conf: config.Config):  # ä»ŽJSONè¿
     if conf.multi_threading():
         pool = ThreadPool(processes=11)
         MT = {
+            'javbus'  : pool.apply_async(javbus.main,  (file_number,)),
+            'javdb'   : pool.apply_async(javbus.main,  (file_number,)),
             'avsox'   : pool.apply_async(avsox.main,   (file_number,)),
             'fanza'   : pool.apply_async(fanza.main,   (file_number,)),
             'fc2'     : pool.apply_async(fc2.main,     (file_number,)),
-            'jav321'  : pool.apply_async(jav321.main,  (file_number,)),
-            'javbus'  : pool.apply_async(javbus.main,  (file_number,)),
-            'javdb'   : pool.apply_async(javbus.main,  (file_number,)),
-            'mgstage' : pool.apply_async(mgstage.main, (file_number,)),
             'xcity'   : pool.apply_async(xcity.main,   (file_number,)),
+            'jav321'  : pool.apply_async(jav321.main,  (file_number,)),
+            'mgstage' : pool.apply_async(mgstage.main, (file_number,)),
             # 'javlib'  : pool.apply_async(javlib.main,  (file_number,)),
             'dlsite'  : pool.apply_async(dlsite.main,  (file_number,)),
             'airav'   : pool.apply_async(airav.main,   (file_number,)),
