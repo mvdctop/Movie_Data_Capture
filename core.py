@@ -23,6 +23,7 @@ from WebCrawler import mgstage
 from WebCrawler import xcity
 # from WebCrawler import javlib
 from WebCrawler import dlsite
+from WebCrawler import carib
 
 
 def escape_path(path, escape_literals: str):  # Remove escape literals
@@ -63,6 +64,7 @@ def get_data_from_json(file_number, filepath, conf: config.Config):  # 从JSON�
         "xcity": xcity.main,
         # "javlib": javlib.main,
         "dlsite": dlsite.main,
+        "carib": carib.main,
     }
 
     # default fetch order list, from the beginning to the end
@@ -70,19 +72,25 @@ def get_data_from_json(file_number, filepath, conf: config.Config):  # 从JSON�
 
     # if the input file name matches certain rules,
     # move some web service to the beginning of the list
-    if "avsox" in sources and (re.match(r"^\d{5,}", file_number) or
-        "HEYZO" in file_number or "heyzo" in file_number or "Heyzo" in file_number
+    lo_file_number = file_number.lower()
+    if "carib" in sources and (re.match(r"^\d{6}-\d{3}", file_number)
     ):
+        sources.insert(0, sources.pop(sources.index("carib")))
+    elif "avsox" in sources and (re.match(r"^\d{5,}", file_number) or
+        "heyzo" in lo_file_number
+    ):
+        # if conf.debug() == True:
+        #     print('[+]select avsox')
         sources.insert(0, sources.pop(sources.index("avsox")))
     elif "mgstage" in sources and (re.match(r"\d+\D+", file_number) or
-        "siro" in file_number or "SIRO" in file_number or "Siro" in file_number
+        "siro" in lo_file_number
     ):
         sources.insert(0, sources.pop(sources.index("mgstage")))
-    elif "fc2" in sources and ("fc2" in file_number or "FC2" in file_number
+    elif "fc2" in sources and ("fc2" in lo_file_number
     ):
         sources.insert(0, sources.pop(sources.index("fc2")))
     elif "dlsite" in sources and (
-        "RJ" in file_number or "rj" in file_number or "VJ" in file_number or "vj" in file_number
+        "rj" in lo_file_number
     ):
         sources.insert(0, sources.pop(sources.index("dlsite")))
 
@@ -364,7 +372,7 @@ def download_file_with_filename(url, filename, path, conf: config.Config, filepa
                 r = requests.get(url, headers=headers, timeout=timeout, proxies=proxies)
                 if r == '':
                     print('[-]Movie Data not found!')
-                    return 
+                    return
                 with open(str(path) + "/" + filename, "wb") as code:
                     code.write(r.content)
                 return
@@ -376,7 +384,7 @@ def download_file_with_filename(url, filename, path, conf: config.Config, filepa
                 r = requests.get(url, timeout=timeout, headers=headers)
                 if r == '':
                     print('[-]Movie Data not found!')
-                    return 
+                    return
                 with open(str(path) + "/" + filename, "wb") as code:
                     code.write(r.content)
                 return
@@ -636,14 +644,14 @@ def paste_file_to_folder(filepath, path, number, leak_word, c_word, conf: config
                 os.rename(filepath.replace(houzhui, subname), path + '/' + number + leak_word + c_word + subname)
                 print('[+]Sub moved!')
                 return True
-        
+
     except FileExistsError:
         print('[-]File Exists! Please check your movie!')
         print('[-]move to the root folder of the program.')
-        return 
+        return
     except PermissionError:
         print('[-]Error! Please run as administrator!')
-        return 
+        return
 
 
 def paste_file_to_folder_mode2(filepath, path, multi_part, number, part, leak_word, c_word, conf):  # 文件路径，番号，后缀，要移动至的位置
@@ -667,7 +675,7 @@ def paste_file_to_folder_mode2(filepath, path, multi_part, number, part, leak_wo
     except FileExistsError:
         print('[-]File Exists! Please check your movie!')
         print('[-]move to the root folder of the program.')
-        return 
+        return
     except PermissionError:
         print('[-]Error! Please run as administrator!')
         return
@@ -736,7 +744,7 @@ def core_main(file_path, number_th, conf: config.Config):
     if '-c.' in filepath or '-C.' in filepath or '中文' in filepath or '字幕' in filepath:
         cn_sub = '1'
         c_word = '-C'  # 中文字幕影片后缀
-    
+
     # 判断是否无码
     if is_uncensored(number):
         uncensored = 1
@@ -761,7 +769,7 @@ def core_main(file_path, number_th, conf: config.Config):
     # main_mode
     #  1: 刮削模式 / Scraping mode
     #  2: 整理模式 / Organizing mode
-    #  3：不改变路径刮削 
+    #  3：不改变路径刮削
     if conf.main_mode() == 1:
         # 创建文件夹
         path = create_folder(conf.success_folder(),  json_data.get('location_rule'), json_data, conf)
@@ -780,7 +788,7 @@ def core_main(file_path, number_th, conf: config.Config):
                 trailer_download(json_data.get('trailer'), leak_word, c_word, number, path, filepath, conf, conf.failed_folder())
         except:
             pass
-        
+
         try:
             # 下载剧照 data, path, conf: config.Config, filepath, failed_folder
             if json_data.get('extrafanart'):
@@ -800,7 +808,7 @@ def core_main(file_path, number_th, conf: config.Config):
         thumb_path = path + '/' + number + leak_word + c_word + '-thumb.jpg'
         if conf.is_watermark():
             add_mark(poster_path, thumb_path, cn_sub, leak, uncensored, conf)
-        
+
     elif conf.main_mode() == 2:
         # 创建文件夹
         path = create_folder(conf.success_folder(), json_data.get('location_rule'), json_data, conf)
@@ -810,7 +818,7 @@ def core_main(file_path, number_th, conf: config.Config):
         thumb_path = path + '/' + number + leak_word + c_word + '-thumb.jpg'
         if conf.is_watermark():
             add_mark(poster_path, thumb_path, cn_sub, leak, uncensored, conf)
-        
+
     elif conf.main_mode() == 3:
         path = file_path.rsplit('/', 1)[0]
         path = path.rsplit('\\', 1)[0]
