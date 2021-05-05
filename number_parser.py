@@ -46,6 +46,8 @@ def get_number(debug,filepath: str) -> str:
                     file_number = str(re.search(r'\d{6}(-|_)\d{3}', lower_check, re.A).group()).replace('_', '-')
                 elif "1pon" in lower_check:
                     file_number = str(re.search(r'\d{6}(-|_)\d{3}', lower_check, re.A).group()).replace('-', '_')
+                elif "10mu" in lower_check:
+                    file_number = str(re.search(r'\d{6}(-|_)\d{2}', lower_check, re.A).group()).replace('-', '_')
                 return file_number
             else:  # 提取不含减号-的番号，FANZA CID
                 # 欧美番号匹配规则
@@ -78,6 +80,8 @@ def get_number(debug,filepath: str) -> str:
                 file_number = str(re.search(r'\d{6}(-|_)\d{3}', lower_check, re.A).group()).replace('_', '-')
             elif "1pon" in lower_check:
                 file_number = str(re.search(r'\d{6}(-|_)\d{3}', lower_check, re.A).group()).replace('-', '_')
+            elif "10mu" in lower_check:
+                file_number = str(re.search(r'\d{6}(-|_)\d{2}', lower_check, re.A).group()).replace('-', '_')
             return file_number
         else:  # 提取不含减号-的番号，FANZA CID
             # 欧美番号匹配规则
