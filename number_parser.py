@@ -39,12 +39,12 @@ def get_number(debug,filepath: str) -> str:
                 lower_check = filename.lower()
                 if 'fc2' in lower_check:
                     filename = lower_check.replace('ppv', '').replace('--', '-').replace('_', '-').upper()
-                file_number = re.search(r'\w+-\w+', filename, re.A).group()
+                file_number = re.search(r'\w+(-|_)\w+', filename, re.A).group()
                 if "tokyo" in lower_check and "hot" in lower_check:
                     file_number = re.search(r'(cz|k|n|red-|se)\d{3,4}', lower_check, re.A).group()
-                if "carib" in lower_check:
+                elif "carib" in lower_check:
                     file_number = str(re.search(r'\d{6}(-|_)\d{3}', lower_check, re.A).group()).replace('_', '-')
-                if "1pon" in lower_check:
+                elif "1pon" in lower_check:
                     file_number = str(re.search(r'\d{6}(-|_)\d{3}', lower_check, re.A).group()).replace('-', '_')
                 return file_number
             else:  # 提取不含减号-的番号，FANZA CID
@@ -71,12 +71,12 @@ def get_number(debug,filepath: str) -> str:
             lower_check = filename.lower()
             if 'fc2' in lower_check:
                 filename = lower_check.replace('ppv', '').replace('--', '-').replace('_', '-').upper()
-            file_number = re.search(r'\w+-\w+', filename, re.A).group()
+            file_number = re.search(r'\w+(-|_)\w+', filename, re.A).group()
             if "tokyo" in lower_check and "hot" in lower_check:
                 file_number = re.search(r'(cz|k|n|red-|se)\d{3,4}', lower_check, re.A).group()
-            if "carib" in lower_check:
+            elif "carib" in lower_check:
                 file_number = str(re.search(r'\d{6}(-|_)\d{3}', lower_check, re.A).group()).replace('_', '-')
-            if "1pon" in lower_check:
+            elif "1pon" in lower_check:
                 file_number = str(re.search(r'\d{6}(-|_)\d{3}', lower_check, re.A).group()).replace('-', '_')
             return file_number
         else:  # 提取不含减号-的番号，FANZA CID
