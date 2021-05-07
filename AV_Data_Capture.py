@@ -80,17 +80,24 @@ def rm_empty_folder(path):
 
 def create_data_and_move(file_path: str, c: config.Config, debug):
     # Normalized number, eg: 111xxx-222.mp4 -> xxx-222.mp4
-    n_number = get_number(debug, os.path.basename(file_path))
+    file_name = os.path.basename(file_path)
+    n_number = get_number(debug, file_name)
     file_path = os.path.abspath(file_path)
 
     if debug == True:
         print("[!]Making Data for [{}], the number is [{}]".format(file_path, n_number))
-        core_main(file_path, n_number, c)
+        if n_number:
+            core_main(file_path, n_number, c)
+        else:
+            print("[-] number empty ERROR")
         print("[*]======================================================")
     else:
         try:
             print("[!]Making Data for [{}], the number is [{}]".format(file_path, n_number))
-            core_main(file_path, n_number, c)
+            if n_number:
+                core_main(file_path, n_number, c)
+            else:
+                raise ValueError("number empty")
             print("[*]======================================================")
         except Exception as err:
             print("[-] [{}] ERROR:".format(file_path))
@@ -100,11 +107,11 @@ def create_data_and_move(file_path: str, c: config.Config, debug):
             if c.failed_move() == False:
                 if c.soft_link():
                     print("[-]Link {} to failed folder".format(file_path))
-                    os.symlink(file_path, conf.failed_folder() + "/")
+                    os.symlink(file_path, conf.failed_folder() + "/" + file_name)
             elif c.failed_move() == True:
                 if c.soft_link():
                     print("[-]Link {} to failed folder".format(file_path))
-                    os.symlink(file_path, conf.failed_folder() + "/")
+                    os.symlink(file_path, conf.failed_folder() + "/" + file_name)
                 else:
                     try:
                         print("[-]Move [{}] to failed folder".format(file_path))
