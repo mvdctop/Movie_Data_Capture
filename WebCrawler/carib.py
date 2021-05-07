@@ -4,20 +4,14 @@ import json
 from bs4 import BeautifulSoup
 from lxml import html
 import re
-import urllib.request
-import socket
 from ADC_function import *
-
-def get_html(url):
-    socket.setdefaulttimeout(10)
-    papg = urllib.request.urlopen(url)
-    htm = papg.read()
-    htm = htm.decode("euc_jp")
-    return htm
 
 def main(number: str) -> json:
     try:
-        caribhtml = get_html('https://www.caribbeancom.com/moviepages/'+number+'/index.html')
+        caribbytes = get_html('https://www.caribbeancom.com/moviepages/'+number+'/index.html',
+                             return_type="content")
+
+        caribhtml = caribbytes.decode("euc_jp")
 
         soup = BeautifulSoup(caribhtml, "html.parser")
         lx = html.fromstring(str(soup))
@@ -47,7 +41,7 @@ def main(number: str) -> json:
         'source': 'carib.py',
         'series': '',
     }
-    js = json.dumps(dic, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ':'), )  # .encode('UTF-8')
+    js = json.dumps(dic, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ':'), )
     return js
 
 def get_title(lx: html.HtmlElement) -> str:
