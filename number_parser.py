@@ -3,7 +3,9 @@ import re
 from core import *
 
 
-G_spat = re.compile("(22-sht\.me|bbs2048@|-fhd|_fhd|fhd_|fhd-|-hd|_hd|hd_|hd-|-sd|_sd|-1080p|_1080p)", re.IGNORECASE)
+G_spat = re.compile(
+    "(^22-sht\.me|-fhd|_fhd|^fhd_|^fhd-|-hd|_hd|^hd_|^hd-|-sd|_sd|-1080p|_1080p|-720p|_720p)",
+    re.IGNORECASE)
 
 
 def get_number(debug,filepath: str) -> str:
