@@ -79,8 +79,8 @@ def get_data_from_json(file_number, filepath, conf: config.Config):  # ä»ŽJSONè¿
     elif "avsox" in sources and (re.match(r"^\d{5,}", file_number) or
         "heyzo" in lo_file_number
     ):
-        sources.insert(0, sources.pop(sources.index("avsox")))
-        sources.insert(1, sources.pop(sources.index("javdb")))
+        sources.insert(0, sources.pop(sources.index("javdb")))
+        sources.insert(1, sources.pop(sources.index("avsox")))
     elif "mgstage" in sources and (re.match(r"\d+\D+", file_number) or
         "siro" in lo_file_number
     ):
