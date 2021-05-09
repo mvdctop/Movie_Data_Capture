@@ -87,7 +87,8 @@ def get_data_from_json(file_number, filepath, conf: config.Config):  # ä»ŽJSONè¿
         sources.insert(0, sources.pop(sources.index("mgstage")))
     elif "fc2" in sources and ("fc2" in lo_file_number
     ):
-        sources.insert(0, sources.pop(sources.index("fc2")))
+        sources.insert(0, sources.pop(sources.index("javdb")))
+        sources.insert(1, sources.pop(sources.index("fc2")))
     elif "dlsite" in sources and (
         "rj" in lo_file_number or "vj" in lo_file_number
     ):
