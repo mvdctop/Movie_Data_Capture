@@ -11,6 +11,9 @@ from ADC_function import get_html
 from number_parser import get_number
 from core import core_main
 
+import urllib3
+urllib3.disable_warnings() #disable these warnings
+
 
 def check_update(local_version):
     try:
