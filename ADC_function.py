@@ -546,3 +546,27 @@ def is_uncensored(number):
         if pre.upper() in number.upper():
             return True
     return False
+
+# 从浏览器中导出网站登录验证信息的cookies，能够以会员方式打开游客无法访问到的页面
+# 示例: FC2-755670 url https://javdb9.com/v/vO8Mn
+# json 文件格式
+# 文件名: 站点名.json，示例 javdb9.json
+# 内容(文件编码:UTF-8)：
+'''
+{
+    "over18":"1",
+    "redirect_to":"%2Fv%2FvO8Mn",
+    "remember_me_token":"cbJdeaFpbHMiOnsibWVzc2FnZSI6IklrNVJjbTAzZFVSRVlVaEtPWEpUVFhOVU0yNXhJZz09IiwiZXhwIjoiMjAyMS0wNS0xNVQxMzoyODoxNy4wMDBaIiwicHVyIjoiY29va2llLnJlbWVtYmVyX21lX3Rva2VuIn19--a7131611e844cf75f9db4cd411b635889bff3fe3",
+    "_jdb_session":"asddefqfwfwwrfdsdaAmqKj1%2FvOrDQP4b7h%2BvGp7brvIShi2Y%2FHBUr%2BklApk06TfhBOK3g5gRImZzoi49GINH%2FK49o3W%2FX64ugBiUAcudN9b27Mg6Ohu%2Bx9Z7A4bbqmqCt7XR%2Bao8PRuOjMcdDG5czoYHJCPIPZQFU28Gd7Awc2jc5FM5CoIgSRyaYDy9ulTO7DlavxoNL%2F6OFEL%2FyaA6XUYTB2Gs1kpPiUDqwi854mo5%2FrNxMhTeBK%2BjXciazMtN5KlE5JIOfiWAjNrnx7SV3Hj%2FqPNxRxXFQyEwHr5TZa0Vk1%2FjbwWQ0wcIFfh%2FMLwwqKydAh%2FLndc%2Bmdv3e%2FJ%2BiL2--xhqYnMyVRlxJajdN--u7nl0M7Oe7tZtPd4kIaEbg%3D%3D",
+    "locale":"zh",
+    "__cfduid":"dee27116d98c432a5cabc1fe0e7c2f3c91620479752",
+    "theme":"auto"
+}
+'''
+# 从网站登录后，通过浏览器插件(CookieBro或EdittThisCookie)或者直接在地址栏网站链接信息处都可以复制或者导出cookie内容，
+# 并填写到以上json文件的相应字段中
+def load_cookies(filename):
+    try:
+        return json.load(open(filename))
+    except:
+        return None

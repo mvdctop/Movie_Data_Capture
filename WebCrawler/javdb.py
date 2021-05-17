@@ -44,7 +44,7 @@ def getActorPhoto(html): #//*[@id="star_qdt"]/li/a/img
 
     else:
         return {}
-    
+
 def getStudio(a):
     # html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
     # result1 = str(html.xpath('//strong[contains(text(),"片商")]/../span/text()')).strip(" ['']")
@@ -57,7 +57,7 @@ def getStudio(a):
     else:
         result = ""
     return result
-    
+
 def getRuntime(a):
     html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
     result1 = str(html.xpath('//strong[contains(text(),"時長")]/../span/text()')).strip(" ['']")
@@ -189,6 +189,9 @@ def getSeries(a):
     result1 = str(html.xpath('//strong[contains(text(),"系列")]/../span/text()')).strip(" ['']")
     result2 = str(html.xpath('//strong[contains(text(),"系列")]/../span/a/text()')).strip(" ['']")
     return str(result1 + result2).strip('+').replace("', '", '').replace('"', '')
+
+javdb_site = "javdb9"
+
 def main(number):
     try:
         # if re.search(r'[a-zA-Z]+\.\d{2}\.\d{2}\.\d{2}', number).group():
@@ -196,10 +199,12 @@ def main(number):
         # else:
         #     number = number.upper()
         number = number.upper()
+        javdb_cookies = load_cookies(javdb_site + ".json")
         try:
-            query_result = get_html('https://javdb8.com/search?q=' + number + '&f=all')
+            javdb_url = 'https://' + javdb_site + '.com/search?q=' + number + '&f=all'
+            query_result = get_html(javdb_url, cookies=javdb_cookies)
         except:
-            query_result = get_html('https://javdb.com/search?q=' + number + '&f=all')
+            query_result = get_html('https://javdb8.com/search?q=' + number + '&f=all')
         html = etree.fromstring(query_result, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
         # javdb sometime returns multiple results,
         # and the first elememt maybe not the one we are looking for
@@ -211,7 +216,11 @@ def main(number):
         else:
             ids =html.xpath('//*[@id="videos"]/div/div/a/div[contains(@class, "uid")]/text()')
             correct_url = urls[ids.index(number)]
-        detail_page = get_html('https://javdb8.com' + correct_url)
+        try:
+            javdb_detail_url = 'https://' + javdb_site + '.com' + correct_url
+            detail_page = get_html(javdb_detail_url, cookies=javdb_cookies)
+        except:
+            detail_page = get_html('https://javdb8.com' + correct_url)
 
         # no cut image by default
         imagecut = 3
@@ -266,3 +275,4 @@ if __name__ == "__main__":
     # print(main('blacked.20.05.30'))
     # print(main('AGAV-042'))
     print(main('BANK-022'))
+    print(main('FC2-735670'))
