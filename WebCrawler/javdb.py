@@ -13,11 +13,24 @@ def getTitle(a):
     html = etree.fromstring(a, etree.HTMLParser())
     result = html.xpath("/html/body/section/div/h2/strong/text()")[0]
     return result
-def getActor(a):  # //*[@id="center_column"]/div[2]/div[1]/div/table/tbody/tr[1]/td/text()
-    html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
-    result1 = str(html.xpath('//strong[contains(text(),"演員")]/../span/text()')).strip(" ['']")
-    result2 = str(html.xpath('//strong[contains(text(),"演員")]/../span/a/text()')).strip(" ['']")
-    return str(result1 + result2).strip('+').replace(",\\xa0", "").replace("'", "").replace(' ', '').replace(',,', '').replace('N/A', '').lstrip(',').replace(',', ', ')
+
+def getActor(a):
+    html = etree.fromstring(a, etree.HTMLParser())
+    actors = html.xpath('//span[@class="value"]/a[contains(@href,"/actors/")]/text()')
+    genders = html.xpath('//span[@class="value"]/a[contains(@href,"/actors/")]/../strong/@class')
+    r = []
+    idx = 0
+    actor_gendor = config.Config().actor_gender()
+    if not actor_gendor in ['female','male','both','all']:
+        actor_gendor = 'female'
+    for act in actors:
+        if((actor_gendor == 'all')
+        or (actor_gendor == 'both' and genders[idx] in ['symbol female', 'symbol male'])
+        or (actor_gendor == 'female' and genders[idx] == 'symbol female')
+        or (actor_gendor == 'male' and genders[idx] == 'symbol male')):
+            r.append(act)
+        idx = idx + 1
+    return r
 
 def getaphoto(url):
     html_page = get_html(url)
@@ -276,3 +289,4 @@ if __name__ == "__main__":
     # print(main('AGAV-042'))
     print(main('BANK-022'))
     print(main('FC2-735670'))
+    print(main('MVSD-439'))

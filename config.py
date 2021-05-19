@@ -39,6 +39,9 @@ class Config:
     def success_folder(self) -> str:
         return self.conf.get("common", "success_output_folder")
 
+    def actor_gender(self) -> str:
+        return self.conf.get("common", "actor_gender")
+
     def soft_link(self) -> bool:
         return self.conf.getboolean("common", "soft_link")
     def failed_move(self) -> bool:
@@ -58,8 +61,8 @@ class Config:
         return self.conf.getboolean("watermark", "switch")
 
     def is_extrafanart(self) -> bool:
-        return self.conf.getboolean("extrafanart", "switch")   
-    
+        return self.conf.getboolean("extrafanart", "switch")
+
     def watermark_type(self) -> int:
         return int(self.conf.get("watermark", "water"))
 
@@ -103,19 +106,19 @@ class Config:
 
     def cacert_file(self) -> str:
         return self.conf.get('proxy', 'cacert_file')
-            
+
     def media_type(self) -> str:
         return self.conf.get('media', 'media_type')
 
     def sub_rule(self):
         return self.conf.get('media', 'sub_type').split(',')
-            
+
     def naming_rule(self) -> str:
         return self.conf.get("Name_Rule", "naming_rule")
 
     def location_rule(self) -> str:
         return self.conf.get("Name_Rule", "location_rule")
-    
+
     def max_title_len(self) -> int:
         """
         Maximum title length
@@ -162,6 +165,8 @@ class Config:
         conf.set(sec1, "failed_move", "1")
         conf.set(sec1, "auto_exit", "0")
         conf.set(sec1, "transalte_to_sc", "1")
+        # actor_gender value: female or male or both or all(含人妖)
+        conf.set(sec1, "actor_gender", "female")
 
         sec2 = "proxy"
         conf.add_section(sec2)
@@ -203,7 +208,7 @@ class Config:
         conf.set(sec8, "key", "")
         conf.set(sec8, "delay", "1")
         conf.set(sec8, "values", "title,outline")
-        
+
         sec9 = "trailer"
         conf.add_section(sec9)
         conf.set(sec9, "switch", "0")
@@ -252,3 +257,4 @@ if __name__ == "__main__":
     print(config.get_transalte_key())
     print(config.get_transalte_delay())
     print(config.transalte_values())
+    print(config.actor_gender())
