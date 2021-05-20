@@ -1,5 +1,6 @@
 import requests
 import hashlib
+import pathlib
 import random
 import uuid
 import json
@@ -570,3 +571,15 @@ def load_cookies(filename):
         return json.load(open(filename))
     except:
         return None
+
+# 文件修改时间距此时的天数
+def file_modification_days(filename) -> int:
+    mfile = pathlib.Path(filename)
+    if not mfile.exists():
+        return 9999
+    mtime = int(mfile.stat().st_mtime)
+    now = int(time.time())
+    days = int((now - mtime) / (24 * 60 * 60))
+    if days < 0:
+        return 9999
+    return days
