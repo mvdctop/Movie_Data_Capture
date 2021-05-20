@@ -69,13 +69,13 @@ def create_failed_folder(failed_folder):
 
 
 def rm_empty_folder(path):
-    try:
-        files = os.listdir(path)  # 获取路径下的子文件(夹)列表
-        for file in files:
+    files = os.listdir(path)  # 获取路径下的子文件(夹)列表
+    for file in files:
+        try:
             os.rmdir(path + '/' + file)  # 删除这个空文件夹
             print('[+]Deleting empty folder', path + '/' + file)
-    except:
-        pass
+        except:
+            pass
 
 
 def create_data_and_move(file_path: str, c: config.Config, debug):
@@ -189,6 +189,7 @@ if __name__ == '__main__':
 
     rm_empty_folder(conf.success_folder())
     rm_empty_folder(conf.failed_folder())
+    rm_empty_folder(os.getcwd())
 
     end_time = time.time()
     total_time = end_time - start_time
