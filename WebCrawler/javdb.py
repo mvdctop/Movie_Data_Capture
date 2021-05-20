@@ -11,8 +11,8 @@ from ADC_function import *
 
 def getTitle(a):
     html = etree.fromstring(a, etree.HTMLParser())
-    result = html.xpath("/html/body/section/div/h2/strong/text()")[0]
-    return result
+    browser_title = str(html.xpath("/html/head/title/text()")[0])
+    return browser_title[:browser_title.find(' | JavDB')].strip()
 
 def getActor(a):
     html = etree.fromstring(a, etree.HTMLParser())
@@ -212,7 +212,11 @@ def main(number):
         # else:
         #     number = number.upper()
         number = number.upper()
-        javdb_cookies = load_cookies(javdb_site + ".json")
+        cookie_json = './' + javdb_site + '.json'
+        javdb_cookies = None
+        # 不加载过期的cookie，javdb登录界面显示为7天免登录，故假定cookie有效期为7天
+        if file_modification_days(cookie_json) < 7:
+            javdb_cookies = load_cookies(cookie_json)
         try:
             javdb_url = 'https://' + javdb_site + '.com/search?q=' + number + '&f=all'
             query_result = get_html(javdb_url, cookies=javdb_cookies)
