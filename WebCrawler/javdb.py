@@ -51,7 +51,7 @@ def getActorPhoto(html): #//*[@id="star_qdt"]/li/a/img
         actor = actor_prether.findall(actoralls)
         actor_photo = {}
         for i in actor:
-            actor_photo[i[1]] = getaphoto('https://javdb.com'+i[0])
+            actor_photo[i[1]] = getaphoto('https://' + javdb_site + '.com'+i[0])
 
         return actor_photo
 
@@ -217,7 +217,7 @@ def main(number):
             javdb_url = 'https://' + javdb_site + '.com/search?q=' + number + '&f=all'
             query_result = get_html(javdb_url, cookies=javdb_cookies)
         except:
-            query_result = get_html('https://javdb8.com/search?q=' + number + '&f=all')
+            query_result = get_html('https://javdb9.com/search?q=' + number + '&f=all')
         html = etree.fromstring(query_result, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
         # javdb sometime returns multiple results,
         # and the first elememt maybe not the one we are looking for
@@ -233,7 +233,7 @@ def main(number):
             javdb_detail_url = 'https://' + javdb_site + '.com' + correct_url
             detail_page = get_html(javdb_detail_url, cookies=javdb_cookies)
         except:
-            detail_page = get_html('https://javdb8.com' + correct_url)
+            detail_page = get_html('https://' + javdb_site + '.com' + correct_url)
 
         # no cut image by default
         imagecut = 3
