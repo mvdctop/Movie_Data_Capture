@@ -69,7 +69,10 @@ def create_failed_folder(failed_folder):
 
 
 def rm_empty_folder(path):
-    files = os.listdir(path)  # 获取路径下的子文件(夹)列表
+    try:
+        files = os.listdir(path)  # 获取路径下的子文件(夹)列表
+    except:
+        return
     for file in files:
         try:
             os.rmdir(path + '/' + file)  # 删除这个空文件夹
