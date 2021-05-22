@@ -1,4 +1,4 @@
-pkg install python37 py37-requests py37-pip py37-lxml py37-pillow py37-cloudscraper py37-pysocks git zip py37-pyinstaller py37-beautifulsoup448
-pip install pyquery
-pyinstaller --onefile AV_Data_Capture.py  --hidden-import ADC_function.py --hidden-import core.py --add-data "$(python3.7 -c 'import cloudscraper as _; print(_.__path__[0])' | tail -n 1):cloudscraper"
+pkg install python38 py38-requests py38-pip py38-lxml py38-pillow py38-cloudscraper py38-pysocks git zip py38-beautifulsoup448
+pip install pyquery pyinstaller
+pyinstaller --onefile AV_Data_Capture.py  --hidden-import ADC_function.py --hidden-import core.py --add-data "$(python3.8 -c 'import cloudscraper as _; print(_.__path__[0])' | tail -n 1):cloudscraper"
 cp config.ini ./dist
