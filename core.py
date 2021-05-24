@@ -98,30 +98,16 @@ def get_data_from_json(file_number, filepath, conf: config.Config):  # ä»ŽJSONè¿
 
     if conf.multi_threading():
         pool = ThreadPool(processes=11)
-        MT = {
-            'javbus'  : pool.apply_async,
-            'javdb'   : pool.apply_async,
-            'avsox'   : pool.apply_async,
-            'fanza'   : pool.apply_async,
-            'fc2'     : pool.apply_async,
-            'xcity'   : pool.apply_async,
-            'jav321'  : pool.apply_async,
-            'mgstage' : pool.apply_async,
-            # 'javlib'  : pool.apply_async,
-            'dlsite'  : pool.apply_async,
-            'airav'   : pool.apply_async,
-            'carib'   : pool.apply_async,
-        }
 
         # Set the priority of multi-thread crawling and join the multi-thread queue
         for source in sources:
-            MT[source](func_mapping[source], (file_number,))
+            pool.apply_async(func_mapping[source], (file_number,))
 
         # Get multi-threaded crawling response
         for source in sources:
             if conf.debug() == True:
                 print('[+]select', source)
-            json_data = json.loads(MT[source](func_mapping[source], (file_number,)).get())
+            json_data = json.loads(pool.apply_async(func_mapping[source], (file_number,)).get())
             # if any service return a valid return, break
             if get_data_state(json_data):
                 break
