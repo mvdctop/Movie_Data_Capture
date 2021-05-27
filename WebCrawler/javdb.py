@@ -293,8 +293,7 @@ def main(number):
             'series': getSeries(detail_page),
 
         }
-    except Exception as e:
-        print(e)
+    except Exception:
         dic = {"title": ""}
     js = json.dumps(dic, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ':'), )  # .encode('UTF-8')
     return js
