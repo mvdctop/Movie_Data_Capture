@@ -221,6 +221,7 @@ def main(number):
         elif cdays != 9999:
             print('[!]Cookies file ' + cookie_json + ' was updated ' + str(cdays) +
                   ' days ago, it will not be used for HTTP requests.')
+
         try:
             javdb_url = 'https://' + javdb_site + '.com/search?q=' + number + '&f=all'
             query_result = get_html(javdb_url, cookies=javdb_cookies)
@@ -236,7 +237,11 @@ def main(number):
             correct_url = urls[0]
         else:
             ids =html.xpath('//*[@id="videos"]/div/div/a/div[contains(@class, "uid")]/text()')
-            correct_url = urls[ids.index(number)]
+            try:
+                correct_url = urls[ids.index(number)]
+            except:
+                # if input number is "STAR438" not "STAR-438", use first search result.
+                correct_url = urls[0]
         try:
             javdb_detail_url = 'https://' + javdb_site + '.com' + correct_url
             detail_page = get_html(javdb_detail_url, cookies=javdb_cookies)
@@ -249,7 +254,11 @@ def main(number):
         if re.search(r'[a-zA-Z]+\.\d{2}\.\d{2}\.\d{2}', number):
             cover_small = getCover_small(query_result)
         else:
-            cover_small = getCover_small(query_result, index=ids.index(number))
+            try:
+                cover_small = getCover_small(query_result, index=ids.index(number))
+            except:
+                # if input number is "STAR438" not "STAR-438", use first search result.
+                cover_small = getCover_small(query_result)
         if 'placeholder' in cover_small:
             # replace wit normal cover and cut it
             imagecut = 1
