@@ -120,7 +120,9 @@ def main(number):
             'source': 'avsox.py',
             'series': getSeries(info),
         }
-    except:
+    except Exception as e:
+        if config.Config().debug():
+            print(e)
         dic = {"title": ""}
     js = json.dumps(dic, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ':'), )  # .encode('UTF-8')
     return js

@@ -178,7 +178,9 @@ def main(number):
             return js
         except:
             return main_uncensored(number)
-    except:
+    except Exception as e:
+        if config.Config().debug():
+            print(e)
         data = {
             "title": "",
         }
