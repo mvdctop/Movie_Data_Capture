@@ -47,6 +47,8 @@ def getYear(htmlcode):   #获取年份
 def getCover(htmlcode):  #获取封面链接
     doc = pq(htmlcode)
     image = doc('a.bigImage')
+    if not "javbus.com" in image.attr('href'):
+        return "https://www.javbus.com" + image.attr('href')
     return image.attr('href')
 def getRelease(htmlcode): #获取出版日期
     html = etree.fromstring(htmlcode, etree.HTMLParser())
