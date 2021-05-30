@@ -21,7 +21,7 @@ CLI 版本
 * [VergilGao's Docker部署](https://github.com/VergilGao/docker-avdc)
 
 # 下载
-* [Releases](https://github.com/yoshiko2/AV_Data_Capture/releases)
+* [Releases](https://github.com/yoshiko2/AV_Data_Capture/releases/lastest)
 
 #  申明
 当你查阅、下载了本项目源代码或二进制程序，即代表你接受了以下条款
