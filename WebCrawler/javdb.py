@@ -212,9 +212,7 @@ def main(number):
         # else:
         #     number = number.upper()
         number = number.upper()
-        isFC2PPV = False
-        if re.search(r'^FC2-\d+', number):
-            isFC2PPV = True
+        isFC2PPV = bool(re.search(r'^FC2-\d+', number))
         cookie_json = './' + javdb_site + '.json'
         javdb_cookies = None
         # 不加载过期的cookie，javdb登录界面显示为7天免登录，故假定cookie有效期为7天
