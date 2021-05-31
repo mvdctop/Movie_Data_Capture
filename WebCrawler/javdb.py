@@ -272,7 +272,8 @@ def main(number):
         if isFC2PPV and dp_number != number:
             raise ValueError("number not found")
         title = getTitle(detail_page)
-        if title and number:
+        if title and dp_number:
+            number = dp_number
             # remove duplicate title
             title = title.replace(number, '').strip()
 
