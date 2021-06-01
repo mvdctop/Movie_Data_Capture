@@ -44,7 +44,7 @@ When you view and download the source code or binary program of this project, it
 * **Please do not promote this project on popular social platforms**
 * The software author wrote this software to learn Python and improve programming
 * This software does not provide any clues for video download
-* Before using this software, please understand and abide by local laws and regulations. If there is any violation of local laws and regulations during the use of this software, * please do not use this software
+* Before using this software, please understand and abide by local laws and regulations. If there is any violation of local laws and regulations during the use of this software, * please do not use this software  
 * When the user uses this software, if the user has any illegal acts in the local area, the user shall bear
 * It is strictly forbidden for users to use this software for commercial and personal intentions
 * Please delete the source code and binary program within 24 hours after downloading
