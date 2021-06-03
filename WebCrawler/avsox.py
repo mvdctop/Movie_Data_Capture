@@ -96,7 +96,7 @@ def main(number):
             a = get_html(site + '/cn/search/' + number.replace('_', ''))
             html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
             result1 = str(html.xpath('//*[@id="waterfall"]/div/a/@href')).strip(" ['']")
-    web = get_html(result1)
+    web = get_html("https:" + result1)
     soup = BeautifulSoup(web, 'lxml')
     info = str(soup.find(attrs={'class': 'row movie'}))
     try:
@@ -116,7 +116,7 @@ def main(number):
             'label': getLabel(info),
             'year': getYear(getRelease(info)),  # str(re.search('\d{4}',getRelease(a)).group()),
             'actor_photo': getActorPhoto(web),
-            'website': result1,
+            'website': "https:" + result1,
             'source': 'avsox.py',
             'series': getSeries(info),
         }
