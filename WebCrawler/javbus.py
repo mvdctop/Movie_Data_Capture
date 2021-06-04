@@ -82,7 +82,7 @@ def getCID(htmlcode):
     string = html.xpath("//a[contains(@class,'sample-box')][1]/@href")[0].replace('https://pics.dmm.co.jp/digital/video/','')
     result = re.sub('/.*?.jpg','',string)
     return result
-def getOutline(number):  #获取演员
+def getOutline(number):  #获取剧情介绍
     try:
         response = json.loads(airav.main(number))
         result = response['outline']

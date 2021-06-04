@@ -192,10 +192,13 @@ def getDirector(a):
     result1 = str(html.xpath('//strong[contains(text(),"導演")]/../span/text()')).strip(" ['']")
     result2 = str(html.xpath('//strong[contains(text(),"導演")]/../span/a/text()')).strip(" ['']")
     return str(result1 + result2).strip('+').replace("', '", '').replace('"', '')
-def getOutline(htmlcode):
-    html = etree.fromstring(htmlcode, etree.HTMLParser())
-    result = str(html.xpath('//*[@id="introduction"]/dd/p[1]/text()')).strip(" ['']")
-    return result
+def getOutline(number):  #获取剧情介绍
+    try:
+        response = json.loads(airav.main(number))
+        result = response['outline']
+        return result
+    except:
+        return ''
 def getSeries(a):
     #/html/body/section/div/div[3]/div[2]/nav/div[7]/span/a
     html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
@@ -281,7 +284,7 @@ def main(number):
             'actor': getActor(detail_page),
             'title': title,
             'studio': getStudio(detail_page),
-            'outline': getOutline(detail_page),
+            'outline': getOutline(number),
             'runtime': getRuntime(detail_page),
             'director': getDirector(detail_page),
             'release': getRelease(detail_page),
