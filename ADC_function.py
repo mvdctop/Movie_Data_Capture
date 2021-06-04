@@ -9,8 +9,6 @@ from lxml import etree
 import re
 import config
 
-SUPPORT_PROXY_TYPE = ("http", "socks5", "socks5h")
-
 
 def get_data_state(data: dict) -> bool:  # 元数据获取失败检测
     if "title" not in data or "number" not in data:
@@ -31,25 +29,10 @@ def getXpathSingle(htmlcode, xpath):
     return result1
 
 
-def get_proxy(proxy: str, proxytype: str = None) -> dict:
-    ''' 获得代理参数，默认http代理
-    '''
-    if proxy:
-        if proxytype in SUPPORT_PROXY_TYPE:
-            proxies = {"http": proxytype + "://" + proxy, "https": proxytype + "://" + proxy}
-        else:
-            proxies = {"http": "http://" + proxy, "https": "https://" + proxy}
-    else:
-        proxies = {}
-
-    return proxies
-
-
 # 网页请求核心
 def get_html(url, cookies: dict = None, ua: str = None, return_type: str = None):
     verify = config.Config().cacert_file()
-    switch, proxy, timeout, retry_count, proxytype = config.Config().proxy()
-    proxies = get_proxy(proxy, proxytype)
+    configProxy = config.Config().proxy()
     errors = ""
 
     if ua is None:
@@ -58,13 +41,14 @@ def get_html(url, cookies: dict = None, ua: str = None, return_type: str = None)
     else:
         headers = {"User-Agent": ua}
 
-    for i in range(retry_count):
+    for i in range(configProxy.retry):
         try:
-            if switch == '1' or switch == 1:
-                result = requests.get(str(url), headers=headers, timeout=timeout, proxies=proxies, verify=verify,
+            if configProxy.enable:
+                proxies = configProxy.proxies()
+                result = requests.get(str(url), headers=headers, timeout=configProxy.timeout, proxies=proxies, verify=verify,
                                       cookies=cookies)
             else:
-                result = requests.get(str(url), headers=headers, timeout=timeout, cookies=cookies)
+                result = requests.get(str(url), headers=headers, timeout=configProxy.timeout, cookies=cookies)
 
             result.encoding = "utf-8"
 
@@ -78,15 +62,14 @@ def get_html(url, cookies: dict = None, ua: str = None, return_type: str = None)
             print("[-]Proxy error! Please check your Proxy")
             return
         except Exception as e:
-            print("[-]Connect retry {}/{}".format(i + 1, retry_count))
+            print("[-]Connect retry {}/{}".format(i + 1, configProxy.retry))
             errors = str(e)
     print('[-]Connect Failed! Please check your Proxy or Network!')
     print("[-]" + errors)
 
 
 def post_html(url: str, query: dict, headers: dict = None) -> requests.Response:
-    switch, proxy, timeout, retry_count, proxytype = config.Config().proxy()
-    proxies = get_proxy(proxy, proxytype)
+    configProxy = config.Config().proxy()
     errors = ""
     headers_ua = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3100.0 Safari/537.36"}
@@ -95,15 +78,16 @@ def post_html(url: str, query: dict, headers: dict = None) -> requests.Response:
     else:
         headers.update(headers_ua)
 
-    for i in range(retry_count):
+    for i in range(configProxy.retry):
         try:
-            if switch == 1 or switch == '1':
-                result = requests.post(url, data=query, proxies=proxies, headers=headers, timeout=timeout)
+            if configProxy.enable:
+                proxies = configProxy.proxies()
+                result = requests.post(url, data=query, proxies=proxies, headers=headers, timeout=configProxy.timeout)
             else:
-                result = requests.post(url, data=query, headers=headers, timeout=timeout)
+                result = requests.post(url, data=query, headers=headers, timeout=configProxy.timeout)
             return result
         except Exception as e:
-            print("[-]Connect retry {}/{}".format(i + 1, retry_count))
+            print("[-]Connect retry {}/{}".format(i + 1, configProxy.retry))
             errors = str(e)
     print("[-]Connect Failed! Please check your Proxy or Network!")
     print("[-]" + errors)

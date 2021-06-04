@@ -92,7 +92,7 @@ class Config:
         return self.conf.getint("transalte","delay")
     def transalte_values(self) -> str:
         return self.conf.get("transalte", "values")
-    def proxy(self) -> [str, int, int, str]:
+    def proxy(self):
         try:
             sec = "proxy"
             switch = self.conf.get(sec, "switch")
@@ -100,7 +100,8 @@ class Config:
             timeout = self.conf.getint(sec, "timeout")
             retry = self.conf.getint(sec, "retry")
             proxytype = self.conf.get(sec, "type")
-            return switch, proxy, timeout, retry, proxytype
+            iniProxy = IniProxy(switch, proxy, timeout, retry, proxytype)
+            return iniProxy
         except ValueError:
             self._exit("common")
 
@@ -235,6 +236,43 @@ class Config:
         return conf
 
 
+
+
+class IniProxy():
+    """ Proxy Config from .ini
+    """
+    SUPPORT_PROXY_TYPE = ("http", "socks5", "socks5h")
+
+    enable = False
+    address = ""
+    timeout = 5
+    retry = 3
+    proxytype = "socks5"
+
+    def __init__(self, switch, address, timeout, retry, proxytype) -> None:
+        """ Initial Proxy from .ini
+        """
+        if switch == '1' or switch == 1:
+            self.enable = True
+        self.address = address
+        self.timeout = timeout
+        self.retry = retry
+        self.proxytype = proxytype
+    
+    def proxies(self):
+        ''' 获得代理参数，默认http代理
+        '''
+        if self.address:
+            if self.proxytype in self.SUPPORT_PROXY_TYPE:
+                proxies = {"http": self.proxytype + "://" + self.address, "https": self.proxytype + "://" + self.address}
+            else:
+                proxies = {"http": "http://" + self.address, "https": "https://" + self.address}
+        else:
+            proxies = {}
+
+        return proxies
+
+
 if __name__ == "__main__":
     config = Config()
     print(config.main_mode())
@@ -243,7 +281,8 @@ if __name__ == "__main__":
     print(config.soft_link())
     print(config.failed_move())
     print(config.auto_exit())
-    print(config.proxy())
+    print(config.proxy().enable)
+    print(config.proxy().retry)
     print(config.naming_rule())
     print(config.location_rule())
     print(config.update_check())
