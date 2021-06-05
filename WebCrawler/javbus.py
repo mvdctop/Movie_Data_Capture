@@ -48,7 +48,7 @@ def getCover(htmlcode):  #获取封面链接
     doc = pq(htmlcode)
     image = doc('a.bigImage')
     uri = image.attr('href')
-    if uri[0] == '/':
+    if uri[0:4] != 'http':
         return "https://www.javbus.com" + uri
     return uri
 def getRelease(htmlcode): #获取出版日期
