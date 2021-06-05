@@ -2,6 +2,7 @@ import requests
 import hashlib
 import pathlib
 import random
+import os.path
 import uuid
 import json
 import time
@@ -567,3 +568,11 @@ def file_modification_days(filename) -> int:
     if days < 0:
         return 9999
     return days
+
+# 检查文件是否是链接
+def is_link(filename: str):
+    if os.path.islink(filename):
+        return True # symlink
+    elif os.stat(filename).st_nlink > 1:
+        return True # hard link Linux MAC OSX Windows NTFS
+    return False
