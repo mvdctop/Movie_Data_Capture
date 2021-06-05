@@ -56,7 +56,7 @@ def movie_lists(root, escape_folder):
             total += movie_lists(f, escape_folder)
         elif os.path.splitext(f)[1].upper() in file_type:
             absf = os.path.abspath(f)
-            if not is_link(absf):
+            if conf.main_mode() == 3 or not is_link(absf):
                 total.append(absf)
     return total
 
