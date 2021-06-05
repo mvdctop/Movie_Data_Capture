@@ -48,7 +48,7 @@ def getCover(htmlcode):  #获取封面链接
     doc = pq(htmlcode)
     image = doc('a.bigImage')
     uri = image.attr('href')
-    if uri[0:4] == 'http':
+    if uri.startswith('http'):
         return uri
     if uri[0] != '/':
         uri = '/' + uri
