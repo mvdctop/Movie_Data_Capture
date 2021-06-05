@@ -47,9 +47,10 @@ def getYear(htmlcode):   #获取年份
 def getCover(htmlcode):  #获取封面链接
     doc = pq(htmlcode)
     image = doc('a.bigImage')
-    if not "javbus.com" in image.attr('href'):
-        return "https://www.javbus.com" + image.attr('href')
-    return image.attr('href')
+    uri = image.attr('href')
+    if uri[0] == '/':
+        return "https://www.javbus.com" + uri
+    return uri
 def getRelease(htmlcode): #获取出版日期
     html = etree.fromstring(htmlcode, etree.HTMLParser())
     result = str(html.xpath('/html/body/div[5]/div[1]/div[2]/p[2]/text()')).strip(" ['']")
@@ -193,3 +194,4 @@ def main(number):
 
 if __name__ == "__main__" :
     print(main('ipx-292'))
+    print(main('CEMD-011'))

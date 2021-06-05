@@ -4,6 +4,7 @@ import pathlib
 import re
 import shutil
 import platform
+import errno
 
 from PIL import Image
 from io import BytesIO
@@ -49,7 +50,7 @@ def moveFailedFolder(filepath, failed_folder):
 
 def get_data_from_json(file_number, filepath, conf: config.Config):  # 从JSON返回元数据
     """
-    iterate through all services and fetch the data 
+    iterate through all services and fetch the data
     """
 
     func_mapping = {
@@ -150,17 +151,17 @@ def get_data_from_json(file_number, filepath, conf: config.Config):  # 从JSON�
         cover_small = ''
     else:
         cover_small = json_data.get('cover_small')
-    
+
     if json_data.get('trailer') == None:
         trailer = ''
     else:
         trailer = json_data.get('trailer')
-        
+
     if json_data.get('extrafanart') == None:
         extrafanart = ''
     else:
         extrafanart = json_data.get('extrafanart')
-    
+
     imagecut = json_data.get('imagecut')
     tag = str(json_data.get('tag')).strip("[ ]").replace("'", '').replace(" ", '').split(',')  # 字符串转列表 @
     actor = str(actor_list).strip("[ ]").replace("'", '').replace(" ", '')
@@ -226,7 +227,7 @@ def get_data_from_json(file_number, filepath, conf: config.Config):  # 从JSON�
     studio = re.sub('.*/妄想族','妄想族',studio)
     studio = studio.replace('/',' ')
     # ===  替换Studio片假名 END
-    
+
     location_rule = eval(conf.location_rule())
 
     if 'actor' in conf.location_rule() and len(actor) > 100:
@@ -277,7 +278,7 @@ def get_data_from_json(file_number, filepath, conf: config.Config):  # 从JSON�
             json_data['trailer'] = ''
     else:
         json_data['trailer'] = ''
-        
+
     if conf.is_extrafanart():
         if extrafanart:
             json_data['extrafanart'] = extrafanart
@@ -285,7 +286,7 @@ def get_data_from_json(file_number, filepath, conf: config.Config):  # 从JSON�
             json_data['extrafanart'] = ''
     else:
         json_data['extrafanart'] = ''
-        
+
     naming_rule=""
     for i in conf.naming_rule().split("+"):
         if i not in json_data:
@@ -644,6 +645,9 @@ def paste_file_to_folder(filepath, path, number, leak_word, c_word, conf: config
     except PermissionError:
         print('[-]Error! Please run as administrator!')
         return
+    except OSError as oserr:
+        print('[-]OS Error errno ' + oserr.errno)
+        return
 
 
 def paste_file_to_folder_mode2(filepath, path, multi_part, number, part, leak_word, c_word, conf):  # 文件路径，番号，后缀，要移动至的位置
@@ -656,7 +660,7 @@ def paste_file_to_folder_mode2(filepath, path, multi_part, number, part, leak_wo
             os.symlink(filepath, path + '/' + number + part + leak_word + c_word + houzhui)
         else:
             os.rename(filepath, path + '/' + number + part + leak_word + c_word + houzhui)
-        
+
         sub_res = conf.sub_rule()
         for subname in sub_res:
             if os.path.exists(filepath.replace(houzhui, subname)):  # 字幕移动
@@ -670,6 +674,9 @@ def paste_file_to_folder_mode2(filepath, path, multi_part, number, part, leak_wo
         return
     except PermissionError:
         print('[-]Error! Please run as administrator!')
+        return
+    except OSError as oserr:
+        print('[-]OS Error errno ' + oserr.errno)
         return
 
 def get_part(filepath, failed_folder):
@@ -742,8 +749,8 @@ def core_main(file_path, number_th, conf: config.Config):
         uncensored = 1
     else:
         uncensored = 0
-    
-    
+
+
     if '流出' in filepath or 'uncensored' in filepath:
         liuchu = '流出'
         leak = 1
@@ -795,7 +802,7 @@ def core_main(file_path, number_th, conf: config.Config):
 
         # 移动文件
         paste_file_to_folder(filepath, path, number, leak_word, c_word, conf)
-        
+
         poster_path = path + '/' + number + leak_word + c_word + '-poster.jpg'
         thumb_path = path + '/' + number + leak_word + c_word + '-thumb.jpg'
         if conf.is_watermark():
