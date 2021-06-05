@@ -30,6 +30,8 @@ def getXpathSingle(htmlcode, xpath):
     return result1
 
 
+G_USER_AGENT = r'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.77 Safari/537.36'
+
 # 网页请求核心
 def get_html(url, cookies: dict = None, ua: str = None, return_type: str = None):
     verify = config.Config().cacert_file()
@@ -37,8 +39,7 @@ def get_html(url, cookies: dict = None, ua: str = None, return_type: str = None)
     errors = ""
 
     if ua is None:
-        headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3100.0 Safari/537.36"}  # noqa
+        headers = {"User-Agent": G_USER_AGENT}  # noqa
     else:
         headers = {"User-Agent": ua}
 
@@ -72,8 +73,7 @@ def get_html(url, cookies: dict = None, ua: str = None, return_type: str = None)
 def post_html(url: str, query: dict, headers: dict = None) -> requests.Response:
     configProxy = config.Config().proxy()
     errors = ""
-    headers_ua = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3100.0 Safari/537.36"}
+    headers_ua = {"User-Agent": G_USER_AGENT}
     if headers is None:
         headers = headers_ua
     else:
