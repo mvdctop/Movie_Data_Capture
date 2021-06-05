@@ -48,12 +48,11 @@ def getCover(htmlcode):  #获取封面链接
     doc = pq(htmlcode)
     image = doc('a.bigImage')
     uri = image.attr('href')
-    if uri[0:4] != 'http':
-        if uri[0] == '/':
-            return "https://www.javbus.com" + uri
-        else:
-            return "https://www.javbus.com/" + uri
-    return uri
+    if uri[0:4] == 'http':
+        return uri
+    if uri[0] != '/':
+        uri = '/' + uri
+    return "https://www.javbus.com" + uri
 def getRelease(htmlcode): #获取出版日期
     html = etree.fromstring(htmlcode, etree.HTMLParser())
     result = str(html.xpath('/html/body/div[5]/div[1]/div[2]/p[2]/text()')).strip(" ['']")
