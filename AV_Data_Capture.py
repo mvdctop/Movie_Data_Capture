@@ -8,7 +8,7 @@ import urllib3
 
 import config
 import time
-from ADC_function import get_html
+from ADC_function import get_html, is_link
 from number_parser import get_number
 from core import core_main
 
@@ -44,7 +44,6 @@ def argparse_function(ver: str) -> [str, str, bool]:
 
     return args.file, args.path, args.number, args.autoexit
 
-
 def movie_lists(root, escape_folder):
     if os.path.basename(root) in escape_folder:
         return []
@@ -56,7 +55,9 @@ def movie_lists(root, escape_folder):
         if os.path.isdir(f):
             total += movie_lists(f, escape_folder)
         elif os.path.splitext(f)[1].upper() in file_type:
-            total.append(os.path.abspath(f))
+            absf = os.path.abspath(f)
+            if conf.main_mode() == 3 or not is_link(absf):
+                total.append(absf)
     return total
 
 
