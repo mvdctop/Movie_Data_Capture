@@ -36,12 +36,12 @@ def escape_path(path, escape_literals: str):  # Remove escape literals
 
 def moveFailedFolder(filepath, failed_folder):
     if config.Config().failed_move():
-        root_path = str(pathlib.Path(filepath).parent)
+        root_path = os.getcwd()
         file_name = pathlib.Path(filepath).name
         destination_path = root_path + '/' + failed_folder + '/'
         if config.Config().soft_link():
             print('[-]Create symlink to Failed output folder')
-            os.symlink(filepath, destination_path + '/' + file_name)
+            os.symlink(filepath, destination_path + file_name)
         else:
             print('[-]Move to Failed output folder')
             shutil.move(filepath, destination_path)
@@ -412,13 +412,14 @@ def trailer_download(trailer, leak_word, c_word, number, path, filepath, conf: c
         return
     print('[+]Video Downloaded!', path + '/' + number + leak_word + c_word + '-trailer.mp4')
 
-# 剧照下载成功，否则移动到failed
+# 剧照下载成功，否则移动到failed --取消
 def extrafanart_download(data, path, conf: config.Config, filepath, failed_folder):
     j = 1
     path = path + '/' + conf.get_extrafanart()
     for url in data:
         if download_file_with_filename(url, '/extrafanart-' + str(j)+'.jpg', path, conf, filepath, failed_folder) == 'failed':
-            moveFailedFolder(filepath, failed_folder)
+            #取消 moveFailedFolder(filepath, failed_folder)
+            print('剧照下载失败！')
             return
         configProxy = conf.proxy()
         for i in range(configProxy.retry):
