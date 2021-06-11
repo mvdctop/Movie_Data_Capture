@@ -9,6 +9,7 @@ import time
 from lxml import etree
 import re
 import config
+from urllib.parse import urljoin
 
 
 def get_data_state(data: dict) -> bool:  # 元数据获取失败检测
@@ -576,3 +577,9 @@ def is_link(filename: str):
     elif os.stat(filename).st_nlink > 1:
         return True # hard link Linux MAC OSX Windows NTFS
     return False
+
+# URL相对路径转绝对路径
+def abs_url(base_url: str, href: str) -> str:
+    if href.startswith('http'):
+        return href
+    return urljoin(base_url, href)
