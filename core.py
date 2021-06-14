@@ -590,18 +590,12 @@ def add_to_pic(pic_path, img_pic, size, count, mode):
     mark_pic_path = ''
     # 先找pyinstaller打包的图片
     base_path = ''
-    if hasattr(sys, '_MEIPASS'):
+    if hasattr(sys, '_MEIPASS') and os.path.isfile(os.path.join(getattr(sys, '_MEIPASS'),"Img/SUB.png")):
         base_path = getattr(sys, '_MEIPASS')
-    if base_path and os.path.isfile(os.path.join(base_path,"Img/SUB.png")):
-        if mode == 1:
-            mark_pic_path = os.path.join(base_path, "Img/SUB.png")
-        elif mode == 2:
-            mark_pic_path = os.path.join(base_path, "Img/LEAK.png")
-        elif mode == 3:
-            mark_pic_path = os.path.join(base_path, "Img/UNCENSORED.png")
     # 再找py脚本所在路径的图片
     elif os.path.isfile(os.path.join(os.path.dirname(os.path.realpath(__file__)),"Img/SUB.png")):
         base_path = os.path.dirname(os.path.realpath(__file__))
+    if len(base_path) > 0 and os.path.isdir(base_path):
         if mode == 1:
             mark_pic_path = os.path.join(base_path, "Img/SUB.png")
         elif mode == 2:
