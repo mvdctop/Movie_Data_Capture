@@ -588,28 +588,27 @@ def add_mark_thread(pic_path, cn_sub, leak, uncensored, conf):
 
 def add_to_pic(pic_path, img_pic, size, count, mode):
     mark_pic_path = ''
+    pngpath = ''
+    if mode == 1:
+        pngpath = "Img/SUB.png"
+    elif mode == 2:
+        pngpath = "Img/LEAK.png"
+    elif mode == 3:
+        pngpath = "Img/UNCENSORED.png"
+    else:
+        print('[-]Error: watermark image param mode invalid!')
+        return
     # 先找pyinstaller打包的图片
-    base_path = ''
-    if hasattr(sys, '_MEIPASS') and os.path.isfile(os.path.join(getattr(sys, '_MEIPASS'),"Img/SUB.png")):
-        base_path = getattr(sys, '_MEIPASS')
+    if hasattr(sys, '_MEIPASS') and os.path.isfile(os.path.join(getattr(sys, '_MEIPASS'), pngpath)):
+        mark_pic_path =                            os.path.join(getattr(sys, '_MEIPASS'), pngpath)
     # 再找py脚本所在路径的图片
-    elif os.path.isfile(os.path.join(os.path.dirname(os.path.realpath(__file__)),"Img/SUB.png")):
-        base_path = os.path.dirname(os.path.realpath(__file__))
-    if len(base_path) > 0 and os.path.isdir(base_path):
-        if mode == 1:
-            mark_pic_path = os.path.join(base_path, "Img/SUB.png")
-        elif mode == 2:
-            mark_pic_path = os.path.join(base_path, "Img/LEAK.png")
-        elif mode == 3:
-            mark_pic_path = os.path.join(base_path, "Img/UNCENSORED.png")
+    elif os.path.isfile(os.path.join(os.path.dirname(os.path.realpath(__file__)), pngpath)):
+        mark_pic_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), pngpath)
     # 如果没有本地图片才通过网络下载
     else:
-        if mode == 1:
-            mark_pic_path = BytesIO(get_html("https://raw.githubusercontent.com/yoshiko2/AV_Data_Capture/master/Img/SUB.png",return_type="content"))
-        elif mode == 2:
-            mark_pic_path = BytesIO(get_html("https://raw.githubusercontent.com/yoshiko2/AV_Data_Capture/master/Img/LEAK.png",return_type="content"))
-        elif mode == 3:
-            mark_pic_path = BytesIO(get_html("https://raw.githubusercontent.com/yoshiko2/AV_Data_Capture/master/Img/UNCENSORED.png",return_type="content"))
+        mark_pic_path = BytesIO(
+            get_html("https://raw.githubusercontent.com/yoshiko2/AV_Data_Capture/master/" + pngpath,
+            return_type="content"))
     img_subt = Image.open(mark_pic_path)
     scroll_high = int(img_pic.height / size)
     scroll_wide = int(scroll_high * img_subt.width / img_subt.height)
