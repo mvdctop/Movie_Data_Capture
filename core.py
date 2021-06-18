@@ -544,7 +544,8 @@ def cutImage(imagecut, path, number, leak_word, c_word):
         except:
             print('[-]Cover cut failed!')
     elif imagecut == 0: # 复制封面
-        shutil.copyfile(path + '/' + number + c_word + '-fanart.jpg',path + '/' + number + leak_word + c_word + '-poster.jpg')
+        shutil.copyfile(path + '/' + number + leak_word + c_word + '-fanart.jpg',
+                        path + '/' + number + leak_word + c_word + '-poster.jpg')
         print('[+]Image Copyed!     ' + path + '/' + number + leak_word + c_word + '-poster.jpg')
 
 # 此函数从gui版copy过来用用
