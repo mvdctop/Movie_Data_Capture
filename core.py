@@ -35,17 +35,16 @@ def escape_path(path, escape_literals: str):  # Remove escape literals
     return path
 
 
-def moveFailedFolder(filepath, failed_folder):
+def moveFailedFolder(filepath):
     if config.Config().failed_move():
-        root_path = str(pathlib.Path(filepath).parent)
-        file_name = pathlib.Path(filepath).name
-        destination_path = root_path + '/' + failed_folder + '/'
+        failed_folder = config.Config().failed_folder()
+        file_name = os.path.basename(filepath)
         if config.Config().soft_link():
             print('[-]Create symlink to Failed output folder')
-            os.symlink(filepath, destination_path + '/' + file_name)
+            os.symlink(filepath, failed_folder + '/' + file_name)
         else:
             print('[-]Move to Failed output folder')
-            shutil.move(filepath, destination_path)
+            shutil.move(filepath, failed_folder + '/' + file_name)
     return
 
 
@@ -130,7 +129,7 @@ def get_data_from_json(file_number, filepath, conf: config.Config):  # 从JSON�
     # Return if data not found in all sources
     if not json_data:
         print('[-]Movie Data not found!')
-        moveFailedFolder(filepath, conf.failed_folder())
+        moveFailedFolder(filepath)
         return
 
     # ================================================网站规则添加结束================================================
@@ -169,7 +168,7 @@ def get_data_from_json(file_number, filepath, conf: config.Config):  # 从JSON�
 
     if title == '' or number == '':
         print('[-]Movie Data not found!')
-        moveFailedFolder(filepath, conf.failed_folder())
+        moveFailedFolder(filepath)
         return
 
     # if imagecut == '3':
@@ -395,7 +394,7 @@ def download_file_with_filename(url, filename, path, conf: config.Config, filepa
             i += 1
             print('[-]Image Download :  Connect retry ' + str(i) + '/' + str(configProxy.retry))
     print('[-]Connect Failed! Please check your Proxy or Network!')
-    moveFailedFolder(filepath, failed_folder)
+    moveFailedFolder(filepath)
     return
 
 def trailer_download(trailer, leak_word, c_word, number, path, filepath, conf: config.Config, failed_folder):
@@ -419,7 +418,7 @@ def extrafanart_download(data, path, conf: config.Config, filepath, failed_folde
     path = path + '/' + conf.get_extrafanart()
     for url in data:
         if download_file_with_filename(url, '/extrafanart-' + str(j)+'.jpg', path, conf, filepath, failed_folder) == 'failed':
-            moveFailedFolder(filepath, failed_folder)
+            moveFailedFolder(filepath)
             return
         configProxy = conf.proxy()
         for i in range(configProxy.retry):
@@ -440,7 +439,7 @@ def extrafanart_download(data, path, conf: config.Config, filepath, failed_folde
 # 封面是否下载成功，否则移动到failed
 def image_download(cover, number, leak_word, c_word, path, conf: config.Config, filepath, failed_folder):
     if download_file_with_filename(cover, number + leak_word + c_word + '-fanart.jpg', path, conf, filepath, failed_folder) == 'failed':
-        moveFailedFolder(filepath, failed_folder)
+        moveFailedFolder(filepath)
         return
 
     configProxy = conf.proxy()
@@ -522,12 +521,12 @@ def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, f
     except IOError as e:
         print("[-]Write Failed!")
         print(e)
-        moveFailedFolder(filepath, failed_folder)
+        moveFailedFolder(filepath)
         return
     except Exception as e1:
         print(e1)
         print("[-]Write Failed!")
-        moveFailedFolder(filepath, failed_folder)
+        moveFailedFolder(filepath)
         return
 
 
@@ -704,7 +703,7 @@ def get_part(filepath, failed_folder):
             return re.findall('-cd\d+', filepath)[0]
     except:
         print("[-]failed!Please rename the filename again!")
-        moveFailedFolder(filepath, failed_folder)
+        moveFailedFolder(filepath)
         return
 
 
