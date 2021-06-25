@@ -315,8 +315,8 @@ def get_info(json_data):  # 返回json里的数据
     return title, studio, year, outline, runtime, director, actor_photo, release, number, cover, trailer, website, series, label
 
 
-def small_cover_check(path, number, cover_small, leak_word, c_word, conf: config.Config, filepath, failed_folder):
-    download_file_with_filename(cover_small, number + leak_word+ c_word + '-poster.jpg', path, conf, filepath, failed_folder)
+def small_cover_check(path, number, cover_small, leak_word, c_word, conf: config.Config, filepath):
+    download_file_with_filename(cover_small, number + leak_word+ c_word + '-poster.jpg', path, conf, filepath)
     print('[+]Image Downloaded! ' + path + '/' + number + leak_word + c_word + '-poster.jpg')
 
 
@@ -351,7 +351,7 @@ def trimblank(s: str):
 # =====================资源下载部分===========================
 
 # path = examle:photo , video.in the Project Folder!
-def download_file_with_filename(url, filename, path, conf: config.Config, filepath, failed_folder):
+def download_file_with_filename(url, filename, path, conf: config.Config, filepath):
     configProxy = conf.proxy()
 
     for i in range(configProxy.retry):
@@ -397,14 +397,14 @@ def download_file_with_filename(url, filename, path, conf: config.Config, filepa
     moveFailedFolder(filepath)
     return
 
-def trailer_download(trailer, leak_word, c_word, number, path, filepath, conf: config.Config, failed_folder):
-    if download_file_with_filename(trailer, number + leak_word + c_word + '-trailer.mp4', path, conf, filepath, failed_folder) == 'failed':
+def trailer_download(trailer, leak_word, c_word, number, path, filepath, conf: config.Config):
+    if download_file_with_filename(trailer, number + leak_word + c_word + '-trailer.mp4', path, conf, filepath) == 'failed':
         return
     configProxy = conf.proxy()
     for i in range(configProxy.retry):
         if os.path.getsize(path+'/' + number + leak_word + c_word + '-trailer.mp4') == 0:
             print('[!]Video Download Failed! Trying again. [{}/3]', i + 1)
-            download_file_with_filename(trailer, number + leak_word + c_word + '-trailer.mp4', path, conf, filepath, failed_folder)
+            download_file_with_filename(trailer, number + leak_word + c_word + '-trailer.mp4', path, conf, filepath)
             continue
         else:
             break
@@ -413,19 +413,18 @@ def trailer_download(trailer, leak_word, c_word, number, path, filepath, conf: c
     print('[+]Video Downloaded!', path + '/' + number + leak_word + c_word + '-trailer.mp4')
 
 # 剧照下载成功，否则移动到failed
-def extrafanart_download(data, path, conf: config.Config, filepath, failed_folder):
+def extrafanart_download(data, path, conf: config.Config, filepath):
     j = 1
     path = path + '/' + conf.get_extrafanart()
     for url in data:
-        if download_file_with_filename(url, '/extrafanart-' + str(j)+'.jpg', path, conf, filepath, failed_folder) == 'failed':
+        if download_file_with_filename(url, '/extrafanart-' + str(j)+'.jpg', path, conf, filepath) == 'failed':
             moveFailedFolder(filepath)
             return
         configProxy = conf.proxy()
         for i in range(configProxy.retry):
             if os.path.getsize(path + '/extrafanart-' + str(j) + '.jpg') == 0:
                 print('[!]Image Download Failed! Trying again. [{}/3]', i + 1)
-                download_file_with_filename(url, '/extrafanart-' + str(j)+'.jpg', path, conf, filepath,
-                                            failed_folder)
+                download_file_with_filename(url, '/extrafanart-' + str(j)+'.jpg', path, conf, filepath)
                 continue
             else:
                 break
@@ -437,8 +436,8 @@ def extrafanart_download(data, path, conf: config.Config, filepath, failed_folde
 
 
 # 封面是否下载成功，否则移动到failed
-def image_download(cover, number, leak_word, c_word, path, conf: config.Config, filepath, failed_folder):
-    if download_file_with_filename(cover, number + leak_word + c_word + '-fanart.jpg', path, conf, filepath, failed_folder) == 'failed':
+def image_download(cover, number, leak_word, c_word, path, conf: config.Config, filepath):
+    if download_file_with_filename(cover, number + leak_word + c_word + '-fanart.jpg', path, conf, filepath) == 'failed':
         moveFailedFolder(filepath)
         return
 
@@ -446,7 +445,7 @@ def image_download(cover, number, leak_word, c_word, path, conf: config.Config, 
     for i in range(configProxy.retry):
         if os.path.getsize(path + '/' + number + leak_word + c_word + '-fanart.jpg') == 0:
             print('[!]Image Download Failed! Trying again. [{}/3]', i + 1)
-            download_file_with_filename(cover, number + leak_word + c_word + '-fanart.jpg', path, conf, filepath, failed_folder)
+            download_file_with_filename(cover, number + leak_word + c_word + '-fanart.jpg', path, conf, filepath)
             continue
         else:
             break
@@ -695,7 +694,7 @@ def paste_file_to_folder_mode2(filepath, path, multi_part, number, part, leak_wo
         print('[-]OS Error errno ' + oserr.errno)
         return
 
-def get_part(filepath, failed_folder):
+def get_part(filepath):
     try:
         if re.search('-CD\d+', filepath):
             return re.findall('-CD\d+', filepath)[0]
@@ -755,7 +754,7 @@ def core_main(file_path, number_th, conf: config.Config):
     # =======================================================================判断-C,-CD后缀
     if '-CD' in filepath or '-cd' in filepath:
         multi_part = 1
-        part = get_part(filepath, conf.failed_folder())
+        part = get_part(filepath)
     if '-c.' in filepath or '-C.' in filepath or '中文' in filepath or '字幕' in filepath:
         cn_sub = '1'
         c_word = '-C'  # 中文字幕影片后缀
@@ -793,21 +792,21 @@ def core_main(file_path, number_th, conf: config.Config):
 
         # 检查小封面, 如果image cut为3，则下载小封面
         if imagecut == 3:
-            small_cover_check(path, number,  json_data.get('cover_small'), leak_word, c_word, conf, filepath, conf.failed_folder())
+            small_cover_check(path, number,  json_data.get('cover_small'), leak_word, c_word, conf, filepath)
 
         # creatFolder会返回番号路径
-        image_download( json_data.get('cover'), number, leak_word, c_word, path, conf, filepath, conf.failed_folder())
+        image_download( json_data.get('cover'), number, leak_word, c_word, path, conf, filepath)
         try:
             # 下载预告片
             if json_data.get('trailer'):
-                trailer_download(json_data.get('trailer'), leak_word, c_word, number, path, filepath, conf, conf.failed_folder())
+                trailer_download(json_data.get('trailer'), leak_word, c_word, number, path, filepath, conf)
         except:
             pass
 
         try:
-            # 下载剧照 data, path, conf: config.Config, filepath, failed_folder
+            # 下载剧照 data, path, conf: config.Config, filepath
             if json_data.get('extrafanart'):
-                extrafanart_download(json_data.get('extrafanart'), path, conf, filepath, conf.failed_folder())
+                extrafanart_download(json_data.get('extrafanart'), path, conf, filepath)
         except:
             pass
         # 裁剪图
@@ -842,18 +841,18 @@ def core_main(file_path, number_th, conf: config.Config):
 
         # 检查小封面, 如果image cut为3，则下载小封面
         if imagecut == 3:
-            small_cover_check(path, number, json_data.get('cover_small'), leak_word, c_word, conf, filepath, conf.failed_folder())
+            small_cover_check(path, number, json_data.get('cover_small'), leak_word, c_word, conf, filepath)
 
         # creatFolder会返回番号路径
-        image_download(json_data.get('cover'), number, leak_word, c_word, path, conf, filepath, conf.failed_folder())
+        image_download(json_data.get('cover'), number, leak_word, c_word, path, conf, filepath)
 
         # 下载预告片
         if json_data.get('trailer'):
-            trailer_download(json_data.get('trailer'), leak_word, c_word, number, path, filepath, conf, conf.failed_folder())
+            trailer_download(json_data.get('trailer'), leak_word, c_word, number, path, filepath, conf)
 
-        # 下载剧照 data, path, conf: config.Config, filepath, failed_folder
+        # 下载剧照 data, path, conf: config.Config, filepath
         if json_data.get('extrafanart'):
-            extrafanart_download(json_data.get('extrafanart'), path, conf, filepath, conf.failed_folder())
+            extrafanart_download(json_data.get('extrafanart'), path, conf, filepath)
 
         # 裁剪图
         cutImage(imagecut, path, number, leak_word, c_word)
