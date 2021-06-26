@@ -36,10 +36,11 @@ def escape_path(path, escape_literals: str):  # Remove escape literals
 
 
 def moveFailedFolder(filepath):
-    if config.Config().failed_move():
-        failed_folder = config.Config().failed_folder()
+    conf = config.Config()
+    if conf.failed_move():
+        failed_folder = conf.failed_folder()
         file_name = os.path.basename(filepath)
-        if config.Config().soft_link():
+        if conf.soft_link():
             print('[-]Create symlink to Failed output folder')
             os.symlink(filepath, failed_folder + '/' + file_name)
         else:
