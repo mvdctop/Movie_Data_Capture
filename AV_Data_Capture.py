@@ -120,12 +120,13 @@ def create_data_and_move(file_path: str, c: config.Config, debug):
                 else:
                     try:
                         print("[-]Move [{}] to failed folder".format(file_path))
-                        shutil.move(file_path, conf.failed_folder() + "/")
+                        shutil.move(file_path, conf.failed_folder() + "/" + file_name)
                     except Exception as err:
                         print('[!]', err)
 
 
 def create_data_and_move_with_custom_number(file_path: str, c: config.Config, custom_number):
+    file_name = os.path.basename(file_path)
     try:
         print("[!]Making Data for [{}], the number is [{}]".format(file_path, custom_number))
         core_main(file_path, custom_number, c)
@@ -136,11 +137,11 @@ def create_data_and_move_with_custom_number(file_path: str, c: config.Config, cu
 
         if c.soft_link():
             print("[-]Link {} to failed folder".format(file_path))
-            os.symlink(file_path, conf.failed_folder() + "/")
+            os.symlink(file_path, conf.failed_folder() + "/" + file_name)
         else:
             try:
                 print("[-]Move [{}] to failed folder".format(file_path))
-                shutil.move(file_path, conf.failed_folder() + "/")
+                shutil.move(file_path, conf.failed_folder() + "/" + file_name)
             except Exception as err:
                 print('[!]', err)
 
