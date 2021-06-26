@@ -77,8 +77,8 @@ def rm_empty_folder(path):
         return
     for file in files:
         try:
-            os.rmdir(path + '/' + file)  # 删除这个空文件夹
-            print('[+]Deleting empty folder', path + '/' + file)
+            os.rmdir(os.path.join(path, file))  # 删除这个空文件夹
+            print('[+]Deleting empty folder', os.path.join(path, file))
         except:
             pass
 
@@ -112,15 +112,15 @@ def create_data_and_move(file_path: str, c: config.Config, debug):
             if c.failed_move() == False:
                 if c.soft_link():
                     print("[-]Link {} to failed folder".format(file_path))
-                    os.symlink(file_path, conf.failed_folder() + "/" + file_name)
+                    os.symlink(file_path, os.path.join(conf.failed_folder(), file_name))
             elif c.failed_move() == True:
                 if c.soft_link():
                     print("[-]Link {} to failed folder".format(file_path))
-                    os.symlink(file_path, conf.failed_folder() + "/" + file_name)
+                    os.symlink(file_path, os.path.join(conf.failed_folder(), file_name))
                 else:
                     try:
                         print("[-]Move [{}] to failed folder".format(file_path))
-                        shutil.move(file_path, conf.failed_folder() + "/" + file_name)
+                        shutil.move(file_path, os.path.join(conf.failed_folder(), file_name))
                     except Exception as err:
                         print('[!]', err)
 
@@ -137,11 +137,11 @@ def create_data_and_move_with_custom_number(file_path: str, c: config.Config, cu
 
         if c.soft_link():
             print("[-]Link {} to failed folder".format(file_path))
-            os.symlink(file_path, conf.failed_folder() + "/" + file_name)
+            os.symlink(file_path, os.path.join(conf.failed_folder(), file_name))
         else:
             try:
                 print("[-]Move [{}] to failed folder".format(file_path))
-                shutil.move(file_path, conf.failed_folder() + "/" + file_name)
+                shutil.move(file_path, os.path.join(conf.failed_folder(), file_name))
             except Exception as err:
                 print('[!]', err)
 

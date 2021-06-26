@@ -42,10 +42,10 @@ def moveFailedFolder(filepath):
         file_name = os.path.basename(filepath)
         if conf.soft_link():
             print('[-]Create symlink to Failed output folder')
-            os.symlink(filepath, failed_folder + '/' + file_name)
+            os.symlink(filepath, os.path.join(failed_folder, file_name))
         else:
             print('[-]Move to Failed output folder')
-            shutil.move(filepath, failed_folder + '/' + file_name)
+            shutil.move(filepath, os.path.join(failed_folder, file_name))
     return
 
 
@@ -367,7 +367,7 @@ def download_file_with_filename(url, filename, path, conf: config.Config, filepa
                 if r == '':
                     print('[-]Movie Data not found!')
                     return
-                with open(str(path) + "/" + filename, "wb") as code:
+                with open(os.path.join(str(path), filename), "wb") as code:
                     code.write(r.content)
                 return
             else:
@@ -379,7 +379,7 @@ def download_file_with_filename(url, filename, path, conf: config.Config, filepa
                 if r == '':
                     print('[-]Movie Data not found!')
                     return
-                with open(str(path) + "/" + filename, "wb") as code:
+                with open(os.path.join(str(path), filename), "wb") as code:
                     code.write(r.content)
                 return
         except requests.exceptions.RequestException:
