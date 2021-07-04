@@ -11,6 +11,7 @@ import time
 from ADC_function import get_html, is_link
 from number_parser import get_number
 from core import core_main
+import typing
 
 
 def check_update(local_version):
@@ -31,7 +32,7 @@ def check_update(local_version):
         print("[*]======================================================")
 
 
-def argparse_function(ver: str) -> [str, str, bool]:
+def argparse_function(ver: str) -> typing.Tuple[str, str, bool]:
     parser = argparse.ArgumentParser()
     parser.add_argument("file", default='', nargs='?', help="Single Movie file path.")
     parser.add_argument("-p","--path",default='',nargs='?',help="Analysis folder path.")
