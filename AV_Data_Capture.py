@@ -4,6 +4,7 @@ import os
 import re
 import sys
 import shutil
+import typing
 import urllib3
 
 import config
@@ -11,7 +12,6 @@ import time
 from ADC_function import get_html, is_link
 from number_parser import get_number
 from core import core_main
-import typing
 
 
 def check_update(local_version):
