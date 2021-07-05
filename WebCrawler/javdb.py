@@ -207,19 +207,19 @@ def getSeries(a):
     result2 = str(html.xpath('//strong[contains(text(),"系列")]/../span/a/text()')).strip(" ['']")
     return str(result1 + result2).strip('+').replace("', '", '').replace('"', '')
 
-javdb_site = "javdb9"
-
 def main(number):
+    javdb_site = ["javdb9", "javdb30"]
     try:
         # if re.search(r'[a-zA-Z]+\.\d{2}\.\d{2}\.\d{2}', number).group():
         #     pass
         # else:
         #     number = number.upper()
         number = number.upper()
-        cookie_json = './' + javdb_site + '.json'
+        cookie_json = './javdb.json'
         javdb_cookies = None
         # 不加载过期的cookie，javdb登录界面显示为7天免登录，故假定cookie有效期为7天
         cdays = file_modification_days(cookie_json)
+        javdb_site = random.choice(javdb_site)
         if cdays < 7:
             javdb_cookies = load_cookies(cookie_json)
         elif cdays != 9999:
@@ -230,7 +230,7 @@ def main(number):
             javdb_url = 'https://' + javdb_site + '.com/search?q=' + number + '&f=all'
             query_result = get_html(javdb_url, cookies=javdb_cookies)
         except:
-            query_result = get_html('https://javdb9.com/search?q=' + number + '&f=all')
+            query_result = get_html('https://javdb.com/search?q=' + number + '&f=all')
         html = etree.fromstring(query_result, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
         # javdb sometime returns multiple results,
         # and the first elememt maybe not the one we are looking for
