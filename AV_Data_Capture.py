@@ -4,6 +4,7 @@ import os
 import re
 import sys
 import shutil
+import typing
 import urllib3
 
 import config
@@ -31,7 +32,7 @@ def check_update(local_version):
         print("[*]======================================================")
 
 
-def argparse_function(ver: str) -> [str, str, bool]:
+def argparse_function(ver: str) -> typing.Tuple[str, str, bool]:
     parser = argparse.ArgumentParser()
     parser.add_argument("file", default='', nargs='?', help="Single Movie file path.")
     parser.add_argument("-p","--path",default='',nargs='?',help="Analysis folder path.")
