@@ -1,5 +1,7 @@
 <h1 align="center">AV Data Capture - CLI</h1>
 
+[繁體中文](https://github.com/yoshiko2/AV_Data_Capture/blob/master/readme_tc.md)
+
 CLI 版本  
 ![](https://img.shields.io/badge/build-passing-brightgreen.svg?style=flat)
 ![](https://img.shields.io/github/license/yoshiko2/av_data_capture.svg?style=flat)
@@ -35,7 +37,7 @@ CLI 版本
 * 严禁用户将本软件使用于商业和个人其他意图
 * 源代码和二进制程序请在下载后24小时内删除
 * 出售源码者的母亲会升天
-* 本软件作者yoshiko2保留最终决定权和最终解释权
+* 本项目发起者yoshiko2保留最终决定权和最终解释权
 * 若用户不同意上述条款任意一条，请勿使用本软件
 ---
 When you view and download the source code or binary program of this project, it means that you have accepted the following terms
