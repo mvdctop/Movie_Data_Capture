@@ -208,18 +208,17 @@ def getSeries(a):
     return str(result1 + result2).strip('+').replace("', '", '').replace('"', '')
 
 def main(number):
-    javdb_site = ["javdb9", "javdb30"]
+    javdb_site = random.choice(["javdb9", "javdb30"])
     try:
         # if re.search(r'[a-zA-Z]+\.\d{2}\.\d{2}\.\d{2}', number).group():
         #     pass
         # else:
         #     number = number.upper()
         number = number.upper()
-        cookie_json = './javdb.json'
+        cookie_json = './' + javdb_site + '.json'
         javdb_cookies = None
         # 不加载过期的cookie，javdb登录界面显示为7天免登录，故假定cookie有效期为7天
         cdays = file_modification_days(cookie_json)
-        javdb_site = random.choice(javdb_site)
         if cdays < 7:
             javdb_cookies = load_cookies(cookie_json)
         elif cdays != 9999:
