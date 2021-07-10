@@ -599,11 +599,11 @@ def add_to_pic(pic_path, img_pic, size, count, mode):
         print('[-]Error: watermark image param mode invalid!')
         return
     # 先找pyinstaller打包的图片
-    if hasattr(sys, '_MEIPASS') and os.path.isfile(os.path.join(getattr(sys, '_MEIPASS'), pngpath)):
-        mark_pic_path =                            os.path.join(getattr(sys, '_MEIPASS'), pngpath)
+    if hasattr(sys, '_MEIPASS') and os.path.isfile(_p := os.path.join(getattr(sys, '_MEIPASS'), pngpath)):
+        mark_pic_path = _p
     # 再找py脚本所在路径的图片
-    elif os.path.isfile(os.path.join(os.path.dirname(os.path.realpath(__file__)), pngpath)):
-        mark_pic_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), pngpath)
+    elif os.path.isfile(_p := os.path.join(os.path.dirname(os.path.realpath(__file__)), pngpath)):
+        mark_pic_path = _p
     # 如果没有本地图片才通过网络下载
     else:
         mark_pic_path = BytesIO(
