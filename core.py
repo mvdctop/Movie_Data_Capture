@@ -71,35 +71,35 @@ def get_data_from_json(file_number, filepath, conf: config.Config):  # ä»ŽJSONè¿
 
     # default fetch order list, from the beginning to the end
     sources = conf.sources().split(',')
-
-    # if the input file name matches certain rules,
-    # move some web service to the beginning of the list
-    lo_file_number = file_number.lower()
-    if "carib" in sources and (re.match(r"^\d{6}-\d{3}", file_number)
-    ):
-        sources.insert(0, sources.pop(sources.index("carib")))
-    elif "avsox" in sources and (re.match(r"^\d{5,}", file_number) or
-        "heyzo" in lo_file_number
-    ):
-        sources.insert(0, sources.pop(sources.index("javdb")))
-        sources.insert(1, sources.pop(sources.index("avsox")))
-    elif "mgstage" in sources and (re.match(r"\d+\D+", file_number) or
-        "siro" in lo_file_number
-    ):
-        sources.insert(0, sources.pop(sources.index("mgstage")))
-    elif "fc2" in sources and ("fc2" in lo_file_number
-    ):
-        sources.insert(0, sources.pop(sources.index("javdb")))
-        sources.insert(1, sources.pop(sources.index("fc2")))
-    elif "dlsite" in sources and (
-        "rj" in lo_file_number or "vj" in lo_file_number
-    ):
-        sources.insert(0, sources.pop(sources.index("dlsite")))
+    if not len(conf.sources()) > 60:
+        # if the input file name matches certain rules,
+        # move some web service to the beginning of the list
+        lo_file_number = file_number.lower()
+        if "carib" in sources and (re.match(r"^\d{6}-\d{3}", file_number)
+        ):
+            sources.insert(0, sources.pop(sources.index("carib")))
+        elif "avsox" in sources and (re.match(r"^\d{5,}", file_number) or
+                                     "heyzo" in lo_file_number
+        ):
+            sources.insert(0, sources.pop(sources.index("javdb")))
+            sources.insert(1, sources.pop(sources.index("avsox")))
+        elif "mgstage" in sources and (re.match(r"\d+\D+", file_number) or
+                                       "siro" in lo_file_number
+        ):
+            sources.insert(0, sources.pop(sources.index("mgstage")))
+        elif "fc2" in sources and ("fc2" in lo_file_number
+        ):
+            sources.insert(0, sources.pop(sources.index("javdb")))
+            sources.insert(1, sources.pop(sources.index("fc2")))
+        elif "dlsite" in sources and (
+                "rj" in lo_file_number or "vj" in lo_file_number
+        ):
+            sources.insert(0, sources.pop(sources.index("dlsite")))
 
     json_data = {}
 
     if conf.multi_threading():
-        pool = ThreadPool(processes=11)
+        pool = ThreadPool(processes=len(conf.sources().split(',')))
 
         # Set the priority of multi-thread crawling and join the multi-thread queue
         for source in sources:
