@@ -418,14 +418,14 @@ def extrafanart_download(data, path, conf: config.Config, filepath):
     j = 1
     path = path + '/' + conf.get_extrafanart()
     for url in data:
-        if download_file_with_filename(url, '/extrafanart-' + str(j)+'.jpg', path, conf, filepath) == 'failed':
+        if download_file_with_filename(url, 'extrafanart-' + str(j)+'.jpg', path, conf, filepath) == 'failed':
             moveFailedFolder(filepath)
             return
         configProxy = conf.proxy()
         for i in range(configProxy.retry):
             if os.path.getsize(path + '/extrafanart-' + str(j) + '.jpg') == 0:
                 print('[!]Image Download Failed! Trying again. [{}/3]', i + 1)
-                download_file_with_filename(url, '/extrafanart-' + str(j)+'.jpg', path, conf, filepath)
+                download_file_with_filename(url, 'extrafanart-' + str(j)+'.jpg', path, conf, filepath)
                 continue
             else:
                 break
