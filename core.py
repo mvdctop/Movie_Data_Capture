@@ -802,7 +802,7 @@ def core_main(file_path, number_th, conf: config.Config):
             try:
                 # 下载预告片
                 if json_data.get('trailer'):
-                    trailer_download(json_data.get('trailer'), leak_word, c_word, number.split('-cd')[0], path, filepath, conf)
+                    trailer_download(json_data.get('trailer'), leak_word, c_word, number, path, filepath, conf)
             except:
                 pass
             try:
