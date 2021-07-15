@@ -362,7 +362,7 @@ def download_file_with_filename(url, filename, path, conf: config.Config, filepa
                     os.makedirs(path)
                 proxies = configProxy.proxies()
                 headers = {
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36'}
+                    'User-Agent': G_USER_AGENT}
                 r = requests.get(url, headers=headers, timeout=configProxy.timeout, proxies=proxies)
                 if r == '':
                     print('[-]Movie Data not found!')
@@ -374,7 +374,7 @@ def download_file_with_filename(url, filename, path, conf: config.Config, filepa
                 if not os.path.exists(path):
                     os.makedirs(path)
                 headers = {
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36'}
+                    'User-Agent': G_USER_AGENT}
                 r = requests.get(url, timeout=configProxy.timeout, headers=headers)
                 if r == '':
                     print('[-]Movie Data not found!')
