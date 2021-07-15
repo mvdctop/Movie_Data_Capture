@@ -216,7 +216,7 @@ def main(number):
         #     number = number.upper()
         number = number.upper()
         cookie_json = './' + javdb_site + '.json'
-        javdb_cookies = None
+        javdb_cookies = {'over18':'1', 'theme': 'auto', 'locale': 'zh'}
         # 不加载过期的cookie，javdb登录界面显示为7天免登录，故假定cookie有效期为7天
         cdays = file_modification_days(cookie_json)
         if cdays < 7:
@@ -229,7 +229,7 @@ def main(number):
             javdb_url = 'https://' + javdb_site + '.com/search?q=' + number + '&f=all'
             query_result = get_html(javdb_url, cookies=javdb_cookies)
         except:
-            query_result = get_html('https://javdb.com/search?q=' + number + '&f=all')
+            query_result = get_html('https://javdb.com/search?q=' + number + '&f=all', cookies=javdb_cookies)
         html = etree.fromstring(query_result, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
         # javdb sometime returns multiple results,
         # and the first elememt maybe not the one we are looking for
@@ -251,7 +251,7 @@ def main(number):
             javdb_detail_url = 'https://' + javdb_site + '.com' + correct_url
             detail_page = get_html(javdb_detail_url, cookies=javdb_cookies)
         except:
-            detail_page = get_html('https://' + javdb_site + '.com' + correct_url)
+            detail_page = get_html('https://' + javdb_site + '.com' + correct_url, cookies=javdb_cookies)
 
         # no cut image by default
         imagecut = 3
