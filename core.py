@@ -797,19 +797,21 @@ def core_main(file_path, number_th, conf: config.Config):
 
         # creatFolder会返回番号路径
         image_download( json_data.get('cover'), number, leak_word, c_word, path, conf, filepath)
-        try:
-            # 下载预告片
-            if json_data.get('trailer'):
-                trailer_download(json_data.get('trailer'), leak_word, c_word, number, path, filepath, conf)
-        except:
-            pass
 
-        try:
-            # 下载剧照 data, path, conf: config.Config, filepath
-            if json_data.get('extrafanart'):
-                extrafanart_download(json_data.get('extrafanart'), path, conf, filepath)
-        except:
-            pass
+        if not multi_part or part.lower() == '-cd1':
+            try:
+                # 下载预告片
+                if json_data.get('trailer'):
+                    trailer_download(json_data.get('trailer'), leak_word, c_word, number, path, filepath, conf)
+            except:
+                pass
+            try:
+                # 下载剧照 data, path, conf: config.Config, filepath
+                if json_data.get('extrafanart'):
+                    extrafanart_download(json_data.get('extrafanart'), path, conf, filepath)
+            except:
+                pass
+
         # 裁剪图
         cutImage(imagecut, path, number, leak_word, c_word)
 
@@ -847,13 +849,14 @@ def core_main(file_path, number_th, conf: config.Config):
         # creatFolder会返回番号路径
         image_download(json_data.get('cover'), number, leak_word, c_word, path, conf, filepath)
 
-        # 下载预告片
-        if json_data.get('trailer'):
-            trailer_download(json_data.get('trailer'), leak_word, c_word, number, path, filepath, conf)
+        if not multi_part or part.lower() == '-cd1':
+            # 下载预告片
+            if json_data.get('trailer'):
+                trailer_download(json_data.get('trailer'), leak_word, c_word, number, path, filepath, conf)
 
-        # 下载剧照 data, path, conf: config.Config, filepath
-        if json_data.get('extrafanart'):
-            extrafanart_download(json_data.get('extrafanart'), path, conf, filepath)
+            # 下载剧照 data, path, conf: config.Config, filepath
+            if json_data.get('extrafanart'):
+                extrafanart_download(json_data.get('extrafanart'), path, conf, filepath)
 
         # 裁剪图
         cutImage(imagecut, path, number, leak_word, c_word)
