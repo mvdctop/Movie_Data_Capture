@@ -91,7 +91,7 @@ G_TAKE_NUM_RULES = {
     'tokyo' : lambda x:str(re.search(r'(cz|gedo|k|n|red-|se)\d{2,4}', x, re.A).group()),
     'carib' : lambda x:str(re.search(r'\d{6}(-|_)\d{3}', x, re.A).group()).replace('_', '-'),
     '1pon'  : lambda x:str(re.search(r'\d{6}(-|_)\d{3}', x, re.A).group()).replace('-', '_'),
-    '10mu'  : lambda x:str(re.search(r'\d{6}(-|_)\d{2}', lower_check, re.A).group()).replace('-', '_'),
+    '10mu'  : lambda x:str(re.search(r'\d{6}(-|_)\d{2}', x, re.A).group()).replace('-', '_'),
     'x-art' : lambda x:str(re.search(r'x-art\.\d{2}\.\d{2}\.\d{2}', x, re.A).group())
     }
 
