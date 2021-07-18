@@ -74,8 +74,8 @@ def getTag(a):
     return total
 def getCover(htmlcode):
     html = etree.fromstring(htmlcode, etree.HTMLParser())
-    result = str(html.xpath('//*[@id="center_column"]/div[1]/div[1]/div/div/h2/img/@src')).strip(" ['']")
     result = str(html.xpath('//*[@id="EnlargeImage"]/@href')).strip(" ['']")
+    # result = str(html.xpath('//*[@id="center_column"]/div[1]/div[1]/div/div/h2/img/@src')).strip(" ['']")
     #                    /html/body/div[2]/article[2]/div[1]/div[1]/div/div/h2/img/@src
     return result
 def getDirector(a):
@@ -126,7 +126,7 @@ def main(number2):
             'release': getRelease(a),
             'number': getNum(a),
             'cover': getCover(htmlcode),
-            'imagecut': 0,
+            'imagecut': 1,
             'tag': getTag(a),
             'label': getLabel(a),
             'extrafanart': getExtrafanart(htmlcode),
