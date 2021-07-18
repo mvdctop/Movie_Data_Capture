@@ -190,7 +190,7 @@ class Config:
 
         sec5 = "priority"
         conf.add_section(sec5)
-        conf.set(sec5, "website", "airav,javbus,javdb,fanza,xcity,mgstage,fc2,avsox,jav321,xcity")
+        conf.set(sec5, "website", "airav,javbus,javdb,fanza,xcity,mgstage,fc2,fc2club,avsox,jav321,xcity")
 
         sec6 = "escape"
         conf.add_section(sec6)

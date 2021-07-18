@@ -1,3 +1,4 @@
+from os import replace
 import requests
 import hashlib
 import pathlib
@@ -583,3 +584,4 @@ def abs_url(base_url: str, href: str) -> str:
     if href.startswith('http'):
         return href
     return urljoin(base_url, href)
+
