@@ -71,14 +71,17 @@ def getExtrafanart(htmlcode):  # 获取剧照
             return extrafanart_imgs
     return ''
 
-def getTrailer(htmlcode):
+def getTrailer(htmlcode, number):
     video_pather = re.compile(r'\'[a-zA-Z0-9]{32}\'')
     video = video_pather.findall(htmlcode)
     if video:
-        video_url = video[0].replace('\'', '')
-        video_url = 'https://adult.contents.fc2.com/api/v2/videos/1603395/sample?key=' + video_url
-        url_json = eval(ADC_function.get_html(video_url))['path'].replace('\\', '')
-        return url_json
+        try:
+            video_url = video[0].replace('\'', '')
+            video_url = 'https://adult.contents.fc2.com/api/v2/videos/' + number + '/sample?key=' + video_url
+            url_json = eval(ADC_function.get_html(video_url))['path'].replace('\\', '')
+            return url_json
+        except:
+            return ''
     else:
         video_url = ''
 
@@ -103,7 +106,7 @@ def main(number):
             'label': '',
             'cover': getCover_fc2com(htmlcode2),
             'extrafanart': getExtrafanart(htmlcode2),
-            "trailer": getTrailer(htmlcode2),
+            "trailer": getTrailer(htmlcode2, number),
             'imagecut': 0,
             'tag': getTag_fc2com(number),
             'actor_photo': '',
