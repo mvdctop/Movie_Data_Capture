@@ -26,6 +26,7 @@ from WebCrawler import xcity
 # from WebCrawler import javlib
 from WebCrawler import dlsite
 from WebCrawler import carib
+from WebCrawler import fc2club
 
 
 def escape_path(path, escape_literals: str):  # Remove escape literals
@@ -67,6 +68,7 @@ def get_data_from_json(file_number, filepath, conf: config.Config):  # ä»ŽJSONè¿
         # "javlib": javlib.main,
         "dlsite": dlsite.main,
         "carib": carib.main,
+        "fc2club": fc2club.main
     }
 
     # default fetch order list, from the beginning to the end
@@ -91,6 +93,7 @@ def get_data_from_json(file_number, filepath, conf: config.Config):  # ä»ŽJSONè¿
         ):
             sources.insert(0, sources.pop(sources.index("javdb")))
             sources.insert(1, sources.pop(sources.index("fc2")))
+            sources.insert(2, sources.pop(sources.index("fc2club")))
         elif "dlsite" in sources and (
                 "rj" in lo_file_number or "vj" in lo_file_number
         ):
