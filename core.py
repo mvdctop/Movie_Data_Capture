@@ -58,12 +58,20 @@ def small_cover_check(path, number, cover_small, leak_word, c_word, conf: config
     print('[+]Image Downloaded! ' + path + '/' + number + leak_word + c_word + '-poster.jpg')
 
 
-def create_folder(success_folder, location_rule, json_data, conf: config.Config):  # 创建文件夹
+def create_folder(json_data, conf: config.Config):  # 创建文件夹
     title, studio, year, outline, runtime, director, actor_photo, release, number, cover, trailer, website, series, label = get_info(json_data)
-    if len(location_rule) > 240:  # 新建成功输出文件夹
-        path = success_folder + '/' + location_rule.replace("'actor'", "'manypeople'", 3).replace("actor","'manypeople'",3)  # path为影片+元数据所在目录
-    else:
-        path = success_folder + '/' + location_rule
+    success_folder = conf.success_folder()
+    actor = json_data.get('actor')
+    location_rule = eval(conf.location_rule(), json_data)
+    if 'actor' in conf.location_rule() and len(actor) > 100:
+        print(conf.location_rule())
+        location_rule = eval(conf.location_rule().replace("actor","'多人作品'"), json_data)
+    maxlen = conf.max_title_len()
+    if 'title' in conf.location_rule() and len(title) > maxlen:
+        shorttitle = title[0:maxlen]
+        location_rule = location_rule.replace(title, shorttitle)
+
+    path = success_folder + '/' + location_rule
     path = trimblank(path)
     if not os.path.exists(path):
         path = escape_path(path, conf.escape_literals())
@@ -474,7 +482,7 @@ def core_main(file_path, number_th, conf: config.Config):
     # 下面被注释的变量不需要
     #rootpath= os.getcwd
     number = number_th
-    json_data = get_data_from_json(number, filepath, conf)  # 定义番号
+    json_data = get_data_from_json(number, conf)  # 定义番号
 
     # Return if blank dict returned (data not found)
     if not json_data:
@@ -525,7 +533,7 @@ def core_main(file_path, number_th, conf: config.Config):
     #  3：不改变路径刮削
     if conf.main_mode() == 1:
         # 创建文件夹
-        path = create_folder(conf.success_folder(),  json_data.get('location_rule'), json_data, conf)
+        path = create_folder(json_data, conf)
         if multi_part == 1:
             number += part  # 这时number会被附加上CD1后缀
 
@@ -539,13 +547,13 @@ def core_main(file_path, number_th, conf: config.Config):
         if not multi_part or part.lower() == '-cd1':
             try:
                 # 下载预告片
-                if json_data.get('trailer'):
+                if conf.is_trailer() and json_data.get('trailer'):
                     trailer_download(json_data.get('trailer'), leak_word, c_word, number, path, filepath, conf)
             except:
                 pass
             try:
                 # 下载剧照 data, path, conf: config.Config, filepath
-                if json_data.get('extrafanart'):
+                if conf.is_extrafanart() and json_data.get('extrafanart'):
                     extrafanart_download(json_data.get('extrafanart'), path, conf, filepath)
             except:
                 pass
@@ -566,7 +574,7 @@ def core_main(file_path, number_th, conf: config.Config):
 
     elif conf.main_mode() == 2:
         # 创建文件夹
-        path = create_folder(conf.success_folder(), json_data.get('location_rule'), json_data, conf)
+        path = create_folder(json_data, conf)
         # 移动文件
         paste_file_to_folder_mode2(filepath, path, multi_part, number, part, leak_word, c_word, conf)
         poster_path = path + '/' + number + leak_word + c_word + '-poster.jpg'
@@ -589,11 +597,11 @@ def core_main(file_path, number_th, conf: config.Config):
 
         if not multi_part or part.lower() == '-cd1':
             # 下载预告片
-            if json_data.get('trailer'):
+            if conf.is_trailer() and json_data.get('trailer'):
                 trailer_download(json_data.get('trailer'), leak_word, c_word, number, path, filepath, conf)
 
             # 下载剧照 data, path, conf: config.Config, filepath
-            if json_data.get('extrafanart'):
+            if conf.is_extrafanart() and json_data.get('extrafanart'):
                 extrafanart_download(json_data.get('extrafanart'), path, conf, filepath)
 
         # 裁剪图

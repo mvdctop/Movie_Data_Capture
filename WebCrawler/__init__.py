@@ -1,5 +1,3 @@
-import sys
-sys.path.append('..')
 import json
 import re
 from multiprocessing.pool import ThreadPool
@@ -34,7 +32,7 @@ def get_data_state(data: dict) -> bool:  # 元数据获取失败检测
 
     return True
 
-def get_data_from_json(file_number, filepath, conf: config.Config):  # 从JSON返回元数据
+def get_data_from_json(file_number, conf: config.Config):  # 从JSON返回元数据
     """
     iterate through all services and fetch the data
     """
@@ -134,20 +132,20 @@ def get_data_from_json(file_number, filepath, conf: config.Config):  # 从JSON�
     series = json_data.get('series')
     year = json_data.get('year')
 
-    if json_data.get('cover_small') == None:
-        cover_small = ''
-    else:
+    if json_data.get('cover_small'):
         cover_small = json_data.get('cover_small')
-
-    if json_data.get('trailer') == None:
-        trailer = ''
     else:
+        cover_small = ''
+
+    if json_data.get('trailer'):
         trailer = json_data.get('trailer')
-
-    if json_data.get('extrafanart') == None:
-        extrafanart = ''
     else:
+        trailer = ''
+
+    if json_data.get('extrafanart'):
         extrafanart = json_data.get('extrafanart')
+    else:
+        extrafanart = ''
 
     imagecut = json_data.get('imagecut')
     tag = str(json_data.get('tag')).strip("[ ]").replace("'", '').replace(" ", '').split(',')  # 字符串转列表 @
@@ -214,25 +212,17 @@ def get_data_from_json(file_number, filepath, conf: config.Config):  # 从JSON�
     studio = studio.replace('/',' ')
     # ===  替换Studio片假名 END
 
-    location_rule = eval(conf.location_rule())
-
-    if 'actor' in conf.location_rule() and len(actor) > 100:
-        print(conf.location_rule())
-        location_rule = eval(conf.location_rule().replace("actor","'多人作品'"))
-    maxlen = conf.max_title_len()
-    if 'title' in conf.location_rule() and len(title) > maxlen:
-        shorttitle = title[0:maxlen]
-        location_rule = location_rule.replace(title, shorttitle)
-
     # 返回处理后的json_data
     json_data['title'] = title
     json_data['actor'] = actor
     json_data['release'] = release
     json_data['cover_small'] = cover_small
     json_data['tag'] = tag
-    json_data['location_rule'] = location_rule
     json_data['year'] = year
     json_data['actor_list'] = actor_list
+    json_data['trailer'] = trailer
+    json_data['extrafanart'] = extrafanart
+
     if conf.is_transalte():
         translate_values = conf.transalte_values().split(",")
         for translate_value in translate_values:
@@ -257,27 +247,12 @@ def get_data_from_json(file_number, filepath, conf: config.Config):  # 从JSON�
             else:
                 json_data[translate_value] = translate(json_data[translate_value])
 
-    if conf.is_trailer():
-        if trailer:
-            json_data['trailer'] = trailer
-        else:
-            json_data['trailer'] = ''
-    else:
-        json_data['trailer'] = ''
-
-    if conf.is_extrafanart():
-        if extrafanart:
-            json_data['extrafanart'] = extrafanart
-        else:
-            json_data['extrafanart'] = ''
-    else:
-        json_data['extrafanart'] = ''
-
     naming_rule=""
     for i in conf.naming_rule().split("+"):
         if i not in json_data:
             naming_rule += i.strip("'").strip('"')
         else:
             naming_rule += json_data.get(i)
+
     json_data['naming_rule'] = naming_rule
     return json_data
