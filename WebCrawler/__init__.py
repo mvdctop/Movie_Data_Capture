@@ -65,17 +65,17 @@ def get_data_from_json(file_number, conf: config.Config):  # 从JSON返回元数
         elif "avsox" in sources and (re.match(r"^\d{5,}", file_number) or
                                      "heyzo" in lo_file_number
         ):
-            sources.insert(0, sources.pop(sources.index("javdb")))
-            sources.insert(1, sources.pop(sources.index("avsox")))
+            sources.insert(0, sources.pop(sources.index("avsox")))
+            sources.insert(1, sources.pop(sources.index("javdb")))
         elif "mgstage" in sources and (re.match(r"\d+\D+", file_number) or
                                        "siro" in lo_file_number
         ):
             sources.insert(0, sources.pop(sources.index("mgstage")))
         elif "fc2" in sources and ("fc2" in lo_file_number
         ):
-            sources.insert(0, sources.pop(sources.index("javdb")))
+            sources.insert(0, sources.pop(sources.index("fc2club")))
             sources.insert(1, sources.pop(sources.index("fc2")))
-            sources.insert(2, sources.pop(sources.index("fc2club")))
+            sources.insert(2, sources.pop(sources.index("javdb")))
         elif "dlsite" in sources and (
                 "rj" in lo_file_number or "vj" in lo_file_number
         ):

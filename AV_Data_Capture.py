@@ -155,8 +155,8 @@ if __name__ == '__main__':
 
     print('[*]================== AV Data Capture ===================')
     print('[*]' + version.center(54))
-    print('[*]' + "严禁在墙内宣传本项目".center(48))
     print('[*]======================================================')
+    print('[*]严禁在墙内宣传本项目')
 
     # Read config.ini
     conf = config.Config("config.ini")
