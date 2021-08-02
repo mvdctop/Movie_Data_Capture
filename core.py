@@ -9,24 +9,9 @@ import sys
 
 from PIL import Image
 from io import BytesIO
-from multiprocessing.pool import ThreadPool
 
 from ADC_function import *
-
-# =========website========
-from WebCrawler import airav
-from WebCrawler import avsox
-from WebCrawler import fanza
-from WebCrawler import fc2
-from WebCrawler import jav321
-from WebCrawler import javbus
-from WebCrawler import javdb
-from WebCrawler import mgstage
-from WebCrawler import xcity
-# from WebCrawler import javlib
-from WebCrawler import dlsite
-from WebCrawler import carib
-from WebCrawler import fc2club
+from WebCrawler import get_data_from_json
 
 
 def escape_path(path, escape_literals: str):  # Remove escape literals
@@ -48,257 +33,6 @@ def moveFailedFolder(filepath):
             print('[-]Move to Failed output folder')
             shutil.move(filepath, os.path.join(failed_folder, file_name))
     return
-
-
-def get_data_from_json(file_number, filepath, conf: config.Config):  # 从JSON返回元数据
-    """
-    iterate through all services and fetch the data
-    """
-
-    func_mapping = {
-        "airav": airav.main,
-        "avsox": avsox.main,
-        "fc2": fc2.main,
-        "fanza": fanza.main,
-        "javdb": javdb.main,
-        "javbus": javbus.main,
-        "mgstage": mgstage.main,
-        "jav321": jav321.main,
-        "xcity": xcity.main,
-        # "javlib": javlib.main,
-        "dlsite": dlsite.main,
-        "carib": carib.main,
-        "fc2club": fc2club.main
-    }
-
-    # default fetch order list, from the beginning to the end
-    sources = conf.sources().split(',')
-    if not len(conf.sources()) > 60:
-        # if the input file name matches certain rules,
-        # move some web service to the beginning of the list
-        lo_file_number = file_number.lower()
-        if "carib" in sources and (re.match(r"^\d{6}-\d{3}", file_number)
-        ):
-            sources.insert(0, sources.pop(sources.index("carib")))
-        elif "avsox" in sources and (re.match(r"^\d{5,}", file_number) or
-                                     "heyzo" in lo_file_number
-        ):
-            sources.insert(0, sources.pop(sources.index("javdb")))
-            sources.insert(1, sources.pop(sources.index("avsox")))
-        elif "mgstage" in sources and (re.match(r"\d+\D+", file_number) or
-                                       "siro" in lo_file_number
-        ):
-            sources.insert(0, sources.pop(sources.index("mgstage")))
-        elif "fc2" in sources and ("fc2" in lo_file_number
-        ):
-            sources.insert(0, sources.pop(sources.index("javdb")))
-            sources.insert(1, sources.pop(sources.index("fc2")))
-            sources.insert(2, sources.pop(sources.index("fc2club")))
-        elif "dlsite" in sources and (
-                "rj" in lo_file_number or "vj" in lo_file_number
-        ):
-            sources.insert(0, sources.pop(sources.index("dlsite")))
-
-    json_data = {}
-
-    if conf.multi_threading():
-        pool = ThreadPool(processes=len(conf.sources().split(',')))
-
-        # Set the priority of multi-thread crawling and join the multi-thread queue
-        for source in sources:
-            pool.apply_async(func_mapping[source], (file_number,))
-
-        # Get multi-threaded crawling response
-        for source in sources:
-            if conf.debug() == True:
-                print('[+]select', source)
-            json_data = json.loads(pool.apply_async(func_mapping[source], (file_number,)).get())
-            # if any service return a valid return, break
-            if get_data_state(json_data):
-                break
-        pool.close()
-        pool.terminate()
-    else:
-        for source in sources:
-            try:
-                if conf.debug() == True:
-                    print('[+]select', source)
-                json_data = json.loads(func_mapping[source](file_number))
-                # if any service return a valid return, break
-                if get_data_state(json_data):
-                    break
-            except:
-                break
-
-    # Return if data not found in all sources
-    if not json_data:
-        print('[-]Movie Data not found!')
-        moveFailedFolder(filepath)
-        return
-
-    # ================================================网站规则添加结束================================================
-
-    title = json_data.get('title')
-    actor_list = str(json_data.get('actor')).strip("[ ]").replace("'", '').split(',')  # 字符串转列表
-    actor_list = [actor.strip() for actor in actor_list]  # 去除空白
-    release = json_data.get('release')
-    number = json_data.get('number')
-    studio = json_data.get('studio')
-    source = json_data.get('source')
-    runtime = json_data.get('runtime')
-    outline = json_data.get('outline')
-    label = json_data.get('label')
-    series = json_data.get('series')
-    year = json_data.get('year')
-
-    if json_data.get('cover_small') == None:
-        cover_small = ''
-    else:
-        cover_small = json_data.get('cover_small')
-
-    if json_data.get('trailer') == None:
-        trailer = ''
-    else:
-        trailer = json_data.get('trailer')
-
-    if json_data.get('extrafanart') == None:
-        extrafanart = ''
-    else:
-        extrafanart = json_data.get('extrafanart')
-
-    imagecut = json_data.get('imagecut')
-    tag = str(json_data.get('tag')).strip("[ ]").replace("'", '').replace(" ", '').split(',')  # 字符串转列表 @
-    actor = str(actor_list).strip("[ ]").replace("'", '').replace(" ", '')
-
-    if title == '' or number == '':
-        print('[-]Movie Data not found!')
-        moveFailedFolder(filepath)
-        return
-
-    # if imagecut == '3':
-    #     DownloadFileWithFilename()
-
-    # ====================处理异常字符====================== #\/:*?"<>|
-    title = title.replace('\\', '')
-    title = title.replace('/', '')
-    title = title.replace(':', '')
-    title = title.replace('*', '')
-    title = title.replace('?', '')
-    title = title.replace('"', '')
-    title = title.replace('<', '')
-    title = title.replace('>', '')
-    title = title.replace('|', '')
-    release = release.replace('/', '-')
-    tmpArr = cover_small.split(',')
-    if len(tmpArr) > 0:
-        cover_small = tmpArr[0].strip('\"').strip('\'')
-
-    # ====================处理异常字符 END================== #\/:*?"<>|
-
-    # ===  替换Studio片假名
-    studio = studio.replace('アイエナジー','Energy')
-    studio = studio.replace('アイデアポケット','Idea Pocket')
-    studio = studio.replace('アキノリ','AKNR')
-    studio = studio.replace('アタッカーズ','Attackers')
-    studio = re.sub('アパッチ.*','Apache',studio)
-    studio = studio.replace('アマチュアインディーズ','SOD')
-    studio = studio.replace('アリスJAPAN','Alice Japan')
-    studio = studio.replace('オーロラプロジェクト・アネックス','Aurora Project Annex')
-    studio = studio.replace('クリスタル映像','Crystal 映像')
-    studio = studio.replace('グローリークエスト','Glory Quest')
-    studio = studio.replace('ダスッ！','DAS！')
-    studio = studio.replace('ディープス','DEEP’s')
-    studio = studio.replace('ドグマ','Dogma')
-    studio = studio.replace('プレステージ','PRESTIGE')
-    studio = studio.replace('ムーディーズ','MOODYZ')
-    studio = studio.replace('メディアステーション','宇宙企画')
-    studio = studio.replace('ワンズファクトリー','WANZ FACTORY')
-    studio = studio.replace('エスワン ナンバーワンスタイル','S1')
-    studio = studio.replace('エスワンナンバーワンスタイル','S1')
-    studio = studio.replace('SODクリエイト','SOD')
-    studio = studio.replace('サディスティックヴィレッジ','SOD')
-    studio = studio.replace('V＆Rプロダクツ','V＆R PRODUCE')
-    studio = studio.replace('V＆RPRODUCE','V＆R PRODUCE')
-    studio = studio.replace('レアルワークス','Real Works')
-    studio = studio.replace('マックスエー','MAX-A')
-    studio = studio.replace('ピーターズMAX','PETERS MAX')
-    studio = studio.replace('プレミアム','PREMIUM')
-    studio = studio.replace('ナチュラルハイ','NATURAL HIGH')
-    studio = studio.replace('マキシング','MAXING')
-    studio = studio.replace('エムズビデオグループ','M’s Video Group')
-    studio = studio.replace('ミニマム','Minimum')
-    studio = studio.replace('ワープエンタテインメント','WAAP Entertainment')
-    studio = re.sub('.*/妄想族','妄想族',studio)
-    studio = studio.replace('/',' ')
-    # ===  替换Studio片假名 END
-
-    location_rule = eval(conf.location_rule())
-
-    if 'actor' in conf.location_rule() and len(actor) > 100:
-        print(conf.location_rule())
-        location_rule = eval(conf.location_rule().replace("actor","'多人作品'"))
-    maxlen = conf.max_title_len()
-    if 'title' in conf.location_rule() and len(title) > maxlen:
-        shorttitle = title[0:maxlen]
-        location_rule = location_rule.replace(title, shorttitle)
-
-    # 返回处理后的json_data
-    json_data['title'] = title
-    json_data['actor'] = actor
-    json_data['release'] = release
-    json_data['cover_small'] = cover_small
-    json_data['tag'] = tag
-    json_data['location_rule'] = location_rule
-    json_data['year'] = year
-    json_data['actor_list'] = actor_list
-    if conf.is_transalte():
-        translate_values = conf.transalte_values().split(",")
-        for translate_value in translate_values:
-            if json_data[translate_value] == "":
-                continue
-            # if conf.get_transalte_engine() == "baidu":
-            #     json_data[translate_value] = translate(
-            #         json_data[translate_value],
-            #         target_language="zh",
-            #         engine=conf.get_transalte_engine(),
-            #         app_id=conf.get_transalte_appId(),
-            #         key=conf.get_transalte_key(),
-            #         delay=conf.get_transalte_delay(),
-            #     )
-            if conf.get_transalte_engine() == "azure":
-                json_data[translate_value] = translate(
-                    json_data[translate_value],
-                    target_language="zh-Hans",
-                    engine=conf.get_transalte_engine(),
-                    key=conf.get_transalte_key(),
-                )
-            else:
-                json_data[translate_value] = translate(json_data[translate_value])
-
-    if conf.is_trailer():
-        if trailer:
-            json_data['trailer'] = trailer
-        else:
-            json_data['trailer'] = ''
-    else:
-        json_data['trailer'] = ''
-
-    if conf.is_extrafanart():
-        if extrafanart:
-            json_data['extrafanart'] = extrafanart
-        else:
-            json_data['extrafanart'] = ''
-    else:
-        json_data['extrafanart'] = ''
-
-    naming_rule=""
-    for i in conf.naming_rule().split("+"):
-        if i not in json_data:
-            naming_rule += i.strip("'").strip('"')
-        else:
-            naming_rule += json_data.get(i)
-    json_data['naming_rule'] = naming_rule
-    return json_data
 
 
 def get_info(json_data):  # 返回json里的数据
@@ -324,12 +58,20 @@ def small_cover_check(path, number, cover_small, leak_word, c_word, conf: config
     print('[+]Image Downloaded! ' + path + '/' + number + leak_word + c_word + '-poster.jpg')
 
 
-def create_folder(success_folder, location_rule, json_data, conf: config.Config):  # 创建文件夹
+def create_folder(json_data, conf: config.Config):  # 创建文件夹
     title, studio, year, outline, runtime, director, actor_photo, release, number, cover, trailer, website, series, label = get_info(json_data)
-    if len(location_rule) > 240:  # 新建成功输出文件夹
-        path = success_folder + '/' + location_rule.replace("'actor'", "'manypeople'", 3).replace("actor","'manypeople'",3)  # path为影片+元数据所在目录
-    else:
-        path = success_folder + '/' + location_rule
+    success_folder = conf.success_folder()
+    actor = json_data.get('actor')
+    location_rule = eval(conf.location_rule(), json_data)
+    if 'actor' in conf.location_rule() and len(actor) > 100:
+        print(conf.location_rule())
+        location_rule = eval(conf.location_rule().replace("actor","'多人作品'"), json_data)
+    maxlen = conf.max_title_len()
+    if 'title' in conf.location_rule() and len(title) > maxlen:
+        shorttitle = title[0:maxlen]
+        location_rule = location_rule.replace(title, shorttitle)
+
+    path = success_folder + '/' + location_rule
     path = trimblank(path)
     if not os.path.exists(path):
         path = escape_path(path, conf.escape_literals())
@@ -740,10 +482,11 @@ def core_main(file_path, number_th, conf: config.Config):
     # 下面被注释的变量不需要
     #rootpath= os.getcwd
     number = number_th
-    json_data = get_data_from_json(number, filepath, conf)  # 定义番号
+    json_data = get_data_from_json(number, conf)  # 定义番号
 
     # Return if blank dict returned (data not found)
     if not json_data:
+        moveFailedFolder(filepath)
         return
 
     if json_data["number"] != number:
@@ -790,7 +533,7 @@ def core_main(file_path, number_th, conf: config.Config):
     #  3：不改变路径刮削
     if conf.main_mode() == 1:
         # 创建文件夹
-        path = create_folder(conf.success_folder(),  json_data.get('location_rule'), json_data, conf)
+        path = create_folder(json_data, conf)
         if multi_part == 1:
             number += part  # 这时number会被附加上CD1后缀
 
@@ -804,13 +547,13 @@ def core_main(file_path, number_th, conf: config.Config):
         if not multi_part or part.lower() == '-cd1':
             try:
                 # 下载预告片
-                if json_data.get('trailer'):
+                if conf.is_trailer() and json_data.get('trailer'):
                     trailer_download(json_data.get('trailer'), leak_word, c_word, number, path, filepath, conf)
             except:
                 pass
             try:
                 # 下载剧照 data, path, conf: config.Config, filepath
-                if json_data.get('extrafanart'):
+                if conf.is_extrafanart() and json_data.get('extrafanart'):
                     extrafanart_download(json_data.get('extrafanart'), path, conf, filepath)
             except:
                 pass
@@ -831,7 +574,7 @@ def core_main(file_path, number_th, conf: config.Config):
 
     elif conf.main_mode() == 2:
         # 创建文件夹
-        path = create_folder(conf.success_folder(), json_data.get('location_rule'), json_data, conf)
+        path = create_folder(json_data, conf)
         # 移动文件
         paste_file_to_folder_mode2(filepath, path, multi_part, number, part, leak_word, c_word, conf)
         poster_path = path + '/' + number + leak_word + c_word + '-poster.jpg'
@@ -854,11 +597,11 @@ def core_main(file_path, number_th, conf: config.Config):
 
         if not multi_part or part.lower() == '-cd1':
             # 下载预告片
-            if json_data.get('trailer'):
+            if conf.is_trailer() and json_data.get('trailer'):
                 trailer_download(json_data.get('trailer'), leak_word, c_word, number, path, filepath, conf)
 
             # 下载剧照 data, path, conf: config.Config, filepath
-            if json_data.get('extrafanart'):
+            if conf.is_extrafanart() and json_data.get('extrafanart'):
                 extrafanart_download(json_data.get('extrafanart'), path, conf, filepath)
 
         # 裁剪图
