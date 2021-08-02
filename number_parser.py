@@ -43,7 +43,8 @@ def get_number(debug,filepath: str) -> str:
                 lower_check = filename.lower()
                 if 'fc2' in lower_check:
                     filename = lower_check.replace('ppv', '').replace('--', '-').replace('_', '-').upper()
-                if file_number := get_number_by_dict(lower_check):
+                file_number = get_number_by_dict(lower_check)
+                if file_number:
                     return file_number
                 return str(re.search(r'\w+(-|_)\w+', filename, re.A).group())
             else:  # 提取不含减号-的番号，FANZA CID
@@ -70,7 +71,8 @@ def get_number(debug,filepath: str) -> str:
             lower_check = filename.lower()
             if 'fc2' in lower_check:
                 filename = lower_check.replace('ppv', '').replace('--', '-').replace('_', '-').upper()
-            if file_number := get_number_by_dict(lower_check):
+            file_number = get_number_by_dict(lower_check)
+            if file_number:
                 return file_number
             return str(re.search(r'\w+(-|_)\w+', filename, re.A).group())
         else:  # 提取不含减号-的番号，FANZA CID
