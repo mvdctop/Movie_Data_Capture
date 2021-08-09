@@ -62,24 +62,36 @@ def get_data_from_json(file_number, conf: config.Config):  # 从JSON返回元数
         if "carib" in sources and (re.match(r"^\d{6}-\d{3}", file_number)
         ):
             sources.insert(0, sources.pop(sources.index("carib")))
-        elif "avsox" in sources and (re.match(r"^\d{5,}", file_number) or
-                                     "heyzo" in lo_file_number
-        ):
-            sources.insert(0, sources.pop(sources.index("avsox")))
-            sources.insert(1, sources.pop(sources.index("javdb")))
+        elif re.match(r"^\d{5,}", file_number) or "heyzo" in lo_file_number:
+            if "javdb" in sources:
+                sources.insert(0, sources.pop(sources.index("javdb")))
+            if "avsox" in sources:
+                sources.insert(0, sources.pop(sources.index("avsox")))
         elif "mgstage" in sources and (re.match(r"\d+\D+", file_number) or
                                        "siro" in lo_file_number
         ):
             sources.insert(0, sources.pop(sources.index("mgstage")))
-        elif "fc2" in sources and ("fc2" in lo_file_number
-        ):
-            sources.insert(0, sources.pop(sources.index("fc2club")))
-            sources.insert(1, sources.pop(sources.index("fc2")))
-            sources.insert(2, sources.pop(sources.index("javdb")))
+        elif "fc2" in lo_file_number:
+            if "javdb" in sources:
+                sources.insert(0, sources.pop(sources.index("javdb")))
+            if "fc2" in sources:
+                sources.insert(0, sources.pop(sources.index("fc2")))
+            if "fc2club" in sources:
+                sources.insert(0, sources.pop(sources.index("fc2club")))
         elif "dlsite" in sources and (
                 "rj" in lo_file_number or "vj" in lo_file_number
         ):
             sources.insert(0, sources.pop(sources.index("dlsite")))
+
+    # check sources in func_mapping
+    todel = []
+    for s in sources:
+        if not s in func_mapping:
+            print('[!] Source Not Exist : ' + s)
+            todel.append(s)
+    for d in todel:
+        print('[!] Remove Source : ' + s)
+        sources.remove(d)
 
     json_data = {}
 
