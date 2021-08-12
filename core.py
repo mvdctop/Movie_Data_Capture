@@ -609,7 +609,7 @@ def core_main(file_path, number_th, conf: config.Config):
 
         # 打印文件
         print_files(path, leak_word, c_word, json_data.get('naming_rule'), part, cn_sub, json_data, filepath, conf.failed_folder(),
-                    tag, json_data.get('actor_list'), liuchu)
+                    tag, json_data.get('actor_list'), liuchu, uncensored)
 
         poster_path = path + '/' + number + leak_word + c_word + '-poster.jpg'
         thumb_path = path + '/' + number + leak_word + c_word + '-thumb.jpg'
