@@ -52,6 +52,8 @@ class Config:
         return self.conf.getboolean("common", "transalte_to_sc")
     def multi_threading(self) -> bool:
         return self.conf.getboolean("common", "multi_threading")
+    def del_empty_folder(self) -> bool:
+        return self.conf.getboolean("common", "del_empty_folder")
     def is_transalte(self) -> bool:
         return self.conf.getboolean("transalte", "switch")
     def is_trailer(self) -> bool:
@@ -168,6 +170,7 @@ class Config:
         conf.set(sec1, "transalte_to_sc", "1")
         # actor_gender value: female or male or both or all(含人妖)
         conf.set(sec1, "actor_gender", "female")
+        conf.set(sec1, "del_empty_folder", "1")
 
         sec2 = "proxy"
         conf.add_section(sec2)
@@ -258,7 +261,7 @@ class IniProxy():
         self.timeout = timeout
         self.retry = retry
         self.proxytype = proxytype
-    
+
     def proxies(self):
         ''' 获得代理参数，默认http代理
         '''
@@ -297,3 +300,5 @@ if __name__ == "__main__":
     print(config.get_transalte_delay())
     print(config.transalte_values())
     print(config.actor_gender())
+    print(config.multi_threading())
+    print(config.del_empty_folder())
