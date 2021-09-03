@@ -72,14 +72,17 @@ def create_failed_folder(failed_folder):
 
 
 def rm_empty_folder(path):
-    try:
-        files = os.listdir(path)  # 获取路径下的子文件(夹)列表
-    except:
-        return
-    for file in files:
+    abspath = os.path.abspath(path)
+    deleted = set()
+    for current_dir, subdirs, files in os.walk(abspath, topdown=False):
         try:
-            os.rmdir(os.path.join(path, file))  # 删除这个空文件夹
-            print('[+]Deleting empty folder', os.path.join(path, file))
+            still_has_subdirs = any(
+                 _ for subdir in subdirs if os.path.join(current_dir, subdir) not in deleted
+            )
+            if not any(files) and not still_has_subdirs and not abspath == current_dir:
+                os.rmdir(current_dir)
+                deleted.add(current_dir)
+                print('[+]Deleting empty folder', current_dir)
         except:
             pass
 
@@ -195,9 +198,11 @@ if __name__ == '__main__':
             print('[!] - ' + percentage + ' [' + str(count) + '/' + count_all + '] -')
             create_data_and_move(movie_path, conf, conf.debug())
 
-    rm_empty_folder(conf.success_folder())
-    rm_empty_folder(conf.failed_folder())
-    rm_empty_folder(os.getcwd())
+    if conf.del_empty_folder():
+        rm_empty_folder(conf.success_folder())
+        rm_empty_folder(conf.failed_folder())
+        if len(folder_path):
+            rm_empty_folder(folder_path)
 
     end_time = time.time()
     total_time = end_time - start_time
