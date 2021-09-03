@@ -45,6 +45,9 @@ def argparse_function(ver: str) -> typing.Tuple[str, str, bool]:
 
     return args.file, args.path, args.number, args.autoexit
 
+
+G_trailerRE = re.compile(r'-trailer\.', re.IGNORECASE)
+
 def movie_lists(root, escape_folder):
     if os.path.basename(root) in escape_folder:
         return []
@@ -57,7 +60,7 @@ def movie_lists(root, escape_folder):
             total += movie_lists(f, escape_folder)
         elif os.path.splitext(f)[1].upper() in file_type:
             absf = os.path.abspath(f)
-            if conf.main_mode() == 3 or not is_link(absf):
+            if (conf.main_mode() == 3 or not is_link(absf)) and not G_trailerRE.search(f):
                 total.append(absf)
     return total
 
