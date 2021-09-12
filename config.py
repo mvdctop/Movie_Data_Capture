@@ -276,12 +276,10 @@ class IniProxy():
         return proxies
 
 
-def evprint(evstr):
-    code = compile(evstr, "<string>", "eval")
-    print('{}: "{}"'.format(evstr, eval(code)))
-
-
 if __name__ == "__main__":
+    def evprint(evstr):
+        code = compile(evstr, "<string>", "eval")
+        print('{}: "{}"'.format(evstr, eval(code)))
     config = Config()
     evprint('config.main_mode()')
     evprint('config.failed_folder()')
