@@ -134,6 +134,7 @@ def get_data_from_json(file_number, conf: config.Config):  # 从JSON返回元数
     title = json_data.get('title')
     actor_list = str(json_data.get('actor')).strip("[ ]").replace("'", '').split(',')  # 字符串转列表
     actor_list = [actor.strip() for actor in actor_list]  # 去除空白
+    director = json_data.get('director')
     release = json_data.get('release')
     number = json_data.get('number')
     studio = json_data.get('studio')
@@ -171,20 +172,18 @@ def get_data_from_json(file_number, conf: config.Config):  # 从JSON返回元数
     #     DownloadFileWithFilename()
 
     # ====================处理异常字符====================== #\/:*?"<>|
-    title = title.replace('\\', '')
-    title = title.replace('/', '')
-    title = title.replace(':', '')
-    title = title.replace('*', '')
-    title = title.replace('?', '')
-    title = title.replace('"', '')
-    title = title.replace('<', '')
-    title = title.replace('>', '')
-    title = title.replace('|', '')
+    actor = special_characters_replacement(actor)
+    actor_list = [special_characters_replacement(a) for a in actor_list]
+    title = special_characters_replacement(title)
+    label = special_characters_replacement(label)
+    series = special_characters_replacement(series)
+    studio = special_characters_replacement(studio)
+    director = special_characters_replacement(director)
+    tag = [special_characters_replacement(t) for t in tag]
     release = release.replace('/', '-')
     tmpArr = cover_small.split(',')
     if len(tmpArr) > 0:
         cover_small = tmpArr[0].strip('\"').strip('\'')
-
     # ====================处理异常字符 END================== #\/:*?"<>|
 
     # ===  替换Studio片假名
@@ -234,6 +233,10 @@ def get_data_from_json(file_number, conf: config.Config):  # 从JSON返回元数
     json_data['actor_list'] = actor_list
     json_data['trailer'] = trailer
     json_data['extrafanart'] = extrafanart
+    json_data['label'] = label
+    json_data['series'] = series
+    json_data['studio'] = studio
+    json_data['director'] = director
 
     if conf.is_transalte():
         translate_values = conf.transalte_values().split(",")
@@ -268,3 +271,16 @@ def get_data_from_json(file_number, conf: config.Config):  # 从JSON返回元数
 
     json_data['naming_rule'] = naming_rule
     return json_data
+
+def special_characters_replacement(text) -> str:
+    if not isinstance(text, str):
+        return text
+    return (text.replace('\\', '∖').     # U+2216 SET MINUS @ Basic Multilingual Plane
+                replace('/', '∕').       # U+2215 DIVISION SLASH @ Basic Multilingual Plane
+                replace(':', '꞉').       # U+A789 MODIFIER LETTER COLON @ Latin Extended-D
+                replace('*', '∗').       # U+2217 ASTERISK OPERATOR @ Basic Multilingual Plane
+                replace('?', '？').      # U+FF1F FULLWIDTH QUESTION MARK @ Basic Multilingual Plane
+                replace('"', '＂').      # U+FF02 FULLWIDTH QUOTATION MARK @ Basic Multilingual Plane
+                replace('<', 'ᐸ').       # U+1438 CANADIAN SYLLABICS PA @ Basic Multilingual Plane
+                replace('>', 'ᐳ').       # U+1433 CANADIAN SYLLABICS PO @ Basic Multilingual Plane
+                replace('|', 'ǀ'))       # U+01C0 LATIN LETTER DENTAL CLICK @ Basic Multilingual Plane
