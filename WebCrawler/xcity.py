@@ -175,29 +175,30 @@ def main(number):
         query_result = get_html(
             'https://xcity.jp/result_published/?genre=%2Fresult_published%2F&q=' + number.replace('-','') + '&sg=main&num=30')
         html = etree.fromstring(query_result, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
-        urls = html.xpath("//table[contains(@class, 'resultList')]/tr[2]/td[1]/a/@href")[0]
-        detail_page = get_html('https://xcity.jp' + urls)
-        dic = {
-            'actor': getActor(detail_page),
-            'title': getTitle(detail_page),
-            'studio': getStudio(detail_page),
-            'outline': getOutline(detail_page),
-            'runtime': getRuntime(detail_page),
-            'director': getDirector(detail_page),
-            'release': getRelease(detail_page),
-            'number': getNum(detail_page),
-            'cover': getCover(detail_page),
-            'cover_small': '',
-            'extrafanart': getExtrafanart(detail_page),
-            'imagecut': 1,
-            'tag': getTag(detail_page),
-            'label': getLabel(detail_page),
-            'year': getYear(getRelease(detail_page)),  # str(re.search('\d{4}',getRelease(a)).group()),
-            'actor_photo': getActorPhoto(getActor(detail_page)),
-            'website': 'https://xcity.jp' + urls,
-            'source': 'xcity.py',
-            'series': getSeries(detail_page),
-        }
+        urls = html.xpath("//table[contains(@class, 'resultList')]/tr[2]/td[1]/a/@href")
+        if urls:
+            detail_page = get_html('https://xcity.jp' + urls[0])
+            dic = {
+                'actor': getActor(detail_page),
+                'title': getTitle(detail_page),
+                'studio': getStudio(detail_page),
+                'outline': getOutline(detail_page),
+                'runtime': getRuntime(detail_page),
+                'director': getDirector(detail_page),
+                'release': getRelease(detail_page),
+                'number': getNum(detail_page),
+                'cover': getCover(detail_page),
+                'cover_small': '',
+                'extrafanart': getExtrafanart(detail_page),
+                'imagecut': 1,
+                'tag': getTag(detail_page),
+                'label': getLabel(detail_page),
+                'year': getYear(getRelease(detail_page)),  # str(re.search('\d{4}',getRelease(a)).group()),
+                'actor_photo': getActorPhoto(getActor(detail_page)),
+                'website': 'https://xcity.jp' + urls,
+                'source': 'xcity.py',
+                'series': getSeries(detail_page),
+            }
     except Exception as e:
         if config.Config().debug():
             print(e)
