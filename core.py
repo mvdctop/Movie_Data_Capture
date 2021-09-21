@@ -374,16 +374,16 @@ def paste_file_to_folder(filepath, path, number, leak_word, c_word, conf: config
     houzhui = os.path.splitext(filepath)[1].replace(",","")
     file_parent_origin_path = str(pathlib.Path(filepath).parent)
     try:
-        targetpath = path + '/' + number + leak_word + c_word + houzhui
+        targetpath = os.path.join(path, "{}{}{}{}".format(number, leak_word, c_word , houzhui))
         # 如果soft_link=1 使用软链接
         if conf.soft_link() == 0:
-            os.rename(filepath, targetpath)
+            shutil.move(filepath, targetpath)
         elif conf.soft_link() == 1:
             # 采用相对路径，以便网络访问时能正确打开视频
             filerelpath = os.path.relpath(filepath, path)
             os.symlink(filerelpath, targetpath)
         elif conf.soft_link() == 2:
-            os.rename(filepath, targetpath)
+            shutil.move(filepath, targetpath)
             # 移走文件后，在原来位置增加一个可追溯的软链接，指向文件新位置
             # 以便追查文件从原先位置被移动到哪里了，避免因为得到错误番号后改名移动导致的文件失踪
             # 便于手工找回文件。并将软连接文件名后缀修改，以避免再次被搜刮。
@@ -395,7 +395,8 @@ def paste_file_to_folder(filepath, path, number, leak_word, c_word, conf: config
 
         for subname in sub_res:
             if os.path.exists(filepath.replace(houzhui, subname)):  # 字幕移动
-                os.rename(filepath.replace(houzhui, subname), path + '/' + number + leak_word + c_word + subname)
+                shutil.move(filepath.replace(houzhui, subname),
+                          os.path.join(path, "{}{}{}{}".format(number, leak_word, c_word, subname)))
                 print('[+]Sub moved!')
                 return True
 
@@ -418,14 +419,17 @@ def paste_file_to_folder_mode2(filepath, path, multi_part, number, part, leak_wo
     file_parent_origin_path = str(pathlib.Path(filepath).parent)
     try:
         if conf.soft_link():
-            os.symlink(filepath, path + '/' + number + part + leak_word + c_word + houzhui)
+            os.symlink(filepath,
+                os.path.join(path, "{}{}{}{}{}".format(number, part, leak_word, c_word, houzhui)))
         else:
-            os.rename(filepath, path + '/' + number + part + leak_word + c_word + houzhui)
+            shutil.move(filepath,
+                os.path.join(path, "{}{}{}{}{}".format(number, part, leak_word, c_word, houzhui)))
 
         sub_res = conf.sub_rule()
         for subname in sub_res:
             if os.path.exists(filepath.replace(houzhui, subname)):  # 字幕移动
-                os.rename(filepath.replace(houzhui, subname), path + '/' + number + part + leak_word + c_word + subname)
+                shutil.move(filepath.replace(houzhui, subname),
+                    os.path.join(path, "{}{}{}{}{}".format(number, part, leak_word, c_word, subname)))
                 print('[+]Sub moved!')
                 print('[!]Success')
                 return True
@@ -567,8 +571,8 @@ def core_main(file_path, number_th, conf: config.Config):
         # 移动文件
         paste_file_to_folder(filepath, path, number, leak_word, c_word, conf)
 
-        poster_path = path + '/' + number + leak_word + c_word + '-poster.jpg'
-        thumb_path = path + '/' + number + leak_word + c_word + '-thumb.jpg'
+        poster_path = os.path.join(path, "{}{}{}-poster.jpg".format(number, leak_word, c_word))
+        thumb_path = os.path.join(path, "{}{}{}-thumb.jpg".format(number, leak_word, c_word))
         if conf.is_watermark():
             add_mark(poster_path, thumb_path, cn_sub, leak, uncensored, conf)
 
@@ -577,8 +581,8 @@ def core_main(file_path, number_th, conf: config.Config):
         path = create_folder(json_data, conf)
         # 移动文件
         paste_file_to_folder_mode2(filepath, path, multi_part, number, part, leak_word, c_word, conf)
-        poster_path = path + '/' + number + leak_word + c_word + '-poster.jpg'
-        thumb_path = path + '/' + number + leak_word + c_word + '-thumb.jpg'
+        poster_path = os.path.join(path, "{}{}{}-poster.jpg".format(number, leak_word, c_word))
+        thumb_path = os.path.join(path, "{}{}{}-thumb.jpg".format(number, leak_word, c_word))
         if conf.is_watermark():
             add_mark(poster_path, thumb_path, cn_sub, leak, uncensored, conf)
 
@@ -611,7 +615,7 @@ def core_main(file_path, number_th, conf: config.Config):
         print_files(path, leak_word, c_word, json_data.get('naming_rule'), part, cn_sub, json_data, filepath, conf.failed_folder(),
                     tag, json_data.get('actor_list'), liuchu, uncensored)
 
-        poster_path = path + '/' + number + leak_word + c_word + '-poster.jpg'
-        thumb_path = path + '/' + number + leak_word + c_word + '-thumb.jpg'
+        poster_path = os.path.join(path, "{}{}{}-poster.jpg".format(number, leak_word, c_word))
+        thumb_path = os.path.join(path, "{}{}{}-thumb.jpg".format(number, leak_word, c_word))
         if conf.is_watermark():
             add_mark(poster_path, thumb_path, cn_sub, leak, uncensored, conf)
