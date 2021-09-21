@@ -282,10 +282,8 @@ if __name__ == "__main__":
         print('{}: "{}"'.format(evstr, eval(code)))
     config = Config()
     mfilter = ('conf', 'proxy', '_exit', '_default_config')
-    methods = [m for m in dir(config) if not m.startswith('__') and m not in mfilter]
-    for m in methods:
-        evprint(f'config.{m}()')
+    for _m in [m for m in dir(config) if not m.startswith('__') and m not in mfilter]:
+        evprint(f'config.{_m}()')
     pfilter = ('proxies', 'SUPPORT_PROXY_TYPE')
-    proxy = [p for p in dir(config.proxy()) if not p.startswith('__') and p not in pfilter]
-    for p in proxy:
-        evprint(f'config.proxy().{p}')
+    for _p in [p for p in dir(config.proxy()) if not p.startswith('__') and p not in pfilter]:
+        evprint(f'config.proxy().{_p}')
