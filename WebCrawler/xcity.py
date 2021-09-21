@@ -82,7 +82,7 @@ def getYear(getRelease):
 def getRelease(a):
     html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
     try:
-        result = html.xpath('//*[@id="avodDetails"]/div/div[3]/div[2]/div/ul[2]/li[4]/text()')[0]
+        result = str(html.xpath('//*[@id="avodDetails"]/div/div[3]/div[2]/div/ul[1]/li[2]/text()')[1])
     except:
         return ''
     try:
@@ -171,12 +171,13 @@ def getExtrafanart(htmlcode):  # 获取剧照
 
 def main(number):
     try:
-        number = number.upper()
-        query_result = get_html(
-            'https://xcity.jp/result_published/?genre=%2Fresult_published%2F&q=' + number.replace('-','') + '&sg=main&num=30')
-        html = etree.fromstring(query_result, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
-        urls = html.xpath("//table[contains(@class, 'resultList')]/tr[2]/td[1]/a/@href")[0]
-        detail_page = get_html('https://xcity.jp' + urls)
+        query_result = get_html_by_form('https://xcity.jp/about/',
+                                fields = {'q' : number.replace('-','').lower()})
+        html = etree.fromstring(query_result, etree.HTMLParser())
+        urls = str(html.xpath('//table[@class="resultList"]/tr[2]/td[1]/a/@href')).strip(" ['']")
+        if not len(urls):
+            raise ValueError("xcity.py: urls not found")
+        detail_page = get_html(abs_url('https://xcity.jp', urls))
         dic = {
             'actor': getActor(detail_page),
             'title': getTitle(detail_page),
@@ -208,3 +209,4 @@ def main(number):
 
 if __name__ == '__main__':
     print(main('VNDS-2624'))
+    print(main('ABP-345'))
