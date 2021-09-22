@@ -171,13 +171,16 @@ def getExtrafanart(htmlcode):  # 获取剧照
 
 def main(number):
     try:
-        query_result = get_html_by_form('https://xcity.jp/about/',
-                                fields = {'q' : number.replace('-','').lower()})
-        html = etree.fromstring(query_result, etree.HTMLParser())
-        urls = str(html.xpath('//table[@class="resultList"]/tr[2]/td[1]/a/@href')).strip(" ['']")
-        if not len(urls):
-            raise ValueError("xcity.py: urls not found")
-        detail_page = get_html(abs_url('https://xcity.jp', urls))
+        query_result, browser = get_html_by_form(
+            'https://xcity.jp/about/',
+            fields = {'q' : number.replace('-','').lower()},
+            return_type = 'browser')
+        if not query_result or not query_result.ok:
+            raise ValueError("xcity.py: page not found")
+        result = browser.follow_link(browser.links('avod\/detail')[0])
+        if not result.ok:
+            raise ValueError("xcity.py: detail page not found")
+        detail_page = str(browser.page)
         dic = {
             'actor': getActor(detail_page),
             'title': getTitle(detail_page),
@@ -195,7 +198,7 @@ def main(number):
             'label': getLabel(detail_page),
             'year': getYear(getRelease(detail_page)),  # str(re.search('\d{4}',getRelease(a)).group()),
             'actor_photo': getActorPhoto(getActor(detail_page)),
-            'website': 'https://xcity.jp' + urls,
+            'website': browser.url,
             'source': 'xcity.py',
             'series': getSeries(detail_page),
         }
