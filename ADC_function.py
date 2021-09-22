@@ -86,17 +86,20 @@ def post_html(url: str, query: dict, headers: dict = None) -> requests.Response:
 
 def get_html_by_form(url, form_name: str = None, fields: dict = None, cookies: dict = None, ua: str = None, return_type: str = None):
     browser = mechanicalsoup.StatefulBrowser(user_agent=G_USER_AGENT if ua is None else ua)
+    if isinstance(cookies, dict):
+        requests.utils.add_dict_to_cookiejar(browser.session.cookies, cookies)
     configProxy = config.Config().proxy()
     if configProxy.enable:
         browser.session.proxies = configProxy.proxies()
     result = browser.open(url)
+    if not result.ok:
+        return ''
     form = browser.select_form() if form_name is None else browser.select_form(form_name)
     if isinstance(fields, dict):
         for k, v in fields.items():
             browser[k] = v
     response = browser.submit_selected()
     response.encoding = "utf-8"
-
     if return_type == "object":
         return response
     elif return_type == "content":
