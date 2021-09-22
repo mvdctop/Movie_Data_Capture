@@ -104,6 +104,8 @@ def get_html_by_form(url, form_name: str = None, fields: dict = None, cookies: d
         return response
     elif return_type == "content":
         return response.content
+    elif return_type == "browser":
+        return response, browser
     else:
         return response.text
 
