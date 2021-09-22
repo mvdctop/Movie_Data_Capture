@@ -17,19 +17,30 @@ def getTitle(a):
     return result
 
 
-def getActor(a):  # //*[@id="center_column"]/div[2]/div[1]/div/table/tbody/tr[1]/td/text()
-    html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
-    result1 = html.xpath('//*[@id="avodDetails"]/div/div[3]/div[2]/div/ul[1]/li[3]/a/text()')[0]
-    return result1
+def getActor(browser):
+    htmla = browser.page.select('#avodDetails > div > div.frame > div.content > div > ul.profileCL > li.credit-links > a')
+    t = []
+    for i in htmla:
+        t.append(i.text.strip())
+    return t
 
 
-def getActorPhoto(actor):  # //*[@id="star_qdt"]/li/a/img
-    a = actor.split(',')
-    d = {}
-    for i in a:
-        p = {i: ''}
-        d.update(p)
-    return d
+def getActorPhoto(browser):
+    htmla = browser.page.select('#avodDetails > div > div.frame > div.content > div > ul.profileCL > li.credit-links > a')
+    t = {}
+    for i in htmla:
+        p = {i.text.strip(): i['href']}
+        t.update(p)
+    o = {}
+    for k, v in t.items():
+        r = browser.open_relative(v)
+        if r.ok:
+            pic = browser.page.select_one('#avidolDetails > div > div.frame > div > p > img')
+            p = {k: abs_url(browser.url, pic['src'])}
+        else:
+            p = {k, ''}
+        o.update(p)
+    return o
 
 
 def getStudio(a):
@@ -181,8 +192,9 @@ def main(number):
         if not result.ok:
             raise ValueError("xcity.py: detail page not found")
         detail_page = str(browser.page)
+        url = browser.url
         dic = {
-            'actor': getActor(detail_page),
+            'actor': getActor(browser),
             'title': getTitle(detail_page),
             'studio': getStudio(detail_page),
             'outline': getOutline(detail_page),
@@ -197,8 +209,8 @@ def main(number):
             'tag': getTag(detail_page),
             'label': getLabel(detail_page),
             'year': getYear(getRelease(detail_page)),  # str(re.search('\d{4}',getRelease(a)).group()),
-            'actor_photo': getActorPhoto(getActor(detail_page)),
-            'website': browser.url,
+            'actor_photo': getActorPhoto(browser),
+            'website': url,
             'source': 'xcity.py',
             'series': getSeries(detail_page),
         }
@@ -211,5 +223,6 @@ def main(number):
     return js
 
 if __name__ == '__main__':
-    print(main('VNDS-2624'))
-    print(main('ABP-345'))
+    print(main('RCTD-288'))
+    #print(main('VNDS-2624'))
+    #print(main('ABP-345'))
