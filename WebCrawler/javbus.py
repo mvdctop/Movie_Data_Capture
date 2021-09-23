@@ -17,7 +17,7 @@ def getActorPhoto(htmlcode): #//*[@id="star_qdt"]/li/a/img
         l=i.a['href']
         t=i.get_text()
         html = etree.fromstring(get_html(l), etree.HTMLParser())
-        p=abs_url("https://www.javbus.com",
+        p=urljoin("https://www.javbus.com",
                   str(html.xpath('//*[@id="waterfall"]/div[1]/div/div[1]/img/@src')).strip(" ['']"))
         p2={t:p}
         d.update(p2)
@@ -48,7 +48,7 @@ def getYear(htmlcode):   #获取年份
 def getCover(htmlcode):  #获取封面链接
     doc = pq(htmlcode)
     image = doc('a.bigImage')
-    return abs_url("https://www.javbus.com", image.attr('href'))
+    return urljoin("https://www.javbus.com", image.attr('href'))
 def getRelease(htmlcode): #获取出版日期
     html = etree.fromstring(htmlcode, etree.HTMLParser())
     result = str(html.xpath('/html/body/div[5]/div[1]/div[2]/p[2]/text()')).strip(" ['']")

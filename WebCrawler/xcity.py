@@ -36,7 +36,7 @@ def getActorPhoto(browser):
         r = browser.open_relative(v)
         if r.ok:
             pic = browser.page.select_one('#avidolDetails > div > div.frame > div > p > img')
-            p = {k: abs_url(browser.url, pic['src'])}
+            p = {k: urljoin(browser.url, pic['src'])}
         else:
             p = {k, ''}
         o.update(p)

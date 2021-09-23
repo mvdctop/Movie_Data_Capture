@@ -593,9 +593,3 @@ def is_link(filename: str):
         return True # hard link Linux MAC OSX Windows NTFS
     return False
 
-# URL相对路径转绝对路径
-def abs_url(base_url: str, href: str) -> str:
-    if href.startswith('http'):
-        return href
-    return urljoin(base_url, href)
-
