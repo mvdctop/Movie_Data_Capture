@@ -84,6 +84,25 @@ def post_html(url: str, query: dict, headers: dict = None) -> requests.Response:
     print("[-]" + errors)
 
 
+def get_html_by_browser(url, cookies: dict = None, ua: str = None, return_type: str = None):
+    browser = mechanicalsoup.StatefulBrowser(user_agent=G_USER_AGENT if ua is None else ua)
+    configProxy = config.Config().proxy()
+    if configProxy.enable:
+        browser.session.proxies = configProxy.proxies()
+    result = browser.open(url)
+    if not result.ok:
+        return ''
+    result.encoding = "utf-8"
+    if return_type == "object":
+        return result
+    elif return_type == "content":
+        return result.content
+    elif return_type == "browser":
+        return result, browser
+    else:
+        return result.text
+
+
 def get_html_by_form(url, form_name: str = None, fields: dict = None, cookies: dict = None, ua: str = None, return_type: str = None):
     browser = mechanicalsoup.StatefulBrowser(user_agent=G_USER_AGENT if ua is None else ua)
     if isinstance(cookies, dict):
@@ -592,4 +611,3 @@ def is_link(filename: str):
     elif os.stat(filename).st_nlink > 1:
         return True # hard link Linux MAC OSX Windows NTFS
     return False
-
