@@ -182,9 +182,10 @@ def getExtrafanart(htmlcode):  # 获取剧照
 
 def main(number):
     try:
+        xcity_number = number.replace('-','')
         query_result, browser = get_html_by_form(
             'https://xcity.jp/about/',
-            fields = {'q' : number.replace('-','').lower()},
+            fields = {'q' : xcity_number.lower()},
             return_type = 'browser')
         if not query_result or not query_result.ok:
             raise ValueError("xcity.py: page not found")
@@ -193,6 +194,10 @@ def main(number):
             raise ValueError("xcity.py: detail page not found")
         detail_page = str(browser.page)
         url = browser.url
+        newnum = getNum(detail_page).upper()
+        number_up = number.upper()
+        if newnum != number_up and newnum == xcity_number.upper():
+            newnum = number_up
         dic = {
             'actor': getActor(browser),
             'title': getTitle(detail_page),
@@ -201,7 +206,7 @@ def main(number):
             'runtime': getRuntime(detail_page),
             'director': getDirector(detail_page),
             'release': getRelease(detail_page),
-            'number': getNum(detail_page),
+            'number': newnum,
             'cover': getCover(detail_page),
             'cover_small': '',
             'extrafanart': getExtrafanart(detail_page),
