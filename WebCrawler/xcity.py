@@ -196,8 +196,11 @@ def main(number):
         url = browser.url
         newnum = getNum(detail_page).upper()
         number_up = number.upper()
-        if newnum != number_up and newnum == xcity_number.upper():
-            newnum = number_up
+        if newnum != number_up:
+            if newnum == xcity_number.upper():
+                newnum = number_up
+            else:
+                raise ValueError("xcity.py: number not found")
         dic = {
             'actor': getActor(browser),
             'title': getTitle(detail_page),
