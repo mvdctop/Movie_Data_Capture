@@ -22,18 +22,20 @@ def escape_path(path, escape_literals: str):  # Remove escape literals
     return path
 
 
-def moveFailedFolder(filepath):
-    conf = config.Config()
-    if conf.failed_move():
-        failed_folder = conf.failed_folder()
+def moveFailedFolder(filepath, conf):
+    failed_folder = conf.failed_folder()
+    soft_link = conf.soft_link()
+    # 模式3或软连接，改为维护一个失败列表，启动扫描时加载用于排除该路径，以免反复处理
+    # 原先的创建软连接到失败目录，并不直观，不方便找到失败文件位置，不如直接记录该文件路径
+    if conf.main_mode() == 3 or soft_link:
+        with open(os.path.join(failed_folder, 'failed_list.txt'), 'a', encoding='utf-8') as m3f:
+            m3f.write(f'{filepath}\n')
+            m3f.close()
+        print('[-]Add to failed list file')
+    elif conf.failed_move() and not soft_link:
         file_name = os.path.basename(filepath)
-        if conf.soft_link():
-            print('[-]Create symlink to Failed output folder')
-            os.symlink(filepath, os.path.join(failed_folder, file_name))
-        else:
-            print('[-]Move to Failed output folder')
-            shutil.move(filepath, os.path.join(failed_folder, file_name))
-    return
+        print('[-]Move to Failed output folder')
+        shutil.move(filepath, os.path.join(failed_folder, file_name))
 
 
 def get_info(json_data):  # 返回json里的数据
@@ -112,7 +114,7 @@ def download_file_with_filename(url, filename, path, conf: config.Config, filepa
                     'User-Agent': G_USER_AGENT}
                 r = requests.get(url, headers=headers, timeout=configProxy.timeout, proxies=proxies)
                 if r == '':
-                    print('[-]Movie Data not found!')
+                    print('[-]Movie Download Data not found!')
                     return
                 with open(os.path.join(path, filename), "wb") as code:
                     code.write(r.content)
@@ -124,7 +126,7 @@ def download_file_with_filename(url, filename, path, conf: config.Config, filepa
                     'User-Agent': G_USER_AGENT}
                 r = requests.get(url, timeout=configProxy.timeout, headers=headers)
                 if r == '':
-                    print('[-]Movie Data not found!')
+                    print('[-]Movie Download Data not found!')
                     return
                 with open(os.path.join(path, filename), "wb") as code:
                     code.write(r.content)
@@ -142,7 +144,7 @@ def download_file_with_filename(url, filename, path, conf: config.Config, filepa
             i += 1
             print('[-]Image Download :  Connect retry ' + str(i) + '/' + str(configProxy.retry))
     print('[-]Connect Failed! Please check your Proxy or Network!')
-    moveFailedFolder(filepath)
+    moveFailedFolder(filepath, conf)
     return
 
 def trailer_download(trailer, leak_word, c_word, number, path, filepath, conf: config.Config):
@@ -168,7 +170,7 @@ def extrafanart_download(data, path, conf: config.Config, filepath):
         jpg_filename = f'extrafanart-{j}.jpg'
         jpg_fullpath = os.path.join(path, jpg_filename)
         if download_file_with_filename(url, jpg_filename, path, conf, filepath) == 'failed':
-            moveFailedFolder(filepath)
+            moveFailedFolder(filepath, conf)
             return
         configProxy = conf.proxy()
         for i in range(configProxy.retry):
@@ -190,7 +192,7 @@ def image_download(cover, number, leak_word, c_word, path, conf: config.Config, 
     filename = f"{number}{leak_word}{c_word}-fanart.jpg"
     full_filepath = os.path.join(path, filename)
     if download_file_with_filename(cover, filename, path, conf, filepath) == 'failed':
-        moveFailedFolder(filepath)
+        moveFailedFolder(filepath, conf)
         return
 
     configProxy = conf.proxy()
@@ -276,12 +278,12 @@ def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, f
     except IOError as e:
         print("[-]Write Failed!")
         print(e)
-        moveFailedFolder(filepath)
+        moveFailedFolder(filepath, conf)
         return
     except Exception as e1:
         print(e1)
         print("[-]Write Failed!")
-        moveFailedFolder(filepath)
+        moveFailedFolder(filepath, conf)
         return
 
 
@@ -450,7 +452,7 @@ def paste_file_to_folder_mode2(filepath, path, multi_part, number, part, leak_wo
         print('[-]OS Error errno ' + oserr.errno)
         return
 
-def get_part(filepath):
+def get_part(filepath, conf):
     try:
         if re.search('-CD\d+', filepath):
             return re.findall('-CD\d+', filepath)[0]
@@ -458,7 +460,7 @@ def get_part(filepath):
             return re.findall('-cd\d+', filepath)[0]
     except:
         print("[-]failed!Please rename the filename again!")
-        moveFailedFolder(filepath)
+        moveFailedFolder(filepath, conf)
         return
 
 
@@ -496,7 +498,7 @@ def core_main(file_path, number_th, conf: config.Config):
 
     # Return if blank dict returned (data not found)
     if not json_data:
-        moveFailedFolder(filepath)
+        moveFailedFolder(filepath, conf)
         return
 
     if json_data["number"] != number:
@@ -511,7 +513,7 @@ def core_main(file_path, number_th, conf: config.Config):
     # =======================================================================判断-C,-CD后缀
     if '-CD' in filepath or '-cd' in filepath:
         multi_part = 1
-        part = get_part(filepath)
+        part = get_part(filepath, conf)
     if '-c.' in filepath or '-C.' in filepath or '中文' in filepath or '字幕' in filepath:
         cn_sub = '1'
         c_word = '-C'  # 中文字幕影片后缀

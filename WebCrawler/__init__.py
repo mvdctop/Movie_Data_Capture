@@ -126,8 +126,8 @@ def get_data_from_json(file_number, conf: config.Config):  # 从JSON返回元数
 
     # Return if data not found in all sources
     if not json_data:
-        print('[-]Movie Data not found!')
-        return
+        print('[-]Movie Number not found!')
+        return None
 
     # ================================================网站规则添加结束================================================
 
@@ -165,8 +165,8 @@ def get_data_from_json(file_number, conf: config.Config):  # 从JSON返回元数
     actor = str(actor_list).strip("[ ]").replace("'", '').replace(" ", '')
 
     if title == '' or number == '':
-        print('[-]Movie Data not found!')
-        return
+        print('[-]Movie Number or Title not found!')
+        return None
 
     # if imagecut == '3':
     #     DownloadFileWithFilename()

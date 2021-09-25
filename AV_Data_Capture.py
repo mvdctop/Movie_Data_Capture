@@ -126,26 +126,40 @@ def close_logfile(logdir: str):
 
 
 
-G_trailerRE = re.compile(r'-trailer\.', re.IGNORECASE)
-
-def movie_lists(root, escape_folder):
-    if os.path.basename(root) in escape_folder:
-        return []
+# 重写视频文件扫描，消除递归，取消全局变量，新增失败文件列表跳过处理
+def movie_lists(root, conf):
+    escape_folder = re.split("[,，]", conf.escape_folder())
+    failed_folder = conf.failed_folder()
+    main_mode = conf.main_mode()
     total = []
     file_type = conf.media_type().upper().split(",")
-    dirs = os.listdir(root)
-    for entry in dirs:
-        f = os.path.join(root, entry)
-        if os.path.isdir(f):
-            total += movie_lists(f, escape_folder)
-        elif os.path.splitext(f)[1].upper() in file_type:
-            absf = os.path.abspath(f)
-            if conf.main_mode() == 3 and conf.mode3_nfo_skip_days() > 0:
-                nfo = Path(absf).with_suffix('.nfo')
-                if file_modification_days(nfo) <= conf.mode3_nfo_skip_days():
+    trailerRE = re.compile(r'-trailer\.', re.IGNORECASE)
+    try:
+        failed_list = open(os.path.join(failed_folder, 'failed_list.txt'), 'r', encoding='utf-8').read().splitlines()
+    except:
+        failed_list = []
+        pass
+    for current_dir, subdirs, files in os.walk(root, topdown=False):
+        try:
+            if current_dir in escape_folder:
+                continue
+            for f in files:
+                full_name = os.path.join(current_dir, f)
+                if not os.path.splitext(full_name)[1].upper() in file_type:
                     continue
-            if (conf.main_mode() == 3 or not is_link(absf)) and not G_trailerRE.search(f):
-                total.append(absf)
+                absf = os.path.abspath(full_name)
+                if absf in failed_list:
+                    if conf.debug():
+                        print('[!]Skip failed file:', absf)
+                    continue
+                if main_mode == 3 and conf.mode3_nfo_skip_days() > 0:
+                    nfo = Path(absf).with_suffix('.nfo')
+                    if file_modification_days(nfo) <= conf.mode3_nfo_skip_days():
+                        continue
+                if (main_mode == 3 or not is_link(absf)) and not trailerRE.search(f):
+                    total.append(absf)
+        except:
+            pass
     return total
 
 
@@ -275,7 +289,7 @@ if __name__ == '__main__':
         if folder_path == '':
             folder_path = os.path.abspath(".")
 
-        movie_list = movie_lists(folder_path, re.split("[,，]", conf.escape_folder()))
+        movie_list = movie_lists(folder_path, conf)
 
         count = 0
         count_all = str(len(movie_list))
