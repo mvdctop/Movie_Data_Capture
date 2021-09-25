@@ -129,7 +129,6 @@ def close_logfile(logdir: str):
 # 重写视频文件扫描，消除递归，取消全局变量，新增失败文件列表跳过处理
 def movie_lists(root, conf):
     escape_folder = re.split("[,，]", conf.escape_folder())
-    failed_folder = conf.failed_folder()
     main_mode = conf.main_mode()
     debug = conf.debug()
     nfo_skip_days = conf.nfo_skip_days()
@@ -137,48 +136,46 @@ def movie_lists(root, conf):
     file_type = conf.media_type().upper().split(",")
     trailerRE = re.compile(r'-trailer\.', re.IGNORECASE)
     try:
-        failed_list = open(os.path.join(failed_folder, 'failed_list.txt'), 'r', encoding='utf-8').read().splitlines()
+        failed_list = open(os.path.join(conf.failed_folder(), 'failed_list.txt'),
+            'r', encoding='utf-8').read().splitlines()
     except:
         failed_list = []
         pass
     for current_dir, subdirs, files in os.walk(root, topdown=False):
-        try:
-            if current_dir in escape_folder:
+        if current_dir in escape_folder:
+            continue
+        for f in files:
+            full_name = os.path.join(current_dir, f)
+            if not os.path.splitext(full_name)[1].upper() in file_type:
                 continue
-            for f in files:
-                full_name = os.path.join(current_dir, f)
-                if not os.path.splitext(full_name)[1].upper() in file_type:
+            absf = os.path.abspath(full_name)
+            if absf in failed_list:
+                if debug:
+                    print('[!]Skip failed file:', absf)
+                continue
+            if main_mode == 3 and nfo_skip_days > 0:
+                nfo = Path(absf).with_suffix('.nfo')
+                if file_modification_days(nfo) <= nfo_skip_days:
                     continue
-                absf = os.path.abspath(full_name)
-                if absf in failed_list:
-                    if debug:
-                        print('[!]Skip failed file:', absf)
-                    continue
-                if main_mode == 3 and nfo_skip_days > 0:
-                    nfo = Path(absf).with_suffix('.nfo')
-                    if file_modification_days(nfo) <= nfo_skip_days:
-                        continue
-                if (main_mode == 3 or not is_link(absf)) and not trailerRE.search(f):
-                    total.append(absf)
-        except:
-            pass
-    if nfo_skip_days <= 0 or not conf.soft_link():
+            if (main_mode == 3 or not is_link(absf)) and not trailerRE.search(f):
+                total.append(absf)
+    if nfo_skip_days <= 0 or not conf.soft_link() or main_mode == 3:
         return total
     # 软连接方式，已经成功削刮的也需要从成功目录中检查.nfo更新天数，跳过N天内更新过的
     skip_numbers = set()
     success_folder = conf.success_folder()
     for current_dir, subdirs, files in os.walk(success_folder, topdown=False):
         for f in files:
-            if os.path.splitext(f)[1].upper() in file_type:
-                nfo_file = os.path.join(current_dir, str(Path(f).with_suffix('.nfo')))
-                if file_modification_days(nfo_file) <= nfo_skip_days:
-                    file_name = os.path.basename(f)
-                    number = get_number(False, file_name)
-                    if number:
-                        skip_numbers.add(number.upper())
+            if not os.path.splitext(f)[1].upper() in file_type:
+                continue
+            nfo_file = os.path.join(current_dir, str(Path(f).with_suffix('.nfo')))
+            if file_modification_days(nfo_file) > nfo_skip_days:
+                continue
+            number = get_number(False, os.path.basename(f))
+            if number:
+                skip_numbers.add(number.upper())
     for f in total:
-        file_name = os.path.basename(f)
-        n_number = get_number(False, file_name)
+        n_number = get_number(False, os.path.basename(f))
         if n_number and n_number.upper() in skip_numbers:
             total.pop(total.index(f))
     return total
