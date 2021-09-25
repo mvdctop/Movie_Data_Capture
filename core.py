@@ -57,7 +57,7 @@ def get_info(json_data):  # 返回json里的数据
 def small_cover_check(path, number, cover_small, leak_word, c_word, conf: config.Config, filepath):
     filename = f"{number}{leak_word}{c_word}-poster.jpg"
     download_file_with_filename(cover_small, filename, path, conf, filepath)
-    print('[+]Image Downloaded! ' + os.path.join(str(path), filename))
+    print('[+]Image Downloaded! ' + os.path.join(path, filename))
 
 
 def create_folder(json_data, conf: config.Config):  # 创建文件夹
@@ -114,7 +114,7 @@ def download_file_with_filename(url, filename, path, conf: config.Config, filepa
                 if r == '':
                     print('[-]Movie Data not found!')
                     return
-                with open(os.path.join(str(path), filename), "wb") as code:
+                with open(os.path.join(path, filename), "wb") as code:
                     code.write(r.content)
                 return
             else:
@@ -126,7 +126,7 @@ def download_file_with_filename(url, filename, path, conf: config.Config, filepa
                 if r == '':
                     print('[-]Movie Data not found!')
                     return
-                with open(os.path.join(str(path), filename), "wb") as code:
+                with open(os.path.join(path, filename), "wb") as code:
                     code.write(r.content)
                 return
         except requests.exceptions.RequestException:
@@ -163,10 +163,10 @@ def trailer_download(trailer, leak_word, c_word, number, path, filepath, conf: c
 # 剧照下载成功，否则移动到failed
 def extrafanart_download(data, path, conf: config.Config, filepath):
     j = 1
-    path = os.path.join(str(path), conf.get_extrafanart())
+    path = os.path.join(path, conf.get_extrafanart())
     for url in data:
         jpg_filename = f'extrafanart-{j}.jpg'
-        jpg_fullpath = os.path.join(str(path), jpg_filename)
+        jpg_fullpath = os.path.join(path, jpg_filename)
         if download_file_with_filename(url, jpg_filename, path, conf, filepath) == 'failed':
             moveFailedFolder(filepath)
             return
@@ -188,7 +188,7 @@ def extrafanart_download(data, path, conf: config.Config, filepath):
 # 封面是否下载成功，否则移动到failed
 def image_download(cover, number, leak_word, c_word, path, conf: config.Config, filepath):
     filename = f"{number}{leak_word}{c_word}-fanart.jpg"
-    full_filepath = os.path.join(str(path), filename)
+    full_filepath = os.path.join(path, filename)
     if download_file_with_filename(cover, filename, path, conf, filepath) == 'failed':
         moveFailedFolder(filepath)
         return
@@ -204,7 +204,7 @@ def image_download(cover, number, leak_word, c_word, path, conf: config.Config, 
     if os.path.getsize(full_filepath) == 0:
         return
     print('[+]Image Downloaded!', full_filepath)
-    shutil.copyfile(full_filepath, os.path.join(str(path), f"{number}{leak_word}{c_word}-thumb.jpg"))
+    shutil.copyfile(full_filepath, os.path.join(path, f"{number}{leak_word}{c_word}-thumb.jpg"))
 
 
 def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, filepath, tag, actor_list, liuchu, uncensored, conf):
@@ -593,8 +593,7 @@ def core_main(file_path, number_th, conf: config.Config):
             add_mark(poster_path, thumb_path, cn_sub, leak, uncensored, conf)
 
     elif conf.main_mode() == 3:
-        path = file_path.rsplit('/', 1)[0]
-        path = path.rsplit('\\', 1)[0]
+        path = str(Path(file_path).parent)
         if multi_part == 1:
             number += part  # 这时number会被附加上CD1后缀
 
