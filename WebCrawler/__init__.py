@@ -176,6 +176,7 @@ def get_data_from_json(file_number, conf: config.Config):  # 从JSON返回元数
     actor_list = [special_characters_replacement(a) for a in actor_list]
     title = special_characters_replacement(title)
     label = special_characters_replacement(label)
+    outline = special_characters_replacement(outline)
     series = special_characters_replacement(series)
     studio = special_characters_replacement(studio)
     director = special_characters_replacement(director)
@@ -234,6 +235,7 @@ def get_data_from_json(file_number, conf: config.Config):  # 从JSON返回元数
     json_data['trailer'] = trailer
     json_data['extrafanart'] = extrafanart
     json_data['label'] = label
+    json_data['outline'] = outline
     json_data['series'] = series
     json_data['studio'] = studio
     json_data['director'] = director
