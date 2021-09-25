@@ -82,7 +82,7 @@ def rm_empty_folder(path):
             still_has_subdirs = any(
                  _ for subdir in subdirs if os.path.join(current_dir, subdir) not in deleted
             )
-            if not any(files) and not still_has_subdirs and not abspath == current_dir:
+            if not any(files) and not still_has_subdirs and not os.path.samefile(path, current_dir):
                 os.rmdir(current_dir)
                 deleted.add(current_dir)
                 print('[+]Deleting empty folder', current_dir)
