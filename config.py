@@ -54,6 +54,16 @@ class Config:
         return self.conf.getboolean("common", "multi_threading")
     def del_empty_folder(self) -> bool:
         return self.conf.getboolean("common", "del_empty_folder")
+    def nfo_skip_days(self) -> int:
+        try:
+            return self.conf.getint("common", "nfo_skip_days")
+        except:
+            return 30
+    def stop_counter(self) -> int:
+        try:
+            return self.conf.getint("common", "stop_counter")
+        except:
+            return 0
     def is_transalte(self) -> bool:
         return self.conf.getboolean("transalte", "switch")
     def is_trailer(self) -> bool:
@@ -149,18 +159,6 @@ class Config:
     def debug(self) -> bool:
         return self.conf.getboolean("debug_mode", "switch")
 
-    def mode3_nfo_skip_days(self) -> int:
-        try:
-            return self.conf.getint("main_mode_3", "nfo_skip_days")
-        except:
-            return 30
-
-    def mode3_stop_counter(self) -> int:
-        try:
-            return self.conf.getint("main_mode_3", "mode3_stop_counter")
-        except:
-            return 0
-
     @staticmethod
     def _exit(sec: str) -> None:
         print("[-] Read config error! Please check the {} section in config.ini", sec)
@@ -183,6 +181,8 @@ class Config:
         # actor_gender value: female or male or both or all(含人妖)
         conf.set(sec1, "actor_gender", "female")
         conf.set(sec1, "del_empty_folder", "1")
+        conf.set(sec1, "nfo_skip_days", 30)
+        conf.set(sec1, "stop_counter", 0)
 
         sec2 = "proxy"
         conf.add_section(sec2)
@@ -248,14 +248,7 @@ class Config:
         conf.set(sec13, "switch", 1)
         conf.set(sec13, "extrafanart_folder", "extrafanart")
 
-        sec14 = "main_mode_3"
-        conf.add_section(sec14)
-        conf.set(sec14, "nfo_skip_days", 30)
-        conf.set(sec14, "mode3_stop_counter", 0)
-
         return conf
-
-
 
 
 class IniProxy():

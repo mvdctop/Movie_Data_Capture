@@ -131,6 +131,8 @@ def movie_lists(root, conf):
     escape_folder = re.split("[,，]", conf.escape_folder())
     failed_folder = conf.failed_folder()
     main_mode = conf.main_mode()
+    debug = conf.debug()
+    nfo_skip_days = conf.nfo_skip_days()
     total = []
     file_type = conf.media_type().upper().split(",")
     trailerRE = re.compile(r'-trailer\.', re.IGNORECASE)
@@ -149,17 +151,36 @@ def movie_lists(root, conf):
                     continue
                 absf = os.path.abspath(full_name)
                 if absf in failed_list:
-                    if conf.debug():
+                    if debug:
                         print('[!]Skip failed file:', absf)
                     continue
-                if main_mode == 3 and conf.mode3_nfo_skip_days() > 0:
+                if main_mode == 3 and nfo_skip_days > 0:
                     nfo = Path(absf).with_suffix('.nfo')
-                    if file_modification_days(nfo) <= conf.mode3_nfo_skip_days():
+                    if file_modification_days(nfo) <= nfo_skip_days:
                         continue
                 if (main_mode == 3 or not is_link(absf)) and not trailerRE.search(f):
                     total.append(absf)
         except:
             pass
+    if nfo_skip_days <= 0 or not conf.soft_link():
+        return total
+    # 软连接方式，已经成功削刮的也需要从成功目录中检查.nfo更新天数，跳过N天内更新过的
+    skip_numbers = set()
+    success_folder = conf.success_folder()
+    for current_dir, subdirs, files in os.walk(success_folder, topdown=False):
+        for f in files:
+            if os.path.splitext(f)[1].upper() in file_type:
+                nfo_file = os.path.join(current_dir, str(Path(f).with_suffix('.nfo')))
+                if file_modification_days(nfo_file) <= nfo_skip_days:
+                    file_name = os.path.basename(f)
+                    number = get_number(False, file_name)
+                    if number:
+                        skip_numbers.add(number.upper())
+    for f in total:
+        file_name = os.path.basename(f)
+        n_number = get_number(False, file_name)
+        if n_number and n_number.upper() in skip_numbers:
+            total.pop(total.index(f))
     return total
 
 
@@ -295,22 +316,21 @@ if __name__ == '__main__':
         count_all = str(len(movie_list))
         print('[+]Find', count_all, 'movies')
         main_mode = conf.main_mode()
-        stop_count = conf.mode3_stop_counter()
+        stop_count = conf.stop_counter()
         if stop_count<1:
             stop_count = 999999
-        elif main_mode == 3:
+        else:
             count_all = str(min(len(movie_list), stop_count))
+        if main_mode == 3:
             print(
-f'[!]运行模式：**维护模式**，本程序将在处理{count_all}个视频文件后停止，如需后台执行自动退出请结合 -a 参数。'
-            )
-
+f'[!]运行模式：**维护模式**，本程序将在处理{count_all}个视频文件后停止，如需后台执行自动退出请结合 -a 参数。')
         for movie_path in movie_list:  # 遍历电影列表 交给core处理
             count = count + 1
             percentage = str(count / int(count_all) * 100)[:4] + '%'
             print('[!] - ' + percentage + ' [' + str(count) + '/' + count_all + '] -')
             create_data_and_move(movie_path, conf, conf.debug())
-            if main_mode == 3 and count >= stop_count:
-                print("[!]Mode 3 stop counter triggered!")
+            if count >= stop_count:
+                print("[!]Stop counter triggered!")
                 break
 
     if conf.del_empty_folder():

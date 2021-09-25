@@ -28,9 +28,8 @@ def moveFailedFolder(filepath, conf):
     # 模式3或软连接，改为维护一个失败列表，启动扫描时加载用于排除该路径，以免反复处理
     # 原先的创建软连接到失败目录，并不直观，不方便找到失败文件位置，不如直接记录该文件路径
     if conf.main_mode() == 3 or soft_link:
-        with open(os.path.join(failed_folder, 'failed_list.txt'), 'a', encoding='utf-8') as m3f:
-            m3f.write(f'{filepath}\n')
-            m3f.close()
+        open(os.path.join(failed_folder, 'failed_list.txt'), 'a', encoding='utf-8'
+            ).write(f'{filepath}\n').close()
         print('[-]Add to failed list file')
     elif conf.failed_move() and not soft_link:
         file_name = os.path.basename(filepath)
