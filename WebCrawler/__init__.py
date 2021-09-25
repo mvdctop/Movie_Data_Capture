@@ -82,6 +82,11 @@ def get_data_from_json(file_number, conf: config.Config):  # 从JSON返回元数
                 "rj" in lo_file_number or "vj" in lo_file_number
         ):
             sources.insert(0, sources.pop(sources.index("dlsite")))
+        elif re.match(r"^[a-z0-9]{3,}$", lo_file_number):
+            if "javdb" in sources:
+                sources.insert(0, sources.pop(sources.index("javdb")))
+            if "xcity" in sources:
+                sources.insert(0, sources.pop(sources.index("xcity")))
 
     # check sources in func_mapping
     todel = []
