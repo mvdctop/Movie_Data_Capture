@@ -1,7 +1,7 @@
 from os import replace
 import requests
 import hashlib
-import pathlib
+from pathlib import Path
 import random
 import os.path
 import uuid
@@ -551,7 +551,7 @@ def load_cookies(filename):
 
 # 文件修改时间距此时的天数
 def file_modification_days(filename) -> int:
-    mfile = pathlib.Path(filename)
+    mfile = Path(filename)
     if not mfile.exists():
         return 9999
     mtime = int(mfile.stat().st_mtime)

@@ -9,6 +9,7 @@ import sys
 
 from PIL import Image
 from io import BytesIO
+from pathlib import Path
 
 from ADC_function import *
 from WebCrawler import get_data_from_json
@@ -201,13 +202,17 @@ def image_download(cover, number, leak_word, c_word, path, conf: config.Config, 
     shutil.copyfile(path + '/' + number + leak_word + c_word + '-fanart.jpg',path + '/' + number + leak_word + c_word + '-thumb.jpg')
 
 
-def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, filepath, failed_folder, tag, actor_list, liuchu, uncensored):
+def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, filepath, tag, actor_list, liuchu, uncensored, conf):
     title, studio, year, outline, runtime, director, actor_photo, release, number, cover, trailer, website, series, label = get_info(json_data)
-
+    failed_folder = conf.failed_folder()
+    if conf.main_mode() == 3:  # 模式3下，由于视频文件不做任何改变，.nfo文件必须和视频文件名称除后缀外完全一致，KODI等软件方可支持
+        nfo_path = str(Path(filepath).with_suffix('.nfo'))
+    else:
+        nfo_path = os.path.join(path,f"{number}{part}{leak_word}{c_word}.nfo")
     try:
         if not os.path.exists(path):
             os.makedirs(path)
-        with open(path + "/" + number + part + leak_word + c_word + ".nfo", "wt", encoding='UTF-8') as code:
+        with open(nfo_path, "wt", encoding='UTF-8') as code:
             print('<?xml version="1.0" encoding="UTF-8" ?>', file=code)
             print("<movie>", file=code)
             print(" <title>" + naming_rule + "</title>", file=code)
@@ -262,7 +267,7 @@ def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, f
                 print("  <trailer>" + trailer + "</trailer>", file=code)
             print("  <website>" + website + "</website>", file=code)
             print("</movie>", file=code)
-            print("[+]Wrote!            " + path + "/" + number + part + leak_word + c_word + ".nfo")
+            print("[+]Wrote!            " + nfo_path)
     except IOError as e:
         print("[-]Write Failed!")
         print(e)
@@ -562,7 +567,7 @@ def core_main(file_path, number_th, conf: config.Config):
         cutImage(imagecut, path, number, leak_word, c_word)
 
         # 打印文件
-        print_files(path, leak_word, c_word,  json_data.get('naming_rule'), part, cn_sub, json_data, filepath, conf.failed_folder(), tag,  json_data.get('actor_list'), liuchu, uncensored)
+        print_files(path, leak_word, c_word,  json_data.get('naming_rule'), part, cn_sub, json_data, filepath, tag,  json_data.get('actor_list'), liuchu, uncensored, conf)
 
         # 移动文件
         paste_file_to_folder(filepath, path, number, leak_word, c_word, conf)
@@ -608,8 +613,8 @@ def core_main(file_path, number_th, conf: config.Config):
         cutImage(imagecut, path, number, leak_word, c_word)
 
         # 打印文件
-        print_files(path, leak_word, c_word, json_data.get('naming_rule'), part, cn_sub, json_data, filepath, conf.failed_folder(),
-                    tag, json_data.get('actor_list'), liuchu, uncensored)
+        print_files(path, leak_word, c_word, json_data.get('naming_rule'), part, cn_sub, json_data, filepath,
+                    tag, json_data.get('actor_list'), liuchu, uncensored, conf)
 
         poster_path = os.path.join(path, f"{number}{leak_word}{c_word}-poster.jpg")
         thumb_path = os.path.join(path, f"{number}{leak_word}{c_word}-thumb.jpg")
