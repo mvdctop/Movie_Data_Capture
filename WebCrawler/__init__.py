@@ -245,6 +245,7 @@ def get_data_from_json(file_number, conf: config.Config):  # 从JSON返回元数
         for translate_value in translate_values:
             if json_data[translate_value] == "":
                 continue
+            t = ""
             # if conf.get_transalte_engine() == "baidu":
             #     json_data[translate_value] = translate(
             #         json_data[translate_value],
@@ -255,14 +256,16 @@ def get_data_from_json(file_number, conf: config.Config):  # 从JSON返回元数
             #         delay=conf.get_transalte_delay(),
             #     )
             if conf.get_transalte_engine() == "azure":
-                json_data[translate_value] = translate(
+                t = translate(
                     json_data[translate_value],
                     target_language="zh-Hans",
                     engine=conf.get_transalte_engine(),
                     key=conf.get_transalte_key(),
                 )
             else:
-                json_data[translate_value] = translate(json_data[translate_value])
+                t = translate(json_data[translate_value])
+            if len(t):
+                json_data[translate_value] = special_characters_replacement(t)
 
     naming_rule=""
     for i in conf.naming_rule().split("+"):
