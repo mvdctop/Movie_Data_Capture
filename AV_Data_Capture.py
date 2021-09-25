@@ -8,8 +8,10 @@ import typing
 import urllib3
 
 import config
+import datetime
 import time
-from ADC_function import get_html, is_link
+from pathlib import Path
+from ADC_function import  file_modification_days, get_html, is_link
 from number_parser import get_number
 from core import core_main
 
@@ -37,13 +39,87 @@ def argparse_function(ver: str) -> typing.Tuple[str, str, bool]:
     parser.add_argument("file", default='', nargs='?', help="Single Movie file path.")
     parser.add_argument("-p","--path",default='',nargs='?',help="Analysis folder path.")
     # parser.add_argument("-c", "--config", default='config.ini', nargs='?', help="The config file Path.")
+    parser.add_argument("-o","--log-dir",dest='logdir',default='',nargs='?',
+        help="Duplicate from stdout and stderr to logfiles in log directory.")
     parser.add_argument("-n", "--number", default='', nargs='?', help="Custom file number")
     parser.add_argument("-a", "--auto-exit", dest='autoexit', action="store_true",
                         help="Auto exit after program complete")
     parser.add_argument("-v", "--version", action="version", version=ver)
     args = parser.parse_args()
 
-    return args.file, args.path, args.number, args.autoexit
+    return args.file, args.path, args.number, args.autoexit, args.logdir
+
+
+class OutLogger(object):
+    def __init__(self, logfile) -> None:
+        self.term = sys.stdout
+        self.log = open(logfile,"w",encoding='utf-8')
+    def __del__(self):
+        self.close()
+    def __enter__(self):
+        pass
+    def __exit__(self, *args):
+        self.close()
+    def write(self,msg):
+        self.term.write(msg)
+        self.log.write(msg)
+    def flush(self):
+        self.term.flush()
+        self.log.flush()
+        os.fsync(self.log.fileno())
+    def close(self):
+        if self.term != None:
+            sys.stdout = self.term
+            self.term = None
+        if self.log != None:
+            self.log.close()
+            self.log = None
+
+
+class ErrLogger(OutLogger):
+    def __init__(self, logfile) -> None:
+        self.term = sys.stderr
+        self.log = open(logfile,"w",encoding='utf-8')
+    def close(self):
+        if self.term != None:
+            sys.stderr = self.term
+            self.term = None
+        if self.log != None:
+            self.log.close()
+            self.log = None
+
+
+def dupe_stdout_to_logfile(logdir: str):
+    if not isinstance(logdir, str) or len(logdir) == 0:
+        return
+    if not os.path.isdir(logdir):
+        os.mkdir(logdir)
+        if not os.path.isdir(logdir):
+            return
+
+    log_tmstr = datetime.datetime.now().strftime("%Y%m%dT%H%M%S")
+    logfile = os.path.join(logdir, f'avdc_{log_tmstr}.txt')
+    errlog = os.path.join(logdir, f'avdc_{log_tmstr}_err.txt')
+
+    sys.stdout = OutLogger(logfile)
+    sys.stderr = ErrLogger(errlog)
+
+
+def close_logfile(logdir: str):
+    if not isinstance(logdir, str) or len(logdir) == 0 or not os.path.isdir(logdir):
+        return
+    sys.stdout.close()
+    sys.stderr.close()
+    # 清理空文件
+    for current_dir, subdirs, files in os.walk(logdir, topdown=False):
+        try:
+            for f in files:
+                full_name = os.path.join(current_dir, f)
+                if os.path.getsize(full_name) == 0:
+                    os.remove(full_name)
+        except:
+            pass
+
 
 
 G_trailerRE = re.compile(r'-trailer\.', re.IGNORECASE)
@@ -60,6 +136,10 @@ def movie_lists(root, escape_folder):
             total += movie_lists(f, escape_folder)
         elif os.path.splitext(f)[1].upper() in file_type:
             absf = os.path.abspath(f)
+            if conf.main_mode() == 3 and conf.mode3_nfo_skip_days() > 0:
+                nfo = Path(absf).with_suffix('.nfo')
+                if file_modification_days(nfo) <= conf.mode3_nfo_skip_days():
+                    continue
             if (conf.main_mode() == 3 or not is_link(absf)) and not G_trailerRE.search(f):
                 total.append(absf)
     return total
@@ -97,7 +177,7 @@ def create_data_and_move(file_path: str, c: config.Config, debug):
     file_path = os.path.abspath(file_path)
 
     if debug == True:
-        print("[!]Making Data for [{}], the number is [{}]".format(file_path, n_number))
+        print(f"[!]Making Data for [{file_path}], the number is [{n_number}]")
         if n_number:
             core_main(file_path, n_number, c)
         else:
@@ -105,14 +185,14 @@ def create_data_and_move(file_path: str, c: config.Config, debug):
         print("[*]======================================================")
     else:
         try:
-            print("[!]Making Data for [{}], the number is [{}]".format(file_path, n_number))
+            print(f"[!]Making Data for [{file_path}], the number is [{n_number}]")
             if n_number:
                 core_main(file_path, n_number, c)
             else:
                 raise ValueError("number empty")
             print("[*]======================================================")
         except Exception as err:
-            print("[-] [{}] ERROR:".format(file_path))
+            print(f"[-] [{file_path}] ERROR:")
             print('[-]', err)
 
             # 3.7.2 New: Move or not move to failed folder.
@@ -157,7 +237,9 @@ if __name__ == '__main__':
     version = '4.7.2'
     urllib3.disable_warnings() #Ignore http proxy warning
     # Parse command line args
-    single_file_path, folder_path, custom_number, auto_exit = argparse_function(version)
+    single_file_path, folder_path, custom_number, auto_exit, logdir = argparse_function(version)
+
+    dupe_stdout_to_logfile(logdir)
 
     print('[*]================== AV Data Capture ===================')
     print('[*]' + version.center(54))
@@ -194,12 +276,24 @@ if __name__ == '__main__':
         count = 0
         count_all = str(len(movie_list))
         print('[+]Find', count_all, 'movies')
+        main_mode = conf.main_mode()
+        stop_count = conf.mode3_stop_counter()
+        if stop_count<1:
+            stop_count = 999999
+        elif main_mode == 3:
+            count_all = str(min(len(movie_list), stop_count))
+            print(
+f'[!]运行模式：**维护模式**，本程序将在处理{count_all}个视频文件后停止，如需后台执行自动退出请结合 -a 参数。'
+            )
 
         for movie_path in movie_list:  # 遍历电影列表 交给core处理
             count = count + 1
             percentage = str(count / int(count_all) * 100)[:4] + '%'
             print('[!] - ' + percentage + ' [' + str(count) + '/' + count_all + '] -')
             create_data_and_move(movie_path, conf, conf.debug())
+            if main_mode == 3 and count >= stop_count:
+                print("[!]Mode 3 stop counter triggered!")
+                break
 
     if conf.del_empty_folder():
         rm_empty_folder(conf.success_folder())
@@ -214,4 +308,7 @@ if __name__ == '__main__':
     print("[+]All finished!!!")
     if not (conf.auto_exit() or auto_exit):
         input("Press enter key exit, you can check the error message before you exit...")
+
+    close_logfile(logdir)
+
     sys.exit(0)

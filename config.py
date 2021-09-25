@@ -149,6 +149,18 @@ class Config:
     def debug(self) -> bool:
         return self.conf.getboolean("debug_mode", "switch")
 
+    def mode3_nfo_skip_days(self) -> int:
+        try:
+            return self.conf.getint("main_mode_3", "nfo_skip_days")
+        except:
+            return 30
+
+    def mode3_stop_counter(self) -> int:
+        try:
+            return self.conf.getint("main_mode_3", "mode3_stop_counter")
+        except:
+            return 0
+
     @staticmethod
     def _exit(sec: str) -> None:
         print("[-] Read config error! Please check the {} section in config.ini", sec)
@@ -235,6 +247,11 @@ class Config:
         conf.add_section(sec13)
         conf.set(sec13, "switch", 1)
         conf.set(sec13, "extrafanart_folder", "extrafanart")
+
+        sec14 = "main_mode_3"
+        conf.add_section(sec14)
+        conf.set(sec14, "nfo_skip_days", 30)
+        conf.set(sec14, "mode3_stop_counter", 0)
 
         return conf
 
