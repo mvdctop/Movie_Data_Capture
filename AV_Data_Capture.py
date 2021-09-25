@@ -39,8 +39,10 @@ def argparse_function(ver: str) -> typing.Tuple[str, str, bool]:
     parser.add_argument("file", default='', nargs='?', help="Single Movie file path.")
     parser.add_argument("-p","--path",default='',nargs='?',help="Analysis folder path.")
     # parser.add_argument("-c", "--config", default='config.ini', nargs='?', help="The config file Path.")
-    parser.add_argument("-o","--log-dir",dest='logdir',default=os.path.join(Path.home(),'.avlogs'),nargs='?',
-        help="Duplicate from stdout and stderr to logfiles in log directory.")
+    parser.add_argument("-o","--log-dir",dest='logdir',
+        default=os.path.join(Path.home(),'.avlogs'),nargs='?',
+        help=f"Duplicate from stdout and stderr to logfiles in log directory. " +
+        "Default for current user is: " + os.path.join(Path.home(),'.avlogs'))
     parser.add_argument("-n", "--number", default='', nargs='?', help="Custom file number")
     parser.add_argument("-a", "--auto-exit", dest='autoexit', action="store_true",
                         help="Auto exit after program complete")
