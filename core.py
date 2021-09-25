@@ -55,8 +55,9 @@ def get_info(json_data):  # 返回json里的数据
 
 
 def small_cover_check(path, number, cover_small, leak_word, c_word, conf: config.Config, filepath):
-    download_file_with_filename(cover_small, number + leak_word+ c_word + '-poster.jpg', path, conf, filepath)
-    print('[+]Image Downloaded! ' + path + '/' + number + leak_word + c_word + '-poster.jpg')
+    filename = f"{number}{leak_word}{c_word}-poster.jpg"
+    download_file_with_filename(cover_small, filename, path, conf, filepath)
+    print('[+]Image Downloaded! ' + os.path.join(str(path), filename))
 
 
 def create_folder(json_data, conf: config.Config):  # 创建文件夹
@@ -162,44 +163,48 @@ def trailer_download(trailer, leak_word, c_word, number, path, filepath, conf: c
 # 剧照下载成功，否则移动到failed
 def extrafanart_download(data, path, conf: config.Config, filepath):
     j = 1
-    path = path + '/' + conf.get_extrafanart()
+    path = os.path.join(str(path), conf.get_extrafanart())
     for url in data:
-        if download_file_with_filename(url, 'extrafanart-' + str(j)+'.jpg', path, conf, filepath) == 'failed':
+        jpg_filename = f'extrafanart-{j}.jpg'
+        jpg_fullpath = os.path.join(str(path), jpg_filename)
+        if download_file_with_filename(url, jpg_filename, path, conf, filepath) == 'failed':
             moveFailedFolder(filepath)
             return
         configProxy = conf.proxy()
         for i in range(configProxy.retry):
-            if os.path.getsize(path + '/extrafanart-' + str(j) + '.jpg') == 0:
+            if os.path.getsize(jpg_fullpath) == 0:
                 print('[!]Image Download Failed! Trying again. [{}/3]', i + 1)
-                download_file_with_filename(url, 'extrafanart-' + str(j)+'.jpg', path, conf, filepath)
+                download_file_with_filename(url, jpg_filename, path, conf, filepath)
                 continue
             else:
                 break
-        if os.path.getsize(path + '/extrafanart-' + str(j) + '.jpg') == 0:
+        if os.path.getsize(jpg_fullpath) == 0:
             return
-        print('[+]Image Downloaded!', path + '/extrafanart-' + str(j) + '.jpg')
+        print('[+]Image Downloaded!', jpg_fullpath)
         j += 1
 
 
 
 # 封面是否下载成功，否则移动到failed
 def image_download(cover, number, leak_word, c_word, path, conf: config.Config, filepath):
-    if download_file_with_filename(cover, number + leak_word + c_word + '-fanart.jpg', path, conf, filepath) == 'failed':
+    filename = f"{number}{leak_word}{c_word}-fanart.jpg"
+    full_filepath = os.path.join(str(path), filename)
+    if download_file_with_filename(cover, filename, path, conf, filepath) == 'failed':
         moveFailedFolder(filepath)
         return
 
     configProxy = conf.proxy()
     for i in range(configProxy.retry):
-        if os.path.getsize(path + '/' + number + leak_word + c_word + '-fanart.jpg') == 0:
+        if os.path.getsize(full_filepath) == 0:
             print('[!]Image Download Failed! Trying again. [{}/3]', i + 1)
-            download_file_with_filename(cover, number + leak_word + c_word + '-fanart.jpg', path, conf, filepath)
+            download_file_with_filename(cover, filename, path, conf, filepath)
             continue
         else:
             break
-    if os.path.getsize(path + '/' + number + leak_word + c_word + '-fanart.jpg') == 0:
+    if os.path.getsize(full_filepath) == 0:
         return
-    print('[+]Image Downloaded!', path + '/' + number + leak_word + c_word + '-fanart.jpg')
-    shutil.copyfile(path + '/' + number + leak_word + c_word + '-fanart.jpg',path + '/' + number + leak_word + c_word + '-thumb.jpg')
+    print('[+]Image Downloaded!', full_filepath)
+    shutil.copyfile(full_filepath, os.path.join(str(path), f"{number}{leak_word}{c_word}-thumb.jpg"))
 
 
 def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, filepath, tag, actor_list, liuchu, uncensored, conf):
@@ -281,21 +286,21 @@ def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, f
 
 
 def cutImage(imagecut, path, number, leak_word, c_word):
+    fullpath_noext = os.path.join(path, f"{number}{leak_word}{c_word}")
     if imagecut == 1: # 剪裁大封面
         try:
-            img = Image.open(path + '/' + number + leak_word + c_word + '-fanart.jpg')
+            img = Image.open(fullpath_noext + '-fanart.jpg')
             imgSize = img.size
             w = img.width
             h = img.height
             img2 = img.crop((w / 1.9, 0, w, h))
-            img2.save(path + '/' + number + leak_word + c_word + '-poster.jpg')
-            print('[+]Image Cutted!     ' + path + '/' + number + leak_word + c_word + '-poster.jpg')
+            img2.save(fullpath_noext + '-poster.jpg')
+            print('[+]Image Cutted!     ' + fullpath_noext + '-poster.jpg')
         except:
             print('[-]Cover cut failed!')
     elif imagecut == 0: # 复制封面
-        shutil.copyfile(path + '/' + number + leak_word + c_word + '-fanart.jpg',
-                        path + '/' + number + leak_word + c_word + '-poster.jpg')
-        print('[+]Image Copyed!     ' + path + '/' + number + leak_word + c_word + '-poster.jpg')
+        shutil.copyfile(fullpath_noext + '-fanart.jpg', fullpath_noext + '-poster.jpg')
+        print('[+]Image Copyed!     ' + fullpath_noext + '-poster.jpg')
 
 # 此函数从gui版copy过来用用
 # 参数说明
