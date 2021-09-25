@@ -35,14 +35,15 @@ def check_update(local_version):
 
 
 def argparse_function(ver: str) -> typing.Tuple[str, str, bool]:
-    parser = argparse.ArgumentParser()
+    default_logdir = os.path.join(Path.home(),'.avlogs')
+    parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument("file", default='', nargs='?', help="Single Movie file path.")
     parser.add_argument("-p","--path",default='',nargs='?',help="Analysis folder path.")
     # parser.add_argument("-c", "--config", default='config.ini', nargs='?', help="The config file Path.")
-    parser.add_argument("-o","--log-dir",dest='logdir',
-        default=os.path.join(Path.home(),'.avlogs'),nargs='?',
-        help=f"Duplicate from stdout and stderr to logfiles in log directory. " +
-        "Default for current user is: " + os.path.join(Path.home(),'.avlogs'))
+    parser.add_argument("-o","--log-dir",dest='logdir',default=default_logdir,nargs='?',
+        help=f"""Duplicate from stdout and stderr to logfiles in log directory.
+Current user's default log folder is: {default_logdir}
+Use --log-dir= to turn off log feature.""")
     parser.add_argument("-n", "--number", default='', nargs='?', help="Custom file number")
     parser.add_argument("-a", "--auto-exit", dest='autoexit', action="store_true",
                         help="Auto exit after program complete")
