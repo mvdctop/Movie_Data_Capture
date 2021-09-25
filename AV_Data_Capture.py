@@ -97,7 +97,7 @@ def dupe_stdout_to_logfile(logdir: str):
     if not isinstance(logdir, str) or len(logdir) == 0:
         return
     if not os.path.isdir(logdir):
-        os.mkdir(logdir)
+        os.makedirs(logdir)
         if not os.path.isdir(logdir):
             return
 
