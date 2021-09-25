@@ -467,6 +467,9 @@ def translate(
                 + src
         )
         result = get_html(url=url, return_type="object")
+        if not result.ok:
+            print('[-]Google-free translate web API calling failed.')
+            return ''
 
         translate_list = [i["trans"] for i in result.json()["sentences"]]
         trans_result = trans_result.join(translate_list)
