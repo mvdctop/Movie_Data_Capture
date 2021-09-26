@@ -304,6 +304,7 @@ if __name__ == '__main__':
         print('[+]Enable debug')
     if conf.soft_link():
         print('[!]Enable soft link')
+    print('[!]CmdLine:'," ".join(sys.argv[1:]))
 
     create_failed_folder(conf.failed_folder())
     start_time = time.time()
