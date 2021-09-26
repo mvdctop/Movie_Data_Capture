@@ -13,7 +13,7 @@ import time
 from pathlib import Path
 from ADC_function import  file_modification_days, get_html, is_link
 from number_parser import get_number
-from core import core_main
+from core import core_main, moveFailedFolder
 
 
 def check_update(local_version):
@@ -242,21 +242,10 @@ def create_data_and_move(file_path: str, c: config.Config, debug):
             print(f"[-] [{file_path}] ERROR:")
             print('[-]', err)
 
-            # 3.7.2 New: Move or not move to failed folder.
-            if c.failed_move() == False:
-                if c.soft_link():
-                    print("[-]Link {} to failed folder".format(file_path))
-                    os.symlink(file_path, os.path.join(conf.failed_folder(), file_name))
-            elif c.failed_move() == True:
-                if c.soft_link():
-                    print("[-]Link {} to failed folder".format(file_path))
-                    os.symlink(file_path, os.path.join(conf.failed_folder(), file_name))
-                else:
-                    try:
-                        print("[-]Move [{}] to failed folder".format(file_path))
-                        shutil.move(file_path, os.path.join(conf.failed_folder(), file_name))
-                    except Exception as err:
-                        print('[!]', err)
+            try:
+                moveFailedFolder(file_path, conf)
+            except Exception as err:
+                print('[!]', err)
 
 
 def create_data_and_move_with_custom_number(file_path: str, c: config.Config, custom_number):
