@@ -338,6 +338,7 @@ f'[!]运行模式：**维护模式**，本程序将在处理{count_all}个视频
             percentage = str(count / int(count_all) * 100)[:4] + '%'
             print('[!] - ' + percentage + ' [' + str(count) + '/' + count_all + '] -')
             create_data_and_move(movie_path, conf, conf.debug())
+            sys.stdout.flush()
             if count >= stop_count:
                 print("[!]Stop counter triggered!")
                 break
