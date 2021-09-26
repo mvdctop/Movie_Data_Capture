@@ -10,6 +10,7 @@ import sys
 from PIL import Image
 from io import BytesIO
 from pathlib import Path
+from datetime import datetime
 
 from ADC_function import *
 from WebCrawler import get_data_from_json
@@ -28,16 +29,18 @@ def moveFailedFolder(filepath, conf):
     # 模式3或软连接，改为维护一个失败列表，启动扫描时加载用于排除该路径，以免反复处理
     # 原先的创建软连接到失败目录，并不直观，不方便找到失败文件位置，不如直接记录该文件路径
     if conf.main_mode() == 3 or soft_link:
-        with open(os.path.join(failed_folder, 'failed_list.txt'), 'a', encoding='utf-8') as flt:
+        ftxt = os.path.join(failed_folder, 'failed_list.txt')
+        print("[-]Add to Failed List file, see '%s'" % ftxt)
+        with open(ftxt, 'a', encoding='utf-8') as flt:
             flt.write(f'{filepath}\n')
             flt.close()
-        print('[-]Add to failed list file, see failed_list.txt')
     elif conf.failed_move() and not soft_link:
         failed_name = os.path.join(failed_folder, os.path.basename(filepath))
-        print('[-]Move to Failed output folder, see where_was_i_before_being_moved.txt')
-        with open(os.path.join(failed_folder, 'where_was_i_before_being_moved.txt'), 'a',
-                 encoding='utf-8') as wwibbmt:
-            wwibbmt.write(f'FROM[{filepath}]TO[{failed_name}]\n')
+        mtxt = os.path.join(failed_folder, 'where_was_i_before_being_moved.txt')
+        print("'[-]Move to Failed output folder, see '%s'" % mtxt)
+        with open(mtxt, 'a', encoding='utf-8') as wwibbmt:
+            tmstr = datetime.now().strftime("%Y-%m-%d %H:%M")
+            wwibbmt.write(f'{tmstr} FROM[{filepath}]TO[{failed_name}]\n')
             wwibbmt.close()
         shutil.move(filepath, failed_name)
 

@@ -8,7 +8,7 @@ import typing
 import urllib3
 
 import config
-import datetime
+from datetime import datetime
 import time
 from pathlib import Path
 from ADC_function import  file_modification_days, get_html, is_link
@@ -101,7 +101,7 @@ def dupe_stdout_to_logfile(logdir: str):
         if not os.path.isdir(logdir):
             return
 
-    log_tmstr = datetime.datetime.now().strftime("%Y%m%dT%H%M%S")
+    log_tmstr = datetime.now().strftime("%Y%m%dT%H%M%S")
     logfile = os.path.join(logdir, f'avdc_{log_tmstr}.txt')
     errlog = os.path.join(logdir, f'avdc_{log_tmstr}_err.txt')
 
