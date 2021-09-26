@@ -48,10 +48,11 @@ Use --log-dir= to turn off logging feature.""")
     parser.add_argument("-n", "--number", default='', nargs='?', help="Custom file number")
     parser.add_argument("-a", "--auto-exit", dest='autoexit', action="store_true",
                         help="Auto exit after program complete")
+    parser.add_argument("-q","--regex-query",dest='regexstr',default='',nargs='?',help="python re module regex filepath filtering.")
     parser.add_argument("-v", "--version", action="version", version=ver)
     args = parser.parse_args()
 
-    return args.file, args.path, args.number, args.autoexit, args.logdir
+    return args.file, args.path, args.number, args.autoexit, args.logdir, args.regexstr
 
 
 class OutLogger(object):
@@ -127,7 +128,7 @@ def close_logfile(logdir: str):
 
 
 # 重写视频文件扫描，消除递归，取消全局变量，新增失败文件列表跳过处理
-def movie_lists(root, conf):
+def movie_lists(root, conf, regexstr):
     escape_folder = re.split("[,，]", conf.escape_folder())
     main_mode = conf.main_mode()
     debug = conf.debug()
@@ -136,6 +137,12 @@ def movie_lists(root, conf):
     total = []
     file_type = conf.media_type().upper().split(",")
     trailerRE = re.compile(r'-trailer\.', re.IGNORECASE)
+    cliRE = None
+    if len(regexstr):
+        try:
+            cliRE = re.compile(regexstr, re.IGNORECASE)
+        except:
+            pass
     failed_list = []
     if main_mode == 3 or soft_link:
         try:
@@ -154,6 +161,8 @@ def movie_lists(root, conf):
             if absf in failed_list:
                 if debug:
                     print('[!]Skip failed file:', absf)
+                continue
+            if cliRE and not cliRE.search(absf):
                 continue
             if main_mode == 3 and nfo_skip_days > 0:
                 nfo = Path(absf).with_suffix('.nfo')
@@ -275,7 +284,7 @@ if __name__ == '__main__':
     version = '4.7.2'
     urllib3.disable_warnings() #Ignore http proxy warning
     # Parse command line args
-    single_file_path, folder_path, custom_number, auto_exit, logdir = argparse_function(version)
+    single_file_path, folder_path, custom_number, auto_exit, logdir, regexstr = argparse_function(version)
 
     dupe_stdout_to_logfile(logdir)
 
@@ -309,7 +318,7 @@ if __name__ == '__main__':
         if folder_path == '':
             folder_path = os.path.abspath(".")
 
-        movie_list = movie_lists(folder_path, conf)
+        movie_list = movie_lists(folder_path, conf, regexstr)
 
         count = 0
         count_all = str(len(movie_list))
