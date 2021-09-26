@@ -46,9 +46,8 @@ def getCover_fc2com(htmlcode2): #获取厂商 #
 #     print(ADC_function.get_html('https://adult.contents.fc2.com'+path,cookies={'wei6H':'1'}))
 #     result = str(html.xpath('/html/body/div/text()')).strip(" ['']").replace("\\n",'',10000).replace("'",'',10000).replace(', ,','').strip('  ').replace('。,',',')
 #     return result
-def getTag_fc2com(number):     #获取番号
-    htmlcode = str(bytes(ADC_function.get_html('http://adult.contents.fc2.com/api/v4/article/'+number+'/tag?'),'utf-8').decode('unicode-escape'))
-    result = re.findall('"tag":"(.*?)"', htmlcode)
+def getTag_fc2com(lx):
+    result = lx.xpath("//a[@class='tag tagTag']/text()")
     tag = []
     for i in result:
         tag.append(ADC_function.translateTag_to_sc(i))
@@ -89,26 +88,28 @@ def main(number):
     try:
         number = number.replace('FC2-', '').replace('fc2-', '')
         htmlcode2 = ADC_function.get_html('https://adult.contents.fc2.com/article/' + number + '/')
-        #print(htmlcode2)
         actor = getActor_fc2com(htmlcode2)
-        if getActor_fc2com(htmlcode2) == '':
-            actor = 'FC2系列'
+        if not actor:
+            actor = '素人'
+        lx = etree.fromstring(htmlcode2, etree.HTMLParser())
+        cover = str(lx.xpath("//div[@class='items_article_MainitemThumb']/span/img/@src")).strip(" ['']")
         dic = {
-            'title': getTitle_fc2com(htmlcode2),
+            'title': lx.xpath('/html/head/title/text()')[0],
             'studio': getStudio_fc2com(htmlcode2),
             'year': getYear_fc2com(getRelease_fc2com(htmlcode2)),   
             'outline': '',  # getOutline_fc2com(htmlcode2),
-            'runtime': '',
+            'runtime': str(lx.xpath("//p[@class='items_article_info']/text()")[0]),
             'director': getStudio_fc2com(htmlcode2),
             'actor': actor,
             'release': getRelease_fc2com(htmlcode2),
             'number': 'FC2-' + number,
             'label': '',
-            'cover': getCover_fc2com(htmlcode2),
+            'cover': cover,
+            'thumb': cover,
             'extrafanart': getExtrafanart(htmlcode2),
             "trailer": getTrailer(htmlcode2, number),
             'imagecut': 0,
-            'tag': getTag_fc2com(number),
+            'tag': getTag_fc2com(lx),
             'actor_photo': '',
             'website': 'https://adult.contents.fc2.com/article/' + number + '/',
             'source': 'https://adult.contents.fc2.com/article/' + number + '/',
