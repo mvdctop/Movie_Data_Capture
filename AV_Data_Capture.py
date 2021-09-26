@@ -132,15 +132,17 @@ def movie_lists(root, conf):
     main_mode = conf.main_mode()
     debug = conf.debug()
     nfo_skip_days = conf.nfo_skip_days()
+    soft_link = conf.soft_link()
     total = []
     file_type = conf.media_type().upper().split(",")
     trailerRE = re.compile(r'-trailer\.', re.IGNORECASE)
-    try:
-        failed_list = open(os.path.join(conf.failed_folder(), 'failed_list.txt'),
-            'r', encoding='utf-8').read().splitlines()
-    except:
-        failed_list = []
-        pass
+    failed_list = []
+    if main_mode == 3 or soft_link:
+        try:
+            failed_list = open(os.path.join(conf.failed_folder(), 'failed_list.txt'),
+                'r', encoding='utf-8').read().splitlines()
+        except:
+            pass
     for current_dir, subdirs, files in os.walk(root, topdown=False):
         if current_dir in escape_folder:
             continue
@@ -159,7 +161,7 @@ def movie_lists(root, conf):
                     continue
             if (main_mode == 3 or not is_link(absf)) and not trailerRE.search(f):
                 total.append(absf)
-    if nfo_skip_days <= 0 or not conf.soft_link() or main_mode == 3:
+    if nfo_skip_days <= 0 or not soft_link or main_mode == 3:
         return total
     # 软连接方式，已经成功削刮的也需要从成功目录中检查.nfo更新天数，跳过N天内更新过的
     skip_numbers = set()

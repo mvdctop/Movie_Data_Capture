@@ -28,13 +28,18 @@ def moveFailedFolder(filepath, conf):
     # 模式3或软连接，改为维护一个失败列表，启动扫描时加载用于排除该路径，以免反复处理
     # 原先的创建软连接到失败目录，并不直观，不方便找到失败文件位置，不如直接记录该文件路径
     if conf.main_mode() == 3 or soft_link:
-        open(os.path.join(failed_folder, 'failed_list.txt'), 'a', encoding='utf-8'
-            ).write(f'{filepath}\n').close()
-        print('[-]Add to failed list file')
+        with open(os.path.join(failed_folder, 'failed_list.txt'), 'a', encoding='utf-8') as flt:
+            flt.write(f'{filepath}\n')
+            flt.close()
+        print('[-]Add to failed list file, see failed_list.txt')
     elif conf.failed_move() and not soft_link:
-        file_name = os.path.basename(filepath)
-        print('[-]Move to Failed output folder')
-        shutil.move(filepath, os.path.join(failed_folder, file_name))
+        failed_name = os.path.join(failed_folder, os.path.basename(filepath))
+        print('[-]Move to Failed output folder, see where_was_i_before_being_moved.txt')
+        with open(os.path.join(failed_folder, 'where_was_i_before_being_moved.txt'), 'a',
+                 encoding='utf-8') as wwibbmt:
+            wwibbmt.write(f'FROM[{filepath}]TO[{failed_name}]\n')
+            wwibbmt.close()
+        shutil.move(filepath, failed_name)
 
 
 def get_info(json_data):  # 返回json里的数据
@@ -418,7 +423,7 @@ def paste_file_to_folder(filepath, path, number, leak_word, c_word, conf: config
         print('[-]Error! Please run as administrator!')
         return
     except OSError as oserr:
-        print('[-]OS Error errno ' + oserr.errno)
+        print(f'[-]OS Error errno {oserr.errno}')
         return
 
 
@@ -448,7 +453,7 @@ def paste_file_to_folder_mode2(filepath, path, multi_part, number, part, leak_wo
         print('[-]Error! Please run as administrator!')
         return
     except OSError as oserr:
-        print('[-]OS Error errno ' + oserr.errno)
+        print(f'[-]OS Error errno  {oserr.errno}')
         return
 
 def get_part(filepath, conf):
