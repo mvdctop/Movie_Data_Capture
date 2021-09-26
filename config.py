@@ -2,15 +2,29 @@ import os
 import sys
 import configparser
 import codecs
+from pathlib import Path
 
 class Config:
     def __init__(self, path: str = "config.ini"):
-        if os.path.exists(path):
+        path_search_order = [
+            path,
+            "./config.ini",
+            os.path.join(Path.home(), "avdc.ini"),
+            os.path.join(Path.home(), ".avdc.ini"),
+            os.path.join(Path.home(), ".avdc/config.ini"),
+            os.path.join(Path.home(), ".config/avdc/config.ini")
+        ]
+        ini_path = None
+        for p in path_search_order:
+            if os.path.exists(p):
+                ini_path = p
+                break
+        if ini_path:
             self.conf = configparser.ConfigParser()
             try:
-                self.conf.read(path, encoding="utf-8-sig")
+                self.conf.read(ini_path, encoding="utf-8-sig")
             except:
-                self.conf.read(path, encoding="utf-8")
+                self.conf.read(ini_path, encoding="utf-8")
         else:
             print("[-]Config file not found!")
             sys.exit(2)
