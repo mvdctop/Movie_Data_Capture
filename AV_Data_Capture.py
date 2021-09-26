@@ -143,11 +143,17 @@ def movie_lists(root, conf, regexstr):
             cliRE = re.compile(regexstr, re.IGNORECASE)
         except:
             pass
-    failed_list = []
+    failed_set = set()
     if main_mode == 3 or soft_link:
         try:
-            failed_list = open(os.path.join(conf.failed_folder(), 'failed_list.txt'),
-                'r', encoding='utf-8').read().splitlines()
+            with open(os.path.join(conf.failed_folder(), 'failed_list.txt'), 'r', encoding='utf-8')  as flt:
+                flist = flt.read().splitlines()
+                failed_set = set(flist)
+                flt.close()
+            if len(flist) != len(failed_set):
+                with open(os.path.join(conf.failed_folder(), 'failed_list.txt'), 'w', encoding='utf-8')  as flt:
+                    flt.writelines([line + '\n' for line in failed_set])
+                    flt.close()
         except:
             pass
     for current_dir, subdirs, files in os.walk(root, topdown=False):
@@ -158,7 +164,7 @@ def movie_lists(root, conf, regexstr):
             if not os.path.splitext(full_name)[1].upper() in file_type:
                 continue
             absf = os.path.abspath(full_name)
-            if absf in failed_list:
+            if absf in failed_set:
                 if debug:
                     print('[!]Skip failed file:', absf)
                 continue
