@@ -1,4 +1,4 @@
-requests==2.26.0
+requests==2.20.0
 pyquery
 lxml
 beautifulsoup4
