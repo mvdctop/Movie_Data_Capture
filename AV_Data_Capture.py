@@ -283,7 +283,7 @@ def create_data_and_move_with_custom_number(file_path: str, c: config.Config, cu
 
 
 if __name__ == '__main__':
-    version = '4.7.2'
+    version = '5.0.1'
     urllib3.disable_warnings() #Ignore http proxy warning
     # Parse command line args
     single_file_path, folder_path, custom_number, auto_exit, logdir, regexstr = argparse_function(version)
