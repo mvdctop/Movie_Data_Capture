@@ -602,7 +602,7 @@ def load_cookies(filename):
     cookies_filename = None
     for p in path_search_order:
         if os.path.exists(p):
-            cookies_filename = p
+            cookies_filename = os.path.abspath(p)
             break
     if not cookies_filename:
         return None, None
