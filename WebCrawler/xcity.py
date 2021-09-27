@@ -17,19 +17,30 @@ def getTitle(a):
     return result
 
 
-def getActor(a):  # //*[@id="center_column"]/div[2]/div[1]/div/table/tbody/tr[1]/td/text()
-    html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
-    result1 = html.xpath('//*[@id="avodDetails"]/div/div[3]/div[2]/div/ul[1]/li[3]/a/text()')[0]
-    return result1
+def getActor(browser):
+    htmla = browser.page.select('#avodDetails > div > div.frame > div.content > div > ul.profileCL > li.credit-links > a')
+    t = []
+    for i in htmla:
+        t.append(i.text.strip())
+    return t
 
 
-def getActorPhoto(actor):  # //*[@id="star_qdt"]/li/a/img
-    a = actor.split(',')
-    d = {}
-    for i in a:
-        p = {i: ''}
-        d.update(p)
-    return d
+def getActorPhoto(browser):
+    htmla = browser.page.select('#avodDetails > div > div.frame > div.content > div > ul.profileCL > li.credit-links > a')
+    t = {}
+    for i in htmla:
+        p = {i.text.strip(): i['href']}
+        t.update(p)
+    o = {}
+    for k, v in t.items():
+        r = browser.open_relative(v)
+        if r.ok:
+            pic = browser.page.select_one('#avidolDetails > div > div.frame > div > p > img')
+            p = {k: urljoin(browser.url, pic['src'])}
+        else:
+            p = {k, ''}
+        o.update(p)
+    return o
 
 
 def getStudio(a):
@@ -82,7 +93,7 @@ def getYear(getRelease):
 def getRelease(a):
     html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
     try:
-        result = html.xpath('//*[@id="avodDetails"]/div/div[3]/div[2]/div/ul[2]/li[4]/text()')[0]
+        result = str(html.xpath('//*[@id="avodDetails"]/div/div[3]/div[2]/div/ul[1]/li[2]/text()')[1])
     except:
         return ''
     try:
@@ -171,21 +182,34 @@ def getExtrafanart(htmlcode):  # 获取剧照
 
 def main(number):
     try:
-        number = number.upper()
-        query_result = get_html(
-            'https://xcity.jp/result_published/?genre=%2Fresult_published%2F&q=' + number.replace('-','') + '&sg=main&num=30')
-        html = etree.fromstring(query_result, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
-        urls = html.xpath("//table[contains(@class, 'resultList')]/tr[2]/td[1]/a/@href")[0]
-        detail_page = get_html('https://xcity.jp' + urls)
+        xcity_number = number.replace('-','')
+        query_result, browser = get_html_by_form(
+            'https://xcity.jp/about/',
+            fields = {'q' : xcity_number.lower()},
+            return_type = 'browser')
+        if not query_result or not query_result.ok:
+            raise ValueError("xcity.py: page not found")
+        result = browser.follow_link(browser.links('avod\/detail')[0])
+        if not result.ok:
+            raise ValueError("xcity.py: detail page not found")
+        detail_page = str(browser.page)
+        url = browser.url
+        newnum = getNum(detail_page).upper()
+        number_up = number.upper()
+        if newnum != number_up:
+            if newnum == xcity_number.upper():
+                newnum = number_up
+            else:
+                raise ValueError("xcity.py: number not found")
         dic = {
-            'actor': getActor(detail_page),
+            'actor': getActor(browser),
             'title': getTitle(detail_page),
             'studio': getStudio(detail_page),
             'outline': getOutline(detail_page),
             'runtime': getRuntime(detail_page),
             'director': getDirector(detail_page),
             'release': getRelease(detail_page),
-            'number': getNum(detail_page),
+            'number': newnum,
             'cover': getCover(detail_page),
             'cover_small': '',
             'extrafanart': getExtrafanart(detail_page),
@@ -193,8 +217,8 @@ def main(number):
             'tag': getTag(detail_page),
             'label': getLabel(detail_page),
             'year': getYear(getRelease(detail_page)),  # str(re.search('\d{4}',getRelease(a)).group()),
-            'actor_photo': getActorPhoto(getActor(detail_page)),
-            'website': 'https://xcity.jp' + urls,
+            'actor_photo': getActorPhoto(browser),
+            'website': url,
             'source': 'xcity.py',
             'series': getSeries(detail_page),
         }
@@ -207,4 +231,6 @@ def main(number):
     return js
 
 if __name__ == '__main__':
-    print(main('VNDS-2624'))
+    print(main('RCTD-288'))
+    #print(main('VNDS-2624'))
+    #print(main('ABP-345'))

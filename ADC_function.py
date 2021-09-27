@@ -11,6 +11,7 @@ from lxml import etree
 import re
 import config
 from urllib.parse import urljoin
+import mechanicalsoup
 
 
 def getXpathSingle(htmlcode, xpath):
@@ -81,6 +82,51 @@ def post_html(url: str, query: dict, headers: dict = None) -> requests.Response:
             errors = str(e)
     print("[-]Connect Failed! Please check your Proxy or Network!")
     print("[-]" + errors)
+
+
+def get_html_by_browser(url, cookies: dict = None, ua: str = None, return_type: str = None):
+    browser = mechanicalsoup.StatefulBrowser(user_agent=G_USER_AGENT if ua is None else ua)
+    configProxy = config.Config().proxy()
+    if configProxy.enable:
+        browser.session.proxies = configProxy.proxies()
+    result = browser.open(url)
+    if not result.ok:
+        return ''
+    result.encoding = "utf-8"
+    if return_type == "object":
+        return result
+    elif return_type == "content":
+        return result.content
+    elif return_type == "browser":
+        return result, browser
+    else:
+        return result.text
+
+
+def get_html_by_form(url, form_name: str = None, fields: dict = None, cookies: dict = None, ua: str = None, return_type: str = None):
+    browser = mechanicalsoup.StatefulBrowser(user_agent=G_USER_AGENT if ua is None else ua)
+    if isinstance(cookies, dict):
+        requests.utils.add_dict_to_cookiejar(browser.session.cookies, cookies)
+    configProxy = config.Config().proxy()
+    if configProxy.enable:
+        browser.session.proxies = configProxy.proxies()
+    result = browser.open(url)
+    if not result.ok:
+        return ''
+    form = browser.select_form() if form_name is None else browser.select_form(form_name)
+    if isinstance(fields, dict):
+        for k, v in fields.items():
+            browser[k] = v
+    response = browser.submit_selected()
+    response.encoding = "utf-8"
+    if return_type == "object":
+        return response
+    elif return_type == "content":
+        return response.content
+    elif return_type == "browser":
+        return response, browser
+    else:
+        return response.text
 
 
 # def get_javlib_cookie() -> [dict, str]:
@@ -568,10 +614,3 @@ def is_link(filename: str):
     elif os.stat(filename).st_nlink > 1:
         return True # hard link Linux MAC OSX Windows NTFS
     return False
-
-# URL相对路径转绝对路径
-def abs_url(base_url: str, href: str) -> str:
-    if href.startswith('http'):
-        return href
-    return urljoin(base_url, href)
-

@@ -1,4 +1,4 @@
-requests==2.20.0
+requests==2.26.0
 pyquery
 lxml
 beautifulsoup4
@@ -7,3 +7,4 @@ cloudscraper
 pysocks==1.7.1
 urllib3==1.24.3
 certifi==2020.12.5
+MechanicalSoup==1.1.0
