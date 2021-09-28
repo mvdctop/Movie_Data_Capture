@@ -39,7 +39,7 @@ def main(number: str) -> json:
         'extrafanart': get_extrafanart(lx),
         'label': get_series(lx),
         'imagecut': 1,
-        'actor_photo': get_actor_photo(browser),
+#        'actor_photo': get_actor_photo(browser),
         'website': 'https://www.caribbeancom.com/moviepages/' + number + '/index.html',
         'source': 'carib.py',
         'series': get_series(lx),

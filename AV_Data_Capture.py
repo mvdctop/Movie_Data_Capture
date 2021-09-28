@@ -8,7 +8,7 @@ import typing
 import urllib3
 
 import config
-from datetime import datetime
+from datetime import datetime, timedelta
 import time
 from pathlib import Path
 from ADC_function import  file_modification_days, get_html, is_link
@@ -58,7 +58,7 @@ Use --log-dir= to turn off logging feature.""")
 class OutLogger(object):
     def __init__(self, logfile) -> None:
         self.term = sys.stdout
-        self.log = open(logfile,"w",encoding='utf-8')
+        self.log = open(logfile,"w",encoding='utf-8',buffering=1)
     def __del__(self):
         self.close()
     def __enter__(self):
@@ -84,7 +84,7 @@ class OutLogger(object):
 class ErrLogger(OutLogger):
     def __init__(self, logfile) -> None:
         self.term = sys.stderr
-        self.log = open(logfile,"w",encoding='utf-8')
+        self.log = open(logfile,"w",encoding='utf-8',buffering=1)
     def close(self):
         if self.term != None:
             sys.stderr = self.term
@@ -124,14 +124,6 @@ def close_logfile(logdir: str):
                     os.remove(full_name)
         except:
             pass
-
-
-_print = print  # Hook print
-_stdout = sys.stdout
-def print(*args, **kw):
-    _print(*args, **kw)
-    if _stdout != sys.stdout:
-        sys.stdout.flush()
 
 
 # 重写视频文件扫描，消除递归，取消全局变量，新增失败文件列表跳过处理
@@ -325,7 +317,7 @@ if __name__ == '__main__':
 
         count = 0
         count_all = str(len(movie_list))
-        print('[+]Find', count_all, 'movies')
+        print('[+]Find', count_all, 'movies. Start at', time.strftime("%Y-%m-%d %H:%M:%S"))
         main_mode = conf.main_mode()
         stop_count = conf.stop_counter()
         if stop_count<1:
@@ -351,8 +343,9 @@ f'[!]运行模式：**维护模式**，本程序将在处理{count_all}个视频
             rm_empty_folder(folder_path)
 
     end_time = time.time()
-    total_time = end_time - start_time
-    print("[+]Used " + str(round(total_time,2)) + "s")
+    total_time = str(timedelta(seconds=end_time - start_time))
+    print("[+]Running time", total_time[:len(total_time) if total_time.rfind('.') < 0 else -3],
+        " End at", time.strftime("%Y-%m-%d %H:%M:%S"))
 
     print("[+]All finished!!!")
     if not (conf.auto_exit() or auto_exit):

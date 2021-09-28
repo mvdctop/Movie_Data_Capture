@@ -109,7 +109,8 @@ def getTag(a):
     for i in result1:
         i=i.replace(u'\n','')
         i=i.replace(u'\t','')
-        result2.append(i)
+        if len(i):
+            result2.append(i)
     return result2
 
 
@@ -217,7 +218,7 @@ def main(number):
             'tag': getTag(detail_page),
             'label': getLabel(detail_page),
             'year': getYear(getRelease(detail_page)),  # str(re.search('\d{4}',getRelease(a)).group()),
-            'actor_photo': getActorPhoto(browser),
+#            'actor_photo': getActorPhoto(browser),
             'website': url,
             'source': 'xcity.py',
             'series': getSeries(detail_page),
