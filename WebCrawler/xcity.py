@@ -217,7 +217,7 @@ def main(number):
             'tag': getTag(detail_page),
             'label': getLabel(detail_page),
             'year': getYear(getRelease(detail_page)),  # str(re.search('\d{4}',getRelease(a)).group()),
-            'actor_photo': getActorPhoto(browser),
+#            'actor_photo': getActorPhoto(browser),
             'website': url,
             'source': 'xcity.py',
             'series': getSeries(detail_page),
