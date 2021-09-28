@@ -118,6 +118,8 @@ class Config:
         return self.conf.getint("transalte","delay")
     def transalte_values(self) -> str:
         return self.conf.get("transalte", "values")
+    def get_translate_service_site(self) -> str:
+        return self.conf.get("transalte", "service_site")
     def proxy(self):
         try:
             sec = "proxy"
@@ -238,6 +240,7 @@ class Config:
         conf.set(sec8, "key", "")
         conf.set(sec8, "delay", "1")
         conf.set(sec8, "values", "title,outline")
+        conf.set(sec8, "service_site", "translate.google.cn")
 
         sec9 = "trailer"
         conf.add_section(sec9)

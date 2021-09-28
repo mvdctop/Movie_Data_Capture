@@ -506,11 +506,11 @@ def translate(
 ):
     trans_result = ""
     if engine == "google-free":
+        gsite = config.Config().get_translate_service_site()
+        if not re.match('^translate\.google\.(com|com\.\w{2}|\w{2})$', gsite):
+            gsite = 'translate.google.cn'
         url = (
-                "https://translate.google.cn/translate_a/single?client=gtx&dt=t&dj=1&ie=UTF-8&sl=auto&tl="
-                + target_language
-                + "&q="
-                + src
+f"https://{gsite}/translate_a/single?client=gtx&dt=t&dj=1&ie=UTF-8&sl=auto&tl={target_language}&q={src}"
         )
         result = get_html(url=url, return_type="object")
         if not result.ok:
