@@ -614,7 +614,7 @@ def load_cookies(filename):
 # 文件修改时间距此时的天数
 def file_modification_days(filename) -> int:
     mfile = Path(filename)
-    if not mfile.exists():
+    if not mfile.is_file():
         return 9999
     mtime = int(mfile.stat().st_mtime)
     now = int(time.time())
