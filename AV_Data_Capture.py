@@ -8,7 +8,7 @@ import typing
 import urllib3
 
 import config
-from datetime import datetime
+from datetime import datetime, timedelta
 import time
 from pathlib import Path
 from ADC_function import  file_modification_days, get_html, is_link
@@ -343,8 +343,8 @@ f'[!]运行模式：**维护模式**，本程序将在处理{count_all}个视频
             rm_empty_folder(folder_path)
 
     end_time = time.time()
-    total_time = end_time - start_time
-    print("[+]Used " + str(round(total_time,2)) + "s")
+    total_time = str(timedelta(seconds=end_time - start_time))
+    print("[+]Running time", total_time[:len(total_time) if total_time.rfind('.') < 0 else -3])
 
     print("[+]All finished!!!")
     if not (conf.auto_exit() or auto_exit):
