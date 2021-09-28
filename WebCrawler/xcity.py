@@ -109,7 +109,8 @@ def getTag(a):
     for i in result1:
         i=i.replace(u'\n','')
         i=i.replace(u'\t','')
-        result2.append(i)
+        if len(i):
+            result2.append(i)
     return result2
 
 
