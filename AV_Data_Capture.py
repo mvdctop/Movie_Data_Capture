@@ -317,7 +317,7 @@ if __name__ == '__main__':
 
         count = 0
         count_all = str(len(movie_list))
-        print('[+]Find', count_all, 'movies')
+        print('[+]Find', count_all, 'movies. Start at', time.strftime("%Y-%m-%d %H:%M:%S"))
         main_mode = conf.main_mode()
         stop_count = conf.stop_counter()
         if stop_count<1:
@@ -344,7 +344,8 @@ f'[!]运行模式：**维护模式**，本程序将在处理{count_all}个视频
 
     end_time = time.time()
     total_time = str(timedelta(seconds=end_time - start_time))
-    print("[+]Running time", total_time[:len(total_time) if total_time.rfind('.') < 0 else -3])
+    print("[+]Running time", total_time[:len(total_time) if total_time.rfind('.') < 0 else -3],
+        " End at", time.strftime("%Y-%m-%d %H:%M:%S"))
 
     print("[+]All finished!!!")
     if not (conf.auto_exit() or auto_exit):
