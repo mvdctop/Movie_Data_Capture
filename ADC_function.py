@@ -590,10 +590,26 @@ def is_uncensored(number):
 # 从网站登录后，通过浏览器插件(CookieBro或EdittThisCookie)或者直接在地址栏网站链接信息处都可以复制或者导出cookie内容，
 # 并填写到以上json文件的相应字段中
 def load_cookies(filename):
+    filename = os.path.basename(filename)
+    if not len(filename):
+        return None, None
+    path_search_order = [
+        f"./{filename}",
+        os.path.join(Path.home(), filename),
+        os.path.join(Path.home(), f".avdc/{filename}"),
+        os.path.join(Path.home(), f".local/share/avdc/{filename}")
+]
+    cookies_filename = None
+    for p in path_search_order:
+        if os.path.exists(p):
+            cookies_filename = os.path.abspath(p)
+            break
+    if not cookies_filename:
+        return None, None
     try:
-        return json.load(open(filename))
+        return json.load(open(cookies_filename)), cookies_filename
     except:
-        return None
+        return None, None
 
 # 文件修改时间距此时的天数
 def file_modification_days(filename) -> int:

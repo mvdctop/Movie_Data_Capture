@@ -220,10 +220,10 @@ def main(number):
         # 不加载过期的cookie，javdb登录界面显示为7天免登录，故假定cookie有效期为7天
         cdays = file_modification_days(cookie_json)
         if cdays < 7:
-            javdb_cookies = load_cookies(cookie_json)
+            javdb_cookies, cookies_filepath = load_cookies(cookie_json)
         elif cdays != 9999:
-            print('[!]Cookies file ' + cookie_json + ' was updated ' + str(cdays) +
-                  ' days ago, it will not be used for HTTP requests.')
+            print(
+f'[!]Cookies file {cookies_filepath} was updated {cdays} days ago, it will not be used for HTTP requests.')
 
         try:
             javdb_url = 'https://' + javdb_site + '.com/search?q=' + number + '&f=all'
