@@ -58,7 +58,7 @@ Use --log-dir= to turn off logging feature.""")
 class OutLogger(object):
     def __init__(self, logfile) -> None:
         self.term = sys.stdout
-        self.log = open(logfile,"w",encoding='utf-8')
+        self.log = open(logfile,"w",encoding='utf-8',buffering=1)
     def __del__(self):
         self.close()
     def __enter__(self):
@@ -84,7 +84,7 @@ class OutLogger(object):
 class ErrLogger(OutLogger):
     def __init__(self, logfile) -> None:
         self.term = sys.stderr
-        self.log = open(logfile,"w",encoding='utf-8')
+        self.log = open(logfile,"w",encoding='utf-8',buffering=1)
     def close(self):
         if self.term != None:
             sys.stderr = self.term
@@ -124,14 +124,6 @@ def close_logfile(logdir: str):
                     os.remove(full_name)
         except:
             pass
-
-
-_print = print  # Hook print
-_stdout = sys.stdout
-def print(*args, **kw):
-    _print(*args, **kw)
-    if _stdout != sys.stdout:
-        sys.stdout.flush()
 
 
 # 重写视频文件扫描，消除递归，取消全局变量，新增失败文件列表跳过处理
