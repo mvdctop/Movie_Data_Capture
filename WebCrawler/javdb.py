@@ -218,11 +218,13 @@ def main(number):
         cookie_json = './' + javdb_site + '.json'
         javdb_cookies = {'over18':'1', 'theme':'auto', 'locale':'zh'}
         # 不加载过期的cookie，javdb登录界面显示为7天免登录，故假定cookie有效期为7天
-        cdays = file_modification_days(cookie_json)
-        if cdays < 7:
-            javdb_cookies, cookies_filepath = load_cookies(cookie_json)
-        elif cdays != 9999:
-            print(
+        cookies_dict, cookies_filepath = load_cookies(cookie_json)
+        if isinstance(cookies_dict, dict) and isinstance(cookies_filepath, str):
+            cdays = file_modification_days(cookies_filepath)
+            if cdays < 7:
+                javdb_cookies = cookies_dict
+            elif cdays != 9999:
+                print(
 f'[!]Cookies file {cookies_filepath} was updated {cdays} days ago, it will not be used for HTTP requests.')
 
         try:
