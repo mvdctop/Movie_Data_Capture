@@ -16,7 +16,7 @@ class Config:
         ]
         ini_path = None
         for p in path_search_order:
-            if os.path.exists(p):
+            if os.path.isfile(p):
                 ini_path = p
                 break
         if ini_path:

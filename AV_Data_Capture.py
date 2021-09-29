@@ -137,7 +137,7 @@ def movie_lists(root, conf, regexstr):
     file_type = conf.media_type().upper().split(",")
     trailerRE = re.compile(r'-trailer\.', re.IGNORECASE)
     cliRE = None
-    if len(regexstr):
+    if isinstance(regexstr, str) and len(regexstr):
         try:
             cliRE = re.compile(regexstr, re.IGNORECASE)
         except:
@@ -198,9 +198,11 @@ def movie_lists(root, conf, regexstr):
 
 
 def create_failed_folder(failed_folder):
-    if not os.path.exists(failed_folder + '/'):  # 新建failed文件夹
+    if not os.path.isdir(failed_folder):  # 新建failed文件夹
         try:
-            os.makedirs(failed_folder + '/')
+            os.makedirs(failed_folder)
+            if not os.path.isdir(failed_folder):
+                raise
         except:
             print("[-]failed!can not be make folder 'failed'\n[-](Please run as Administrator)")
             sys.exit(0)

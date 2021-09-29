@@ -82,12 +82,13 @@ def create_folder(json_data, conf: config.Config):  # 创建文件夹
         shorttitle = title[0:maxlen]
         location_rule = location_rule.replace(title, shorttitle)
 
-    path = success_folder + '/' + location_rule
-    path = trimblank(path)
-    if not os.path.exists(path):
+    path = os.path.join(success_folder, location_rule).strip()
+    if not os.path.isdir(path):
         path = escape_path(path, conf.escape_literals())
         try:
             os.makedirs(path)
+            if not os.path.isdir(path):
+                raise
         except:
             path = success_folder + '/' + location_rule.replace('/[' + number + ')-' + title, "/number")
             path = escape_path(path, conf.escape_literals())
@@ -95,15 +96,6 @@ def create_folder(json_data, conf: config.Config):  # 创建文件夹
             os.makedirs(path)
     return path
 
-
-def trimblank(s: str):
-    """
-    Clear the blank on the right side of the folder name
-    """
-    if s[-1] == " ":
-        return trimblank(s[:-1])
-    else:
-        return s
 
 # =====================资源下载部分===========================
 
@@ -114,8 +106,10 @@ def download_file_with_filename(url, filename, path, conf: config.Config, filepa
     for i in range(configProxy.retry):
         try:
             if configProxy.enable:
-                if not os.path.exists(path):
+                if not os.path.isdir(path):
                     os.makedirs(path)
+                    if not os.path.isdir(path):
+                        raise IOError
                 proxies = configProxy.proxies()
                 headers = {
                     'User-Agent': G_USER_AGENT}
@@ -127,8 +121,10 @@ def download_file_with_filename(url, filename, path, conf: config.Config, filepa
                     code.write(r.content)
                 return
             else:
-                if not os.path.exists(path):
+                if not os.path.isdir(path):
                     os.makedirs(path)
+                    if not os.path.isdir(path):
+                        raise IOError
                 headers = {
                     'User-Agent': G_USER_AGENT}
                 r = requests.get(url, timeout=configProxy.timeout, headers=headers)
@@ -150,6 +146,10 @@ def download_file_with_filename(url, filename, path, conf: config.Config, filepa
         except requests.exceptions.ConnectTimeout:
             i += 1
             print('[-]Image Download :  Connect retry ' + str(i) + '/' + str(configProxy.retry))
+        except IOError:
+            print(f"[-]Create Directory '{path}' failed!")
+            moveFailedFolder(filepath, conf)
+            return
     print('[-]Connect Failed! Please check your Proxy or Network!')
     moveFailedFolder(filepath, conf)
     return
@@ -224,8 +224,10 @@ def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, f
     else:
         nfo_path = os.path.join(path,f"{number}{part}{leak_word}{c_word}.nfo")
     try:
-        if not os.path.exists(path):
+        if not os.path.isdir(path):
             os.makedirs(path)
+            if not os.path.isdir(path):
+                raise IOError
         with open(nfo_path, "wt", encoding='UTF-8') as code:
             print('<?xml version="1.0" encoding="UTF-8" ?>', file=code)
             print("<movie>", file=code)
@@ -284,12 +286,12 @@ def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, f
             print("[+]Wrote!            " + nfo_path)
     except IOError as e:
         print("[-]Write Failed!")
-        print(e)
+        print("[-]", e)
         moveFailedFolder(filepath, conf)
         return
     except Exception as e1:
-        print(e1)
         print("[-]Write Failed!")
+        print("[-]", e1)
         moveFailedFolder(filepath, conf)
         return
 
@@ -390,8 +392,9 @@ def add_to_pic(pic_path, img_pic, size, count, mode):
 # ========================结束=================================
 
 def paste_file_to_folder(filepath, path, number, leak_word, c_word, conf: config.Config):  # 文件路径，番号，后缀，要移动至的位置
-    houzhui = os.path.splitext(filepath)[1].replace(",","")
-    file_parent_origin_path = str(pathlib.Path(filepath).parent)
+    filepath_obj = pathlib.Path(filepath)
+    houzhui = filepath_obj.suffix
+    file_parent_origin_path = str(filepath_obj.parent)
     try:
         targetpath = os.path.join(path, f"{number}{leak_word}{c_word}{houzhui}")
         # 如果soft_link=1 使用软链接
@@ -413,8 +416,9 @@ def paste_file_to_folder(filepath, path, number, leak_word, c_word, conf: config
         sub_res = conf.sub_rule()
 
         for subname in sub_res:
-            if os.path.exists(filepath.replace(houzhui, subname)):  # 字幕移动
-                shutil.move(filepath.replace(houzhui, subname), os.path.join(path, f"{number}{leak_word}{c_word}{subname}"))
+            sub_filepath = str(filepath_obj.with_suffix(subname))
+            if os.path.isfile(sub_filepath):  # 字幕移动
+                shutil.move(sub_filepath, os.path.join(path, f"{number}{leak_word}{c_word}{subname}"))
                 print('[+]Sub moved!')
                 return True
 
@@ -433,8 +437,9 @@ def paste_file_to_folder(filepath, path, number, leak_word, c_word, conf: config
 def paste_file_to_folder_mode2(filepath, path, multi_part, number, part, leak_word, c_word, conf):  # 文件路径，番号，后缀，要移动至的位置
     if multi_part == 1:
         number += part  # 这时number会被附加上CD1后缀
-    houzhui = os.path.splitext(filepath)[1].replace(",","")
-    file_parent_origin_path = str(pathlib.Path(filepath).parent)
+    filepath_obj = pathlib.Path(filepath)
+    houzhui = filepath_obj.suffix
+    file_parent_origin_path = str(filepath_obj.parent)
     try:
         if conf.soft_link():
             os.symlink(filepath, os.path.join(path, f"{number}{part}{leak_word}{c_word}{houzhui}"))
@@ -443,8 +448,9 @@ def paste_file_to_folder_mode2(filepath, path, multi_part, number, part, leak_wo
 
         sub_res = conf.sub_rule()
         for subname in sub_res:
-            if os.path.exists(filepath.replace(houzhui, subname)):  # 字幕移动
-                shutil.move(filepath.replace(houzhui, subname), os.path.join(path, f"{number}{part}{leak_word}{c_word}{subname}"))
+            sub_filepath = str(filepath_obj.with_suffix(subname))
+            if os.path.isfile(sub_filepath):  # 字幕移动
+                shutil.move(sub_filepath, os.path.join(path, f"{number}{part}{leak_word}{c_word}{subname}"))
                 print('[+]Sub moved!')
                 print('[!]Success')
                 return True
