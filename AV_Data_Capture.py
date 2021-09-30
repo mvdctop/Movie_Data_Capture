@@ -182,18 +182,21 @@ def movie_lists(root, conf, regexstr):
     success_folder = conf.success_folder()
     for current_dir, subdirs, files in os.walk(success_folder, topdown=False):
         for f in files:
-            if not os.path.splitext(f)[1].upper() in file_type:
+            f_obj = Path(f)
+            if f_obj.suffix.lower() != '.nfo':
                 continue
-            nfo_file = os.path.join(current_dir, str(Path(f).with_suffix('.nfo')))
-            if file_modification_days(nfo_file) > nfo_skip_days:
+            if file_modification_days(Path(current_dir) / f_obj) > nfo_skip_days:
                 continue
-            number = get_number(False, os.path.basename(f))
+            number = get_number(False, f_obj.stem)
             if number:
                 skip_numbers.add(number.upper())
+    rm_list = []
     for f in total:
         n_number = get_number(False, os.path.basename(f))
         if n_number and n_number.upper() in skip_numbers:
-            total.pop(total.index(f))
+            rm_list.append(f)
+    for f in rm_list:
+        total.remove(f)
     return total
 
 
