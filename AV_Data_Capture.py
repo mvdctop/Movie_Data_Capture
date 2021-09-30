@@ -156,7 +156,7 @@ def movie_lists(root, conf, regexstr):
         except:
             pass
     for current_dir, subdirs, files in os.walk(root, topdown=False):
-        if current_dir in escape_folder:
+        if len(set(current_dir.replace("\\","/").split("/")) & set(escape_folder)) > 0:
             continue
         for f in files:
             full_name = os.path.join(current_dir, f)
@@ -330,8 +330,7 @@ if __name__ == '__main__':
         else:
             count_all = str(min(len(movie_list), stop_count))
         if main_mode == 3:
-            print(
-f'[!]运行模式：**维护模式**，本程序将在处理{count_all}个视频文件后停止，如需后台执行自动退出请结合 -a 参数。')
+            print(f'[!]运行模式：**维护模式**，本程序将在处理{count_all}个视频文件后停止，如需后台执行自动退出请结合 -a 参数。')
         for movie_path in movie_list:  # 遍历电影列表 交给core处理
             count = count + 1
             percentage = str(count / int(count_all) * 100)[:4] + '%'
