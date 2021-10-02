@@ -94,7 +94,7 @@ def create_folder(json_data, conf: config.Config):  # 创建文件夹
             path = escape_path(path, conf.escape_literals())
 
             os.makedirs(path)
-    return path
+    return os.path.normpath(path)
 
 
 # =====================资源下载部分===========================
