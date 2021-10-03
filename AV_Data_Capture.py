@@ -104,9 +104,7 @@ def dupe_stdout_to_logfile(logdir: str):
             os.makedirs(logdir)
         except:
             pass
-        if not os.path.isdir(logdir):
-            return
-    elif not os.path.isdir(logdir):
+    if not os.path.isdir(logdir):
         return
 
     log_tmstr = datetime.now().strftime("%Y%m%dT%H%M%S")
