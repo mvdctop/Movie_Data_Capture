@@ -96,7 +96,7 @@ def create_folder(json_data, conf: config.Config):  # 创建文件夹
                 print(f"[-]Fatal error! Can not make folder '{path}'")
                 sys.exit(0)
 
-    return path
+    return os.path.normcase(path)
 
 
 # =====================资源下载部分===========================
