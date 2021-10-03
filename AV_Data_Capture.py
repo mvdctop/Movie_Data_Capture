@@ -214,13 +214,11 @@ def movie_lists(root, conf, regexstr):
 
 
 def create_failed_folder(failed_folder):
-    if not os.path.isdir(failed_folder):  # 新建failed文件夹
+    if not os.path.exists(failed_folder):  # 新建failed文件夹
         try:
             os.makedirs(failed_folder)
-            if not os.path.isdir(failed_folder):
-                raise
         except:
-            print("[-]failed!can not be make folder 'failed'\n[-](Please run as Administrator)")
+            print(f"[-]Fatal error! Can not make folder '{failed_folder}'")
             sys.exit(0)
 
 

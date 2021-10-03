@@ -83,17 +83,19 @@ def create_folder(json_data, conf: config.Config):  # 创建文件夹
         location_rule = location_rule.replace(title, shorttitle)
 
     path = os.path.join(success_folder, location_rule).strip()
-    if not os.path.isdir(path):
+    if not os.path.exists(path):
         path = escape_path(path, conf.escape_literals())
         try:
             os.makedirs(path)
-            if not os.path.isdir(path):
-                raise
         except:
             path = success_folder + '/' + location_rule.replace('/[' + number + ')-' + title, "/number")
             path = escape_path(path, conf.escape_literals())
+            try:
+                os.makedirs(path)
+            except:
+                print(f"[-]Fatal error! Can not make folder '{path}'")
+                sys.exit(0)
 
-            os.makedirs(path)
     return path
 
 
@@ -106,10 +108,12 @@ def download_file_with_filename(url, filename, path, conf: config.Config, filepa
     for i in range(configProxy.retry):
         try:
             if configProxy.enable:
-                if not os.path.isdir(path):
-                    os.makedirs(path)
-                    if not os.path.isdir(path):
-                        raise IOError
+                if not os.path.exists(path):
+                    try:
+                        os.makedirs(path)
+                    except:
+                        print(f"[-]Fatal error! Can not make folder '{path}'")
+                        sys.exit(0)
                 proxies = configProxy.proxies()
                 headers = {
                     'User-Agent': G_USER_AGENT}
@@ -121,10 +125,12 @@ def download_file_with_filename(url, filename, path, conf: config.Config, filepa
                     code.write(r.content)
                 return
             else:
-                if not os.path.isdir(path):
-                    os.makedirs(path)
-                    if not os.path.isdir(path):
-                        raise IOError
+                if not os.path.exists(path):
+                    try:
+                        os.makedirs(path)
+                    except:
+                        print(f"[-]Fatal error! Can not make folder '{path}'")
+                        sys.exit(0)
                 headers = {
                     'User-Agent': G_USER_AGENT}
                 r = requests.get(url, timeout=configProxy.timeout, headers=headers)
@@ -224,10 +230,12 @@ def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, f
     else:
         nfo_path = os.path.join(path,f"{number}{part}{leak_word}{c_word}.nfo")
     try:
-        if not os.path.isdir(path):
-            os.makedirs(path)
-            if not os.path.isdir(path):
-                raise IOError
+        if not os.path.exists(path):
+            try:
+                os.makedirs(path)
+            except:
+                print(f"[-]Fatal error! can not make folder '{path}'")
+                sys.exit(0)
         with open(nfo_path, "wt", encoding='UTF-8') as code:
             print('<?xml version="1.0" encoding="UTF-8" ?>', file=code)
             print("<movie>", file=code)
