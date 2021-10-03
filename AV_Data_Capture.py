@@ -103,7 +103,8 @@ def dupe_stdout_to_logfile(logdir: str):
         try:
             os.makedirs(logdir)
         except:
-            pass
+            print(f"[-]Fatal error! Can not make log folder '{logdir}'")
+            sys.exit(0)
     if not os.path.isdir(logdir):
         return
 
