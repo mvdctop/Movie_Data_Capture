@@ -59,6 +59,7 @@ class OutLogger(object):
     def __init__(self, logfile) -> None:
         self.term = sys.stdout
         self.log = open(logfile,"w",encoding='utf-8',buffering=1)
+        self.filepath = logfile
     def __del__(self):
         self.close()
     def __enter__(self):
@@ -85,6 +86,7 @@ class ErrLogger(OutLogger):
     def __init__(self, logfile) -> None:
         self.term = sys.stderr
         self.log = open(logfile,"w",encoding='utf-8',buffering=1)
+        self.filepath = logfile
     def close(self):
         if self.term != None:
             sys.stderr = self.term
@@ -97,10 +99,15 @@ class ErrLogger(OutLogger):
 def dupe_stdout_to_logfile(logdir: str):
     if not isinstance(logdir, str) or len(logdir) == 0:
         return
-    if not os.path.isdir(logdir):
-        os.makedirs(logdir)
+    if not os.path.exists(logdir):
+        try:
+            os.makedirs(logdir)
+        except:
+            pass
         if not os.path.isdir(logdir):
             return
+    elif not os.path.isdir(logdir):
+        return
 
     log_tmstr = datetime.now().strftime("%Y%m%dT%H%M%S")
     logfile = os.path.join(logdir, f'avdc_{log_tmstr}.txt')
@@ -113,8 +120,16 @@ def dupe_stdout_to_logfile(logdir: str):
 def close_logfile(logdir: str):
     if not isinstance(logdir, str) or len(logdir) == 0 or not os.path.isdir(logdir):
         return
+    #日志关闭前保存日志文件路径
+    filepath = ''
+    try:
+        filepath = sys.stdout.filepath
+    except:
+        pass
     sys.stdout.close()
     sys.stderr.close()
+    if len(filepath):
+        print("Log file '{}' saved.".format(filepath))
     # 清理空文件
     for current_dir, subdirs, files in os.walk(logdir, topdown=False):
         try:
@@ -304,7 +319,8 @@ if __name__ == '__main__':
         print('[+]Enable debug')
     if conf.soft_link():
         print('[!]Enable soft link')
-    #print('[!]CmdLine:'," ".join(sys.argv[1:]))
+    if len(sys.argv)>1:
+        print('[!]CmdLine:'," ".join(sys.argv[1:]))
 
     create_failed_folder(conf.failed_folder())
     start_time = time.time()
@@ -353,9 +369,10 @@ if __name__ == '__main__':
         " End at", time.strftime("%Y-%m-%d %H:%M:%S"))
 
     print("[+]All finished!!!")
-    if not (conf.auto_exit() or auto_exit):
-        input("Press enter key exit, you can check the error message before you exit...")
 
     close_logfile(logdir)
+
+    if not (conf.auto_exit() or auto_exit):
+        input("Press enter key exit, you can check the error message before you exit...")
 
     sys.exit(0)
