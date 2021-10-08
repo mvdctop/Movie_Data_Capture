@@ -99,18 +99,18 @@ class ErrLogger(OutLogger):
 def dupe_stdout_to_logfile(logdir: str):
     if not isinstance(logdir, str) or len(logdir) == 0:
         return
-    if not os.path.exists(logdir):
+    log_dir = Path(logdir)
+    if not log_dir.exists():
         try:
-            os.makedirs(logdir)
+            log_dir.mkdir(parents=True,exist_ok=True)
         except:
-            print(f"[-]Fatal error! Can not make log folder '{logdir}'")
-            sys.exit(0)
-    if not os.path.isdir(logdir):
-        return
-
+            pass
+    if not log_dir.is_dir():
+        return  # Tips for disabling logs by change directory to a same name empty regular file
+    abslog_dir = log_dir.resolve()
     log_tmstr = datetime.now().strftime("%Y%m%dT%H%M%S")
-    logfile = os.path.join(logdir, f'avdc_{log_tmstr}.txt')
-    errlog = os.path.join(logdir, f'avdc_{log_tmstr}_err.txt')
+    logfile = abslog_dir / f'avdc_{log_tmstr}.txt'
+    errlog = abslog_dir / f'avdc_{log_tmstr}_err.txt'
 
     sys.stdout = OutLogger(logfile)
     sys.stderr = ErrLogger(errlog)
@@ -119,25 +119,85 @@ def dupe_stdout_to_logfile(logdir: str):
 def close_logfile(logdir: str):
     if not isinstance(logdir, str) or len(logdir) == 0 or not os.path.isdir(logdir):
         return
-    #日志关闭前保存日志文件路径
-    filepath = ''
+    #日志关闭前保存日志路径
+    filepath = None
     try:
         filepath = sys.stdout.filepath
     except:
         pass
     sys.stdout.close()
     sys.stderr.close()
-    if len(filepath):
-        print("Log file '{}' saved.".format(filepath))
+    log_dir = Path(logdir).resolve()
+    if isinstance(filepath, Path):
+        print(f"Log file '{filepath}' saved.")
+        assert(filepath.parent.samefile(log_dir))
     # 清理空文件
-    for current_dir, subdirs, files in os.walk(logdir, topdown=False):
+    for f in log_dir.glob(r'*_err.txt'):
+        if f.stat().st_size == 0:
+            try:
+                f.unlink(missing_ok=True)
+            except:
+                pass
+    # 合并日志 只检测日志目录内的文本日志，忽略子目录。三个月前的日志，按月合并为一个月志，
+    # 去年及以前的月志，今年4月以后将之按年合并为年志
+    # 测试步骤：
+    """
+    LOGDIR=/tmp/avlog
+    mkdir -p $LOGDIR
+    for f in {2016..2020}{01..12}{01..28};do;echo $f>$LOGDIR/avdc_${f}T235959.txt;done
+    for f in {01..09}{01..28};do;echo 2021$f>$LOGDIR/avdc_2021${f}T235959.txt;done
+    echo "$(ls -1 $LOGDIR|wc -l) files in $LOGDIR"
+    # 1932 files in /tmp/avlog
+    avdc -zgic1 -d0 -m3 -o $LOGDIR
+    # python3 ./AV_Data_Capture.py -zgic1 -o $LOGDIR
+    ls $LOGDIR
+    # rm -rf $LOGDIR
+    """
+    # 第一步，合并到月
+    for i in range(1):  # 利用1次循环的break跳到第二步，避免大块if缩进或者使用goto语法
+        txts = [f for f in log_dir.glob(r'*.txt') if re.match(r'avdc_\d{8}T\d{6}', f.stem, re.A)]
+        if not txts or not len(txts):
+            break
+        txts.sort()
+        today = datetime.today()
+        tmstr_3_month_ago = (today.replace(day=1) - timedelta(days=3*30)).strftime("%Y%m32T")
+        deadline_month = f'avdc_{tmstr_3_month_ago}'
+        month_merge = [f for f in txts if f.stem < deadline_month]
+        if not month_merge or not len(month_merge):
+            break
+        tomonth = len('01T235959.txt')  # cut length avdc_202012|01T235959.txt
+        for f in month_merge:
+            try:
+                month_file_name = str(f)[:-tomonth] + '.txt' # avdc_202012.txt
+                with open(month_file_name, 'a', encoding='utf-8') as m:
+                    m.write(f.read_text(encoding='utf-8'))
+                f.unlink(missing_ok=True)
+            except:
+                pass
+    # 第二步，月合并到年
+    if today.month < 4:
+        return
+    mons = [f for f in log_dir.glob(r'*.txt') if re.match(r'avdc_\d{6}', f.stem, re.A)]
+    if not mons or not len(mons):
+        return
+    mons.sort()
+    deadline_year = f'avdc_{today.year-1}13'
+    year_merge = [f for f in mons if f.stem < deadline_year]
+    if not year_merge or not len(year_merge):
+        return
+    toyear = len('12.txt')   # cut length avdc_2020|12.txt
+    for f in year_merge:
         try:
-            for f in files:
-                full_name = os.path.join(current_dir, f)
-                if os.path.getsize(full_name) == 0:
-                    os.remove(full_name)
+            year_file_name = str(f)[:-toyear] + '.txt' # avdc_2020.txt
+            with open(year_file_name, 'a', encoding='utf-8') as y:
+                y.write(f.read_text(encoding='utf-8'))
+            f.unlink(missing_ok=True)
         except:
             pass
+    # 第三步，压缩年志 如果有压缩需求，请自行手工压缩，或者使用外部脚本来定时完成。推荐nongnu的lzip，对于
+    # 这种粒度的文本日志，压缩比是目前最好的。lzip -9的运行参数下，日志压缩比要高于xz -9，而且内存占用更少，
+    # 多核利用率更高(plzip多线程版本)，解压速度更快。压缩后的大小差不多是未压缩时的2.4%到3.7%左右，
+    # 100MB的日志文件能缩小到3.7MB。
 
 
 # 重写视频文件扫描，消除递归，取消全局变量，新增失败文件列表跳过处理
