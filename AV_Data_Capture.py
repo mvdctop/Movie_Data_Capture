@@ -42,7 +42,7 @@ def argparse_function(ver: str) -> typing.Tuple[str, str, bool]:
     parser.add_argument("-m","--main-mode",default='',nargs='?',help="Main mode. 1:Scraping 2:Organizing 3:Scraping in analysis folder")
     parser.add_argument("-n", "--number", default='', nargs='?', help="Custom file number of single movie file.")
     # parser.add_argument("-C", "--config", default='config.ini', nargs='?', help="The config file Path.")
-    default_logdir = Path.home() / '.avlogs'
+    default_logdir = str(Path.home() / '.avlogs')
     parser.add_argument("-o","--log-dir",dest='logdir',default=default_logdir,nargs='?',
         help=f"""Duplicate stdout and stderr to logfiles in logging folder, default on.
         default folder for current user: '{default_logdir}'. Change default folder to an empty file,
