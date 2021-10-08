@@ -109,3 +109,4 @@ venv.bak/
 # success/failed folder
 JAV_output/**/*
 failed/*
+.vscode/launch.json
