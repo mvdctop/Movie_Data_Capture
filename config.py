@@ -1,33 +1,83 @@
 import os
+import re
 import sys
 import configparser
-import codecs
 from pathlib import Path
+
+
+G_conf_override = {
+    # index 0 save Config() first instance for quick access by using getInstance()
+    0 : None,
+    # register override config items
+    "common:main_mode" : None,
+    "common:source_folder" : None,
+    "common:auto_exit" : None,
+    "common:nfo_skip_days" : None,
+    "common:stop_counter" : None,
+    "common:ignore_failed_list" : None,
+    "debug_mode:switch" : None
+}
+
+
+def getInstance():
+    if isinstance(G_conf_override[0], Config):
+        return G_conf_override[0]
+    return Config()
+
 
 class Config:
     def __init__(self, path: str = "config.ini"):
-        path_search_order = [
-            path,
-            "./config.ini",
-            os.path.join(Path.home(), "avdc.ini"),
-            os.path.join(Path.home(), ".avdc.ini"),
-            os.path.join(Path.home(), ".avdc/config.ini"),
-            os.path.join(Path.home(), ".config/avdc/config.ini")
-        ]
+        path_search_order = (
+            Path(path),
+            Path.cwd() / "config.ini",
+            Path.home() / "avdc.ini",
+            Path.home() / ".avdc.ini",
+            Path.home() / ".avdc/config.ini",
+            Path.home() / ".config/avdc/config.ini"
+        )
         ini_path = None
         for p in path_search_order:
-            if os.path.isfile(p):
-                ini_path = p
+            if p.is_file():
+                ini_path = p.resolve()
                 break
         if ini_path:
             self.conf = configparser.ConfigParser()
+            self.ini_path = ini_path
             try:
-                self.conf.read(ini_path, encoding="utf-8-sig")
+                if self.conf.read(ini_path, encoding="utf-8-sig"):
+                    if G_conf_override[0] is None:
+                        G_conf_override[0] = self
             except:
-                self.conf.read(ini_path, encoding="utf-8")
+                if self.conf.read(ini_path, encoding="utf-8"):
+                    if G_conf_override[0] is None:
+                        G_conf_override[0] = self
         else:
-            print("[-]Config file not found!")
-            sys.exit(2)
+            print("ERROR: Config file not found!")
+            print("Please put config file into one of the following path:")
+            print('\n'.join([str(p.resolve()) for p in path_search_order[2:]]))
+            # 对于找不到配置文件的情况，还是在打包时附上对应版本的默认配置文件，有需要时为其在搜索路径中生成，
+            # 要比用户乱找一个版本不对应的配置文件会可靠些。这样一来，单个执行文件就是功能完整的了，放在任何
+            # 执行路径下都可以放心使用。
+            res_path = None
+            # pyinstaller打包的在打包中找config.ini
+            if hasattr(sys, '_MEIPASS') and (Path(getattr(sys, '_MEIPASS')) / 'config.ini').is_file():
+                res_path = Path(getattr(sys, '_MEIPASS')) / 'config.ini'
+            # 脚本运行的所在位置找
+            elif (Path(__file__).resolve().parent / 'config.ini').is_file():
+                res_path = Path(__file__).resolve().parent / 'config.ini'
+            if res_path is None:
+                sys.exit(2)
+            ins = input("Or, Do you want me create a config file for you? (Yes/No)[Y]:")
+            if re.search('n', ins, re.I):
+                sys.exit(2)
+            # 用户目录才确定具有写权限，因此选择 ~/avdc.ini 作为配置文件生成路径，而不是有可能并没有写权限的
+            # 当前目录。目前版本也不再鼓励使用当前路径放置配置文件了，只是作为多配置文件的切换技巧保留。
+            write_path = path_search_order[2]   # Path.home() / "avdc.ini"
+            with open(write_path, 'w', encoding='utf-8') as wcfg:
+                wcfg.write(res_path.read_text(encoding='utf-8'))
+            print("Config file '{}' created.".format(write_path.resolve()))
+            input("Press Enter key exit...")
+            sys.exit(0)
             # self.conf = self._default_config()
             # try:
             #     self.conf = configparser.ConfigParser()
@@ -40,12 +90,23 @@ class Config:
             #     print("[-]",e)
             #     sys.exit(3)
             #     #self.conf = self._default_config()
+    def getboolean_override(self, section, item) -> bool:
+        return self.conf.getboolean(section, item) if G_conf_override[f"{section}:{item}"] is None else bool(G_conf_override[f"{section}:{item}"])
 
-    def main_mode(self) -> str:
+    def getint_override(self, section, item) -> int:
+        return self.conf.getint(section, item) if G_conf_override[f"{section}:{item}"] is None else int(G_conf_override[f"{section}:{item}"])
+
+    def get_override(self, section, item) -> str:
+        return self.conf.get(section, item) if G_conf_override[f"{section}:{item}"] is None else str(G_conf_override[f"{section}:{item}"])
+
+    def main_mode(self) -> int:
         try:
-            return self.conf.getint("common", "main_mode")
+            return self.getint_override("common", "main_mode")
         except ValueError:
             self._exit("common:main_mode")
+
+    def source_folder(self) -> str:
+        return self.get_override("common", "source_folder")
 
     def failed_folder(self) -> str:
         return self.conf.get("common", "failed_output_folder")
@@ -61,7 +122,7 @@ class Config:
     def failed_move(self) -> bool:
         return self.conf.getboolean("common", "failed_move")
     def auto_exit(self) -> bool:
-        return self.conf.getboolean("common", "auto_exit")
+        return self.getboolean_override("common", "auto_exit")
     def transalte_to_sc(self) -> bool:
         return self.conf.getboolean("common", "transalte_to_sc")
     def multi_threading(self) -> bool:
@@ -70,14 +131,16 @@ class Config:
         return self.conf.getboolean("common", "del_empty_folder")
     def nfo_skip_days(self) -> int:
         try:
-            return self.conf.getint("common", "nfo_skip_days")
+            return self.getint_override("common", "nfo_skip_days")
         except:
             return 30
     def stop_counter(self) -> int:
         try:
-            return self.conf.getint("common", "stop_counter")
+            return self.getint_override("common", "stop_counter")
         except:
             return 0
+    def ignore_failed_list(self) -> bool:
+        return self.getboolean_override("common", "ignore_failed_list")
     def is_transalte(self) -> bool:
         return self.conf.getboolean("transalte", "switch")
     def is_trailer(self) -> bool:
@@ -173,7 +236,7 @@ class Config:
         return self.conf.get("escape", "folders")
 
     def debug(self) -> bool:
-        return self.conf.getboolean("debug_mode", "switch")
+        return self.getboolean_override("debug_mode", "switch")
 
     @staticmethod
     def _exit(sec: str) -> None:
@@ -188,6 +251,7 @@ class Config:
         sec1 = "common"
         conf.add_section(sec1)
         conf.set(sec1, "main_mode", "1")
+        conf.set(sec1, "source_folder", "./")
         conf.set(sec1, "failed_output_folder", "failed")
         conf.set(sec1, "success_output_folder", "JAV_output")
         conf.set(sec1, "soft_link", "0")
@@ -199,6 +263,7 @@ class Config:
         conf.set(sec1, "del_empty_folder", "1")
         conf.set(sec1, "nfo_skip_days", 30)
         conf.set(sec1, "stop_counter", 0)
+        conf.set(sec1, "ignore_failed_list", 0)
 
         sec2 = "proxy"
         conf.add_section(sec2)
@@ -308,9 +373,45 @@ if __name__ == "__main__":
         code = compile(evstr, "<string>", "eval")
         print('{}: "{}"'.format(evstr, eval(code)))
     config = Config()
-    mfilter = ('conf', 'proxy', '_exit', '_default_config')
+    mfilter = ('conf', 'proxy', '_exit', '_default_config', 'getboolean_override', 'getint_override', 'get_override', 'ini_path')
     for _m in [m for m in dir(config) if not m.startswith('__') and m not in mfilter]:
         evprint(f'config.{_m}()')
     pfilter = ('proxies', 'SUPPORT_PROXY_TYPE')
-    for _p in [p for p in dir(config.proxy()) if not p.startswith('__') and p not in pfilter]:
-        evprint(f'config.proxy().{_p}')
+    # test getInstance()
+    assert(getInstance() == config)
+    for _p in [p for p in dir(getInstance().proxy()) if not p.startswith('__') and p not in pfilter]:
+        evprint(f'getInstance().proxy().{_p}')
+
+    # Override Test
+    G_conf_override["common:nfo_skip_days"] = 4321
+    G_conf_override["common:stop_counter"] = 1234
+    assert config.nfo_skip_days() == 4321
+    assert getInstance().stop_counter() == 1234
+    # remove override
+    G_conf_override["common:stop_counter"] = None
+    G_conf_override["common:nfo_skip_days"] = None
+    assert config.nfo_skip_days() != 4321
+    assert config.stop_counter() != 1234
+    # Create new instance
+    conf2 = Config()
+    assert getInstance() != conf2
+    assert getInstance() == config
+    G_conf_override["common:main_mode"] = 9
+    G_conf_override["common:source_folder"] = "A:/b/c"
+    # Override effect to all instances
+    assert config.main_mode() == 9
+    assert conf2.main_mode() == 9
+    assert getInstance().main_mode() == 9
+    assert conf2.source_folder() == "A:/b/c"
+    print("### Override Test ###".center(36))
+    evprint('getInstance().main_mode()')
+    evprint('config.source_folder()')
+    G_conf_override["common:main_mode"] = None
+    evprint('conf2.main_mode()')
+    evprint('config.main_mode()')
+    # unregister key acess will raise except
+    try:
+        print(G_conf_override["common:actor_gender"])
+    except KeyError as ke:
+        print(f'Catched KeyError: {ke} is not a register key of G_conf_override dict.', file=sys.stderr)
+    print(f"Load Config file '{conf2.ini_path}'.")
