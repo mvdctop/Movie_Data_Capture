@@ -2,7 +2,7 @@ from os import replace
 import requests
 import hashlib
 from pathlib import Path
-import random
+#import secrets
 import os.path
 import uuid
 import json
@@ -24,8 +24,8 @@ G_USER_AGENT = r'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (K
 
 # 网页请求核心
 def get_html(url, cookies: dict = None, ua: str = None, return_type: str = None):
-    verify = config.Config().cacert_file()
-    configProxy = config.Config().proxy()
+    verify = config.getInstance().cacert_file()
+    configProxy = config.getInstance().proxy()
     errors = ""
 
     if ua is None:
@@ -61,7 +61,7 @@ def get_html(url, cookies: dict = None, ua: str = None, return_type: str = None)
 
 
 def post_html(url: str, query: dict, headers: dict = None) -> requests.Response:
-    configProxy = config.Config().proxy()
+    configProxy = config.getInstance().proxy()
     errors = ""
     headers_ua = {"User-Agent": G_USER_AGENT}
     if headers is None:
@@ -86,7 +86,7 @@ def post_html(url: str, query: dict, headers: dict = None) -> requests.Response:
 
 def get_html_by_browser(url, cookies: dict = None, ua: str = None, return_type: str = None):
     browser = mechanicalsoup.StatefulBrowser(user_agent=G_USER_AGENT if ua is None else ua)
-    configProxy = config.Config().proxy()
+    configProxy = config.getInstance().proxy()
     if configProxy.enable:
         browser.session.proxies = configProxy.proxies()
     result = browser.open(url)
@@ -107,7 +107,7 @@ def get_html_by_form(url, form_name: str = None, fields: dict = None, cookies: d
     browser = mechanicalsoup.StatefulBrowser(user_agent=G_USER_AGENT if ua is None else ua)
     if isinstance(cookies, dict):
         requests.utils.add_dict_to_cookiejar(browser.session.cookies, cookies)
-    configProxy = config.Config().proxy()
+    configProxy = config.getInstance().proxy()
     if configProxy.enable:
         browser.session.proxies = configProxy.proxies()
     result = browser.open(url)
@@ -131,7 +131,7 @@ def get_html_by_form(url, form_name: str = None, fields: dict = None, cookies: d
 
 # def get_javlib_cookie() -> [dict, str]:
 #     import cloudscraper
-#     switch, proxy, timeout, retry_count, proxytype = config.Config().proxy()
+#     switch, proxy, timeout, retry_count, proxytype = config.getInstance().proxy()
 #     proxies = get_proxy(proxy, proxytype)
 #
 #     raw_cookie = {}
@@ -158,7 +158,7 @@ def get_html_by_form(url, form_name: str = None, fields: dict = None, cookies: d
 
 
 def translateTag_to_sc(tag):
-    tranlate_to_sc = config.Config().transalte_to_sc()
+    tranlate_to_sc = config.getInstance().transalte_to_sc()
     if tranlate_to_sc:
         dict_gen = {'中文字幕': '中文字幕',
                     '高清': 'XXXX', '字幕': 'XXXX', '推薦作品': '推荐作品', '通姦': '通奸', '淋浴': '淋浴', '舌頭': '舌头',
@@ -506,7 +506,7 @@ def translate(
 ):
     trans_result = ""
     if engine == "google-free":
-        gsite = config.Config().get_translate_service_site()
+        gsite = config.getInstance().get_translate_service_site()
         if not re.match('^translate\.google\.(com|com\.\w{2}|\w{2})$', gsite):
             gsite = 'translate.google.cn'
         url = (
@@ -521,7 +521,7 @@ f"https://{gsite}/translate_a/single?client=gtx&dt=t&dj=1&ie=UTF-8&sl=auto&tl={t
         trans_result = trans_result.join(translate_list)
     # elif engine == "baidu":
     #     url = "https://fanyi-api.baidu.com/api/trans/vip/translate"
-    #     salt = random.randint(1, 1435660288)
+    #     salt = secrets.randbelow(1435660287) + 1  # random.randint(1, 1435660288)
     #     sign = app_id + src + str(salt) + key
     #     sign = hashlib.md5(sign.encode()).hexdigest()
     #     url += (
@@ -564,7 +564,7 @@ f"https://{gsite}/translate_a/single?client=gtx&dt=t&dj=1&ie=UTF-8&sl=auto&tl={t
 def is_uncensored(number):
     if re.match('^\d{4,}', number) or re.match('n\d{4}', number) or 'HEYZO' in number.upper():
         return True
-    configs = config.Config().get_uncensored()
+    configs = config.getInstance().get_uncensored()
     prefix_list = str(configs).split(',')
     for pre in prefix_list:
         if pre.upper() in number.upper():
@@ -593,20 +593,20 @@ def load_cookies(filename):
     filename = os.path.basename(filename)
     if not len(filename):
         return None, None
-    path_search_order = [
-        f"./{filename}",
-        os.path.join(Path.home(), filename),
-        os.path.join(Path.home(), f".avdc/{filename}"),
-        os.path.join(Path.home(), f".local/share/avdc/{filename}")
-]
+    path_search_order = (
+        Path.cwd() / filename,
+        Path.home() / filename,
+        Path.home() / f".avdc/{filename}",
+        Path.home() / f".local/share/avdc/{filename}"
+    )
     cookies_filename = None
-    for p in path_search_order:
-        if os.path.exists(p):
-            cookies_filename = os.path.abspath(p)
-            break
-    if not cookies_filename:
-        return None, None
     try:
+        for p in path_search_order:
+            if p.is_file():
+                cookies_filename = str(p.resolve())
+                break
+        if not cookies_filename:
+            return None, None
         return json.load(open(cookies_filename)), cookies_filename
     except:
         return None, None
