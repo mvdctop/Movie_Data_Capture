@@ -5,7 +5,7 @@ from lxml import etree
 import json
 from bs4 import BeautifulSoup
 from ADC_function import *
-from WebCrawler import airav
+import secrets
 # import sys
 # import io
 # sys.stdout = io.TextIOWrapper(sys.stdout.buffer, errors = 'replace', line_buffering = True)
@@ -21,7 +21,7 @@ def getActor(a):
     genders = html.xpath('//span[@class="value"]/a[contains(@href,"/actors/")]/../strong/@class')
     r = []
     idx = 0
-    actor_gendor = config.Config().actor_gender()
+    actor_gendor = config.getInstance().actor_gender()
     if not actor_gendor in ['female','male','both','all']:
         actor_gendor = 'female'
     for act in actors:
@@ -67,9 +67,15 @@ def getStudio(a):
     patherr = re.compile(r'<strong>片商\:</strong>[\s\S]*?<a href=\".*?>(.*?)</a></span>')
     pianshang = patherr.findall(a)
     if pianshang:
-        result = pianshang[0]
-    else:
-        result = ""
+        result = pianshang[0].strip()
+        if len(result):
+            return result
+    # 以卖家作为工作室
+    html = etree.fromstring(a, etree.HTMLParser())
+    try:
+        result = str(html.xpath('//strong[contains(text(),"賣家:")]/../span/a/text()')).strip(" ['']")
+    except:
+        result = ''
     return result
 
 def getRuntime(a):
@@ -171,16 +177,13 @@ def getTrailer(htmlcode):  # 获取预告片
     return video_url
 
 def getExtrafanart(htmlcode):  # 获取剧照
-    html_pather = re.compile(r'<div class=\"tile\-images preview\-images\">[\s\S]*?</a>\s+?</div>\s+?</div>')
-    html = html_pather.search(htmlcode)
-    if html:
-        html = html.group()
-        extrafanart_pather = re.compile(r'<a class="tile-item" href=\"(.*?)\"')
-        extrafanart_imgs = extrafanart_pather.findall(html)
-        if extrafanart_imgs:
-            return extrafanart_imgs
-    return ''
-
+    html = etree.fromstring(htmlcode, etree.HTMLParser())
+    result = []
+    try:
+        result = html.xpath("//article[@class='message video-panel']/div[@class='message-body']/div[@class='tile-images preview-images']/a[contains(@href,'/samples/')]/@href")
+    except:
+        pass
+    return result
 def getCover(htmlcode):
     html = etree.fromstring(htmlcode, etree.HTMLParser())
     try:
@@ -195,11 +198,13 @@ def getDirector(a):
     return str(result1 + result2).strip('+').replace("', '", '').replace('"', '')
 def getOutline(number):  #获取剧情介绍
     try:
-        response = json.loads(airav.main(number))
-        result = response['outline']
+        htmlcode = get_html('https://cn.airav.wiki/video/' + number)
+        from WebCrawler.airav import getOutline as airav_getOutline
+        result = airav_getOutline(htmlcode)
         return result
     except:
-        return ''
+        pass
+    return ''
 def getSeries(a):
     #/html/body/section/div/div[3]/div[2]/nav/div[7]/span/a
     html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
@@ -208,7 +213,7 @@ def getSeries(a):
     return str(result1 + result2).strip('+').replace("', '", '').replace('"', '')
 
 def main(number):
-    javdb_site = random.choice(["javdb9", "javdb30"])
+    javdb_site = secrets.choice(["javdb9", "javdb30"])
     try:
         # if re.search(r'[a-zA-Z]+\.\d{2}\.\d{2}\.\d{2}', number).group():
         #     pass
@@ -303,8 +308,16 @@ f'[!]Cookies file {cookies_filepath} was updated {cdays} days ago, it will not b
             'series': getSeries(detail_page),
 
         }
+        if not dic['actor'] and re.match(r'FC2-[\d]+', number, re.A):
+            dic['actor'].append('素人')
+            if not dic['series']:
+                dic['series'] = dic['studio']
+            if not dic['label']:
+                dic['label'] = dic['studio']
+
+
     except Exception as e:
-        if config.Config().debug():
+        if config.getInstance().debug():
             print(e)
         dic = {"title": ""}
     js = json.dumps(dic, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ':'), )  # .encode('UTF-8')
@@ -316,7 +329,9 @@ if __name__ == "__main__":
     # print(main('blacked.20.05.30'))
     # print(main('AGAV-042'))
     # print(main('BANK-022'))
-    print(main('FC2-735670'))
-    print(main('FC2-1174949')) # not found
+    print(main('093021_539'))  # 没有剧照 片商pacopacomama
+    # print(main('FC2-2278260'))
+    # print(main('FC2-735670'))
+    # print(main('FC2-1174949')) # not found
     print(main('MVSD-439'))
-    print(main('EHM0001')) # not found
+    # print(main('EHM0001')) # not found

@@ -6,8 +6,7 @@ from lxml import etree#need install
 from bs4 import BeautifulSoup#need install
 import json
 from ADC_function import *
-from WebCrawler import fanza
-from WebCrawler import airav
+import inspect
 
 def getActorPhoto(htmlcode): #//*[@id="star_qdt"]/li/a/img
     soup = BeautifulSoup(htmlcode, 'lxml')
@@ -82,12 +81,16 @@ def getCID(htmlcode):
     result = re.sub('/.*?.jpg','',string)
     return result
 def getOutline(number):  #获取剧情介绍
+    if any(caller for caller in inspect.stack() if os.path.basename(caller.filename) == 'airav.py'):
+        return ''   # 从airav.py过来的调用不计算outline直接返回，避免重复抓取数据拖慢处理速度
     try:
-        response = json.loads(airav.main(number))
-        result = response['outline']
+        htmlcode = get_html('https://cn.airav.wiki/video/' + number)
+        from WebCrawler.airav import getOutline as airav_getOutline
+        result = airav_getOutline(htmlcode)
         return result
     except:
-        return ''
+        pass
+    return ''
 def getSerise(htmlcode):   #获取系列 已修改
     html = etree.fromstring(htmlcode, etree.HTMLParser())
     # 如果记录中冇导演，系列排在第6位
@@ -117,13 +120,15 @@ def getExtrafanart(htmlcode):  # 获取剧照
         extrafanart_pather = re.compile(r'<a class=\"sample-box\" href=\"(.*?)\"')
         extrafanart_imgs = extrafanart_pather.findall(html)
         if extrafanart_imgs:
-            return extrafanart_imgs
+            return [urljoin('https://www.javbus.com',img) for img in extrafanart_imgs]
     return ''
 
 def main_uncensored(number):
     htmlcode = get_html('https://www.javbus.com/ja/' + number)
     if getTitle(htmlcode) == '':
         htmlcode = get_html('https://www.javbus.com/ja/' + number.replace('-','_'))
+    if "<title>404 Page Not Found" in htmlcode:
+        raise Exception('404 page not found')
     dic = {
         'title': str(re.sub('\w+-\d+-','',getTitle(htmlcode))).replace(getNum(htmlcode)+'-',''),
         'studio': getStudio(htmlcode),
@@ -155,6 +160,8 @@ def main(number):
                 htmlcode = get_html('https://www.fanbus.us/' + number)
             except:
                 htmlcode = get_html('https://www.javbus.com/' + number)
+            if "<title>404 Page Not Found" in htmlcode:
+                raise Exception('404 page not found')
             dic = {
                 'title': str(re.sub('\w+-\d+-', '', getTitle(htmlcode))),
                 'studio': getStudio(htmlcode),
@@ -180,7 +187,7 @@ def main(number):
         except:
             return main_uncensored(number)
     except Exception as e:
-        if config.Config().debug():
+        if config.getInstance().debug():
             print(e)
         data = {
             "title": "",
@@ -191,5 +198,7 @@ def main(number):
         return js
 
 if __name__ == "__main__" :
+    print(main('ADV-R0624'))    # 404
     print(main('ipx-292'))
     print(main('CEMD-011'))
+    print(main('CJOD-278'))

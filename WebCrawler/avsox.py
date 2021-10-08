@@ -100,6 +100,9 @@ def main(number):
     soup = BeautifulSoup(web, 'lxml')
     info = str(soup.find(attrs={'class': 'row movie'}))
     try:
+        new_number = getNum(info)
+        if new_number.upper() != number.upper():
+            raise ValueError('number not found')
         dic = {
             'actor': getActor(web),
             'title': getTitle(web).strip(getNum(web)),
@@ -108,7 +111,7 @@ def main(number):
             'runtime': getRuntime(info),
             'director': '',  #
             'release': getRelease(info),
-            'number': getNum(info),
+            'number': new_number,
             'cover': getCover(web),
             'cover_small': getCover_small(a),
             'imagecut': 3,
@@ -121,7 +124,7 @@ def main(number):
             'series': getSeries(info),
         }
     except Exception as e:
-        if config.Config().debug():
+        if config.getInstance().debug():
             print(e)
         dic = {"title": ""}
     js = json.dumps(dic, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ':'), )  # .encode('UTF-8')
@@ -129,3 +132,4 @@ def main(number):
 
 if __name__ == "__main__":
     print(main('012717_472'))
+    print(main('1')) # got fake result raise 'number not found'

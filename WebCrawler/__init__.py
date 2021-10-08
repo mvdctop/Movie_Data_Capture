@@ -134,6 +134,14 @@ def get_data_from_json(file_number, conf: config.Config):  # 从JSON返回元数
         print('[-]Movie Number not found!')
         return None
 
+    # 增加number严格判断，避免提交任何number，总是返回"本橋実来 ADZ335"，这种返回number不一致的数据源故障
+    # 目前选用number命名规则是javdb.com Domain Creation Date: 2013-06-19T18:34:27Z
+    # 然而也可以跟进关注其它命名规则例如airav.wiki Domain Creation Date: 2019-08-28T07:18:42.0Z
+    # 如果将来javdb.com命名规则下不同Studio出现同名碰撞导致无法区分，可考虑更换规则，更新相应的number分析和抓取代码。
+    if str(json_data.get('number')).upper() != file_number.upper():
+        print('[-]Movie number has changed! [{}]->[{}]'.format(file_number, str(json_data.get('number'))))
+        return None
+
     # ================================================网站规则添加结束================================================
 
     title = json_data.get('title')
@@ -225,6 +233,8 @@ def get_data_from_json(file_number, conf: config.Config):  # 从JSON返回元数
     studio = studio.replace('エムズビデオグループ','M’s Video Group')
     studio = studio.replace('ミニマム','Minimum')
     studio = studio.replace('ワープエンタテインメント','WAAP Entertainment')
+    studio = studio.replace('pacopacomama,パコパコママ','pacopacomama')
+    studio = studio.replace('パコパコママ','pacopacomama')
     studio = re.sub('.*/妄想族','妄想族',studio)
     studio = studio.replace('/',' ')
     # ===  替换Studio片假名 END

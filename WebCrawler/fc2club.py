@@ -84,7 +84,7 @@ def main(number):
         dic = {
             'title': getTitle_fc2com(htmlcode2),
             'studio': getStudio_fc2com(htmlcode2),
-            'year': getYear_fc2com(getRelease_fc2com(htmlcode2)),   
+            'year': getYear_fc2com(getRelease_fc2com(htmlcode2)),
             'outline': '',  # getOutline_fc2com(htmlcode2),
             'runtime': '',
             'director': getStudio_fc2com(htmlcode2),
@@ -103,7 +103,7 @@ def main(number):
             'series': '',
         }
     except Exception as e:
-        if ADC_function.config.Config().debug():
+        if ADC_function.config.getInstance().debug():
             print(e)
         dic = {"title": ""}
     js = json.dumps(dic, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ':'), )  # .encode('UTF-8')

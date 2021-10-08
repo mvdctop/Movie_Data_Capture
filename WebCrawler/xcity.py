@@ -224,7 +224,7 @@ def main(number):
             'series': getSeries(detail_page),
         }
     except Exception as e:
-        if config.Config().debug():
+        if config.getInstance().debug():
             print(e)
         dic = {"title": ""}
 
