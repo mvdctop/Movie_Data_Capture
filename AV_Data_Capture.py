@@ -306,7 +306,7 @@ def create_data_and_move(file_path: str, c: config.Config, debug):
     file_path = os.path.abspath(file_path)
 
     if debug == True:
-        print(f"[!]Making Data for [{file_path}], the number is [{n_number}]")
+        print(f"[!] [{n_number}] As Number making data for '{file_path}'")
         if n_number:
             core_main(file_path, n_number, c)
         else:
@@ -314,7 +314,7 @@ def create_data_and_move(file_path: str, c: config.Config, debug):
         print("[*]======================================================")
     else:
         try:
-            print(f"[!]Making Data for [{file_path}], the number is [{n_number}]")
+            print(f"[!] [{n_number}] As Number making data for '{file_path}'")
             if n_number:
                 core_main(file_path, n_number, c)
             else:
@@ -333,8 +333,11 @@ def create_data_and_move(file_path: str, c: config.Config, debug):
 def create_data_and_move_with_custom_number(file_path: str, c: config.Config, custom_number):
     file_name = os.path.basename(file_path)
     try:
-        print("[!]Making Data for [{}], the number is [{}]".format(file_path, custom_number))
-        core_main(file_path, custom_number, c)
+        print("[!] [{1}] As Number making data for '{0}'".format(file_path, custom_number))
+        if custom_number:
+            core_main(file_path, custom_number, c)
+        else:
+            print("[-] number empty ERROR")
         print("[*]======================================================")
     except Exception as err:
         print("[-] [{}] ERROR:".format(file_path))
@@ -372,6 +375,7 @@ if __name__ == '__main__':
     if conf.update_check():
         check_update(version)
 
+    print(f"[+]Load Config file '{conf.ini_path}'.")
     if conf.debug():
         print('[+]Enable debug')
     if conf.soft_link():
@@ -408,7 +412,7 @@ if __name__ == '__main__':
         for movie_path in movie_list:  # 遍历电影列表 交给core处理
             count = count + 1
             percentage = str(count / int(count_all) * 100)[:4] + '%'
-            print('[!] - ' + percentage + ' [' + str(count) + '/' + count_all + '] -')
+            print('[!] {:>30}{:>21}'.format('- ' + percentage + ' [' + str(count) + '/' + count_all + '] -', time.strftime("%H:%M:%S")))
             create_data_and_move(movie_path, conf, conf.debug())
             if count >= stop_count:
                 print("[!]Stop counter triggered!")
