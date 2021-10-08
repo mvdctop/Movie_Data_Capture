@@ -3,8 +3,6 @@ import os.path
 import pathlib
 import re
 import shutil
-import platform
-import errno
 import sys
 
 from PIL import Image
@@ -33,7 +31,6 @@ def moveFailedFolder(filepath, conf):
         print("[-]Add to Failed List file, see '%s'" % ftxt)
         with open(ftxt, 'a', encoding='utf-8') as flt:
             flt.write(f'{filepath}\n')
-            flt.close()
     elif conf.failed_move() and not soft_link:
         failed_name = os.path.join(failed_folder, os.path.basename(filepath))
         mtxt = os.path.abspath(os.path.join(failed_folder, 'where_was_i_before_being_moved.txt'))
@@ -41,8 +38,13 @@ def moveFailedFolder(filepath, conf):
         with open(mtxt, 'a', encoding='utf-8') as wwibbmt:
             tmstr = datetime.now().strftime("%Y-%m-%d %H:%M")
             wwibbmt.write(f'{tmstr} FROM[{filepath}]TO[{failed_name}]\n')
-            wwibbmt.close()
-        shutil.move(filepath, failed_name)
+        try:
+            if os.path.exists(failed_name):
+                print('[-]File Exists while moving to FailedFolder')
+                return
+            shutil.move(filepath, failed_name)
+        except:
+            print('[-]File Moving to FailedFolder unsuccessful!')
 
 
 def get_info(json_data):  # 返回json里的数据
@@ -224,7 +226,6 @@ def image_download(cover, number, leak_word, c_word, path, conf: config.Config, 
 
 def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, filepath, tag, actor_list, liuchu, uncensored, conf):
     title, studio, year, outline, runtime, director, actor_photo, release, number, cover, trailer, website, series, label = get_info(json_data)
-    failed_folder = conf.failed_folder()
     if conf.main_mode() == 3:  # 模式3下，由于视频文件不做任何改变，.nfo文件必须和视频文件名称除后缀外完全一致，KODI等软件方可支持
         nfo_path = str(Path(filepath).with_suffix('.nfo'))
     else:
@@ -236,6 +237,10 @@ def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, f
             except:
                 print(f"[-]Fatal error! can not make folder '{path}'")
                 sys.exit(0)
+
+        # KODI内查看影片信息时找不到number，配置naming_rule=number+'#'+title虽可解决
+        # 但使得标题太长，放入时常为空的outline内会更适合，软件给outline留出的显示版面也较大
+        outline = f"{number}#{outline}"
         with open(nfo_path, "wt", encoding='UTF-8') as code:
             print('<?xml version="1.0" encoding="UTF-8" ?>', file=code)
             print("<movie>", file=code)
@@ -287,7 +292,7 @@ def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, f
             print("  <num>" + number + "</num>", file=code)
             print("  <premiered>" + release + "</premiered>", file=code)
             print("  <cover>" + cover + "</cover>", file=code)
-            if config.Config().is_trailer():
+            if conf.is_trailer():
                 print("  <trailer>" + trailer + "</trailer>", file=code)
             print("  <website>" + website + "</website>", file=code)
             print("</movie>", file=code)
@@ -405,22 +410,30 @@ def paste_file_to_folder(filepath, path, number, leak_word, c_word, conf: config
     file_parent_origin_path = str(filepath_obj.parent)
     try:
         targetpath = os.path.join(path, f"{number}{leak_word}{c_word}{houzhui}")
+        # 任何情况下都不要覆盖，以免遭遇数据源或者引擎错误导致所有文件得到同一个number，逐一
+        # 同名覆盖致使全部文件损失且不可追回的最坏情况
+        if os.path.exists(targetpath):
+            raise FileExistsError('File Exists on destination path, we will never overwriting.')
         # 如果soft_link=1 使用软链接
         if conf.soft_link() == 0:
             shutil.move(filepath, targetpath)
         elif conf.soft_link() == 1:
-            # 采用相对路径，以便网络访问时能正确打开视频
-            filerelpath = os.path.relpath(filepath, path)
-            os.symlink(filerelpath, targetpath)
+            # 先尝试采用相对路径，以便网络访问时能正确打开视频，失败则可能是因为跨盘符等原因无法支持
+            # 相对路径径，改用绝对路径方式尝试建立软链接
+            try:
+                filerelpath = os.path.relpath(filepath, path)
+                os.symlink(filerelpath, targetpath)
+            except:
+                os.symlink(filepath_obj.resolve(), targetpath)
         elif conf.soft_link() == 2:
             shutil.move(filepath, targetpath)
             # 移走文件后，在原来位置增加一个可追溯的软链接，指向文件新位置
             # 以便追查文件从原先位置被移动到哪里了，避免因为得到错误番号后改名移动导致的文件失踪
-            # 便于手工找回文件。并将软连接文件名后缀修改，以避免再次被搜刮。
+            # 便于手工找回文件。由于目前软链接已经不会被刮削，文件名后缀无需再修改。
             targetabspath = os.path.abspath(targetpath)
             if targetabspath != os.path.abspath(filepath):
                 targetrelpath = os.path.relpath(targetabspath, file_parent_origin_path)
-                os.symlink(targetrelpath, filepath + '#sym')
+                os.symlink(targetrelpath, filepath)
         sub_res = conf.sub_rule()
 
         for subname in sub_res:
@@ -430,9 +443,9 @@ def paste_file_to_folder(filepath, path, number, leak_word, c_word, conf: config
                 print('[+]Sub moved!')
                 return True
 
-    except FileExistsError:
-        print('[-]File Exists! Please check your movie!')
-        print('[-]move to the root folder of the program.')
+    except FileExistsError as fee:
+        print(f'[-]FileExistsError: {fee}')
+        moveFailedFolder(filepath, conf)
         return
     except PermissionError:
         print('[-]Error! Please run as administrator!')
@@ -448,11 +461,14 @@ def paste_file_to_folder_mode2(filepath, path, multi_part, number, part, leak_wo
     filepath_obj = pathlib.Path(filepath)
     houzhui = filepath_obj.suffix
     file_parent_origin_path = str(filepath_obj.parent)
+    targetpath = os.path.join(path, f"{number}{part}{leak_word}{c_word}{houzhui}")
+    if os.path.exists(targetpath):
+        raise FileExistsError('File Exists on destination path, we will never overwriting.')
     try:
         if conf.soft_link():
-            os.symlink(filepath, os.path.join(path, f"{number}{part}{leak_word}{c_word}{houzhui}"))
+            os.symlink(filepath, targetpath)
         else:
-            shutil.move(filepath, os.path.join(path, f"{number}{part}{leak_word}{c_word}{houzhui}"))
+            shutil.move(filepath, targetpath)
 
         sub_res = conf.sub_rule()
         for subname in sub_res:
@@ -462,9 +478,8 @@ def paste_file_to_folder_mode2(filepath, path, multi_part, number, part, leak_wo
                 print('[+]Sub moved!')
                 print('[!]Success')
                 return True
-    except FileExistsError:
-        print('[-]File Exists! Please check your movie!')
-        print('[-]move to the root folder of the program.')
+    except FileExistsError as fee:
+        print(f'[-]FileExistsError: {fee}')
         return
     except PermissionError:
         print('[-]Error! Please run as administrator!')
@@ -594,16 +609,17 @@ def core_main(file_path, number_th, conf: config.Config):
         # 裁剪图
         cutImage(imagecut, path, number, leak_word, c_word)
 
-        # 打印文件
-        print_files(path, leak_word, c_word,  json_data.get('naming_rule'), part, cn_sub, json_data, filepath, tag,  json_data.get('actor_list'), liuchu, uncensored, conf)
-
-        # 移动文件
-        paste_file_to_folder(filepath, path, number, leak_word, c_word, conf)
-
+        # 添加水印
         poster_path = os.path.join(path, f"{number}{leak_word}{c_word}-poster.jpg")
         thumb_path = os.path.join(path, f"{number}{leak_word}{c_word}-thumb.jpg")
         if conf.is_watermark():
             add_mark(poster_path, thumb_path, cn_sub, leak, uncensored, conf)
+
+        # 移动电影
+        paste_file_to_folder(filepath, path, number, leak_word, c_word, conf)
+
+        # 最后输出.nfo元数据文件，以完成.nfo文件创建作为任务成功标志
+        print_files(path, leak_word, c_word,  json_data.get('naming_rule'), part, cn_sub, json_data, filepath, tag,  json_data.get('actor_list'), liuchu, uncensored, conf)
 
     elif conf.main_mode() == 2:
         # 创建文件夹
@@ -639,11 +655,12 @@ def core_main(file_path, number_th, conf: config.Config):
         # 裁剪图
         cutImage(imagecut, path, number, leak_word, c_word)
 
-        # 打印文件
-        print_files(path, leak_word, c_word, json_data.get('naming_rule'), part, cn_sub, json_data, filepath,
-                    tag, json_data.get('actor_list'), liuchu, uncensored, conf)
-
+        # 添加水印
         poster_path = os.path.join(path, f"{number}{leak_word}{c_word}-poster.jpg")
         thumb_path = os.path.join(path, f"{number}{leak_word}{c_word}-thumb.jpg")
         if conf.is_watermark():
             add_mark(poster_path, thumb_path, cn_sub, leak, uncensored, conf)
+
+        # 最后输出.nfo元数据文件，以完成.nfo文件创建作为任务成功标志
+        print_files(path, leak_word, c_word, json_data.get('naming_rule'), part, cn_sub, json_data, filepath,
+                    tag, json_data.get('actor_list'), liuchu, uncensored, conf)
