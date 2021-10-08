@@ -177,12 +177,12 @@ def close_logfile(logdir: str):
     # rm -rf $LOGDIR
     """
     # 第一步，合并到月
+    today = datetime.today()
     for i in range(1):  # 利用1次循环的break跳到第二步，避免大块if缩进或者使用goto语法
         txts = [f for f in log_dir.glob(r'*.txt') if re.match(r'avdc_\d{8}T\d{6}', f.stem, re.A)]
         if not txts or not len(txts):
             break
         txts.sort()
-        today = datetime.today()
         tmstr_3_month_ago = (today.replace(day=1) - timedelta(days=3*30)).strftime("%Y%m32T")
         deadline_month = f'avdc_{tmstr_3_month_ago}'
         month_merge = [f for f in txts if f.stem < deadline_month]
