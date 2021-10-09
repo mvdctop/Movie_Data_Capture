@@ -214,7 +214,7 @@ def getSeries(a):
 
 def main(number):
     # javdb更新后同一时间只能登录一个数字站，最新登录站会踢出旧的登录，因此按找到的第一个javdb*.json文件选择站点，
-    # 如果无.json文件则按选择最后一个站点。
+    # 如果无.json文件或者超过有效期，则随机选择一个站点。
     javdb_sites = ["javdb31", "javdb32"]
     debug =  config.getInstance().debug()
     try:
@@ -225,6 +225,7 @@ def main(number):
         number = number.upper()
         javdb_cookies = {'over18':'1', 'theme':'auto', 'locale':'zh'}
         # 不加载过期的cookie，javdb登录界面显示为7天免登录，故假定cookie有效期为7天
+        has_json = False
         for cj in javdb_sites:
             javdb_site = cj
             cookie_json = javdb_site + '.json'
@@ -233,9 +234,12 @@ def main(number):
                 cdays = file_modification_days(cookies_filepath)
                 if cdays < 7:
                     javdb_cookies = cookies_dict
+                    has_json = True
+                    break
                 elif cdays != 9999:
                     print(f'[!]Cookies file {cookies_filepath} was updated {cdays} days ago, it will not be used for HTTP requests.')
-                break
+        if not has_json:
+            javdb_site = secrets.choice(javdb_sites)
         if debug:
             print(f'[!]javdb:select site {javdb_site}')
         try:
