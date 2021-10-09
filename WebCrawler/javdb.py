@@ -213,14 +213,16 @@ def getSeries(a):
     return str(result1 + result2).strip('+').replace("', '", '').replace('"', '')
 
 def main(number):
-    javdb_site = secrets.choice(["javdb9", "javdb30"])
+    javdb_site = secrets.choice(["javdb31", "javdb32"])
+    if config.getInstance().debug():
+        print(f'[!]javdb:select site {javdb_site}')
     try:
         # if re.search(r'[a-zA-Z]+\.\d{2}\.\d{2}\.\d{2}', number).group():
         #     pass
         # else:
         #     number = number.upper()
         number = number.upper()
-        cookie_json = './' + javdb_site + '.json'
+        cookie_json = javdb_site + '.json'
         javdb_cookies = {'over18':'1', 'theme':'auto', 'locale':'zh'}
         # 不加载过期的cookie，javdb登录界面显示为7天免登录，故假定cookie有效期为7天
         cookies_dict, cookies_filepath = load_cookies(cookie_json)
@@ -326,6 +328,7 @@ f'[!]Cookies file {cookies_filepath} was updated {cdays} days ago, it will not b
 # main('DV-1562')
 # input("[+][+]Press enter key exit, you can check the error messge before you exit.\n[+][+]按回车键结束，你可以在结束之前查看和错误信息。")
 if __name__ == "__main__":
+    config.G_conf_override['debug_mode:switch'] = True
     # print(main('blacked.20.05.30'))
     # print(main('AGAV-042'))
     # print(main('BANK-022'))
