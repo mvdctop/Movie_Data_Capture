@@ -32,7 +32,7 @@ def get_data_state(data: dict) -> bool:  # 元数据获取失败检测
 
     return True
 
-def get_data_from_json(file_number, conf: config.Config):  # 从JSON返回元数据
+def get_data_from_json(file_number):  # 从JSON返回元数据
     """
     iterate through all services and fetch the data
     """
@@ -53,6 +53,7 @@ def get_data_from_json(file_number, conf: config.Config):  # 从JSON返回元数
         "fc2club": fc2club.main
     }
 
+    conf = config.getInstance()
     # default fetch order list, from the beginning to the end
     sources = conf.sources().split(',')
     if not len(conf.sources()) > 80:

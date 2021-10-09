@@ -347,10 +347,8 @@ def rm_empty_folder(path):
 
 def create_data_and_move(file_path: str, zero_op):
     # Normalized number, eg: 111xxx-222.mp4 -> xxx-222.mp4
-    c = config.getInstance()
-    debug = c.debug()
-    file_name = os.path.basename(file_path)
-    n_number = get_number(debug, file_name)
+    debug = config.getInstance().debug()
+    n_number = get_number(debug, os.path.basename(file_path))
     file_path = os.path.abspath(file_path)
 
     if debug == True:
@@ -358,7 +356,7 @@ def create_data_and_move(file_path: str, zero_op):
         if zero_op:
             return
         if n_number:
-            core_main(file_path, n_number, c)
+            core_main(file_path, n_number)
         else:
             print("[-] number empty ERROR")
         print("[*]======================================================")
@@ -368,7 +366,7 @@ def create_data_and_move(file_path: str, zero_op):
             if zero_op:
                 return
             if n_number:
-                core_main(file_path, n_number, c)
+                core_main(file_path, n_number)
             else:
                 raise ValueError("number empty")
             print("[*]======================================================")
@@ -377,17 +375,18 @@ def create_data_and_move(file_path: str, zero_op):
             print('[-]', err)
 
             try:
-                moveFailedFolder(file_path, conf)
+                moveFailedFolder(file_path)
             except Exception as err:
                 print('[!]', err)
 
 
-def create_data_and_move_with_custom_number(file_path: str, c: config.Config, custom_number):
+def create_data_and_move_with_custom_number(file_path: str, custom_number):
+    conf = config.getInstance()
     file_name = os.path.basename(file_path)
     try:
         print("[!] [{1}] As Number making data for '{0}'".format(file_path, custom_number))
         if custom_number:
-            core_main(file_path, custom_number, c)
+            core_main(file_path, custom_number)
         else:
             print("[-] number empty ERROR")
         print("[*]======================================================")
@@ -395,7 +394,7 @@ def create_data_and_move_with_custom_number(file_path: str, c: config.Config, cu
         print("[-] [{}] ERROR:".format(file_path))
         print('[-]', err)
 
-        if c.soft_link():
+        if conf.soft_link():
             print("[-]Link {} to failed folder".format(file_path))
             os.symlink(file_path, os.path.join(conf.failed_folder(), file_name))
         else:
@@ -455,9 +454,9 @@ if __name__ == '__main__':
     if not single_file_path == '': #Single File
         print('[+]==================== Single File =====================')
         if custom_number == '':
-            create_data_and_move_with_custom_number(single_file_path, conf, get_number(conf.debug(), os.path.basename(single_file_path)))
+            create_data_and_move_with_custom_number(single_file_path, get_number(conf.debug(), os.path.basename(single_file_path)))
         else:
-            create_data_and_move_with_custom_number(single_file_path, conf, custom_number)
+            create_data_and_move_with_custom_number(single_file_path, custom_number)
     else:
         folder_path = conf.source_folder()
         if not isinstance(folder_path, str) or folder_path == '':
