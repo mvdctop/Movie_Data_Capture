@@ -33,7 +33,7 @@ jobs:
       - name: Test number_perser.get_number
         run: |
           python number_parser.py -v
-          
+
       - name: Build with PyInstaller for macos/ubuntu
         if: matrix.os == 'macos-latest' || matrix.os == 'ubuntu-latest'
         run: |
@@ -42,6 +42,8 @@ jobs:
             --hidden-import ADC_function.py \
             --hidden-import core.py \
             --add-data "$(python -c 'import cloudscraper as _; print(_.__path__[0])' | tail -n 1):cloudscraper" \
+            --add-data "Img:Img" \
+            --add-data "config.ini:." \
 
       - name: Build with PyInstaller for windows
         if: matrix.os == 'windows-latest'
@@ -51,6 +53,8 @@ jobs:
             --hidden-import ADC_function.py `
             --hidden-import core.py `
             --add-data "$(python -c 'import cloudscraper as _; print(_.__path__[0])' | tail -n 1);cloudscraper" `
+            --add-data "Img;Img" `
+            --add-data "config.ini;." `
 
       - name: Copy config.ini
         run: |
