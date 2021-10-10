@@ -103,7 +103,7 @@ def get_html_by_browser(url, cookies: dict = None, ua: str = None, return_type: 
         return result.text
 
 
-def get_html_by_form(url, form_name: str = None, fields: dict = None, cookies: dict = None, ua: str = None, return_type: str = None):
+def get_html_by_form(url, form_select: str = None, fields: dict = None, cookies: dict = None, ua: str = None, return_type: str = None):
     browser = mechanicalsoup.StatefulBrowser(user_agent=G_USER_AGENT if ua is None else ua)
     if isinstance(cookies, dict):
         requests.utils.add_dict_to_cookiejar(browser.session.cookies, cookies)
@@ -113,7 +113,7 @@ def get_html_by_form(url, form_name: str = None, fields: dict = None, cookies: d
     result = browser.open(url)
     if not result.ok:
         return ''
-    form = browser.select_form() if form_name is None else browser.select_form(form_name)
+    form = browser.select_form() if form_select is None else browser.select_form(form_select)
     if isinstance(fields, dict):
         for k, v in fields.items():
             browser[k] = v

@@ -196,7 +196,7 @@ def getDirector(a):
     result1 = str(html.xpath('//strong[contains(text(),"導演")]/../span/text()')).strip(" ['']")
     result2 = str(html.xpath('//strong[contains(text(),"導演")]/../span/a/text()')).strip(" ['']")
     return str(result1 + result2).strip('+').replace("', '", '').replace('"', '')
-def getOutline(number):  #获取剧情介绍
+def getOutline0(number):  #获取剧情介绍 airav.wiki站点404，函数暂时更名，等无法恢复时删除
     try:
         htmlcode = get_html('https://cn.airav.wiki/video/' + number)
         from WebCrawler.airav import getOutline as airav_getOutline
@@ -205,6 +205,9 @@ def getOutline(number):  #获取剧情介绍
     except:
         pass
     return ''
+def getOutline(number):  #获取剧情介绍
+    from WebCrawler.javbus import getOutline as javbus_getOutline
+    return javbus_getOutline(number)
 def getSeries(a):
     #/html/body/section/div/div[3]/div[2]/nav/div[7]/span/a
     html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
@@ -340,6 +343,7 @@ if __name__ == "__main__":
     # print(main('blacked.20.05.30'))
     # print(main('AGAV-042'))
     # print(main('BANK-022'))
+    print(main('070116-197'))
     print(main('093021_539'))  # 没有剧照 片商pacopacomama
     # print(main('FC2-2278260'))
     # print(main('FC2-735670'))

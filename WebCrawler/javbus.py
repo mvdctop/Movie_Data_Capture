@@ -80,7 +80,7 @@ def getCID(htmlcode):
     string = html.xpath("//a[contains(@class,'sample-box')][1]/@href")[0].replace('https://pics.dmm.co.jp/digital/video/','')
     result = re.sub('/.*?.jpg','',string)
     return result
-def getOutline(number):  #获取剧情介绍
+def getOutline0(number):  #获取剧情介绍 airav.wiki站点404，函数暂时更名，等无法恢复时删除
     if any(caller for caller in inspect.stack() if os.path.basename(caller.filename) == 'airav.py'):
         return ''   # 从airav.py过来的调用不计算outline直接返回，避免重复抓取数据拖慢处理速度
     try:
@@ -88,6 +88,23 @@ def getOutline(number):  #获取剧情介绍
         from WebCrawler.airav import getOutline as airav_getOutline
         result = airav_getOutline(htmlcode)
         return result
+    except:
+        pass
+    return ''
+def getOutline(number):  #获取剧情介绍 从avno1.cc取得
+    try:
+        number_up = number.upper()
+        result, browser = get_html_by_form('http://www.avno1.cc/cn/usercenter.php?item=pay_support',
+            form_select='div.wrapper > div.header > div.search > form',
+            fields = {'kw' : number_up},
+            return_type = 'browser')
+        if not result.ok:
+            raise
+        title = browser.page.select('div.type_movie > div > ul > li > div > a > h3')[0].text.strip()
+        page_number = title[title.rfind(' '):].upper()
+        if not number_up in page_number:
+            raise
+        return browser.page.select('div.type_movie > div > ul > li:nth-child(1) > div')[0]['data-description'].strip()
     except:
         pass
     return ''
@@ -198,7 +215,7 @@ def main(number):
         return js
 
 if __name__ == "__main__" :
-    print(main('ADV-R0624'))    # 404
+    #print(main('ADV-R0624'))    # 404
     print(main('ipx-292'))
     print(main('CEMD-011'))
     print(main('CJOD-278'))
