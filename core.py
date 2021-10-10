@@ -183,11 +183,15 @@ def trailer_download(trailer, leak_word, c_word, number, path, filepath):
 # 剧照下载成功，否则移动到failed
 def extrafanart_download(data, path, filepath):
     j = 1
-    path = os.path.join(path, config.getInstance().get_extrafanart())
-    configProxy = config.getInstance().proxy()
+    conf = config.getInstance()
+    path = os.path.join(path, conf.get_extrafanart())
+    configProxy = conf.proxy()
+    download_only_missing_images = conf.download_only_missing_images()
     for url in data:
         jpg_filename = f'extrafanart-{j}.jpg'
         jpg_fullpath = os.path.join(path, jpg_filename)
+        if download_only_missing_images and os.path.isfile(jpg_fullpath) and os.path.getsize(jpg_fullpath):
+            continue
         if download_file_with_filename(url, jpg_filename, path, filepath) == 'failed':
             moveFailedFolder(filepath)
             return
@@ -209,6 +213,8 @@ def extrafanart_download(data, path, filepath):
 def image_download(cover, number, leak_word, c_word, path, filepath):
     filename = f"{number}{leak_word}{c_word}-fanart.jpg"
     full_filepath = os.path.join(path, filename)
+    if config.getInstance().download_only_missing_images() and os.path.isfile(full_filepath) and os.path.getsize(full_filepath):
+        return
     if download_file_with_filename(cover, filename, path, filepath) == 'failed':
         moveFailedFolder(filepath)
         return

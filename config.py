@@ -141,6 +141,8 @@ class Config:
             return 0
     def ignore_failed_list(self) -> bool:
         return self.getboolean_override("common", "ignore_failed_list")
+    def download_only_missing_images(self) -> bool:
+        return self.conf.getboolean("common", "download_only_missing_images")
     def is_transalte(self) -> bool:
         return self.conf.getboolean("transalte", "switch")
     def is_trailer(self) -> bool:
@@ -264,6 +266,7 @@ class Config:
         conf.set(sec1, "nfo_skip_days", 30)
         conf.set(sec1, "stop_counter", 0)
         conf.set(sec1, "ignore_failed_list", 0)
+        conf.set(sec1, "download_only_missing_images", 1)
 
         sec2 = "proxy"
         conf.add_section(sec2)
