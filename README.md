@@ -25,6 +25,9 @@ CLI 版本
 # 下载
 * [Releases](https://github.com/yoshiko2/AV_Data_Capture/releases/latest)
 
+# 讨论群
+[Telegram](https://t.me/joinchat/Sp_Ec-XNbUlLj4oV)
+
 #  申明
 当你查阅、下载了本项目源代码或二进制程序，即代表你接受了以下条款
 
