@@ -6,6 +6,7 @@ import sys
 import shutil
 import typing
 import urllib3
+import signal
 
 import config
 from datetime import datetime, timedelta
@@ -223,6 +224,15 @@ def close_logfile(logdir: str):
     # 100MB的日志文件能缩小到3.7MB。
 
 
+def signal_handler(*args):
+    print('[!]Ctrl+C detected, Exit.')
+    sys.exit(9)
+
+def sigdebug_handler(*args):
+    config.G_conf_override["debug_mode:switch"] = not config.G_conf_override["debug_mode:switch"]
+    print('[!]Debug {}'.format('On' if config.getInstance().debug() else 'oFF'))
+
+
 # 新增失败文件列表跳过处理，及.nfo修改天数跳过处理，提示跳过视频总数，调试模式(-g)下详细被跳过文件，跳过小广告
 def movie_lists(source_folder, regexstr):
     conf = config.getInstance()
@@ -420,6 +430,11 @@ if __name__ == '__main__':
         print(f"[-]Main mode must be 1 or 2 or 3! You can run '{os.path.basename(sys.argv[0])} --help' for more help.")
         sys.exit(4)
 
+    signal.signal(signal.SIGINT, signal_handler)
+    if sys.platform == 'win32':
+        signal.signal(signal.SIGBREAK, sigdebug_handler)
+    else:
+        signal.signal(signal.SIGWINCH, sigdebug_handler)
     dupe_stdout_to_logfile(logdir)
 
     print('[*]================== AV Data Capture ===================')
