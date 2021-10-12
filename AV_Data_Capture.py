@@ -369,6 +369,7 @@ def create_data_and_move(file_path: str, zero_op):
             core_main(file_path, n_number)
         else:
             print("[-] number empty ERROR")
+            moveFailedFolder(file_path)
         print("[*]======================================================")
     else:
         try:
