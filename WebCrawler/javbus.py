@@ -111,9 +111,9 @@ def getOutline(number):  #获取剧情介绍 从avno1.cc取得
         return browser.page.select('div.type_movie > div > ul > li:nth-child(1) > div')[0]['data-description'].strip()
     except:
         pass
-    from WebCrawler.xcity import open_by_browser, getOutline as xcity_getOutline
     try:
-        detail_html, browser = open_by_browser(number_up)
+        from WebCrawler.xcity import open_by_browser, getOutline as xcity_getOutline
+        detail_html, browser = open_by_browser(number)
         return xcity_getOutline(detail_html)
     except:
         pass
