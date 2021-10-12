@@ -181,11 +181,10 @@ def getExtrafanart(htmlcode):  # 获取剧照
             return s
     return ''
 
-def main(number):
-    try:
+def open_by_browser(number):
         xcity_number = number.replace('-','')
         query_result, browser = get_html_by_form(
-            'https://xcity.jp/about/',
+            'https://xcity.jp/' + secrets.choice(['about/','sitemap/','policy/','law/','help/','main/']),
             fields = {'q' : xcity_number.lower()},
             return_type = 'browser')
         if not query_result or not query_result.ok:
@@ -193,12 +192,16 @@ def main(number):
         result = browser.follow_link(browser.links('avod\/detail')[0])
         if not result.ok:
             raise ValueError("xcity.py: detail page not found")
-        detail_page = str(browser.page)
+        return str(browser.page), browser
+
+def main(number):
+    try:
+        detail_page, browser = open_by_browser(number)
         url = browser.url
         newnum = getNum(detail_page).upper()
         number_up = number.upper()
         if newnum != number_up:
-            if newnum == xcity_number.upper():
+            if newnum == number.replace('-','').upper():
                 newnum = number_up
             else:
                 raise ValueError("xcity.py: number not found")

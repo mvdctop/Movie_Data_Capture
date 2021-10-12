@@ -2,7 +2,7 @@ from os import replace
 import requests
 import hashlib
 from pathlib import Path
-#import secrets
+import secrets
 import os.path
 import uuid
 import json

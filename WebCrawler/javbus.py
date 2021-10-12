@@ -93,8 +93,12 @@ def getOutline0(number):  #获取剧情介绍 airav.wiki站点404，函数暂时
     return ''
 def getOutline(number):  #获取剧情介绍 从avno1.cc取得
     try:
+        url = 'http://www.avno1.cc/cn/' + secrets.choice(['usercenter.php?item=' +
+                secrets.choice(['pay_support', 'qa', 'contact', 'guide-vpn']),
+                '?top=1&cat=hd', '?top=1', '?cat=hd', 'porn', '?cat=jp', '?cat=us', 'recommend_category.php'
+        ]) # 随机选一个，避免网站httpd日志中单个ip的请求太过单一
         number_up = number.upper()
-        result, browser = get_html_by_form('http://www.avno1.cc/cn/usercenter.php?item=pay_support',
+        result, browser = get_html_by_form(url,
             form_select='div.wrapper > div.header > div.search > form',
             fields = {'kw' : number_up},
             return_type = 'browser')
@@ -105,6 +109,12 @@ def getOutline(number):  #获取剧情介绍 从avno1.cc取得
         if not number_up in page_number:
             raise
         return browser.page.select('div.type_movie > div > ul > li:nth-child(1) > div')[0]['data-description'].strip()
+    except:
+        pass
+    from WebCrawler.xcity import open_by_browser, getOutline as xcity_getOutline
+    try:
+        detail_html, browser = open_by_browser(number_up)
+        return xcity_getOutline(detail_html)
     except:
         pass
     return ''
