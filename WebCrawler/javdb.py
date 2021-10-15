@@ -1,4 +1,6 @@
 import sys
+
+from mechanicalsoup.stateful_browser import StatefulBrowser
 sys.path.append('../')
 import re
 from lxml import etree
@@ -246,7 +248,10 @@ def main(number):
             print(f'[!]javdb:select site {javdb_site}')
         try:
             javdb_url = 'https://' + javdb_site + '.com/search?q=' + number + '&f=all'
-            query_result = get_html(javdb_url, cookies=javdb_cookies)
+            res, browser = get_html_by_browser(javdb_url, cookies=javdb_cookies, return_type='browser')
+            if not res.ok:
+                raise
+            query_result = res.text
         except:
             query_result = get_html('https://javdb.com/search?q=' + number + '&f=all', cookies=javdb_cookies)
         html = etree.fromstring(query_result, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
@@ -267,8 +272,11 @@ def main(number):
                     raise ValueError("number not found")
                 correct_url = urls[0]
         try:
-            javdb_detail_url = 'https://' + javdb_site + '.com' + correct_url
-            detail_page = get_html(javdb_detail_url, cookies=javdb_cookies)
+            if isinstance(browser, StatefulBrowser):  # get faster benefit from http keep-alive
+                detail_page = browser.open_relative(correct_url).text
+            else:
+                javdb_detail_url = 'https://' + javdb_site + '.com' + correct_url
+                detail_page = get_html(javdb_detail_url, cookies=javdb_cookies)
         except:
             detail_page = get_html('https://javdb.com' + correct_url, cookies=javdb_cookies)
 
@@ -344,8 +352,8 @@ if __name__ == "__main__":
     # print(main('BANK-022'))
     print(main('070116-197'))
     print(main('093021_539'))  # 没有剧照 片商pacopacomama
-    # print(main('FC2-2278260'))
-    # print(main('FC2-735670'))
+    print(main('FC2-2278260'))
+    print(main('FC2-735670'))
     # print(main('FC2-1174949')) # not found
     print(main('MVSD-439'))
     # print(main('EHM0001')) # not found
