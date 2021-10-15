@@ -170,13 +170,13 @@ def trailer_download(trailer, leak_word, c_word, number, path, filepath):
         return
     configProxy = config.getInstance().proxy()
     for i in range(configProxy.retry):
-        if os.path.getsize(path+'/' + number + leak_word + c_word + '-trailer.mp4') == 0:
+        if file_not_exist_or_empty(path+'/' + number + leak_word + c_word + '-trailer.mp4'):
             print('[!]Video Download Failed! Trying again. [{}/3]', i + 1)
             download_file_with_filename(trailer, number + leak_word + c_word + '-trailer.mp4', path, filepath)
             continue
         else:
             break
-    if os.path.getsize(path + '/' + number + leak_word + c_word + '-trailer.mp4') == 0:
+    if file_not_exist_or_empty(path + '/' + number + leak_word + c_word + '-trailer.mp4'):
         return
     print('[+]Video Downloaded!', path + '/' + number + leak_word + c_word + '-trailer.mp4')
 
@@ -190,19 +190,19 @@ def extrafanart_download(data, path, filepath):
     for url in data:
         jpg_filename = f'extrafanart-{j}.jpg'
         jpg_fullpath = os.path.join(path, jpg_filename)
-        if download_only_missing_images and os.path.isfile(jpg_fullpath) and os.path.getsize(jpg_fullpath):
+        if download_only_missing_images and not file_not_exist_or_empty(jpg_fullpath):
             continue
         if download_file_with_filename(url, jpg_filename, path, filepath) == 'failed':
             moveFailedFolder(filepath)
             return
         for i in range(configProxy.retry):
-            if os.path.getsize(jpg_fullpath) == 0:
+            if file_not_exist_or_empty(jpg_fullpath):
                 print('[!]Image Download Failed! Trying again. [{}/3]', i + 1)
                 download_file_with_filename(url, jpg_filename, path, filepath)
                 continue
             else:
                 break
-        if os.path.getsize(jpg_fullpath) == 0:
+        if file_not_exist_or_empty(jpg_fullpath):
             return
         print('[+]Image Downloaded!', jpg_fullpath)
         j += 1
@@ -213,7 +213,7 @@ def extrafanart_download(data, path, filepath):
 def image_download(cover, number, leak_word, c_word, path, filepath):
     filename = f"{number}{leak_word}{c_word}-fanart.jpg"
     full_filepath = os.path.join(path, filename)
-    if config.getInstance().download_only_missing_images() and os.path.isfile(full_filepath) and os.path.getsize(full_filepath):
+    if config.getInstance().download_only_missing_images() and not file_not_exist_or_empty(full_filepath):
         return
     if download_file_with_filename(cover, filename, path, filepath) == 'failed':
         moveFailedFolder(filepath)
@@ -221,13 +221,13 @@ def image_download(cover, number, leak_word, c_word, path, filepath):
 
     configProxy = config.getInstance().proxy()
     for i in range(configProxy.retry):
-        if os.path.getsize(full_filepath) == 0:
+        if file_not_exist_or_empty(full_filepath):
             print('[!]Image Download Failed! Trying again. [{}/3]', i + 1)
             download_file_with_filename(cover, filename, path, filepath)
             continue
         else:
             break
-    if os.path.getsize(full_filepath) == 0:
+    if file_not_exist_or_empty(full_filepath):
         return
     print('[+]Image Downloaded!', full_filepath)
     shutil.copyfile(full_filepath, os.path.join(path, f"{number}{leak_word}{c_word}-thumb.jpg"))

@@ -622,3 +622,6 @@ def file_modification_days(filename) -> int:
     if days < 0:
         return 9999
     return days
+
+def file_not_exist_or_empty(filepath) -> bool:
+    return not os.path.isfile(filepath) or os.path.getsize(filepath) == 0
