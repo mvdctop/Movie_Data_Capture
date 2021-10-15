@@ -85,8 +85,8 @@ def create_folder(json_data):  # 创建文件夹
     if 'title' in conf.location_rule() and len(title) > maxlen:
         shorttitle = title[0:maxlen]
         location_rule = location_rule.replace(title, shorttitle)
-
-    path = os.path.join(success_folder, location_rule).strip()
+    # 当演员为空时，location_rule被计算为'/number'绝对路径，导致路径连接忽略第一个路径参数，因此添加./使其始终为相对路径
+    path = os.path.join(success_folder, f'./{location_rule.strip()}')
     if not os.path.exists(path):
         path = escape_path(path, conf.escape_literals())
         try:
