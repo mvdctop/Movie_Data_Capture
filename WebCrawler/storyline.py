@@ -261,9 +261,9 @@ def amazon_select_one(a_titles, q_title, number, debug):
     if ratio < 0.9:
         # 相似度[0.5, 0.9)的淘汰结果单独记录日志
         (Path.home() / '.avlogs/ratio0.5.txt').open('a', encoding='utf-8').write(
-            f' [{number}]  Ratio:{ratio}\n{a_titles[sel]}\n{q_title}\n{save_t_}\n{que_t}')
+            f' [{number}]  Ratio:{ratio}\n{a_titles[sel]}\n{q_title}\n{save_t_}\n{que_t}\n')
         return -1
     # 被采信的结果日志
     (Path.home() / '.avlogs/ratio.txt').open('a', encoding='utf-8').write(
-        f' [{number}]  Ratio:{ratio}\n{a_titles[sel]}\n{q_title}\n{save_t_}\n{que_t}')
+        f' [{number}]  Ratio:{ratio}\n{a_titles[sel]}\n{q_title}\n{save_t_}\n{que_t}\n')
     return sel
