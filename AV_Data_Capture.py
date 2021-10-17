@@ -252,14 +252,14 @@ def movie_lists(source_folder, regexstr):
     failed_set = set()
     if (main_mode == 3 or soft_link) and not conf.ignore_failed_list():
         try:
-            with open(failed_list_txt_path, 'r', encoding='utf-8')  as flt:
-                flist = flt.read().splitlines()
-                failed_set = set(flist)
-            if len(flist) != len(failed_set):
-                with open(failed_list_txt_path, 'w', encoding='utf-8')  as flt:
-                    wtlines = [line + '\n' for line in failed_set]
-                    wtlines.sort()
-                    flt.writelines(wtlines)
+            flist = failed_list_txt_path.read_text(encoding='utf-8').splitlines()
+            failed_set = set(flist)
+            if len(flist) != len(failed_set): # 检查去重并写回，但是不改变failed_list.txt内条目的先后次序，重复的只保留最后的
+                fset = failed_set.copy()
+                for i in range(len(flist)-1, -1, -1):
+                    fset.remove(flist[i]) if flist[i] in fset else flist.pop(i)
+                failed_list_txt_path.write_text('\n'.join(flist) + '\n', encoding='utf-8')
+                assert len(fset) == 0 and len(flist) == len(failed_set)
         except:
             pass
     if not Path(source_folder).is_dir():
