@@ -240,6 +240,20 @@ class Config:
     def debug(self) -> bool:
         return self.getboolean_override("debug_mode", "switch")
 
+    def storyline_site(self) -> str:
+        try:
+            return self.conf.get("storyline", "site")
+        except:
+            return "airav,avno1,xcity,amazon"
+
+    def storyline_show(self) -> int:
+        try:
+            v = self.conf.getint("storyline", "show_result")
+            return v if v in (0,1,2) else 2 if v > 2 else 0
+        except:
+            return 0
+
+
     @staticmethod
     def _exit(sec: str) -> None:
         print("[-] Read config error! Please check the {} section in config.ini", sec)
@@ -332,6 +346,11 @@ class Config:
         conf.add_section(sec13)
         conf.set(sec13, "switch", 1)
         conf.set(sec13, "extrafanart_folder", "extrafanart")
+
+        sec14 = "storyline"
+        conf.add_section(sec14)
+        conf.set(sec14, "site", "airav,avno1,xcity,amazon")
+        conf.set(sec14, "show_result", 0)
 
         return conf
 

@@ -85,12 +85,11 @@ def post_html(url: str, query: dict, headers: dict = None) -> requests.Response:
 
 
 def get_html_by_browser(url, cookies: dict = None, ua: str = None, return_type: str = None):
+    s = None
     if isinstance(cookies, dict) and len(cookies):
         s = requests.Session()
         requests.utils.add_dict_to_cookiejar(s.cookies, cookies)
-        browser = mechanicalsoup.StatefulBrowser(user_agent=G_USER_AGENT if ua is None else ua, session=s)
-    else:
-        browser = mechanicalsoup.StatefulBrowser(user_agent=G_USER_AGENT if ua is None else ua)
+    browser = mechanicalsoup.StatefulBrowser(user_agent=G_USER_AGENT if ua is None else ua, session=s)
     configProxy = config.getInstance().proxy()
     if configProxy.enable:
         browser.session.proxies = configProxy.proxies()
@@ -109,12 +108,11 @@ def get_html_by_browser(url, cookies: dict = None, ua: str = None, return_type: 
 
 
 def get_html_by_form(url, form_select: str = None, fields: dict = None, cookies: dict = None, ua: str = None, return_type: str = None):
+    s = None
     if isinstance(cookies, dict) and len(cookies):
         s = requests.Session()
         requests.utils.add_dict_to_cookiejar(s.cookies, cookies)
-        browser = mechanicalsoup.StatefulBrowser(user_agent=G_USER_AGENT if ua is None else ua, session=s)
-    else:
-        browser = mechanicalsoup.StatefulBrowser(user_agent=G_USER_AGENT if ua is None else ua)
+    browser = mechanicalsoup.StatefulBrowser(user_agent=G_USER_AGENT if ua is None else ua, session=s)
     configProxy = config.getInstance().proxy()
     if configProxy.enable:
         browser.session.proxies = configProxy.proxies()

@@ -6,6 +6,7 @@ from lxml import etree#need install
 from bs4 import BeautifulSoup#need install
 import json
 from ADC_function import *
+from WebCrawler.storyline import getStoryline
 import inspect
 
 def getActorPhoto(htmlcode): #//*[@id="star_qdt"]/li/a/img
@@ -91,33 +92,8 @@ def getOutline0(number):  #获取剧情介绍 airav.wiki站点404，函数暂时
     except:
         pass
     return ''
-def getOutline(number):  #获取剧情介绍 从avno1.cc取得
-    try:
-        url = 'http://www.avno1.cc/cn/' + secrets.choice(['usercenter.php?item=' +
-                secrets.choice(['pay_support', 'qa', 'contact', 'guide-vpn']),
-                '?top=1&cat=hd', '?top=1', '?cat=hd', 'porn', '?cat=jp', '?cat=us', 'recommend_category.php'
-        ]) # 随机选一个，避免网站httpd日志中单个ip的请求太过单一
-        number_up = number.upper()
-        result, browser = get_html_by_form(url,
-            form_select='div.wrapper > div.header > div.search > form',
-            fields = {'kw' : number_up},
-            return_type = 'browser')
-        if not result.ok:
-            raise
-        title = browser.page.select('div.type_movie > div > ul > li > div > a > h3')[0].text.strip()
-        page_number = title[title.rfind(' '):].upper()
-        if not number_up in page_number:
-            raise
-        return browser.page.select('div.type_movie > div > ul > li:nth-child(1) > div')[0]['data-description'].strip()
-    except:
-        pass
-    try:
-        from WebCrawler.xcity import open_by_browser, getOutline as xcity_getOutline
-        detail_html, browser = open_by_browser(number)
-        return xcity_getOutline(detail_html)
-    except:
-        pass
-    return ''
+def getOutline(number, title):  #获取剧情介绍 多进程并发查询
+    return getStoryline(number,title)
 def getSerise(htmlcode):   #获取系列 已修改
     html = etree.fromstring(htmlcode, etree.HTMLParser())
     # 如果记录中冇导演，系列排在第6位
@@ -156,11 +132,12 @@ def main_uncensored(number):
         htmlcode = get_html('https://www.javbus.com/ja/' + number.replace('-','_'))
     if "<title>404 Page Not Found" in htmlcode:
         raise Exception('404 page not found')
+    title = str(re.sub('\w+-\d+-','',getTitle(htmlcode))).replace(getNum(htmlcode)+'-','')
     dic = {
-        'title': str(re.sub('\w+-\d+-','',getTitle(htmlcode))).replace(getNum(htmlcode)+'-',''),
+        'title': title,
         'studio': getStudio(htmlcode),
         'year': getYear(htmlcode),
-        'outline': getOutline(number),
+        'outline': getOutline(number, title),
         'runtime': getRuntime(htmlcode),
         'director': getDirector(htmlcode),
         'actor': getActor(htmlcode),
@@ -189,11 +166,12 @@ def main(number):
                 htmlcode = get_html('https://www.javbus.com/' + number)
             if "<title>404 Page Not Found" in htmlcode:
                 raise Exception('404 page not found')
+            title = str(re.sub('\w+-\d+-', '', getTitle(htmlcode)))
             dic = {
-                'title': str(re.sub('\w+-\d+-', '', getTitle(htmlcode))),
+                'title': title,
                 'studio': getStudio(htmlcode),
                 'year': str(re.search('\d{4}', getYear(htmlcode)).group()),
-                'outline': getOutline(number),
+                'outline': getOutline(number, title),
                 'runtime': getRuntime(htmlcode),
                 'director': getDirector(htmlcode),
                 'actor': getActor(htmlcode),
@@ -225,7 +203,11 @@ def main(number):
         return js
 
 if __name__ == "__main__" :
-    #print(main('ADV-R0624'))    # 404
+    config.G_conf_override['debug_mode:switch'] = True
+    print(main('ABP-888'))
+    print(main('ABP-960'))
+    # print(main('ADV-R0624'))    # 404
+    # print(main('MMNT-010'))
     print(main('ipx-292'))
     print(main('CEMD-011'))
     print(main('CJOD-278'))

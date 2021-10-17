@@ -416,7 +416,7 @@ def create_data_and_move_with_custom_number(file_path: str, custom_number):
                 print('[!]', err)
 
 
-if __name__ == '__main__':
+def main():
     version = '5.0.1'
     urllib3.disable_warnings() #Ignore http proxy warning
 
@@ -483,6 +483,7 @@ if __name__ == '__main__':
         count = 0
         count_all = str(len(movie_list))
         print('[+]Find', count_all, 'movies.')
+        print('[*]======================================================')
         stop_count = conf.stop_counter()
         if stop_count<1:
             stop_count = 999999
@@ -517,3 +518,8 @@ if __name__ == '__main__':
         input("Press enter key exit, you can check the error message before you exit...")
 
     sys.exit(0)
+
+import multiprocessing
+if __name__ == '__main__':
+    multiprocessing.freeze_support()
+    main()

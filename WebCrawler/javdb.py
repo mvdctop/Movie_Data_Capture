@@ -1,13 +1,11 @@
 import sys
-
-from mechanicalsoup.stateful_browser import StatefulBrowser
 sys.path.append('../')
 import re
 from lxml import etree
 import json
-from bs4 import BeautifulSoup
 from ADC_function import *
-# import sys
+from mechanicalsoup.stateful_browser import StatefulBrowser
+from WebCrawler.storyline import getStoryline
 # import io
 # sys.stdout = io.TextIOWrapper(sys.stdout.buffer, errors = 'replace', line_buffering = True)
 
@@ -206,9 +204,8 @@ def getOutline0(number):  #获取剧情介绍 airav.wiki站点404，函数暂时
     except:
         pass
     return ''
-def getOutline(number):  #获取剧情介绍
-    from WebCrawler.javbus import getOutline as javbus_getOutline
-    return javbus_getOutline(number)
+def getOutline(number, title):  #获取剧情介绍 多进程并发查询
+    return getStoryline(number,title)
 def getSeries(a):
     #/html/body/section/div/div[3]/div[2]/nav/div[7]/span/a
     html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
@@ -309,7 +306,7 @@ def main(number):
             'actor': getActor(detail_page),
             'title': title,
             'studio': getStudio(detail_page),
-            'outline': getOutline(number),
+            'outline': getOutline(number, title),
             'runtime': getRuntime(detail_page),
             'director': getDirector(detail_page),
             'release': getRelease(detail_page),
@@ -350,11 +347,13 @@ if __name__ == "__main__":
     # print(main('blacked.20.05.30'))
     # print(main('AGAV-042'))
     # print(main('BANK-022'))
-    print(main('070116-197'))
-    print(main('093021_539'))  # 没有剧照 片商pacopacomama
-    print(main('FC2-2278260'))
-    print(main('FC2-735670'))
+    # print(main('070116-197'))
+    # print(main('093021_539'))  # 没有剧照 片商pacopacomama
+    # print(main('FC2-2278260'))
+    # print(main('FC2-735670'))
     # print(main('FC2-1174949')) # not found
     print(main('MVSD-439'))
     # print(main('EHM0001')) # not found
-    print(main('FC2-2314275'))
+    # print(main('FC2-2314275'))
+    # print(main('EBOD-646'))
+    print(main('LOVE-262'))
