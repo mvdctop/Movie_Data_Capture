@@ -3,7 +3,6 @@ sys.path.append('../')
 import re
 import json
 from ADC_function import *
-from WebCrawler.xcity import open_by_browser, getOutline as xcity_getOutline
 from multiprocessing import Pool
 from difflib import SequenceMatcher
 from unicodedata import category
