@@ -130,7 +130,7 @@ def getStoryline_avno1(number, debug):  #获取剧情介绍 从avno1.cc取得
 
 def getStoryline_xcity(number, debug):  #获取剧情介绍 从xcity取得
     try:
-        #xcity_number = number.replace('-','')
+        xcity_number = number.replace('-','')
         query_result, browser = get_html_by_form(
             'https://xcity.jp/' + secrets.choice(['about/','sitemap/','policy/','law/','help/','main/']),
             fields = {'q' : xcity_number.lower()},
