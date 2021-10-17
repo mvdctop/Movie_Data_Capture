@@ -203,10 +203,7 @@ def amazon_select_one(a_titles, q_title, number, debug):
     for loc in range(len(a_titles)):
         t = a_titles[loc]
         if re.search(number, t, re.I): # 基本不带番号，但也有极个别有的，找到番号相同的直接通过
-            ratio = 1.0
-            sel = loc
-            save_t_ = t
-            break
+            return loc
         if not re.search('DVD|Blu-ray', t, re.I):
             continue
         ama_t = str(re.sub('DVD|Blu-ray', "", t, re.I))
