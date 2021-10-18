@@ -2,12 +2,24 @@ import sys
 sys.path.append('../')
 import re
 import json
+import builtins
 from ADC_function import *
 from multiprocessing import Pool
+from multiprocessing.dummy import Pool as ThreadPool
 from difflib import SequenceMatcher
 from unicodedata import category
 
 G_registered_storyline_site = {"airav", "avno1", "xcity", "amazon"}
+
+G_mode_txt = ('顺序执行','线程池','进程池')
+
+class noThread(object):
+    def map(self, fn, param):
+        return builtins.map(fn, param)
+    def __enter__(self):
+        return self
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        pass
 
 
 # 获取剧情介绍 从列表中的站点同时查，取值优先级从前到后
@@ -18,9 +30,12 @@ def getStoryline(number, title):
     storyine_sites = conf.storyline_site().split(',')
     apply_sites = [ s for s in storyine_sites if s in G_registered_storyline_site]
     mp_args = ((site, number, title, debug) for site in apply_sites)
-    # choose process pool not thread pool because https://www.python.org/dev/peps/pep-0371/
-    with Pool() as proc_pool:
-        result = proc_pool.map(getStoryline_mp, mp_args)
+    cores = min(len(apply_sites), os.cpu_count())
+    run_mode = conf.storyline_mode()
+    assert run_mode in (0,1,2)
+    with ThreadPool(cores) if run_mode == 1 else Pool(cores) if run_mode == 2 else noThread() as pool:
+        result = pool.map(getStoryline_mp, mp_args)
+    result = list(result) if run_mode == 0 else result
     if not debug and conf.storyline_show() == 0:
         for value in result:
             if isinstance(value, str) and len(value):
@@ -28,7 +43,7 @@ def getStoryline(number, title):
         return ''
     # 以下debug结果输出会写入日志，进程池中的则不会，只在标准输出中显示
     cnt = len(apply_sites)
-    s = f'[!]MP Storyline 运行{cnt}个进程总用时(含启动开销){time.time() - start_time:.3f}秒，结束于{time.strftime("%H:%M:%S")}'
+    s = f'[!]Storyline{G_mode_txt[run_mode]}模式运行{cnt}个进程总用时(含启动开销){time.time() - start_time:.3f}秒，结束于{time.strftime("%H:%M:%S")}'
     first = True
     sel = ''
     for i in range(cnt):

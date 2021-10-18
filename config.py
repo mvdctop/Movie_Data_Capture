@@ -252,6 +252,12 @@ class Config:
         except:
             return 0
 
+    def storyline_mode(self) -> int:
+        try:
+            v = self.conf.getint("storyline", "run_mode")
+            return v if v in (0,1,2) else 2 if v > 2 else 0
+        except:
+            return 1
 
     @staticmethod
     def _exit(sec: str) -> None:
@@ -350,6 +356,7 @@ class Config:
         conf.add_section(sec14)
         conf.set(sec14, "site", "airav,avno1,xcity,amazon")
         conf.set(sec14, "show_result", 0)
+        conf.set(sec14, "run_mode", 1)
 
         return conf
 
