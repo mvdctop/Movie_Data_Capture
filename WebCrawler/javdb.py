@@ -9,13 +9,11 @@ from WebCrawler.storyline import getStoryline
 # import io
 # sys.stdout = io.TextIOWrapper(sys.stdout.buffer, errors = 'replace', line_buffering = True)
 
-def getTitle(a):
-    html = etree.fromstring(a, etree.HTMLParser())
+def getTitle(html):
     browser_title = str(html.xpath("/html/head/title/text()")[0])
     return browser_title[:browser_title.find(' | JavDB')].strip()
 
-def getActor(a):
-    html = etree.fromstring(a, etree.HTMLParser())
+def getActor(html):
     actors = html.xpath('//span[@class="value"]/a[contains(@href,"/actors/")]/text()')
     genders = html.xpath('//span[@class="value"]/a[contains(@href,"/actors/")]/../strong/@class')
     r = []
@@ -32,8 +30,8 @@ def getActor(a):
         idx = idx + 1
     return r
 
-def getaphoto(url):
-    html_page = get_html(url)
+def getaphoto(url,  browser):
+    html_page = browser.open_relative(url).text if isinstance(browser, StatefulBrowser) else get_html(url)
     img_prether = re.compile(r'<span class\=\"avatar\" style\=\"background\-image\: url\((.*?)\)')
     img_url = img_prether.findall(html_page)
     if img_url:
@@ -41,24 +39,18 @@ def getaphoto(url):
     else:
         return ''
 
-def getActorPhoto(html): #//*[@id="star_qdt"]/li/a/img
-    actorall_prether = re.compile(r'<strong>演員\:</strong>\s*?.*?<span class=\"value\">(.*)\s*?</div>')
-    actorall = actorall_prether.findall(html)
-
-    if actorall:
-        actoralls = actorall[0]
-        actor_prether = re.compile(r'<a href\=\"(.*?)\">(.*?)</a>')
-        actor = actor_prether.findall(actoralls)
-        actor_photo = {}
-        for i in actor:
-            actor_photo[i[1]] = getaphoto('https://' + javdb_site + '.com'+i[0])
-
-        return actor_photo
-
-    else:
+def getActorPhoto(html, javdb_site,  browser): #//*[@id="star_qdt"]/li/a/img
+    actorall = html.xpath('//strong[contains(text(),"演員:")]/../span/a[starts-with(@href,"/actors/")]')
+    if not actorall:
         return {}
+    a = getActor(html)
+    actor_photo = {}
+    for i in actorall:
+        if i.text in a:
+            actor_photo[i.text] = getaphoto(urljoin(f'https://{javdb_site}.com', i.attrib['href']), browser)
+    return actor_photo
 
-def getStudio(a):
+def getStudio(a, html):
     # html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
     # result1 = str(html.xpath('//strong[contains(text(),"片商")]/../span/text()')).strip(" ['']")
     # result2 = str(html.xpath('//strong[contains(text(),"片商")]/../span/a/text()')).strip(" ['']")
@@ -70,25 +62,21 @@ def getStudio(a):
         if len(result):
             return result
     # 以卖家作为工作室
-    html = etree.fromstring(a, etree.HTMLParser())
     try:
         result = str(html.xpath('//strong[contains(text(),"賣家:")]/../span/a/text()')).strip(" ['']")
     except:
         result = ''
     return result
 
-def getRuntime(a):
-    html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
+def getRuntime(html):
     result1 = str(html.xpath('//strong[contains(text(),"時長")]/../span/text()')).strip(" ['']")
     result2 = str(html.xpath('//strong[contains(text(),"時長")]/../span/a/text()')).strip(" ['']")
     return str(result1 + result2).strip('+').rstrip('mi')
-def getLabel(a):
-    html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
+def getLabel(html):
     result1 = str(html.xpath('//strong[contains(text(),"系列")]/../span/text()')).strip(" ['']")
     result2 = str(html.xpath('//strong[contains(text(),"系列")]/../span/a/text()')).strip(" ['']")
     return str(result1 + result2).strip('+').replace("', '", '').replace('"', '')
-def getNum(a):
-    html = etree.fromstring(a, etree.HTMLParser())
+def getNum(html):
     result1 = str(html.xpath('//strong[contains(text(),"番號")]/../span/text()')).strip(" ['']")
     result2 = str(html.xpath('//strong[contains(text(),"番號")]/../span/a/text()')).strip(" ['']")
     return str(result2 + result1).strip('+')
@@ -118,8 +106,7 @@ def getRelease(a):
     else:
         result = ''
     return result
-def getTag(a):
-    html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
+def getTag(html):
     try:
         result = html.xpath('//strong[contains(text(),"類別")]/../span/a/text()')
         total = []
@@ -140,11 +127,10 @@ def getTag(a):
                 pass
         return total
 
-def getCover_small(a, index=0):
+def getCover_small(html, index=0):
     # same issue mentioned below,
     # javdb sometime returns multiple results
     # DO NOT just get the firt one, get the one with correct index number
-    html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
     try:
         result = html.xpath("//div[@class='item-image fix-scale-cover']/img/@src")[index]
         if not 'https' in result:
@@ -175,23 +161,20 @@ def getTrailer(htmlcode):  # 获取预告片
         video_url = ''
     return video_url
 
-def getExtrafanart(htmlcode):  # 获取剧照
-    html = etree.fromstring(htmlcode, etree.HTMLParser())
+def getExtrafanart(html):  # 获取剧照
     result = []
     try:
         result = html.xpath("//article[@class='message video-panel']/div[@class='message-body']/div[@class='tile-images preview-images']/a[contains(@href,'/samples/')]/@href")
     except:
         pass
     return result
-def getCover(htmlcode):
-    html = etree.fromstring(htmlcode, etree.HTMLParser())
+def getCover(html):
     try:
         result = html.xpath("//div[contains(@class, 'column-video-cover')]/a/img/@src")[0]
     except: # 2020.7.17 Repair Cover Url crawl
         result = html.xpath("//div[contains(@class, 'column-video-cover')]/img/@src")[0]
     return result
-def getDirector(a):
-    html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
+def getDirector(html):
     result1 = str(html.xpath('//strong[contains(text(),"導演")]/../span/text()')).strip(" ['']")
     result2 = str(html.xpath('//strong[contains(text(),"導演")]/../span/a/text()')).strip(" ['']")
     return str(result1 + result2).strip('+').replace("', '", '').replace('"', '')
@@ -206,9 +189,7 @@ def getOutline0(number):  #获取剧情介绍 airav.wiki站点404，函数暂时
     return ''
 def getOutline(number, title):  #获取剧情介绍 多进程并发查询
     return getStoryline(number,title)
-def getSeries(a):
-    #/html/body/section/div/div[3]/div[2]/nav/div[7]/span/a
-    html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
+def getSeries(html):
     result1 = str(html.xpath('//strong[contains(text(),"系列")]/../span/text()')).strip(" ['']")
     result2 = str(html.xpath('//strong[contains(text(),"系列")]/../span/a/text()')).strip(" ['']")
     return str(result1 + result2).strip('+').replace("', '", '').replace('"', '')
@@ -243,6 +224,7 @@ def main(number):
             javdb_site = secrets.choice(javdb_sites)
         if debug:
             print(f'[!]javdb:select site {javdb_site}')
+        browser = None
         try:
             javdb_url = 'https://' + javdb_site + '.com/search?q=' + number + '&f=all'
             res, browser = get_html_by_browser(javdb_url, cookies=javdb_cookies, return_type='browser')
@@ -277,52 +259,54 @@ def main(number):
         except:
             detail_page = get_html('https://javdb.com' + correct_url, cookies=javdb_cookies)
 
+        # etree.fromstring开销很大，最好只用一次，而它的xpath很快，比bs4 find/select快，可以多用
+        lx = etree.fromstring(detail_page, etree.HTMLParser())
         # no cut image by default
         imagecut = 3
         # If gray image exists ,then replace with normal cover
         if re.search(r'[a-zA-Z]+\.\d{2}\.\d{2}\.\d{2}', number):
-            cover_small = getCover_small(query_result)
+            cover_small = getCover_small(html)
         else:
             try:
-                cover_small = getCover_small(query_result, index=ids.index(number))
+                cover_small = getCover_small(html, index=ids.index(number))
             except:
                 # if input number is "STAR438" not "STAR-438", use first search result.
-                cover_small = getCover_small(query_result)
+                cover_small = getCover_small(html)
         if 'placeholder' in cover_small:
             # replace wit normal cover and cut it
             imagecut = 1
-            cover_small = getCover(detail_page)
+            cover_small = getCover(lx)
 
-        dp_number = getNum(detail_page)
+        dp_number = getNum(lx)
         if dp_number.upper() != number:
             raise ValueError("number not found")
-        title = getTitle(detail_page)
+        title = getTitle(lx)
         if title and dp_number:
             number = dp_number
             # remove duplicate title
             title = title.replace(number, '').strip()
 
         dic = {
-            'actor': getActor(detail_page),
+            'actor': getActor(lx),
             'title': title,
-            'studio': getStudio(detail_page),
+            'studio': getStudio(detail_page, lx),
             'outline': getOutline(number, title),
-            'runtime': getRuntime(detail_page),
-            'director': getDirector(detail_page),
+            'runtime': getRuntime(lx),
+            'director': getDirector(lx),
             'release': getRelease(detail_page),
             'number': number,
-            'cover': getCover(detail_page),
+            'cover': getCover(lx),
             'cover_small': cover_small,
             'trailer': getTrailer(detail_page),
-            'extrafanart': getExtrafanart(detail_page),
+            'extrafanart': getExtrafanart(lx),
             'imagecut': imagecut,
-            'tag': getTag(detail_page),
-            'label': getLabel(detail_page),
+            'tag': getTag(lx),
+            'label': getLabel(lx),
             'year': getYear(detail_page),  # str(re.search('\d{4}',getRelease(a)).group()),
-#            'actor_photo': getActorPhoto(detail_page),
+#            'actor_photo': getActorPhoto(lx, javdb_site,  browser),
             'website': 'https://javdb.com' + correct_url,
             'source': 'javdb.py',
-            'series': getSeries(detail_page),
+            'series': getSeries(lx),
 
         }
         if not dic['actor'] and re.match(r'FC2-[\d]+', number, re.A):
@@ -356,4 +340,5 @@ if __name__ == "__main__":
     # print(main('EHM0001')) # not found
     # print(main('FC2-2314275'))
     # print(main('EBOD-646'))
-    print(main('LOVE-262'))
+    # print(main('LOVE-262'))
+    print(main('ABP-890'))
