@@ -31,6 +31,8 @@ def getStoryline(number, title):
     apply_sites = [ s for s in storyine_sites if s in G_registered_storyline_site]
     mp_args = ((site, number, title, debug) for site in apply_sites)
     cores = min(len(apply_sites), os.cpu_count())
+    if cores == 0:
+        return ''
     run_mode = conf.storyline_mode()
     assert run_mode in (0,1,2)
     with ThreadPool(cores) if run_mode == 1 else Pool(cores) if run_mode == 2 else noThread() as pool:
