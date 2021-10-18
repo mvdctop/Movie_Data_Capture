@@ -34,7 +34,7 @@ def getStoryline(number, title):
     for i in range(cnt):
         sl = len(result[i])if isinstance(result[i], str) else 0
         if sl and first:
-            s += f'，[选中结果{apply_sites[i]}字数:{sl}]'
+            s += f'，[选中{apply_sites[i]}字数:{sl}]'
             first = False
             sel = result[i]
         elif sl:

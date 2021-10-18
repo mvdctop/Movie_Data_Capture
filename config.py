@@ -394,10 +394,10 @@ if __name__ == "__main__":
         code = compile(evstr, "<string>", "eval")
         print('{}: "{}"'.format(evstr, eval(code)))
     config = Config()
-    mfilter = ('conf', 'proxy', '_exit', '_default_config', 'getboolean_override', 'getint_override', 'get_override', 'ini_path')
+    mfilter = {'conf', 'proxy', '_exit', '_default_config', 'getboolean_override', 'getint_override', 'get_override', 'ini_path'}
     for _m in [m for m in dir(config) if not m.startswith('__') and m not in mfilter]:
         evprint(f'config.{_m}()')
-    pfilter = ('proxies', 'SUPPORT_PROXY_TYPE')
+    pfilter = {'proxies', 'SUPPORT_PROXY_TYPE'}
     # test getInstance()
     assert(getInstance() == config)
     for _p in [p for p in dir(getInstance().proxy()) if not p.startswith('__') and p not in pfilter]:
