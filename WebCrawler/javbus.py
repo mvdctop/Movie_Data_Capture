@@ -1,19 +1,18 @@
 import sys
 sys.path.append('../')
 import re
-from pyquery import PyQuery as pq#need install
 from lxml import etree#need install
 import json
 from ADC_function import *
 from WebCrawler.storyline import getStoryline
 import inspect
 
-def getActorPhoto(doc): #//*[@id="star_qdt"]/li/a/img
-    actors = doc('div.star-name a').items()
+def getActorPhoto(html):
+    actors = html.xpath('//div[@class="star-name"]/a')
     d={}
     for i in actors:
-        url=i.attr.href
-        t=i.attr.title
+        url=i.attrib['href']
+        t=i.attrib['title']
         html = etree.fromstring(get_html(url), etree.HTMLParser())
         p=urljoin("https://www.javbus.com",
                   str(html.xpath('//*[@id="waterfall"]/div[1]/div/div[1]/img/@src')).strip(" ['']"))
@@ -33,20 +32,20 @@ def getStudio(html): #获取厂商
 def getYear(html):   #获取年份
     result = str(html.xpath('/html/body/div[5]/div[1]/div[2]/p[2]/text()')).strip(" ['']").strip()
     return result[:4] if len(result)>=len('2000-01-01') else ''
-def getCover(doc):  #获取封面链接
-    image = doc('a.bigImage')
-    return urljoin("https://www.javbus.com", image.attr('href'))
+def getCover(html):  #获取封面链接
+    image = str(html.xpath('//a[@class="bigImage"]/@href')[0])
+    return urljoin("https://www.javbus.com", image)
 def getRelease(html): #获取出版日期
     result = str(html.xpath('/html/body/div[5]/div[1]/div[2]/p[2]/text()')).strip(" ['']")
     return result
 def getRuntime(html): #获取分钟 已修改
     result = str(html.xpath('/html/body/div[5]/div[1]/div[2]/p[3]/text()')).strip(" ['']分鐘")
     return result
-def getActor(doc):   #获取女优
+def getActor(html):   #获取女优
     b=[]
-    actors = doc('div.star-name a').items()
+    actors = html.xpath('//div[@class="star-name"]/a')
     for i in actors:
-        b.append(i.attr.title)
+        b.append(i.attrib['title'])
     return b
 def getNum(html):     #获取番号
     kwdlist = html.xpath('/html/head/meta[@name="keywords"]/@content')[0].split(',')
@@ -99,7 +98,6 @@ def main_uncensored(number):
     htmlcode = get_html('https://www.javbus.com/ja/' + number)
     if "<title>404 Page Not Found" in htmlcode:
         raise Exception('404 page not found')
-    doc = pq(htmlcode)
     lx = etree.fromstring(htmlcode, etree.HTMLParser())
     title = getTitle(lx)
     dic = {
@@ -109,10 +107,10 @@ def main_uncensored(number):
         'outline': getOutline(number, title),
         'runtime': getRuntime(lx),
         'director': getDirectorJa(lx),
-        'actor': getActor(doc),
+        'actor': getActor(lx),
         'release': getRelease(lx),
         'number': getNum(lx),
-        'cover': getCover(doc),
+        'cover': getCover(lx),
         'tag': getTag(lx),
         'extrafanart': getExtrafanart(htmlcode),
         'label': getSeriseJa(lx),
@@ -135,7 +133,6 @@ def main(number):
                 htmlcode = get_html('https://www.javbus.com/' + number)
             if "<title>404 Page Not Found" in htmlcode:
                 raise Exception('404 page not found')
-            doc = pq(htmlcode)
             lx = etree.fromstring(htmlcode,etree.HTMLParser())
             title = getTitle(lx)
             dic = {
@@ -145,15 +142,15 @@ def main(number):
                 'outline': getOutline(number, title),
                 'runtime': getRuntime(lx),
                 'director': getDirector(lx),
-                'actor': getActor(doc),
+                'actor': getActor(lx),
                 'release': getRelease(lx),
                 'number': getNum(lx),
-                'cover': getCover(doc),
+                'cover': getCover(lx),
                 'imagecut': 1,
                 'tag': getTag(lx),
                 'extrafanart': getExtrafanart(htmlcode),
                 'label': getSerise(lx),
-#                'actor_photo': getActorPhoto(doc),
+#                'actor_photo': getActorPhoto(lx),
                 'website': 'https://www.javbus.com/' + number,
                 'source': 'javbus.py',
                 'series': getSerise(lx),
