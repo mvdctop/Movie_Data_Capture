@@ -182,7 +182,7 @@ def main(number):
                 'tag': getTag(htmlcode),
                 'extrafanart': getExtrafanart(htmlcode),
                 'label': getSerise(htmlcode),
-                'actor_photo': getActorPhoto(htmlcode),
+#                'actor_photo': getActorPhoto(htmlcode),
                 'website': 'https://www.javbus.com/' + number,
                 'source': 'javbus.py',
                 'series': getSerise(htmlcode),

@@ -319,7 +319,7 @@ def main(number):
             'tag': getTag(detail_page),
             'label': getLabel(detail_page),
             'year': getYear(detail_page),  # str(re.search('\d{4}',getRelease(a)).group()),
-            'actor_photo': getActorPhoto(detail_page),
+#            'actor_photo': getActorPhoto(detail_page),
             'website': 'https://javdb.com' + correct_url,
             'source': 'javdb.py',
             'series': getSeries(detail_page),
