@@ -178,6 +178,10 @@ def get_data_from_json(file_number):  # 从JSON返回元数据
 
     imagecut = json_data.get('imagecut')
     tag = str(json_data.get('tag')).strip("[ ]").replace("'", '').replace(" ", '').split(',')  # 字符串转列表 @
+    while 'XXXX' in tag:
+        tag.remove('XXXX')
+    while 'xxx' in tag:
+        tag.remove('xxx')
     actor = str(actor_list).strip("[ ]").replace("'", '').replace(" ", '')
 
     if title == '' or number == '':
@@ -306,4 +310,5 @@ def special_characters_replacement(text) -> str:
                 replace('"', '＂').      # U+FF02 FULLWIDTH QUOTATION MARK @ Basic Multilingual Plane
                 replace('<', 'ᐸ').       # U+1438 CANADIAN SYLLABICS PA @ Basic Multilingual Plane
                 replace('>', 'ᐳ').       # U+1433 CANADIAN SYLLABICS PO @ Basic Multilingual Plane
-                replace('|', 'ǀ'))       # U+01C0 LATIN LETTER DENTAL CLICK @ Basic Multilingual Plane
+                replace('|', 'ǀ').       # U+01C0 LATIN LETTER DENTAL CLICK @ Basic Multilingual Plane
+                replace('&amp;', '＆'))
