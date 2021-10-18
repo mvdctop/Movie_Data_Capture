@@ -73,8 +73,7 @@ class Config:
             # 用户目录才确定具有写权限，因此选择 ~/avdc.ini 作为配置文件生成路径，而不是有可能并没有写权限的
             # 当前目录。目前版本也不再鼓励使用当前路径放置配置文件了，只是作为多配置文件的切换技巧保留。
             write_path = path_search_order[2]   # Path.home() / "avdc.ini"
-            with open(write_path, 'w', encoding='utf-8') as wcfg:
-                wcfg.write(res_path.read_text(encoding='utf-8'))
+            write_path.write_text(res_path.read_text(encoding='utf-8'), encoding='utf-8')
             print("Config file '{}' created.".format(write_path.resolve()))
             input("Press Enter key exit...")
             sys.exit(0)
