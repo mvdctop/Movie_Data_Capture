@@ -5,7 +5,6 @@ from lxml import etree#need install
 import json
 from ADC_function import *
 from WebCrawler.storyline import getStoryline
-import inspect
 
 def getActorPhoto(html):
     actors = html.xpath('//div[@class="star-name"]/a')
@@ -60,17 +59,6 @@ def getCID(html):
     string = html.xpath("//a[contains(@class,'sample-box')][1]/@href")[0].replace('https://pics.dmm.co.jp/digital/video/','')
     result = re.sub('/.*?.jpg','',string)
     return result
-def getOutline0(number):  #获取剧情介绍 airav.wiki站点404，函数暂时更名，等无法恢复时删除
-    if any(caller for caller in inspect.stack() if os.path.basename(caller.filename) == 'airav.py'):
-        return ''   # 从airav.py过来的调用不计算outline直接返回，避免重复抓取数据拖慢处理速度
-    try:
-        htmlcode = get_html('https://cn.airav.wiki/video/' + number)
-        from WebCrawler.airav import getOutline as airav_getOutline
-        result = airav_getOutline(htmlcode)
-        return result
-    except:
-        pass
-    return ''
 def getOutline(number, title):  #获取剧情介绍 多进程并发查询
     return getStoryline(number,title)
 def getSeriseJa(html):
