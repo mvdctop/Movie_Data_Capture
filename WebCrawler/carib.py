@@ -4,26 +4,29 @@ import json
 from lxml import html
 import re
 from ADC_function import *
+from WebCrawler.storyline import getStoryline
 
 def main(number: str) -> json:
     try:
-        carib_obj, browser = get_html_by_browser(
-            'https://www.caribbeancom.com/moviepages/'+number+'/index.html',
-            return_type="browser")
-
-        if not carib_obj or not carib_obj.ok:
+        # 因演员图片功能还未使用，为提速暂时注释，改为用get_html()
+        #r, browser = get_html_by_browser('https://www.caribbeancom.com/moviepages/'+number+'/index.html',
+        #                return_type='browser')
+        #if not r.ok:
+        #    raise ValueError("page not found")
+        #htmlcode = str(browser.page)
+        htmlbyte = get_html('https://www.caribbeancom.com/moviepages/'+number+'/index.html', return_type='content')
+        htmlcode = htmlbyte.decode('euc-jp')
+        if not htmlcode or '<title>404' in htmlcode or 'class="movie-info section"' not in htmlcode:
             raise ValueError("page not found")
 
-        lx = html.fromstring(str(browser.page))
-
-        if not browser.page.select_one("#moviepages > div > div:nth-child(1) > div.movie-info.section"):
-            raise ValueError("page info not found")
+        lx = html.fromstring(htmlcode)
+        title = get_title(lx)
 
         dic = {
-            'title': get_title(lx),
+            'title': title,
             'studio': '加勒比',
             'year': get_year(lx),
-            'outline': get_outline(lx),
+            'outline': get_outline(lx, number, title),
             'runtime': get_runtime(lx),
             'director': '',
             'actor': get_actor(lx),
@@ -55,8 +58,17 @@ def get_title(lx: html.HtmlElement) -> str:
 def get_year(lx: html.HtmlElement) -> str:
     return lx.xpath("//li[2]/span[@class='spec-content']/text()")[0][:4]
 
-def get_outline(lx: html.HtmlElement) -> str:
-    return lx.xpath("//div[@class='movie-info section']/p[@itemprop='description']/text()")[0].strip()
+def get_outline(lx: html.HtmlElement, number: str, title: str) -> str:
+    o = lx.xpath("//div[@class='movie-info section']/p[@itemprop='description']/text()")[0].strip()
+
+    storyline_site = config.getInstance().storyline_site().split(',')
+    a = set(storyline_site) & {'airav', 'avno1'}
+    if len(a):
+        site = [n for n in storyline_site if n in a]
+        g = getStoryline(number, title, site)
+        if len(g):
+            return g
+    return o
 
 def get_release(lx: html.HtmlElement) -> str:
     return lx.xpath("//li[2]/span[@class='spec-content']/text()")[0].replace('/','-')

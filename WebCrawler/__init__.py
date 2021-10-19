@@ -311,4 +311,6 @@ def special_characters_replacement(text) -> str:
                 replace('<', 'ᐸ').       # U+1438 CANADIAN SYLLABICS PA @ Basic Multilingual Plane
                 replace('>', 'ᐳ').       # U+1433 CANADIAN SYLLABICS PO @ Basic Multilingual Plane
                 replace('|', 'ǀ').       # U+01C0 LATIN LETTER DENTAL CLICK @ Basic Multilingual Plane
+                replace('&lsquo;', '‘'). # U+02018 LEFT SINGLE QUOTATION MARK
+                replace('&rsquo;', '’'). # U+02019 RIGHT SINGLE QUOTATION MARK
                 replace('&amp;', '＆'))

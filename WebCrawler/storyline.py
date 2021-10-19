@@ -23,11 +23,11 @@ class noThread(object):
 
 
 # 获取剧情介绍 从列表中的站点同时查，取值优先级从前到后
-def getStoryline(number, title):
+def getStoryline(number, title, sites: list=None):
     start_time = time.time()
     conf = config.getInstance()
     debug = conf.debug() or conf.storyline_show() == 2
-    storyine_sites = conf.storyline_site().split(',')
+    storyine_sites = conf.storyline_site().split(',') if sites is None else sites
     apply_sites = [ s for s in storyine_sites if s in G_registered_storyline_site]
     mp_args = ((site, number, title, debug) for site in apply_sites)
     cores = min(len(apply_sites), os.cpu_count())
