@@ -12,7 +12,7 @@ from datetime import datetime
 
 from ADC_function import *
 from WebCrawler import get_data_from_json
-
+from number_parser import is_uncensored
 
 def escape_path(path, escape_literals: str):  # Remove escape literals
     backslash = '\\'

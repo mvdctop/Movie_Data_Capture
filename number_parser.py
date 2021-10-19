@@ -1,6 +1,7 @@
 import os
 import re
 import sys
+import config
 
 G_spat = re.compile(
     "^22-sht\.me|-fhd|_fhd|^fhd_|^fhd-|-hd|_hd|^hd_|^hd-|-sd|_sd|-1080p|_1080p|-720p|_720p|^hhd800\.com@",
@@ -81,6 +82,37 @@ def get_number_by_dict(filename: str) -> str:
     except:
         pass
     return None
+
+class Cache_uncensored_conf:
+    prefix = None
+    def is_empty(self):
+        return bool(self.prefix is None)
+    def set(self, v: list):
+        if not v or not len(v) or not len(v[0]):
+            raise ValueError('input prefix list empty or None')
+        s = v[0]
+        if len(v) > 1:
+            for i in v[1:]:
+                s += f"|{i}.+"
+        self.prefix = re.compile(s, re.I)
+    def check(self, number):
+        if self.prefix is None:
+            raise ValueError('No init re compile')
+        return self.prefix.match(number)
+
+G_cache_uncensored_conf = Cache_uncensored_conf()
+
+# ========================================================================是否为无码
+def is_uncensored(number):
+    if re.match(
+r'[\d-]{4,}|\d{6}_\d{2,3}|(cz|gedo|k|n|red-|se)\d{2,4}|heyzo.+|xxx-av-.+|heydouga-.+|x-art\.\d{2}\.\d{2}\.\d{2}',
+        number,
+        re.I
+    ):
+        return True
+    if G_cache_uncensored_conf.is_empty():
+        G_cache_uncensored_conf.set(config.getInstance().get_uncensored().split(','))
+    return G_cache_uncensored_conf.check(number)
 
 if __name__ == "__main__":
 #     import doctest
@@ -164,7 +196,7 @@ if __name__ == "__main__":
         try:
             n = get_number(True, filename)
             if n:
-                print(f'  [{n}] # {filename}')
+                print('  [{0}] {2}# {1}'.format(n, filename, '#无码' if is_uncensored(n) else ''))
             else:
                 print(f'[-]Number return None. # {filename}')
         except Exception as e:
