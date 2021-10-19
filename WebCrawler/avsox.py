@@ -3,18 +3,17 @@ sys.path.append('..')
 import re
 from lxml import etree
 import json
-from bs4 import BeautifulSoup
 from ADC_function import *
 from WebCrawler.storyline import getStoryline
 # import io
 # sys.stdout = io.TextIOWrapper(sys.stdout.buffer, errors = 'replace', line_buffering = True)
 
-def getActorPhoto(soup):
-    a = soup.find_all(attrs={'class': 'avatar-box'})
+def getActorPhoto(html):
+    a = html.xpath('//a[@class="avatar-box"]')
     d = {}
     for i in a:
-        l = i.img['src']
-        t = i.span.get_text()
+        l = i.find('.//img').attrib['src']
+        t = i.find('span').text
         p2 = {t: l}
         d.update(p2)
     return d
@@ -24,11 +23,11 @@ def getTitle(html):
         return result.replace('/', '')
     except:
         return ''
-def getActor(soup):
-    a = soup.find_all(attrs={'class': 'avatar-box'})
+def getActor(html):
+    a = html.xpath('//a[@class="avatar-box"]')
     d = []
     for i in a:
-        d.append(i.span.get_text())
+        d.append(i.find('span').text)
     return d
 def getStudio(html):
     result1 = str(html.xpath('//p[contains(text(),"制作商: ")]/following-sibling::p[1]/a/text()')).strip(" ['']").replace("', '",' ')
@@ -57,12 +56,9 @@ def getCover(html):
 def getCover_small(html):
     result = str(html.xpath('//*[@id="waterfall"]/div/a/div[1]/img/@src')).strip(" ['']")
     return result
-def getTag(soup):  # 获取演员
-    a = soup.find_all(attrs={'class': 'genre'})
-    d = []
-    for i in a:
-        d.append(i.get_text())
-    return d
+def getTag(html):
+    x = html.xpath('/html/head/meta[@name="keywords"]/@content')[0].split(',')
+    return x[2:] if len(x) > 2 else []
 def getSeries(html):
     try:
         result1 = str(html.xpath('//span[contains(text(),"系列:")]/../span[2]/text()')).strip(" ['']")
@@ -74,45 +70,42 @@ def main(number):
     html = get_html('https://tellme.pw/avsox')
     site = etree.HTML(html).xpath('//div[@class="container"]/div/a/@href')[0]
     a = get_html(site + '/cn/search/' + number)
-    html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
+    html = etree.fromstring(a, etree.HTMLParser())
     result1 = str(html.xpath('//*[@id="waterfall"]/div/a/@href')).strip(" ['']")
     if result1 == '' or result1 == 'null' or result1 == 'None':
         a = get_html(site + '/cn/search/' + number.replace('-', '_'))
-        html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
+        html = etree.fromstring(a, etree.HTMLParser())
         result1 = str(html.xpath('//*[@id="waterfall"]/div/a/@href')).strip(" ['']")
         if result1 == '' or result1 == 'null' or result1 == 'None':
             a = get_html(site + '/cn/search/' + number.replace('_', ''))
-            html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
+            html = etree.fromstring(a, etree.HTMLParser())
             result1 = str(html.xpath('//*[@id="waterfall"]/div/a/@href')).strip(" ['']")
-    web = get_html("https:" + result1)
-    soup = BeautifulSoup(web, 'lxml')
-    web = etree.fromstring(web, etree.HTMLParser())
-    info = str(soup.find(attrs={'class': 'row movie'}))
-    info = etree.fromstring(info, etree.HTMLParser())
+    detail = get_html("https:" + result1)
+    lx = etree.fromstring(detail, etree.HTMLParser())
     try:
-        new_number = getNum(info)
+        new_number = getNum(lx)
         if new_number.upper() != number.upper():
             raise ValueError('number not found')
-        title = getTitle(web).strip(getNum(web))
+        title = getTitle(lx).strip(new_number)
         dic = {
-            'actor': getActor(soup),
+            'actor': getActor(lx),
             'title': title,
-            'studio': getStudio(info),
+            'studio': getStudio(lx),
             'outline': getStoryline(number, title),
-            'runtime': getRuntime(info),
+            'runtime': getRuntime(lx),
             'director': '',  #
-            'release': getRelease(info),
+            'release': getRelease(lx),
             'number': new_number,
-            'cover': getCover(web),
+            'cover': getCover(lx),
             'cover_small': getCover_small(html),
             'imagecut': 3,
-            'tag': getTag(soup),
-            'label': getLabel(info),
-            'year': getYear(getRelease(info)),  # str(re.search('\d{4}',getRelease(a)).group()),
-            'actor_photo': getActorPhoto(soup),
+            'tag': getTag(lx),
+            'label': getLabel(lx),
+            'year': getYear(getRelease(lx)),
+            'actor_photo': getActorPhoto(lx),
             'website': "https:" + result1,
             'source': 'avsox.py',
-            'series': getSeries(info),
+            'series': getSeries(lx),
         }
     except Exception as e:
         if config.getInstance().debug():
