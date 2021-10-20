@@ -511,6 +511,9 @@ def translate(
         delay: int = 0,
 ):
     trans_result = ""
+    # 中文句子如果包含&等符号会被谷歌翻译截断损失内容，而且中文翻译到中文也没有意义，故而忽略，只翻译带有日语假名的
+    if not is_japanese(src):
+        return src
     if engine == "google-free":
         gsite = config.getInstance().get_translate_service_site()
         if not re.match('^translate\.google\.(com|com\.\w{2}|\w{2})$', gsite):
@@ -620,3 +623,7 @@ def file_modification_days(filename) -> int:
 
 def file_not_exist_or_empty(filepath) -> bool:
     return not os.path.isfile(filepath) or os.path.getsize(filepath) == 0
+
+# 日语简单检测
+def is_japanese(s) -> bool:
+    return bool(re.search(r'[\u3040-\u309F\u30A0-\u30FF\uFF66-\uFF9F]', s, re.UNICODE))
