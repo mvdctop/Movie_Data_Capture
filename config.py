@@ -243,7 +243,19 @@ class Config:
         try:
             return self.conf.get("storyline", "site")
         except:
-            return "airav,avno1,xcity,amazon"
+            return "avno1"
+
+    def storyline_censored_site(self) -> str:
+        try:
+            return self.conf.get("storyline", "censored_site")
+        except:
+            return "airav,xcity,amazon"
+
+    def storyline_uncensored_site(self) -> str:
+        try:
+            return self.conf.get("storyline", "uncensored_site")
+        except:
+            return "58avgo"
 
     def storyline_show(self) -> int:
         try:
@@ -354,7 +366,9 @@ class Config:
 
         sec14 = "storyline"
         conf.add_section(sec14)
-        conf.set(sec14, "site", "airav,avno1,xcity,amazon")
+        conf.set(sec14, "site", "avno1")
+        conf.set(sec14, "censored_site", "airav,xcity,amazon")
+        conf.set(sec14, "uncensored_site", "58avgo")
         conf.set(sec14, "show_result", 0)
         conf.set(sec14, "run_mode", 1)
 

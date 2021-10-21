@@ -566,10 +566,7 @@ def core_main(file_path, number_th):
         c_word = '-C'  # 中文字幕影片后缀
 
     # 判断是否无码
-    if is_uncensored(number):
-        uncensored = 1
-    else:
-        uncensored = 0
+    uncensored = 1 if is_uncensored(number) else 0
 
 
     if '流出' in filepath or 'uncensored' in filepath:

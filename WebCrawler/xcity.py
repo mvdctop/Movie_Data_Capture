@@ -122,7 +122,7 @@ def getDirector(html):
 
 def getOutline(html, number, title):
     storyline_site = config.getInstance().storyline_site().split(',')
-    a = set(storyline_site) & {'airav', 'avno1'}
+    a = set(storyline_site) & {'airav', 'avno1'}  # 只要中文的简介文字
     if len(a):
         site = [n for n in storyline_site if n in a]
         g = getStoryline(number, title, site)

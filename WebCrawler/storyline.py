@@ -8,8 +8,9 @@ from multiprocessing import Pool
 from multiprocessing.dummy import Pool as ThreadPool
 from difflib import SequenceMatcher
 from unicodedata import category
+from number_parser import is_uncensored
 
-G_registered_storyline_site = {"airav", "avno1", "xcity", "amazon"}
+G_registered_storyline_site = {"airav", "avno1", "xcity", "amazon", "58avgo"}
 
 G_mode_txt = ('顺序执行','线程池','进程池')
 
@@ -28,7 +29,16 @@ def getStoryline(number, title, sites: list=None):
     conf = config.getInstance()
     debug = conf.debug() or conf.storyline_show() == 2
     storyine_sites = conf.storyline_site().split(',') if sites is None else sites
-    apply_sites = [ s for s in storyine_sites if s in G_registered_storyline_site]
+    if is_uncensored(number):
+        storyine_sites += conf.storyline_uncensored_site().split(',')
+    else:
+        storyine_sites += conf.storyline_censored_site().split(',')
+    r_dup = set()
+    apply_sites = []
+    for s in storyine_sites:
+        if s in G_registered_storyline_site and s not in r_dup:
+            apply_sites.append(s)
+            r_dup.add(s)
     mp_args = ((site, number, title, debug) for site in apply_sites)
     cores = min(len(apply_sites), os.cpu_count())
     if cores == 0:
@@ -80,6 +90,8 @@ def _getStoryline_mp(site, number, title, debug):
         storyline = getStoryline_xcity(number, debug)
     elif site == "amazon":
         storyline = getStoryline_amazon(title, number, debug)
+    elif site == "58avgo":
+        storyline = getStoryline_58avgo(number, debug)
     if not debug:
         return storyline
     print("[!]MP 进程[{}]运行{:.3f}秒，结束于{}返回结果: {}".format(
@@ -119,24 +131,63 @@ def getStoryline_airav(number, debug):
     return None
 
 
+def getStoryline_58avgo(number, debug):
+    try:
+        url = 'http://58avgo.com/cn/index.aspx' + secrets.choice([
+                '', '?status=3', '?status=4', '?status=7', '?status=9', '?status=10', '?status=11', '?status=12',
+                '?status=1&Sort=Playon', '?status=1&Sort=dateupload', 'status=1&Sort=dateproduce'
+        ]) # 随机选一个，避免网站httpd日志中单个ip的请求太过单一
+        kwd = number[:6] if re.match(r'\d{6}[\-_]\d{2,3}', number) else number
+        result, browser = get_html_by_form(url,
+            fields = {'ctl00$TextBox_SearchKeyWord' : kwd},
+            return_type = 'browser')
+        if not result.ok:
+            raise ValueError(f"get_html_by_form('{url}','{number}') failed")
+        if f'searchresults.aspx?Search={kwd}' not in browser.url:
+            raise ValueError("number not found")
+        s = browser.page.select('div.resultcontent > ul > li.listItem > div.one-info-panel.one > a.ga_click')
+        link = None
+        for i in range(len(s)):
+            title = s[i].h3.text.strip()
+            if re.search(number, title, re.I):
+                link = s[i]
+                break;
+        if link is None:
+            raise ValueError("number not found")
+        result = browser.follow_link(link)
+        if not result.ok or 'playon.aspx' not in browser.url:
+            raise ValueError("detail page not found")
+        title = browser.page.select('head > title')[0].text.strip()
+        detail_number = str(re.findall('\[(.*?)]', title)[0])
+        if not re.search(number, detail_number, re.I):
+            raise ValueError("detail page number not match, got ->[{detail_number}]")
+        return browser.page.select('#ContentPlaceHolder1_Label2')[0].text.strip()
+    except Exception as e:
+        if debug:
+            print(f"[-]MP getOutline_58avgo Error: {e}, number [{number}].")
+        pass
+    return ''
+
+
 def getStoryline_avno1(number, debug):  #获取剧情介绍 从avno1.cc取得
     try:
         url = 'http://www.avno1.cc/cn/' + secrets.choice(['usercenter.php?item=' +
                 secrets.choice(['pay_support', 'qa', 'contact', 'guide-vpn']),
                 '?top=1&cat=hd', '?top=1', '?cat=hd', 'porn', '?cat=jp', '?cat=us', 'recommend_category.php'
         ]) # 随机选一个，避免网站httpd日志中单个ip的请求太过单一
-        number_up = number.upper()
         result, browser = get_html_by_form(url,
             form_select='div.wrapper > div.header > div.search > form',
-            fields = {'kw' : number_up},
+            fields = {'kw' : number},
             return_type = 'browser')
         if not result.ok:
-            raise ValueError(f"get_html_by_form('{url}','{number_up}') failed")
-        title = browser.page.select('div.type_movie > div > ul > li > div > a > h3')[0].text.strip()
-        page_number = title[title.rfind(' '):].upper()
-        if not number_up in page_number:
-            raise ValueError(f"page number ->[{page_number}] not match")
-        return browser.page.select('div.type_movie > div > ul > li:nth-child(1) > div')[0]['data-description'].strip()
+            raise ValueError(f"get_html_by_form('{url}','{number}') failed")
+        s = browser.page.select('div.type_movie > div > ul > li > div')
+        for i in range(len(s)):
+            title = s[i].a.h3.text.strip()
+            page_number = title[title.rfind(' '):].strip()
+            if re.search(number, page_number, re.I):
+                return s[i]['data-description'].strip()
+        raise ValueError(f"page number ->[{page_number}] not match")
     except Exception as e:
         if debug:
             print(f"[-]MP getOutline_avno1 Error: {e}, number [{number}].")

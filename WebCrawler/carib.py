@@ -60,14 +60,9 @@ def get_year(lx: html.HtmlElement) -> str:
 
 def get_outline(lx: html.HtmlElement, number: str, title: str) -> str:
     o = lx.xpath("//div[@class='movie-info section']/p[@itemprop='description']/text()")[0].strip()
-
-    storyline_site = config.getInstance().storyline_site().split(',')
-    a = set(storyline_site) & {'airav', 'avno1'}
-    if len(a):
-        site = [n for n in storyline_site if n in a]
-        g = getStoryline(number, title, site)
-        if len(g):
-            return g
+    g = getStoryline(number, title)
+    if len(g):
+        return g
     return o
 
 def get_release(lx: html.HtmlElement) -> str:
