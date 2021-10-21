@@ -137,7 +137,7 @@ def main(number2):
             'series': getSeries(a),
         }
     except Exception as e:
-        if config.Config().debug():
+        if config.getInstance().debug():
             print(e)
         dic = {"title": ""}
 

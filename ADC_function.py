@@ -1,8 +1,8 @@
 from os import replace
 import requests
-import hashlib
+#import hashlib
 from pathlib import Path
-import random
+import secrets
 import os.path
 import uuid
 import json
@@ -20,12 +20,12 @@ def getXpathSingle(htmlcode, xpath):
     return result1
 
 
-G_USER_AGENT = r'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.82 Safari/537.36'
+G_USER_AGENT = r'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Safari/537.36'
 
 # 网页请求核心
 def get_html(url, cookies: dict = None, ua: str = None, return_type: str = None):
-    verify = config.Config().cacert_file()
-    configProxy = config.Config().proxy()
+    verify = config.getInstance().cacert_file()
+    configProxy = config.getInstance().proxy()
     errors = ""
 
     if ua is None:
@@ -61,7 +61,7 @@ def get_html(url, cookies: dict = None, ua: str = None, return_type: str = None)
 
 
 def post_html(url: str, query: dict, headers: dict = None) -> requests.Response:
-    configProxy = config.Config().proxy()
+    configProxy = config.getInstance().proxy()
     errors = ""
     headers_ua = {"User-Agent": G_USER_AGENT}
     if headers is None:
@@ -85,8 +85,12 @@ def post_html(url: str, query: dict, headers: dict = None) -> requests.Response:
 
 
 def get_html_by_browser(url, cookies: dict = None, ua: str = None, return_type: str = None):
-    browser = mechanicalsoup.StatefulBrowser(user_agent=G_USER_AGENT if ua is None else ua)
-    configProxy = config.Config().proxy()
+    s = None
+    if isinstance(cookies, dict) and len(cookies):
+        s = requests.Session()
+        requests.utils.add_dict_to_cookiejar(s.cookies, cookies)
+    browser = mechanicalsoup.StatefulBrowser(user_agent=G_USER_AGENT if ua is None else ua, session=s)
+    configProxy = config.getInstance().proxy()
     if configProxy.enable:
         browser.session.proxies = configProxy.proxies()
     result = browser.open(url)
@@ -103,17 +107,19 @@ def get_html_by_browser(url, cookies: dict = None, ua: str = None, return_type: 
         return result.text
 
 
-def get_html_by_form(url, form_name: str = None, fields: dict = None, cookies: dict = None, ua: str = None, return_type: str = None):
-    browser = mechanicalsoup.StatefulBrowser(user_agent=G_USER_AGENT if ua is None else ua)
-    if isinstance(cookies, dict):
-        requests.utils.add_dict_to_cookiejar(browser.session.cookies, cookies)
-    configProxy = config.Config().proxy()
+def get_html_by_form(url, form_select: str = None, fields: dict = None, cookies: dict = None, ua: str = None, return_type: str = None):
+    s = None
+    if isinstance(cookies, dict) and len(cookies):
+        s = requests.Session()
+        requests.utils.add_dict_to_cookiejar(s.cookies, cookies)
+    browser = mechanicalsoup.StatefulBrowser(user_agent=G_USER_AGENT if ua is None else ua, session=s)
+    configProxy = config.getInstance().proxy()
     if configProxy.enable:
         browser.session.proxies = configProxy.proxies()
     result = browser.open(url)
     if not result.ok:
         return ''
-    form = browser.select_form() if form_name is None else browser.select_form(form_name)
+    form = browser.select_form() if form_select is None else browser.select_form(form_select)
     if isinstance(fields, dict):
         for k, v in fields.items():
             browser[k] = v
@@ -131,7 +137,7 @@ def get_html_by_form(url, form_name: str = None, fields: dict = None, cookies: d
 
 # def get_javlib_cookie() -> [dict, str]:
 #     import cloudscraper
-#     switch, proxy, timeout, retry_count, proxytype = config.Config().proxy()
+#     switch, proxy, timeout, retry_count, proxytype = config.getInstance().proxy()
 #     proxies = get_proxy(proxy, proxytype)
 #
 #     raw_cookie = {}
@@ -158,7 +164,7 @@ def get_html_by_form(url, form_name: str = None, fields: dict = None, cookies: d
 
 
 def translateTag_to_sc(tag):
-    tranlate_to_sc = config.Config().transalte_to_sc()
+    tranlate_to_sc = config.getInstance().transalte_to_sc()
     if tranlate_to_sc:
         dict_gen = {'中文字幕': '中文字幕',
                     '高清': 'XXXX', '字幕': 'XXXX', '推薦作品': '推荐作品', '通姦': '通奸', '淋浴': '淋浴', '舌頭': '舌头',
@@ -505,8 +511,11 @@ def translate(
         delay: int = 0,
 ):
     trans_result = ""
+    # 中文句子如果包含&等符号会被谷歌翻译截断损失内容，而且中文翻译到中文也没有意义，故而忽略，只翻译带有日语假名的
+    if not is_japanese(src):
+        return src
     if engine == "google-free":
-        gsite = config.Config().get_translate_service_site()
+        gsite = config.getInstance().get_translate_service_site()
         if not re.match('^translate\.google\.(com|com\.\w{2}|\w{2})$', gsite):
             gsite = 'translate.google.cn'
         url = (
@@ -521,7 +530,7 @@ f"https://{gsite}/translate_a/single?client=gtx&dt=t&dj=1&ie=UTF-8&sl=auto&tl={t
         trans_result = trans_result.join(translate_list)
     # elif engine == "baidu":
     #     url = "https://fanyi-api.baidu.com/api/trans/vip/translate"
-    #     salt = random.randint(1, 1435660288)
+    #     salt = secrets.randbelow(1435660287) + 1  # random.randint(1, 1435660288)
     #     sign = app_id + src + str(salt) + key
     #     sign = hashlib.md5(sign.encode()).hexdigest()
     #     url += (
@@ -560,17 +569,6 @@ f"https://{gsite}/translate_a/single?client=gtx&dt=t&dj=1&ie=UTF-8&sl=auto&tl={t
     return trans_result
 
 
-# ========================================================================是否为无码
-def is_uncensored(number):
-    if re.match('^\d{4,}', number) or re.match('n\d{4}', number) or 'HEYZO' in number.upper():
-        return True
-    configs = config.Config().get_uncensored()
-    prefix_list = str(configs).split(',')
-    for pre in prefix_list:
-        if pre.upper() in number.upper():
-            return True
-    return False
-
 # 从浏览器中导出网站登录验证信息的cookies，能够以会员方式打开游客无法访问到的页面
 # 示例: FC2-755670 url https://javdb9.com/v/vO8Mn
 # json 文件格式
@@ -593,20 +591,20 @@ def load_cookies(filename):
     filename = os.path.basename(filename)
     if not len(filename):
         return None, None
-    path_search_order = [
-        f"./{filename}",
-        os.path.join(Path.home(), filename),
-        os.path.join(Path.home(), f".avdc/{filename}"),
-        os.path.join(Path.home(), f".local/share/avdc/{filename}")
-]
+    path_search_order = (
+        Path.cwd() / filename,
+        Path.home() / filename,
+        Path.home() / f".avdc/{filename}",
+        Path.home() / f".local/share/avdc/{filename}"
+    )
     cookies_filename = None
-    for p in path_search_order:
-        if os.path.exists(p):
-            cookies_filename = os.path.abspath(p)
-            break
-    if not cookies_filename:
-        return None, None
     try:
+        for p in path_search_order:
+            if p.is_file():
+                cookies_filename = str(p.resolve())
+                break
+        if not cookies_filename:
+            return None, None
         return json.load(open(cookies_filename)), cookies_filename
     except:
         return None, None
@@ -623,10 +621,9 @@ def file_modification_days(filename) -> int:
         return 9999
     return days
 
-# 检查文件是否是链接
-def is_link(filename: str):
-    if os.path.islink(filename):
-        return True # symlink
-    elif os.stat(filename).st_nlink > 1:
-        return True # hard link Linux MAC OSX Windows NTFS
-    return False
+def file_not_exist_or_empty(filepath) -> bool:
+    return not os.path.isfile(filepath) or os.path.getsize(filepath) == 0
+
+# 日语简单检测
+def is_japanese(s) -> bool:
+    return bool(re.search(r'[\u3040-\u309F\u30A0-\u30FF\uFF66-\uFF9F]', s, re.UNICODE))

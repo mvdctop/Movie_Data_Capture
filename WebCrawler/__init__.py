@@ -32,7 +32,7 @@ def get_data_state(data: dict) -> bool:  # 元数据获取失败检测
 
     return True
 
-def get_data_from_json(file_number, conf: config.Config):  # 从JSON返回元数据
+def get_data_from_json(file_number):  # 从JSON返回元数据
     """
     iterate through all services and fetch the data
     """
@@ -53,6 +53,7 @@ def get_data_from_json(file_number, conf: config.Config):  # 从JSON返回元数
         "fc2club": fc2club.main
     }
 
+    conf = config.getInstance()
     # default fetch order list, from the beginning to the end
     sources = conf.sources().split(',')
     if not len(conf.sources()) > 80:
@@ -114,6 +115,7 @@ def get_data_from_json(file_number, conf: config.Config):  # 从JSON返回元数
             json_data = json.loads(pool.apply_async(func_mapping[source], (file_number,)).get())
             # if any service return a valid return, break
             if get_data_state(json_data):
+                print(f"[+]Find movie [{file_number}] metadata on website '{source}'")
                 break
         pool.close()
         pool.terminate()
@@ -125,6 +127,7 @@ def get_data_from_json(file_number, conf: config.Config):  # 从JSON返回元数
                 json_data = json.loads(func_mapping[source](file_number))
                 # if any service return a valid return, break
                 if get_data_state(json_data):
+                    print(f"[+]Find movie [{file_number}] metadata on website '{source}'")
                     break
             except:
                 break
@@ -132,6 +135,14 @@ def get_data_from_json(file_number, conf: config.Config):  # 从JSON返回元数
     # Return if data not found in all sources
     if not json_data:
         print('[-]Movie Number not found!')
+        return None
+
+    # 增加number严格判断，避免提交任何number，总是返回"本橋実来 ADZ335"，这种返回number不一致的数据源故障
+    # 目前选用number命名规则是javdb.com Domain Creation Date: 2013-06-19T18:34:27Z
+    # 然而也可以跟进关注其它命名规则例如airav.wiki Domain Creation Date: 2019-08-28T07:18:42.0Z
+    # 如果将来javdb.com命名规则下不同Studio出现同名碰撞导致无法区分，可考虑更换规则，更新相应的number分析和抓取代码。
+    if str(json_data.get('number')).upper() != file_number.upper():
+        print('[-]Movie number has changed! [{}]->[{}]'.format(file_number, str(json_data.get('number'))))
         return None
 
     # ================================================网站规则添加结束================================================
@@ -167,6 +178,10 @@ def get_data_from_json(file_number, conf: config.Config):  # 从JSON返回元数
 
     imagecut = json_data.get('imagecut')
     tag = str(json_data.get('tag')).strip("[ ]").replace("'", '').replace(" ", '').split(',')  # 字符串转列表 @
+    while 'XXXX' in tag:
+        tag.remove('XXXX')
+    while 'xxx' in tag:
+        tag.remove('xxx')
     actor = str(actor_list).strip("[ ]").replace("'", '').replace(" ", '')
 
     if title == '' or number == '':
@@ -225,6 +240,8 @@ def get_data_from_json(file_number, conf: config.Config):  # 从JSON返回元数
     studio = studio.replace('エムズビデオグループ','M’s Video Group')
     studio = studio.replace('ミニマム','Minimum')
     studio = studio.replace('ワープエンタテインメント','WAAP Entertainment')
+    studio = studio.replace('pacopacomama,パコパコママ','pacopacomama')
+    studio = studio.replace('パコパコママ','pacopacomama')
     studio = re.sub('.*/妄想族','妄想族',studio)
     studio = studio.replace('/',' ')
     # ===  替换Studio片假名 END
@@ -293,4 +310,7 @@ def special_characters_replacement(text) -> str:
                 replace('"', '＂').      # U+FF02 FULLWIDTH QUOTATION MARK @ Basic Multilingual Plane
                 replace('<', 'ᐸ').       # U+1438 CANADIAN SYLLABICS PA @ Basic Multilingual Plane
                 replace('>', 'ᐳ').       # U+1433 CANADIAN SYLLABICS PO @ Basic Multilingual Plane
-                replace('|', 'ǀ'))       # U+01C0 LATIN LETTER DENTAL CLICK @ Basic Multilingual Plane
+                replace('|', 'ǀ').       # U+01C0 LATIN LETTER DENTAL CLICK @ Basic Multilingual Plane
+                replace('&lsquo;', '‘'). # U+02018 LEFT SINGLE QUOTATION MARK
+                replace('&rsquo;', '’'). # U+02019 RIGHT SINGLE QUOTATION MARK
+                replace('&amp;', '＆'))

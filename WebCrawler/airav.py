@@ -6,6 +6,7 @@ from lxml import etree#need install
 from bs4 import BeautifulSoup#need install
 import json
 from ADC_function import *
+from WebCrawler import javbus
 
 '''
 API
@@ -17,95 +18,94 @@ API
 host = 'https://www.airav.wiki'
 
 # airav这个网站没有演员图片，所以直接使用javbus的图
-def getActorPhoto(htmlcode): #//*[@id="star_qdt"]/li/a/img
-    soup = BeautifulSoup(htmlcode, 'lxml')
-    a = soup.find_all(attrs={'class': 'star-name'})
-    d={}
-    for i in a:
-        l=i.a['href']
-        t=i.get_text()
-        html = etree.fromstring(get_html(l), etree.HTMLParser())
-        p=urljoin("https://www.javbus.com",
-                  str(html.xpath('//*[@id="waterfall"]/div[1]/div/div[1]/img/@src')).strip(" ['']"))
-        p2={t:p}
-        d.update(p2)
-    return d
+def getActorPhoto(javbus_json):
+    result = javbus_json.get('actor_photo')
+    if isinstance(result, dict) and len(result):
+        return result
+    return ''
 
 def getTitle(htmlcode):  #获取标题
-    doc = pq(htmlcode)
-    # h5:first-child定位第一个h5标签，妈的找了好久才找到这个语法
-    title = str(doc('div.d-flex.videoDataBlock h5.d-none.d-md-block:nth-child(2)').text()).replace(' ', '-')
-    try:
-        title2 = re.sub('n\d+-','',title)
+    html = etree.fromstring(htmlcode, etree.HTMLParser())
+    title = str(html.xpath('/html/head/title/text()')[0])
+    result = str(re.findall('](.*?)- AIRAV-WIKI', title)[0]).strip()
+    return result
 
-        return title2
+def getStudio(htmlcode, javbus_json): #获取厂商 已修改
+    # javbus如果有数据以它为准
+    result = javbus_json.get('studio')
+    if isinstance(result, str) and len(result):
+        return result
+    html = etree.fromstring(htmlcode,etree.HTMLParser())
+    return str(html.xpath('//a[contains(@href,"?video_factory=")]/text()')).strip(" ['']")
+def getYear(htmlcode, javbus_json):   #获取年份
+    result = javbus_json.get('year')
+    if isinstance(result, str) and len(result):
+        return result
+    release = getRelease(htmlcode, javbus_json)
+    if len(release) != len('2000-01-01'):
+        return ''
+    return release[:4]
+def getCover(htmlcode, javbus_json):  #获取封面图片
+    result = javbus_json.get('cover')
+    if isinstance(result, str) and len(result):
+        return result
+    html = etree.fromstring(htmlcode, etree.HTMLParser())
+    return html.xpath('//img[contains(@src,"/storage/big_pic/")]/@src')[0]
+def getRelease(htmlcode, javbus_json): #获取出版日期
+    result = javbus_json.get('release')
+    if isinstance(result, str) and len(result):
+        return result
+    html = etree.fromstring(htmlcode, etree.HTMLParser())
+    try:
+        result = re.search(r'\d{4}-\d{2}-\d{2}', str(html.xpath('//li[contains(text(),"發片日期")]/text()'))).group()
     except:
-        return title
-
-def getStudio(htmlcode): #获取厂商 已修改
-    html = etree.fromstring(htmlcode,etree.HTMLParser())
-    # 如果记录中冇导演，厂商排在第4位
-    if '製作商:' == str(html.xpath('/html/body/div[5]/div[1]/div[2]/p[4]/span/text()')).strip(" ['']"):
-        result = str(html.xpath('/html/body/div[5]/div[1]/div[2]/p[4]/a/text()')).strip(" ['']")
-    # 如果记录中有导演，厂商排在第5位
-    elif '製作商:' == str(html.xpath('/html/body/div[5]/div[1]/div[2]/p[5]/span/text()')).strip(" ['']"):
-        result = str(html.xpath('/html/body/div[5]/div[1]/div[2]/p[5]/a/text()')).strip(" ['']")
-    else:
-        result = ''
+        return ''
     return result
-def getYear(htmlcode):   #获取年份
-    html = etree.fromstring(htmlcode,etree.HTMLParser())
-    result = str(html.xpath('/html/body/div[5]/div[1]/div[2]/p[2]/text()')).strip(" ['']")
-    return result
-def getCover(htmlcode):  #获取封面链接
-    doc = pq(htmlcode)
-    image = doc('a.bigImage')
-    return urljoin("https://www.javbus.com", image.attr('href'))
-def getRelease(htmlcode): #获取出版日期
-    html = etree.fromstring(htmlcode, etree.HTMLParser())
-    result = str(html.xpath('/html/body/div[5]/div[1]/div[2]/p[2]/text()')).strip(" ['']")
-    return result
-def getRuntime(htmlcode): #获取分钟 已修改
-    html = etree.fromstring(htmlcode, etree.HTMLParser())
-    result = str(html.xpath('/html/body/div[5]/div[1]/div[2]/p[3]/text()')).strip(" ['']分鐘")
-    return result
-def getActor(htmlcode):   #获取女优
+def getRuntime(javbus_json): #获取播放时长
+    result = javbus_json.get('runtime')
+    if isinstance(result, str) and len(result):
+        return result
+    return ''
+# airav女优数据库较多日文汉字姓名，javbus较多日语假名，因此airav优先
+def getActor(htmlcode, javbus_json):   #获取女优
     b=[]
-    soup=BeautifulSoup(htmlcode,'lxml')
-    a=soup.find_all(attrs={'class':'star-name'})
-    for i in a:
-        b.append(i.get_text())
-    return b
-def getNum(htmlcode):     #获取番号
     html = etree.fromstring(htmlcode, etree.HTMLParser())
-    result = str(html.xpath('/html/body/div[5]/div[1]/div[2]/p[1]/span[2]/text()')).strip(" ['']")
-    return result
-def getDirector(htmlcode): #获取导演 已修改
+    a = html.xpath('//ul[@class="videoAvstarList"]/li/a[starts-with(@href,"/idol/")]/text()')
+    for v in a:
+        v = v.strip()
+        if len(v):
+            b.append(v)
+    if len(b):
+        return b
+    result = javbus_json.get('actor')
+    if isinstance(result, list) and len(result):
+        return result
+    return []
+def getNum(htmlcode, javbus_json):     #获取番号
+    result = javbus_json.get('number')
+    if isinstance(result, str) and len(result):
+        return result
     html = etree.fromstring(htmlcode, etree.HTMLParser())
-    if '導演:' == str(html.xpath('/html/body/div[5]/div[1]/div[2]/p[4]/span/text()')).strip(" ['']"):
-        result = str(html.xpath('/html/body/div[5]/div[1]/div[2]/p[4]/a/text()')).strip(" ['']")
-    else:
-        result = ''         # 记录中有可能没有导演数据
+    title = str(html.xpath('/html/head/title/text()')[0])
+    result = str(re.findall('^\[(.*?)]', title)[0])
     return result
-
-def getOutline(htmlcode):  #获取演员
+def getDirector(javbus_json): #获取导演 已修改
+    result = javbus_json.get('director')
+    if isinstance(result, str) and len(result):
+        return result
+    return ''
+def getOutline(htmlcode):  #获取概述
     html = etree.fromstring(htmlcode, etree.HTMLParser())
     try:
-        result = html.xpath("string(//div[@class='d-flex videoDataBlock']/div[@class='synopsis']/p)").replace('\n','')
+        result = html.xpath("string(//div[@class='d-flex videoDataBlock']/div[@class='synopsis']/p)").replace('\n','').strip()
         return result
     except:
         return ''
-def getSerise(htmlcode):   #获取系列 已修改
-    html = etree.fromstring(htmlcode, etree.HTMLParser())
-    # 如果记录中冇导演，系列排在第6位
-    if '系列:' == str(html.xpath('/html/body/div[5]/div[1]/div[2]/p[6]/span/text()')).strip(" ['']"):
-        result = str(html.xpath('/html/body/div[5]/div[1]/div[2]/p[6]/a/text()')).strip(" ['']")
-    # 如果记录中有导演，系列排在第7位
-    elif '系列:' == str(html.xpath('/html/body/div[5]/div[1]/div[2]/p[7]/span/text()')).strip(" ['']"):
-        result = str(html.xpath('/html/body/div[5]/div[1]/div[2]/p[7]/a/text()')).strip(" ['']")
-    else:
-        result = ''
-    return result
+def getSerise(javbus_json):   #获取系列 已修改
+    result = javbus_json.get('series')
+    if isinstance(result, str) and len(result):
+        return result
+    return ''
 def getTag(htmlcode):  # 获取标签
     tag = []
     soup = BeautifulSoup(htmlcode, 'lxml')
@@ -169,52 +169,50 @@ def main(number):
     try:
         try:
             htmlcode = get_html('https://cn.airav.wiki/video/' + number)
-            javbus_htmlcode = get_html('https://www.javbus.com/ja/' + number)
-
+            javbus_json = json.loads(javbus.main(number))
 
         except:
             print(number)
 
         dic = {
             # 标题可使用airav
-            'title': str(re.sub('\w+-\d+-', '', getTitle(htmlcode))),
-            # 制作商选择使用javbus
-            'studio': getStudio(javbus_htmlcode),
-            # 年份也是用javbus
-            'year': str(re.search('\d{4}', getYear(javbus_htmlcode)).group()),
+            'title': getTitle(htmlcode),
+            # 制作商先找javbus，如果没有再找本站
+            'studio': getStudio(htmlcode, javbus_json),
+            # 年份先试javbus，如果没有再找本站
+            'year': getYear(htmlcode, javbus_json),
             #  简介 使用 airav
             'outline': getOutline(htmlcode),
             # 使用javbus
-            'runtime': getRuntime(javbus_htmlcode),
+            'runtime': getRuntime(javbus_json),
             # 导演 使用javbus
-            'director': getDirector(javbus_htmlcode),
-            # 作者 使用airav
-            'actor': getActor(javbus_htmlcode),
-            # 发售日使用javbus
-            'release': getRelease(javbus_htmlcode),
+            'director': getDirector(javbus_json),
+            # 演员 先试airav
+            'actor': getActor(htmlcode, javbus_json),
+            # 发售日先试javbus
+            'release': getRelease(htmlcode, javbus_json),
             # 番号使用javbus
-            'number': getNum(javbus_htmlcode),
+            'number': getNum(htmlcode, javbus_json),
             # 封面链接 使用javbus
-            'cover': getCover(javbus_htmlcode),
+            'cover': getCover(htmlcode, javbus_json),
             # 剧照获取
             'extrafanart': getExtrafanart(htmlcode),
             'imagecut': 1,
             # 使用 airav
             'tag': getTag(htmlcode),
             # 使用javbus
-            'label': getSerise(javbus_htmlcode),
+            'label': getSerise(javbus_json),
             # 妈的，airav不提供作者图片
-            'actor_photo': getActorPhoto(javbus_htmlcode),
-
+#            'actor_photo': getActorPhoto(javbus_json),
             'website': 'https://www.airav.wiki/video/' + number,
             'source': 'airav.py',
             # 使用javbus
-            'series': getSerise(javbus_htmlcode),
+            'series': getSerise(javbus_json)
         }
         js = json.dumps(dic, ensure_ascii=False, sort_keys=True, indent=4,separators=(',', ':'), )  # .encode('UTF-8')
         return js
     except Exception as e:
-        if config.Config().debug():
+        if config.getInstance().debug():
             print(e)
         data = {
             "title": "",
@@ -226,6 +224,6 @@ def main(number):
 
 
 if __name__ == '__main__':
-    #print(main('ADN-188'))
-    print(main('ADN-188'))
-    print(main('CJOD-278'))
+    print(main('ADV-R0624'))  # javbus页面返回404, airav有数据
+    print(main('ADN-188'))    # 一人
+    print(main('CJOD-278'))   # 多人 javbus演员名称采用日语假名，airav采用日文汉字

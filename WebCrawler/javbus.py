@@ -1,114 +1,76 @@
 import sys
 sys.path.append('../')
 import re
-from pyquery import PyQuery as pq#need install
 from lxml import etree#need install
-from bs4 import BeautifulSoup#need install
 import json
 from ADC_function import *
-from WebCrawler import fanza
-from WebCrawler import airav
+from WebCrawler.storyline import getStoryline
 
-def getActorPhoto(htmlcode): #//*[@id="star_qdt"]/li/a/img
-    soup = BeautifulSoup(htmlcode, 'lxml')
-    a = soup.find_all(attrs={'class': 'star-name'})
+def getActorPhoto(html):
+    actors = html.xpath('//div[@class="star-name"]/a')
     d={}
-    for i in a:
-        l=i.a['href']
-        t=i.get_text()
-        html = etree.fromstring(get_html(l), etree.HTMLParser())
+    for i in actors:
+        url=i.attrib['href']
+        t=i.attrib['title']
+        html = etree.fromstring(get_html(url), etree.HTMLParser())
         p=urljoin("https://www.javbus.com",
                   str(html.xpath('//*[@id="waterfall"]/div[1]/div/div[1]/img/@src')).strip(" ['']"))
         p2={t:p}
         d.update(p2)
     return d
-def getTitle(htmlcode):  #获取标题
-    doc = pq(htmlcode)
-    title=str(doc('div.container h3').text()).replace(' ','-')
-    try:
-        title2 = re.sub('n\d+-','',title)
-        return title2
-    except:
-        return title
-def getStudio(htmlcode): #获取厂商 已修改
-    html = etree.fromstring(htmlcode,etree.HTMLParser())
-    # 如果记录中冇导演，厂商排在第4位
-    if '製作商:' == str(html.xpath('/html/body/div[5]/div[1]/div[2]/p[4]/span/text()')).strip(" ['']"):
-        result = str(html.xpath('/html/body/div[5]/div[1]/div[2]/p[4]/a/text()')).strip(" ['']")
-    # 如果记录中有导演，厂商排在第5位
-    elif '製作商:' == str(html.xpath('/html/body/div[5]/div[1]/div[2]/p[5]/span/text()')).strip(" ['']"):
-        result = str(html.xpath('/html/body/div[5]/div[1]/div[2]/p[5]/a/text()')).strip(" ['']")
-    else:
-        result = ''
-    return result
-def getYear(htmlcode):   #获取年份
-    html = etree.fromstring(htmlcode,etree.HTMLParser())
+def getTitle(html):  #获取标题
+    title = str(html.xpath('/html/head/title/text()')[0])
+    title = str(re.findall('^.+?\s+(.*) - JavBus$', title)[0]).strip()
+    return title
+def getStudioJa(html):
+    x = html.xpath('//span[contains(text(),"メーカー:")]/../a/text()')
+    return str(x[0]) if len(x) else ''
+def getStudio(html): #获取厂商
+    x = html.xpath('//span[contains(text(),"製作商:")]/../a/text()')
+    return str(x[0]) if len(x) else ''
+def getYear(html):   #获取年份
+    result = str(html.xpath('/html/body/div[5]/div[1]/div[2]/p[2]/text()')).strip(" ['']").strip()
+    return result[:4] if len(result)>=len('2000-01-01') else ''
+def getCover(html):  #获取封面链接
+    image = str(html.xpath('//a[@class="bigImage"]/@href')[0])
+    return urljoin("https://www.javbus.com", image)
+def getRelease(html): #获取出版日期
     result = str(html.xpath('/html/body/div[5]/div[1]/div[2]/p[2]/text()')).strip(" ['']")
     return result
-def getCover(htmlcode):  #获取封面链接
-    doc = pq(htmlcode)
-    image = doc('a.bigImage')
-    return urljoin("https://www.javbus.com", image.attr('href'))
-def getRelease(htmlcode): #获取出版日期
-    html = etree.fromstring(htmlcode, etree.HTMLParser())
-    result = str(html.xpath('/html/body/div[5]/div[1]/div[2]/p[2]/text()')).strip(" ['']")
-    return result
-def getRuntime(htmlcode): #获取分钟 已修改
-    html = etree.fromstring(htmlcode, etree.HTMLParser())
+def getRuntime(html): #获取分钟 已修改
     result = str(html.xpath('/html/body/div[5]/div[1]/div[2]/p[3]/text()')).strip(" ['']分鐘")
     return result
-def getActor(htmlcode):   #获取女优
+def getActor(html):   #获取女优
     b=[]
-    soup=BeautifulSoup(htmlcode,'lxml')
-    a=soup.find_all(attrs={'class':'star-name'})
-    for i in a:
-        b.append(i.get_text())
+    actors = html.xpath('//div[@class="star-name"]/a')
+    for i in actors:
+        b.append(i.attrib['title'])
     return b
-def getNum(htmlcode):     #获取番号
-    html = etree.fromstring(htmlcode, etree.HTMLParser())
-    result = str(html.xpath('/html/body/div[5]/div[1]/div[2]/p[1]/span[2]/text()')).strip(" ['']")
-    return result
-def getDirector(htmlcode): #获取导演 已修改
-    html = etree.fromstring(htmlcode, etree.HTMLParser())
-    if '導演:' == str(html.xpath('/html/body/div[5]/div[1]/div[2]/p[4]/span/text()')).strip(" ['']"):
-        result = str(html.xpath('/html/body/div[5]/div[1]/div[2]/p[4]/a/text()')).strip(" ['']")
-    else:
-        result = ''         # 记录中有可能没有导演数据
-    return result
-def getCID(htmlcode):
-    html = etree.fromstring(htmlcode, etree.HTMLParser())
-    #print(htmlcode)
+def getNum(html):     #获取番号
+    kwdlist = html.xpath('/html/head/meta[@name="keywords"]/@content')[0].split(',')
+    return kwdlist[0]
+def getDirectorJa(html):
+    x = html.xpath('//span[contains(text(),"監督:")]/../a/text()')
+    return str(x[0]) if len(x) else ''
+def getDirector(html): #获取导演
+    x = html.xpath('//span[contains(text(),"導演:")]/../a/text()')
+    return str(x[0]) if len(x) else ''
+def getCID(html):
     string = html.xpath("//a[contains(@class,'sample-box')][1]/@href")[0].replace('https://pics.dmm.co.jp/digital/video/','')
     result = re.sub('/.*?.jpg','',string)
     return result
-def getOutline(number):  #获取剧情介绍
-    try:
-        response = json.loads(airav.main(number))
-        result = response['outline']
-        return result
-    except:
-        return ''
-def getSerise(htmlcode):   #获取系列 已修改
-    html = etree.fromstring(htmlcode, etree.HTMLParser())
-    # 如果记录中冇导演，系列排在第6位
-    if '系列:' == str(html.xpath('/html/body/div[5]/div[1]/div[2]/p[6]/span/text()')).strip(" ['']"):
-        result = str(html.xpath('/html/body/div[5]/div[1]/div[2]/p[6]/a/text()')).strip(" ['']")
-    # 如果记录中有导演，系列排在第7位
-    elif '系列:' == str(html.xpath('/html/body/div[5]/div[1]/div[2]/p[7]/span/text()')).strip(" ['']"):
-        result = str(html.xpath('/html/body/div[5]/div[1]/div[2]/p[7]/a/text()')).strip(" ['']")
-    else:
-        result = ''
-    return result
-def getTag(htmlcode):  # 获取标签
-    tag = []
-    soup = BeautifulSoup(htmlcode, 'lxml')
-    a = soup.find_all(attrs={'class': 'genre'})
-    for i in a:
-        if 'onmouseout' in str(i) or '多選提交' in str(i):
-            continue
-        tag.append(translateTag_to_sc(i.get_text()))
-    return tag
-
+def getOutline(number, title):  #获取剧情介绍 多进程并发查询
+    return getStoryline(number,title)
+def getSeriseJa(html):
+    x = html.xpath('//span[contains(text(),"シリーズ:")]/../a/text()')
+    return str(x[0]) if len(x) else ''
+def getSerise(html):   #获取系列
+    x = html.xpath('//span[contains(text(),"系列:")]/../a/text()')
+    return str(x[0]) if len(x) else ''
+def getTag(html):  # 获取标签
+    klist = html.xpath('/html/head/meta[@name="keywords"]/@content')[0].split(',')
+    taglist = [translateTag_to_sc(v) for v in klist[1:]]
+    return taglist
 def getExtrafanart(htmlcode):  # 获取剧照
     html_pather = re.compile(r'<div id=\"sample-waterfall\">[\s\S]*?</div></a>\s*?</div>')
     html = html_pather.search(htmlcode)
@@ -117,32 +79,34 @@ def getExtrafanart(htmlcode):  # 获取剧照
         extrafanart_pather = re.compile(r'<a class=\"sample-box\" href=\"(.*?)\"')
         extrafanart_imgs = extrafanart_pather.findall(html)
         if extrafanart_imgs:
-            return extrafanart_imgs
+            return [urljoin('https://www.javbus.com',img) for img in extrafanart_imgs]
     return ''
 
 def main_uncensored(number):
     htmlcode = get_html('https://www.javbus.com/ja/' + number)
-    if getTitle(htmlcode) == '':
-        htmlcode = get_html('https://www.javbus.com/ja/' + number.replace('-','_'))
+    if "<title>404 Page Not Found" in htmlcode:
+        raise Exception('404 page not found')
+    lx = etree.fromstring(htmlcode, etree.HTMLParser())
+    title = getTitle(lx)
     dic = {
-        'title': str(re.sub('\w+-\d+-','',getTitle(htmlcode))).replace(getNum(htmlcode)+'-',''),
-        'studio': getStudio(htmlcode),
-        'year': getYear(htmlcode),
-        'outline': getOutline(number),
-        'runtime': getRuntime(htmlcode),
-        'director': getDirector(htmlcode),
-        'actor': getActor(htmlcode),
-        'release': getRelease(htmlcode),
-        'number': getNum(htmlcode),
-        'cover': getCover(htmlcode),
-        'tag': getTag(htmlcode),
+        'title': title,
+        'studio': getStudioJa(lx),
+        'year': getYear(lx),
+        'outline': getOutline(number, title),
+        'runtime': getRuntime(lx),
+        'director': getDirectorJa(lx),
+        'actor': getActor(lx),
+        'release': getRelease(lx),
+        'number': getNum(lx),
+        'cover': getCover(lx),
+        'tag': getTag(lx),
         'extrafanart': getExtrafanart(htmlcode),
-        'label': getSerise(htmlcode),
+        'label': getSeriseJa(lx),
         'imagecut': 0,
-        'actor_photo': '',
+#        'actor_photo': '',
         'website': 'https://www.javbus.com/ja/' + number,
         'source': 'javbus.py',
-        'series': getSerise(htmlcode),
+        'series': getSeriseJa(lx),
     }
     js = json.dumps(dic, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ':'), )  # .encode('UTF-8')
     return js
@@ -155,32 +119,36 @@ def main(number):
                 htmlcode = get_html('https://www.fanbus.us/' + number)
             except:
                 htmlcode = get_html('https://www.javbus.com/' + number)
+            if "<title>404 Page Not Found" in htmlcode:
+                raise Exception('404 page not found')
+            lx = etree.fromstring(htmlcode,etree.HTMLParser())
+            title = getTitle(lx)
             dic = {
-                'title': str(re.sub('\w+-\d+-', '', getTitle(htmlcode))),
-                'studio': getStudio(htmlcode),
-                'year': str(re.search('\d{4}', getYear(htmlcode)).group()),
-                'outline': getOutline(number),
-                'runtime': getRuntime(htmlcode),
-                'director': getDirector(htmlcode),
-                'actor': getActor(htmlcode),
-                'release': getRelease(htmlcode),
-                'number': getNum(htmlcode),
-                'cover': getCover(htmlcode),
+                'title': title,
+                'studio': getStudio(lx),
+                'year': getYear(lx),
+                'outline': getOutline(number, title),
+                'runtime': getRuntime(lx),
+                'director': getDirector(lx),
+                'actor': getActor(lx),
+                'release': getRelease(lx),
+                'number': getNum(lx),
+                'cover': getCover(lx),
                 'imagecut': 1,
-                'tag': getTag(htmlcode),
+                'tag': getTag(lx),
                 'extrafanart': getExtrafanart(htmlcode),
-                'label': getSerise(htmlcode),
-                'actor_photo': getActorPhoto(htmlcode),
+                'label': getSerise(lx),
+#                'actor_photo': getActorPhoto(lx),
                 'website': 'https://www.javbus.com/' + number,
                 'source': 'javbus.py',
-                'series': getSerise(htmlcode),
+                'series': getSerise(lx),
             }
             js = json.dumps(dic, ensure_ascii=False, sort_keys=True, indent=4,separators=(',', ':'), )  # .encode('UTF-8')
             return js
         except:
             return main_uncensored(number)
     except Exception as e:
-        if config.Config().debug():
+        if config.getInstance().debug():
             print(e)
         data = {
             "title": "",
@@ -191,5 +159,13 @@ def main(number):
         return js
 
 if __name__ == "__main__" :
+    config.G_conf_override['debug_mode:switch'] = True
+    print(main('ABP-888'))
+    print(main('ABP-960'))
+    print(main('ADV-R0624'))    # 404
+    print(main('MMNT-010'))
     print(main('ipx-292'))
     print(main('CEMD-011'))
+    print(main('CJOD-278'))
+    print(main('100221_001'))
+    print(main('AVSW-061'))
