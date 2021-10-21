@@ -162,14 +162,15 @@ def close_logfile(logdir: str):
                 f.unlink(missing_ok=True)
             except:
                 pass
-    # 合并日志 只检测日志目录内的文本日志，忽略子目录。三个月前的日志，按月合并为一个月志，
-    # 去年及以前的月志，今年4月以后将之按年合并为年志
+    # 合并日志 只检测日志目录内的文本日志，忽略子目录。三天前的日志，按日合并为单个日志，三个月前的日志，
+    # 按月合并为单个月志，去年及以前的月志，今年4月以后将之按年合并为年志
     # 测试步骤：
     """
     LOGDIR=/tmp/avlog
     mkdir -p $LOGDIR
     for f in {2016..2020}{01..12}{01..28};do;echo $f>$LOGDIR/avdc_${f}T235959.txt;done
     for f in {01..09}{01..28};do;echo 2021$f>$LOGDIR/avdc_2021${f}T235959.txt;done
+    for f in {00..23};do;echo 20211001T$f>$LOGDIR/avdc_20211001T${f}5959.txt;done
     echo "$(ls -1 $LOGDIR|wc -l) files in $LOGDIR"
     # 1932 files in /tmp/avlog
     avdc -zgic1 -d0 -m3 -o $LOGDIR
@@ -177,19 +178,40 @@ def close_logfile(logdir: str):
     ls $LOGDIR
     # rm -rf $LOGDIR
     """
-    # 第一步，合并到月
     today = datetime.today()
+    # 第一步，合并到日。3天前的日志，文件名是同一天的合并为一份日志
+    for i in range(1):
+        txts = [f for f in log_dir.glob(r'*.txt') if re.match(r'^avdc_\d{8}T\d{6}$', f.stem, re.A)]
+        if not txts or not len(txts):
+            break
+        e = [f for f in txts if '_err' in f.stem]
+        txts.sort()
+        tmstr_3_days_ago = (today.replace(hour=0) - timedelta(days=3)).strftime("%Y%m%dT99")
+        deadline_day = f'avdc_{tmstr_3_days_ago}'
+        day_merge = [f for f in txts if f.stem < deadline_day]
+        if not day_merge or not len(day_merge):
+            break
+        cutday = len('T235959.txt')  # cut length avdc_20201201|T235959.txt
+        for f in day_merge:
+            try:
+                day_file_name = str(f)[:-cutday] + '.txt' # avdc_20201201.txt
+                with open(day_file_name, 'a', encoding='utf-8') as m:
+                    m.write(f.read_text(encoding='utf-8'))
+                f.unlink(missing_ok=True)
+            except:
+                pass
+    # 第二步，合并到月
     for i in range(1):  # 利用1次循环的break跳到第二步，避免大块if缩进或者使用goto语法
-        txts = [f for f in log_dir.glob(r'*.txt') if re.match(r'avdc_\d{8}T\d{6}', f.stem, re.A)]
+        txts = [f for f in log_dir.glob(r'*.txt') if re.match(r'^avdc_\d{8}$', f.stem, re.A)]
         if not txts or not len(txts):
             break
         txts.sort()
-        tmstr_3_month_ago = (today.replace(day=1) - timedelta(days=3*30)).strftime("%Y%m32T")
+        tmstr_3_month_ago = (today.replace(day=1) - timedelta(days=3*30)).strftime("%Y%m32")
         deadline_month = f'avdc_{tmstr_3_month_ago}'
         month_merge = [f for f in txts if f.stem < deadline_month]
         if not month_merge or not len(month_merge):
             break
-        tomonth = len('01T235959.txt')  # cut length avdc_202012|01T235959.txt
+        tomonth = len('01.txt')  # cut length avdc_202012|01.txt
         for f in month_merge:
             try:
                 month_file_name = str(f)[:-tomonth] + '.txt' # avdc_202012.txt
@@ -198,10 +220,10 @@ def close_logfile(logdir: str):
                 f.unlink(missing_ok=True)
             except:
                 pass
-    # 第二步，月合并到年
+    # 第三步，月合并到年
     if today.month < 4:
         return
-    mons = [f for f in log_dir.glob(r'*.txt') if re.match(r'avdc_\d{6}', f.stem, re.A)]
+    mons = [f for f in log_dir.glob(r'*.txt') if re.match(r'^avdc_\d{6}$', f.stem, re.A)]
     if not mons or not len(mons):
         return
     mons.sort()
@@ -218,7 +240,7 @@ def close_logfile(logdir: str):
             f.unlink(missing_ok=True)
         except:
             pass
-    # 第三步，压缩年志 如果有压缩需求，请自行手工压缩，或者使用外部脚本来定时完成。推荐nongnu的lzip，对于
+    # 第四步，压缩年志 如果有压缩需求，请自行手工压缩，或者使用外部脚本来定时完成。推荐nongnu的lzip，对于
     # 这种粒度的文本日志，压缩比是目前最好的。lzip -9的运行参数下，日志压缩比要高于xz -9，而且内存占用更少，
     # 多核利用率更高(plzip多线程版本)，解压速度更快。压缩后的大小差不多是未压缩时的2.4%到3.7%左右，
     # 100MB的日志文件能缩小到3.7MB。
