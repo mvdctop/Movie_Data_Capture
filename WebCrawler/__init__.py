@@ -248,6 +248,7 @@ def get_data_from_json(file_number):  # 从JSON返回元数据
 
     # 返回处理后的json_data
     json_data['title'] = title
+    json_data['original_title'] = title
     json_data['actor'] = actor
     json_data['release'] = release
     json_data['cover_small'] = cover_small
