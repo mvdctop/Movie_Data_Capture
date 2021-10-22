@@ -572,7 +572,7 @@ def core_main(file_path, number_th):
     if '流出' in filepath or 'uncensored' in filepath:
         liuchu = '流出'
         leak = 1
-        leak_word = '-流出' # 流出影片后缀
+        leak_word = '-uncensored' # 流出影片后缀
     else:
         leak = 0
 
