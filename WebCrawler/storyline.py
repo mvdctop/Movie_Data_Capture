@@ -128,7 +128,7 @@ def getStoryline_airav(number, debug):
         return desc
     except Exception as e:
         if debug:
-            print(f"[-]MP getOutline_amazon Error: {e},number [{number}].")
+            print(f"[-]MP getStoryline_airav Error: {e},number [{number}].")
         pass
     return None
 
