@@ -242,7 +242,7 @@ def extrafanart_download_threadpool(url_list, save_dir, number, source_movie):
         return
     with ThreadPoolExecutor(os.cpu_count()) as pool:
         result = pool.map(download_one_file, mp_args)
-    for s in sorted(result, key=lambda p: 0 if not p else int(re.findall('(\d+)\.jpg$', p, re.A)[0])):
+    for s in result:
         print(s) if s else None
     if not all(result): # 非致命错误，电影不移入失败文件夹，将来可以用模式3补齐
         print('[-]Failed download some extrafanart images for number [{number}], you may retry run mode 3 later.')
