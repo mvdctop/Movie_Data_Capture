@@ -153,8 +153,12 @@ class Config:
     def is_extrafanart(self) -> bool:
         return self.conf.getboolean("extrafanart", "switch")
 
-    def extrafanart_thread_pool_download(self) -> bool:
-        return self.conf.getboolean("extrafanart", "parallel_download")
+    def extrafanart_thread_pool_download(self) -> int:
+        try:
+            v = self.conf.getint("extrafanart", "parallel_download")
+            return v if v >= 0 else 5
+        except:
+            return 5
 
     def watermark_type(self) -> int:
         return int(self.conf.get("watermark", "water"))

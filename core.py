@@ -240,7 +240,10 @@ def extrafanart_download_threadpool(url_list, save_dir, number):
         mp_args.append((url_list[i], jpg_fullpath))
     if not len(mp_args):
         return
-    with ThreadPoolExecutor(os.cpu_count()) as pool:
+    parallel = min(len(mp_args), conf.extrafanart_thread_pool_download())
+    if parallel > 100:
+        print('[!]Warrning: Parallel download thread too large may cause website ban IP!')
+    with ThreadPoolExecutor(parallel) as pool:
         result = list(pool.map(download_one_file, mp_args))
     for i in range(len(result)):
         print('[+]Extrafanart Downloaded!', result[i]) if result[i] else print(f'[-]Extrafanart {i+1} for [{number}] download failed!')
