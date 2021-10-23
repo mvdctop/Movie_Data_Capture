@@ -12,6 +12,8 @@ import re
 import config
 from urllib.parse import urljoin
 import mechanicalsoup
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
 
 def getXpathSingle(htmlcode, xpath):
@@ -28,10 +30,7 @@ def get_html(url, cookies: dict = None, ua: str = None, return_type: str = None)
     configProxy = config.getInstance().proxy()
     errors = ""
 
-    if ua is None:
-        headers = {"User-Agent": G_USER_AGENT}  # noqa
-    else:
-        headers = {"User-Agent": ua}
+    headers = {"User-Agent": ua or G_USER_AGENT}  # noqa
 
     for i in range(configProxy.retry):
         try:
@@ -84,15 +83,32 @@ def post_html(url: str, query: dict, headers: dict = None) -> requests.Response:
     print("[-]" + errors)
 
 
+G_DEFAULT_TIMEOUT = 10 # seconds
+
+class TimeoutHTTPAdapter(HTTPAdapter):
+    def __init__(self, *args, **kwargs):
+        self.timeout = G_DEFAULT_TIMEOUT
+        if "timeout" in kwargs:
+            self.timeout = kwargs["timeout"]
+            del kwargs["timeout"]
+        super().__init__(*args, **kwargs)
+    def send(self, request, **kwargs):
+        timeout = kwargs.get("timeout")
+        if timeout is None:
+            kwargs["timeout"] = self.timeout
+        return super().send(request, **kwargs)
+
 def get_html_by_browser(url, cookies: dict = None, ua: str = None, return_type: str = None):
-    s = None
-    if isinstance(cookies, dict) and len(cookies):
-        s = requests.Session()
-        requests.utils.add_dict_to_cookiejar(s.cookies, cookies)
-    browser = mechanicalsoup.StatefulBrowser(user_agent=G_USER_AGENT if ua is None else ua, session=s)
     configProxy = config.getInstance().proxy()
+    s = requests.Session()
+    if isinstance(cookies, dict) and len(cookies):
+        requests.utils.add_dict_to_cookiejar(s.cookies, cookies)
+    retries = Retry(connect=configProxy.retry, backoff_factor=1, status_forcelist=[429, 500, 502, 503, 504])
+    s.mount("https://", TimeoutHTTPAdapter(max_retries=retries, timeout=configProxy.timeout))
+    s.mount("http://", TimeoutHTTPAdapter(max_retries=retries, timeout=configProxy.timeout))
     if configProxy.enable:
-        browser.session.proxies = configProxy.proxies()
+        s.proxies = configProxy.proxies()
+    browser = mechanicalsoup.StatefulBrowser(user_agent=ua or G_USER_AGENT, session=s)
     result = browser.open(url)
     if not result.ok:
         return ''
@@ -108,14 +124,16 @@ def get_html_by_browser(url, cookies: dict = None, ua: str = None, return_type: 
 
 
 def get_html_by_form(url, form_select: str = None, fields: dict = None, cookies: dict = None, ua: str = None, return_type: str = None):
-    s = None
-    if isinstance(cookies, dict) and len(cookies):
-        s = requests.Session()
-        requests.utils.add_dict_to_cookiejar(s.cookies, cookies)
-    browser = mechanicalsoup.StatefulBrowser(user_agent=G_USER_AGENT if ua is None else ua, session=s)
     configProxy = config.getInstance().proxy()
+    s = requests.Session()
+    if isinstance(cookies, dict) and len(cookies):
+        requests.utils.add_dict_to_cookiejar(s.cookies, cookies)
+    retries = Retry(connect=configProxy.retry, backoff_factor=1, status_forcelist=[429, 500, 502, 503, 504])
+    s.mount("https://", TimeoutHTTPAdapter(max_retries=retries, timeout=configProxy.timeout))
+    s.mount("http://", TimeoutHTTPAdapter(max_retries=retries, timeout=configProxy.timeout))
     if configProxy.enable:
-        browser.session.proxies = configProxy.proxies()
+        s.proxies = configProxy.proxies()
+    browser = mechanicalsoup.StatefulBrowser(user_agent=ua or G_USER_AGENT, session=s)
     result = browser.open(url)
     if not result.ok:
         return ''
