@@ -58,7 +58,7 @@ def getCover_small(html):
     return result
 def getTag(html):
     x = html.xpath('/html/head/meta[@name="keywords"]/@content')[0].split(',')
-    return x[2:] if len(x) > 2 else []
+    return [translateTag_to_sc(i.strip()) for i in x[2:]]  if len(x) > 2 else []
 def getSeries(html):
     try:
         result1 = str(html.xpath('//span[contains(text(),"系列:")]/../span[2]/text()')).strip(" ['']")

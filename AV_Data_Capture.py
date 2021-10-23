@@ -35,7 +35,7 @@ def check_update(local_version):
         print("[*]======================================================")
 
 
-def argparse_function(ver: str) -> typing.Tuple[str, str, bool]:
+def argparse_function(ver: str) -> typing.Tuple[str, str, str, str, bool]:
     conf = config.getInstance()
     parser = argparse.ArgumentParser(epilog=f"Load Config file '{conf.ini_path}'.")
     parser.add_argument("file", default='', nargs='?', help="Single Movie file path.")
@@ -61,7 +61,7 @@ def argparse_function(ver: str) -> typing.Tuple[str, str, bool]:
                         help="""Only show job list of files and numbers, and **NO** actual operation
 is performed. It may help you correct wrong numbers before real job.""")
     parser.add_argument("-v", "--version", action="version", version=ver)
-    #ini_path
+
     args = parser.parse_args()
     def get_natural_number_or_none(value):
         return int(value) if isinstance(value, str) and value.isnumeric() and int(value)>=0 else None

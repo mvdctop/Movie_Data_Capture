@@ -16,7 +16,7 @@ G_mode_txt = ('顺序执行','线程池','进程池')
 
 class noThread(object):
     def map(self, fn, param):
-        return builtins.map(fn, param)
+        return list(builtins.map(fn, param))
     def __enter__(self):
         return self
     def __exit__(self, exc_type, exc_val, exc_tb):
@@ -34,11 +34,14 @@ def getStoryline(number, title, sites: list=None):
     else:
         storyine_sites += conf.storyline_censored_site().split(',')
     r_dup = set()
-    apply_sites = []
+    sort_sites = []
     for s in storyine_sites:
-        if s in G_registered_storyline_site and s not in r_dup:
-            apply_sites.append(s)
-            r_dup.add(s)
+        ns = re.sub(r'.*?:', '', s, re.A)
+        if ns in G_registered_storyline_site and ns not in r_dup:
+            sort_sites.append(s)
+            r_dup.add(ns)
+    sort_sites.sort()
+    apply_sites = [re.sub(r'.*?:', '', s, re.A) for s in sort_sites]
     mp_args = ((site, number, title, debug) for site in apply_sites)
     cores = min(len(apply_sites), os.cpu_count())
     if cores == 0:
@@ -47,7 +50,6 @@ def getStoryline(number, title, sites: list=None):
     assert run_mode in (0,1,2)
     with ThreadPool(cores) if run_mode == 1 else Pool(cores) if run_mode == 2 else noThread() as pool:
         result = pool.map(getStoryline_mp, mp_args)
-    result = list(result) if run_mode == 0 else result
     if not debug and conf.storyline_show() == 0:
         for value in result:
             if isinstance(value, str) and len(value):
@@ -126,7 +128,7 @@ def getStoryline_airav(number, debug):
         return desc
     except Exception as e:
         if debug:
-            print(f"[-]MP getOutline_amazon Error: {e},number [{number}].")
+            print(f"[-]MP getStoryline_airav Error: {e},number [{number}].")
         pass
     return None
 
