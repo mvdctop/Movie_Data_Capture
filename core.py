@@ -9,6 +9,7 @@ from PIL import Image
 from io import BytesIO
 from pathlib import Path
 from datetime import datetime
+from concurrent.futures import ThreadPoolExecutor
 
 from ADC_function import *
 from WebCrawler import get_data_from_json
@@ -181,7 +182,13 @@ def trailer_download(trailer, leak_word, c_word, number, path, filepath):
     print('[+]Video Downloaded!', path + '/' + number + leak_word + c_word + '-trailer.mp4')
 
 # 剧照下载成功，否则移动到failed
-def extrafanart_download(data, path, filepath):
+def extrafanart_download(data, path, number, filepath):
+    if config.getInstance().extrafanart_thread_pool_download():
+        return extrafanart_download_threadpool(data, path, number)
+    extrafanart_download_one_by_one(data, path, filepath)
+
+def extrafanart_download_one_by_one(data, path, filepath):
+    tm_start = time.perf_counter()
     j = 1
     conf = config.getInstance()
     path = os.path.join(path, conf.get_extrafanart())
@@ -206,8 +213,49 @@ def extrafanart_download(data, path, filepath):
             return
         print('[+]Image Downloaded!', jpg_fullpath)
         j += 1
+    if conf.debug():
+        print(f'[!]Extrafanart download one by one mode runtime {time.perf_counter() - tm_start:.3f}s')
 
+def download_one_file(args):
+    return _download_one_file(*args)
 
+def _download_one_file(url: str, save_path: Path):
+    filebytes = get_html(url, return_type='content')
+    if isinstance(filebytes, bytes) and len(filebytes):
+        if len(filebytes) == save_path.open('wb').write(filebytes):
+            return str(save_path)
+    return None
+
+def extrafanart_download_threadpool(url_list, save_dir, number):
+    tm_start = time.perf_counter()
+    conf = config.getInstance()
+    extrafanart_dir = Path(save_dir) / conf.get_extrafanart()
+    download_only_missing_images = conf.download_only_missing_images()
+    mp_args = []
+    for i in range(len(url_list)):
+        jpg_fullpath = extrafanart_dir /  f'extrafanart-{i+1}.jpg'
+        if download_only_missing_images and not file_not_exist_or_empty(jpg_fullpath):
+            continue
+        mp_args.append((url_list[i], jpg_fullpath))
+    if not len(mp_args):
+        return
+    extrafanart_dir.mkdir(parents=True, exist_ok=True)
+    parallel = min(len(mp_args), conf.extrafanart_thread_pool_download())
+    if parallel > 100:
+        print('[!]Warrning: Parallel download thread too large may cause website ban IP!')
+    with ThreadPoolExecutor(parallel) as pool:
+        result = list(pool.map(download_one_file, mp_args))
+    failed = 0
+    for i in range(len(result)):
+        if not result[i]:
+            print(f'[-]Extrafanart {i+1} for [{number}] download failed!')
+            failed += 1
+    if not all(result): # 非致命错误，电影不移入失败文件夹，将来可以用模式3补齐
+        print(f"[-]Failed downloaded {failed}/{len(result)} extrafanart images for [{number}] to '{extrafanart_dir}', you may retry run mode 3 later.")
+    else:
+        print(f"[+]Successfully downloaded {len(result)} extrafanart to '{extrafanart_dir}'")
+    if conf.debug():
+        print(f'[!]Extrafanart download ThreadPool mode runtime {time.perf_counter() - tm_start:.3f}s')
 
 # 封面是否下载成功，否则移动到failed
 def image_download(cover, number, leak_word, c_word, path, filepath):
@@ -610,7 +658,7 @@ def core_main(file_path, number_th):
             try:
                 # 下载剧照 data, path, filepath
                 if conf.is_extrafanart() and json_data.get('extrafanart'):
-                    extrafanart_download(json_data.get('extrafanart'), path, filepath)
+                    extrafanart_download(json_data.get('extrafanart'), path, number, filepath)
             except:
                 pass
 
@@ -658,7 +706,7 @@ def core_main(file_path, number_th):
 
             # 下载剧照 data, path, filepath
             if conf.is_extrafanart() and json_data.get('extrafanart'):
-                extrafanart_download(json_data.get('extrafanart'), path, filepath)
+                extrafanart_download(json_data.get('extrafanart'), path, number, filepath)
 
         # 裁剪图
         cutImage(imagecut, path, number, leak_word, c_word)
