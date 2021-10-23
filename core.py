@@ -233,13 +233,13 @@ def extrafanart_download_threadpool(url_list, save_dir, number):
     download_only_missing_images = conf.download_only_missing_images()
     mp_args = []
     for i in range(len(url_list)):
-        jpg_filename = f'extrafanart-{i+1}.jpg'
-        jpg_fullpath = extrafanart_dir / jpg_filename
+        jpg_fullpath = extrafanart_dir /  f'extrafanart-{i+1}.jpg'
         if download_only_missing_images and not file_not_exist_or_empty(jpg_fullpath):
             continue
         mp_args.append((url_list[i], jpg_fullpath))
     if not len(mp_args):
         return
+    extrafanart_dir.mkdir(parents=True, exist_ok=True)
     parallel = min(len(mp_args), conf.extrafanart_thread_pool_download())
     if parallel > 100:
         print('[!]Warrning: Parallel download thread too large may cause website ban IP!')
