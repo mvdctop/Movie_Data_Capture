@@ -184,7 +184,7 @@ def trailer_download(trailer, leak_word, c_word, number, path, filepath):
 # 剧照下载成功，否则移动到failed
 def extrafanart_download(data, path, number, filepath):
     if config.getInstance().extrafanart_thread_pool_download():
-        return extrafanart_download_threadpool(data, path, number, filepath)
+        return extrafanart_download_threadpool(data, path, number)
     extrafanart_download_one_by_one(data, path, filepath)
 
 def extrafanart_download_one_by_one(data, path, filepath):
@@ -226,7 +226,7 @@ def _download_one_file(url: str, save_path: Path):
             return str(save_path)
     return None
 
-def extrafanart_download_threadpool(url_list, save_dir, number, source_movie):
+def extrafanart_download_threadpool(url_list, save_dir, number):
     tm_start = time.perf_counter()
     conf = config.getInstance()
     extrafanart_dir = Path(save_dir) / conf.get_extrafanart()
