@@ -71,7 +71,8 @@ G_TAKE_NUM_RULES = {
     '10mu'  : lambda x:str(re.search(r'\d{6}(-|_)\d{2}', x, re.I).group()).replace('-', '_'),
     'x-art' : lambda x:str(re.search(r'x-art\.\d{2}\.\d{2}\.\d{2}', x, re.I).group()),
     'xxx-av': lambda x:''.join(['xxx-av-', re.findall(r'xxx-av[^\d]*(\d{3,5})[^\d]*', x, re.I)[0]]),
-    'heydouga': lambda x:'heydouga-' + '-'.join(re.findall(r'(\d{4})[\-_](\d{3,4})[^\d]*', x, re.I)[0])
+    'heydouga': lambda x:'heydouga-' + '-'.join(re.findall(r'(\d{4})[\-_](\d{3,4})[^\d]*', x, re.I)[0]),
+    'heyzo' : lambda x: 'HEYZO-' + re.findall(r'heyzo[^\d]*(\d{4})', x, re.I)[0]
 }
 
 def get_number_by_dict(filename: str) -> str:
@@ -128,7 +129,8 @@ if __name__ == "__main__":
         "Muramura-102114_145-HD.wmv",  # 新支持片商格式 102114_145  命名规则来自javdb数据源
         "heydouga-4102-023-CD2.iso",   # 新支持片商格式 heydouga-4102-023 命名规则来自javdb数据源
         "HeyDOuGa4236-1048 Ai Qiu - .mp4", # heydouga-4236-1048 命名规则来自javdb数据源
-        "pacopacomama-093021_539-FHD.mkv" # 新支持片商格式 093021_539 命名规则来自javdb数据源
+        "pacopacomama-093021_539-FHD.mkv", # 新支持片商格式 093021_539 命名规则来自javdb数据源
+        "sbw99.cc@heyzo_hd_2636_full.mp4"
     )
     def evprint(evstr):
         code = compile(evstr, "<string>", "eval")
