@@ -9,6 +9,7 @@ from PIL import Image
 from io import BytesIO
 from pathlib import Path
 from datetime import datetime
+from concurrent.futures import ThreadPoolExecutor
 
 from ADC_function import *
 from WebCrawler import get_data_from_json
@@ -181,7 +182,13 @@ def trailer_download(trailer, leak_word, c_word, number, path, filepath):
     print('[+]Video Downloaded!', path + '/' + number + leak_word + c_word + '-trailer.mp4')
 
 # 剧照下载成功，否则移动到failed
-def extrafanart_download(data, path, filepath):
+def extrafanart_download(data, path, number, filepath):
+    if config.getInstance().extrafanart_thread_pool_download():
+        return extrafanart_download_threadpool(data, path, number, filepath)
+    extrafanart_download_one_by_one(data, path, filepath)
+
+def extrafanart_download_one_by_one(data, path, filepath):
+    tm_start = time.perf_counter()
     j = 1
     conf = config.getInstance()
     path = os.path.join(path, conf.get_extrafanart())
@@ -206,8 +213,41 @@ def extrafanart_download(data, path, filepath):
             return
         print('[+]Image Downloaded!', jpg_fullpath)
         j += 1
+    if conf.debug():
+        print(f'[!]Extrafanart download one by one mode runtime {time.perf_counter() - tm_start:.3f}s')
 
+def download_one_file(args):
+    return _download_one_file(*args)
 
+def _download_one_file(url: str, save_path: Path):
+    filebytes = get_html(url, return_type='content')
+    if isinstance(filebytes, bytes) and len(filebytes):
+        if len(filebytes) == save_path.open('wb').write(filebytes):
+            return f'[+]Image Downloaded! {save_path}'
+    return None
+
+def extrafanart_download_threadpool(url_list, save_dir, number, source_movie):
+    tm_start = time.perf_counter()
+    conf = config.getInstance()
+    extrafanart_dir = Path(save_dir) / conf.get_extrafanart()
+    download_only_missing_images = conf.download_only_missing_images()
+    mp_args = []
+    for i in range(len(url_list)):
+        jpg_filename = f'extrafanart-{i+1}.jpg'
+        jpg_fullpath = extrafanart_dir / jpg_filename
+        if download_only_missing_images and not file_not_exist_or_empty(jpg_fullpath):
+            continue
+        mp_args.append((url_list[i], jpg_fullpath))
+    if not len(mp_args):
+        return
+    with ThreadPoolExecutor(os.cpu_count()) as pool:
+        result = pool.map(download_one_file, mp_args)
+    for s in sorted(result, key=lambda p: 0 if not p else int(re.findall('(\d+)\.jpg$', p, re.A)[0])):
+        print(s) if s else None
+    if not all(result): # 非致命错误，电影不移入失败文件夹，将来可以用模式3补齐
+        print('[-]Failed download some extrafanart images for number [{number}], you may retry run mode 3 later.')
+    if conf.debug():
+        print(f'[!]Extrafanart download ThreadPool mode runtime {time.perf_counter() - tm_start:.3f}s')
 
 # 封面是否下载成功，否则移动到failed
 def image_download(cover, number, leak_word, c_word, path, filepath):
@@ -610,7 +650,7 @@ def core_main(file_path, number_th):
             try:
                 # 下载剧照 data, path, filepath
                 if conf.is_extrafanart() and json_data.get('extrafanart'):
-                    extrafanart_download(json_data.get('extrafanart'), path, filepath)
+                    extrafanart_download(json_data.get('extrafanart'), path, number, filepath)
             except:
                 pass
 
@@ -658,7 +698,7 @@ def core_main(file_path, number_th):
 
             # 下载剧照 data, path, filepath
             if conf.is_extrafanart() and json_data.get('extrafanart'):
-                extrafanart_download(json_data.get('extrafanart'), path, filepath)
+                extrafanart_download(json_data.get('extrafanart'), path, number, filepath)
 
         # 裁剪图
         cutImage(imagecut, path, number, leak_word, c_word)

@@ -153,6 +153,9 @@ class Config:
     def is_extrafanart(self) -> bool:
         return self.conf.getboolean("extrafanart", "switch")
 
+    def extrafanart_thread_pool_download(self) -> bool:
+        return self.conf.getboolean("extrafanart", "parallel_download")
+
     def watermark_type(self) -> int:
         return int(self.conf.get("watermark", "water"))
 
@@ -363,6 +366,7 @@ class Config:
         conf.add_section(sec13)
         conf.set(sec13, "switch", 1)
         conf.set(sec13, "extrafanart_folder", "extrafanart")
+        conf.set(sec13, "parallel_download", 1)
 
         sec14 = "storyline"
         conf.add_section(sec14)
