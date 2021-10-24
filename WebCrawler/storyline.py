@@ -153,7 +153,7 @@ def getStoryline_58avgo(number, debug):
             title = s[i].h3.text.strip()
             if re.search(number, title, re.I):
                 link = s[i]
-                break;
+                break
         if link is None:
             raise ValueError("number not found")
         result = browser.follow_link(link)
