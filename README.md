@@ -19,7 +19,7 @@ CLI 版本
 #### 本地电影刮削与整理一体化解决方案
 
 # 文档
-* [官方WIKI（不看你怎么用）](https://github.com/yoshiko2/AV_Data_Capture/wiki)
+* [官方教程WIKI](https://github.com/yoshiko2/AV_Data_Capture/wiki)
 * [VergilGao's Docker部署](https://github.com/VergilGao/docker-avdc)
 
 # 下载
