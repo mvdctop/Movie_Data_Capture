@@ -232,11 +232,11 @@ def extrafanart_download_threadpool(url_list, save_dir, number):
     extrafanart_dir = Path(save_dir) / conf.get_extrafanart()
     download_only_missing_images = conf.download_only_missing_images()
     mp_args = []
-    for i in range(len(url_list)):
-        jpg_fullpath = extrafanart_dir /  f'extrafanart-{i+1}.jpg'
+    for i, url in enumerate(url_list, start=1):
+        jpg_fullpath = extrafanart_dir /  f'extrafanart-{i}.jpg'
         if download_only_missing_images and not file_not_exist_or_empty(jpg_fullpath):
             continue
-        mp_args.append((url_list[i], jpg_fullpath))
+        mp_args.append((url, jpg_fullpath))
     if not len(mp_args):
         return
     extrafanart_dir.mkdir(parents=True, exist_ok=True)
@@ -246,11 +246,11 @@ def extrafanart_download_threadpool(url_list, save_dir, number):
     with ThreadPoolExecutor(parallel) as pool:
         result = list(pool.map(download_one_file, mp_args))
     failed = 0
-    for i in range(len(result)):
-        if not result[i]:
-            print(f'[-]Extrafanart {i+1} for [{number}] download failed!')
+    for i, r in enumerate(result, start=1):
+        if not r:
             failed += 1
-    if not all(result): # 非致命错误，电影不移入失败文件夹，将来可以用模式3补齐
+            print(f'[-]Extrafanart {i} for [{number}] download failed!')
+    if failed: # 非致命错误，电影不移入失败文件夹，将来可以用模式3补齐
         print(f"[-]Failed downloaded {failed}/{len(result)} extrafanart images for [{number}] to '{extrafanart_dir}', you may retry run mode 3 later.")
     else:
         print(f"[+]Successfully downloaded {len(result)} extrafanart to '{extrafanart_dir}'")

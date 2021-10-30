@@ -56,20 +56,19 @@ def getStoryline(number, title, sites: list=None):
                 return value
         return ''
     # 以下debug结果输出会写入日志，进程池中的则不会，只在标准输出中显示
-    cnt = len(apply_sites)
-    s = f'[!]Storyline{G_mode_txt[run_mode]}模式运行{cnt}个进程总用时(含启动开销){time.time() - start_time:.3f}秒，结束于{time.strftime("%H:%M:%S")}'
+    s = f'[!]Storyline{G_mode_txt[run_mode]}模式运行{len(apply_sites)}个进程总用时(含启动开销){time.time() - start_time:.3f}秒，结束于{time.strftime("%H:%M:%S")}'
     first = True
     sel = ''
-    for i in range(cnt):
-        sl = len(result[i])if isinstance(result[i], str) else 0
+    for i, site in enumerate(apply_sites):
+        sl = len(result[i]) if isinstance(result[i], str) else 0
         if sl and first:
-            s += f'，[选中{apply_sites[i]}字数:{sl}]'
+            s += f'，[选中{site}字数:{sl}]'
             first = False
             sel = result[i]
         elif sl:
-            s += f'，{apply_sites[i]}字数:{sl}'
+            s += f'，{site}字数:{sl}'
         else:
-            s += f'，{apply_sites[i]}:空'
+            s += f'，{site}:空'
     print(s)
     return sel
 
@@ -149,10 +148,10 @@ def getStoryline_58avgo(number, debug):
             raise ValueError("number not found")
         s = browser.page.select('div.resultcontent > ul > li.listItem > div.one-info-panel.one > a.ga_click')
         link = None
-        for i in range(len(s)):
-            title = s[i].h3.text.strip()
+        for a in s:
+            title = a.h3.text.strip()
             if re.search(number, title, re.I):
-                link = s[i]
+                link = a
                 break
         if link is None:
             raise ValueError("number not found")
@@ -184,11 +183,11 @@ def getStoryline_avno1(number, debug):  #获取剧情介绍 从avno1.cc取得
         if not result.ok:
             raise ValueError(f"get_html_by_form('{url}','{number}') failed")
         s = browser.page.select('div.type_movie > div > ul > li > div')
-        for i in range(len(s)):
-            title = s[i].a.h3.text.strip()
+        for div in s:
+            title = div.a.h3.text.strip()
             page_number = title[title.rfind(' '):].strip()
             if re.search(number, page_number, re.I):
-                return s[i]['data-description'].strip()
+                return div['data-description'].strip()
         raise ValueError(f"page number ->[{page_number}] not match")
     except Exception as e:
         if debug:
@@ -270,32 +269,29 @@ def amazon_select_one(a_titles, q_title, number, debug):
     sel = -1
     ratio = 0
     que_t = ''.join(c for c in q_title if not re.match(r'(P|S|Z).*', category(c), re.A))
-    for loc in range(len(a_titles)):
-        t = a_titles[loc]
-        if re.search(number, t, re.I): # 基本不带番号，但也有极个别有的，找到番号相同的直接通过
-            return loc
-        if not re.search('DVD|Blu-ray', t, re.I):
+    for tloc, title in enumerate(a_titles):
+        if re.search(number, title, re.I): # 基本不带番号，但也有极个别有的，找到番号相同的直接通过
+            return tloc
+        if not re.search('DVD|Blu-ray', title, re.I):
             continue
-        ama_t = str(re.sub('DVD|Blu-ray', "", t, re.I))
+        ama_t = str(re.sub('DVD|Blu-ray', "", title, re.I))
         ama_t = ''.join(c for c in ama_t if not re.match(r'(P|S|Z).*', category(c), re.A))
         findlen = 0
         lastpos = -1
-        cnt = len(ama_t)
-        for c in reversed(ama_t):
-            cnt -= 1
-            pos = que_t.rfind(c)
+        for cloc, char in reversed(tuple(enumerate(ama_t))):
+            pos = que_t.rfind(char)
             if lastpos >= 0:
-                pos_near = que_t[:lastpos].rfind(c)
+                pos_near = que_t[:lastpos].rfind(char)
                 if pos_near < 0:
                     findlen = 0
                     lastpos = -1
-                    ama_t = ama_t[:cnt+1]
+                    ama_t = ama_t[:cloc+1]
                 else:
                     pos = pos_near
             if pos < 0:
-                if category(c) == 'Nd':
+                if category(char) == 'Nd':
                     return -1
-                ama_t = ama_t[:cnt]
+                ama_t = ama_t[:cloc]
                 findlen = 0
                 lastpos = -1
                 continue
@@ -311,7 +307,7 @@ def amazon_select_one(a_titles, q_title, number, debug):
             return -1
         r = SequenceMatcher(None, ama_t, que_t).ratio()
         if r > ratio:
-            sel = loc
+            sel = tloc
             ratio = r
             save_t_ = ama_t
             if ratio > 0.999:
