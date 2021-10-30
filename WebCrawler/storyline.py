@@ -10,7 +10,7 @@ from difflib import SequenceMatcher
 from unicodedata import category
 from number_parser import is_uncensored
 
-G_registered_storyline_site = {"airav", "avno1", "xcity", "amazon", "58avgo"}
+G_registered_storyline_site = {"airavwiki", "airav", "avno1", "xcity", "amazon", "58avgo"}
 
 G_mode_txt = ('顺序执行','线程池','进程池')
 
@@ -83,6 +83,8 @@ def _getStoryline_mp(site, number, title, debug):
     storyline = None
     if not isinstance(site, str):
         return storyline
+    elif site == "airavwiki":
+        storyline = getStoryline_airavwiki(number, debug)
     elif site == "airav":
         storyline = getStoryline_airav(number, debug)
     elif site == "avno1":
@@ -113,9 +115,9 @@ def getStoryline_airav(number, debug):
         if not res.ok:
             raise ValueError(f"get_html_by_browser('{url}') failed")
         avs = browser.page.select_one('div.resultcontent > ul > li:nth-child(1) > div')
-        if number_up not in avs.select_one('a > h3').text.upper():
+        if number_up not in avs.a.h3.text.upper():
             raise ValueError("number not found")
-        detail_url = avs.select_one('a')['href']
+        detail_url = avs.a['href']
         res = browser.open_relative(detail_url)
         if not res.ok:
             raise ValueError(f"browser.open_relative('{detail_url}') failed")
@@ -130,6 +132,38 @@ def getStoryline_airav(number, debug):
             print(f"[-]MP getStoryline_airav Error: {e},number [{number}].")
         pass
     return None
+
+
+def getStoryline_airavwiki(number, debug):
+    try:
+        kwd = number[:6] if re.match(r'\d{6}[\-_]\d{2,3}', number) else number
+        url = f'https://cn.airav.wiki/?search={kwd}'
+        result, browser = get_html_by_browser(url, return_type='browser')
+        if not result.ok:
+            raise ValueError(f"get_html_by_browser('{url}','{number}') failed")
+        s = browser.page.select('div.row > div > div.videoList.row > div > a.d-block')
+        link = None
+        for a in s:
+            title = a.img['title']
+            if re.search(number, title, re.I):
+                link = a
+                break
+        if link is None:
+            raise ValueError("number not found")
+        result = browser.follow_link(link)
+        if not result.ok or not re.search(number, browser.url, re.I):
+            raise ValueError("detail page not found")
+        title = browser.page.select('head > title')[0].text.strip()
+        detail_number = str(re.findall('\[(.*?)]', title)[0])
+        if not re.search(number, detail_number, re.I):
+            raise ValueError("detail page number not match, got ->[{detail_number}]")
+        desc = browser.page.select_one('div.d-flex.videoDataBlock > div.synopsis > p').text.strip()
+        return desc
+    except Exception as e:
+        if debug:
+            print(f"[-]MP def getStoryline_airavwiki Error: {e}, number [{number}].")
+        pass
+    return ''
 
 
 def getStoryline_58avgo(number, debug):
