@@ -137,27 +137,31 @@ def getStoryline_airav(number, debug):
 def getStoryline_airavwiki(number, debug):
     try:
         kwd = number[:6] if re.match(r'\d{6}[\-_]\d{2,3}', number) else number
-        url = f'https://cn.airav.wiki/?search={kwd}'
+        url = f'https://www.airav.wiki/api/video/list?barcode=GZAP-055&lang=zh-TW&search={kwd}&lng=zh-CN'
         result, browser = get_html_by_browser(url, return_type='browser')
         if not result.ok:
             raise ValueError(f"get_html_by_browser('{url}','{number}') failed")
-        s = browser.page.select('div.row > div > div.videoList.row > div > a.d-block')
+        j = json.loads(result.content)
+        if int(j.get('count')) == 0:
+            raise ValueError("number not found")
         link = None
-        for a in s:
-            title = a.img['title']
-            if re.search(number, title, re.I):
-                link = a
+        for r in j["result"]:
+            n = r['barcode']
+            if re.search(number, n, re.I):
+                link = f'/api/video/barcode/{n}?lng=zh-CN'
                 break
         if link is None:
             raise ValueError("number not found")
-        result = browser.follow_link(link)
+        result = browser.open_relative(link)
         if not result.ok or not re.search(number, browser.url, re.I):
             raise ValueError("detail page not found")
-        title = browser.page.select('head > title')[0].text.strip()
-        detail_number = str(re.findall('\[(.*?)]', title)[0])
+        j = json.loads(result.content)
+        if int(j.get('count')) != 1:
+            raise ValueError("number not found")
+        detail_number = j["result"]['barcode']
         if not re.search(number, detail_number, re.I):
             raise ValueError("detail page number not match, got ->[{detail_number}]")
-        desc = browser.page.select_one('div.d-flex.videoDataBlock > div.synopsis > p').text.strip()
+        desc = j["result"]['description']
         return desc
     except Exception as e:
         if debug:
