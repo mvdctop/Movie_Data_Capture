@@ -32,7 +32,7 @@ def get_data_state(data: dict) -> bool:  # 元数据获取失败检测
 
     return True
 
-def get_data_from_json(file_number):  # 从JSON返回元数据
+def get_data_from_json(file_number, oCC):  # 从JSON返回元数据
     """
     iterate through all services and fetch the data
     """
@@ -289,6 +289,20 @@ def get_data_from_json(file_number):  # 从JSON返回元数据
                 t = translate(json_data[translate_value])
             if len(t):
                 json_data[translate_value] = special_characters_replacement(t)
+
+    if oCC:
+        cc_vars = conf.cc_convert_vars().split(",")
+        for cc in cc_vars:
+            if cc == "actor":
+                json_data['actor_list'] = [oCC.convert(aa) for aa in json_data['actor_list']]
+                json_data['actor'] = oCC.convert(json_data['actor'])
+            elif cc == "tag":
+                json_data[cc] = [oCC.convert(t) for t in json_data[cc]]
+            else:
+                try:
+                    json_data[cc] = oCC.convert(json_data[cc])
+                except:
+                    pass
 
     naming_rule=""
     for i in conf.naming_rule().split("+"):

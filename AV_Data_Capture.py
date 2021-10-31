@@ -7,6 +7,7 @@ import shutil
 import typing
 import urllib3
 import signal
+import opencc
 
 import config
 from datetime import datetime, timedelta
@@ -377,7 +378,7 @@ def rm_empty_folder(path):
             pass
 
 
-def create_data_and_move(file_path: str, zero_op):
+def create_data_and_move(file_path: str, zero_op, oCC):
     # Normalized number, eg: 111xxx-222.mp4 -> xxx-222.mp4
     debug = config.getInstance().debug()
     n_number = get_number(debug, os.path.basename(file_path))
@@ -388,7 +389,7 @@ def create_data_and_move(file_path: str, zero_op):
         if zero_op:
             return
         if n_number:
-            core_main(file_path, n_number)
+            core_main(file_path, n_number, oCC)
         else:
             print("[-] number empty ERROR")
             moveFailedFolder(file_path)
@@ -413,13 +414,13 @@ def create_data_and_move(file_path: str, zero_op):
                 print('[!]', err)
 
 
-def create_data_and_move_with_custom_number(file_path: str, custom_number):
+def create_data_and_move_with_custom_number(file_path: str, custom_number, oCC):
     conf = config.getInstance()
     file_name = os.path.basename(file_path)
     try:
         print("[!] [{1}] As Number making data for '{0}'".format(file_path, custom_number))
         if custom_number:
-            core_main(file_path, custom_number)
+            core_main(file_path, custom_number, oCC)
         else:
             print("[-] number empty ERROR")
         print("[*]======================================================")
@@ -488,12 +489,16 @@ def main():
 
     create_failed_folder(conf.failed_folder())
 
+    # create OpenCC converter
+    ccm = conf.cc_convert_mode()
+    oCC = None if ccm == 0 else opencc.OpenCC('t2s.json' if ccm == 1 else 's2t.json')
+
     if not single_file_path == '': #Single File
         print('[+]==================== Single File =====================')
         if custom_number == '':
-            create_data_and_move_with_custom_number(single_file_path, get_number(conf.debug(), os.path.basename(single_file_path)))
+            create_data_and_move_with_custom_number(single_file_path, get_number(conf.debug(), os.path.basename(single_file_path)), oCC)
         else:
-            create_data_and_move_with_custom_number(single_file_path, custom_number)
+            create_data_and_move_with_custom_number(single_file_path, custom_number, oCC)
     else:
         folder_path = conf.source_folder()
         if not isinstance(folder_path, str) or folder_path == '':
@@ -515,7 +520,7 @@ def main():
             count = count + 1
             percentage = str(count / int(count_all) * 100)[:4] + '%'
             print('[!] {:>30}{:>21}'.format('- ' + percentage + ' [' + str(count) + '/' + count_all + '] -', time.strftime("%H:%M:%S")))
-            create_data_and_move(movie_path, zero_op)
+            create_data_and_move(movie_path, zero_op, oCC)
             if count >= stop_count:
                 print("[!]Stop counter triggered!")
                 break

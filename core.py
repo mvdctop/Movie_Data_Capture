@@ -574,7 +574,7 @@ def debug_print(data: json):
         pass
 
 
-def core_main(file_path, number_th):
+def core_main(file_path, number_th, oCC):
     conf = config.getInstance()
     # =======================================================================初始化所需变量
     multi_part = 0
@@ -589,7 +589,7 @@ def core_main(file_path, number_th):
     # 下面被注释的变量不需要
     #rootpath= os.getcwd
     number = number_th
-    json_data = get_data_from_json(number)  # 定义番号
+    json_data = get_data_from_json(number, oCC)  # 定义番号
 
     # Return if blank dict returned (data not found)
     if not json_data:

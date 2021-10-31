@@ -284,6 +284,19 @@ class Config:
         except:
             return 1
 
+    def cc_convert_mode(self) -> int:
+        try:
+            v = self.conf.getint("cc_convert", "mode")
+            return v if v in (0,1,2) else 2 if v > 2 else 0
+        except:
+            return 1
+
+    def cc_convert_vars(self) -> str:
+        try:
+            return self.conf.get("cc_convert", "vars")
+        except:
+            return "actor,director,label,outline,series,studio,tag,title"
+
     @staticmethod
     def _exit(sec: str) -> None:
         print("[-] Read config error! Please check the {} section in config.ini", sec)
@@ -386,6 +399,12 @@ class Config:
         conf.set(sec14, "uncensored_site", "3:58avgo")
         conf.set(sec14, "show_result", 0)
         conf.set(sec14, "run_mode", 1)
+        conf.set(sec14, "cc_convert", 1)
+
+        sec15 = "cc_convert"
+        conf.add_section(sec15)
+        conf.set(sec15, "mode", 1)
+        conf.set(sec15, "vars", "actor,director,label,outline,series,studio,tag,title")
 
         return conf
 
