@@ -7,7 +7,7 @@ import shutil
 import typing
 import urllib3
 import signal
-import opencc
+from opencc import OpenCC
 
 import config
 from datetime import datetime, timedelta
@@ -400,7 +400,7 @@ def create_data_and_move(file_path: str, zero_op, oCC):
             if zero_op:
                 return
             if n_number:
-                core_main(file_path, n_number)
+                core_main(file_path, n_number, oCC)
             else:
                 raise ValueError("number empty")
             print("[*]======================================================")
@@ -491,7 +491,12 @@ def main():
 
     # create OpenCC converter
     ccm = conf.cc_convert_mode()
-    oCC = None if ccm == 0 else opencc.OpenCC('t2s.json' if ccm == 1 else 's2t.json')
+    try:
+        oCC = None if ccm == 0 else OpenCC('t2s.json' if ccm == 1 else 's2t.json')
+    except:
+        # some OS no OpennCC cpython, try opencc-python-reimplemented.
+        # pip uninstall opencc && pip install opencc-python-reimplemented
+        oCC = None if ccm == 0 else OpenCC('t2s' if ccm == 1 else 's2t')
 
     if not single_file_path == '': #Single File
         print('[+]==================== Single File =====================')
