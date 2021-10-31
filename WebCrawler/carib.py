@@ -6,17 +6,16 @@ import re
 from ADC_function import *
 from WebCrawler.storyline import getStoryline
 
+
+G_SITE = 'https://www.caribbeancom.com'
+
+
 def main(number: str) -> json:
     try:
-        # 因演员图片功能还未使用，为提速暂时注释，改为用get_html()
-        #r, browser = get_html_by_browser('https://www.caribbeancom.com/moviepages/'+number+'/index.html',
-        #                return_type='browser')
-        #if not r.ok:
-        #    raise ValueError("page not found")
-        #htmlcode = str(browser.page)
-        htmlbyte = get_html('https://www.caribbeancom.com/moviepages/'+number+'/index.html', return_type='content')
-        htmlcode = htmlbyte.decode('euc-jp')
-        if not htmlcode or '<title>404' in htmlcode or 'class="movie-info section"' not in htmlcode:
+        url = f'{G_SITE}/moviepages/{number}/index.html'
+        result, session = get_html_session(url, return_type='session')
+        htmlcode = result.content.decode('euc-jp')
+        if not result or not htmlcode or '<title>404' in htmlcode or 'class="movie-info section"' not in htmlcode:
             raise ValueError("page not found")
 
         lx = html.fromstring(htmlcode)
@@ -32,13 +31,13 @@ def main(number: str) -> json:
             'actor': get_actor(lx),
             'release': get_release(lx),
             'number': number,
-            'cover': 'https://www.caribbeancom.com/moviepages/' + number + '/images/l_l.jpg',
+            'cover': f'{G_SITE}/moviepages/{number}/images/l_l.jpg',
             'tag': get_tag(lx),
             'extrafanart': get_extrafanart(lx),
             'label': get_series(lx),
             'imagecut': 1,
-#            'actor_photo': get_actor_photo(browser),
-            'website': 'https://www.caribbeancom.com/moviepages/' + number + '/index.html',
+#            'actor_photo': get_actor_photo(lx, session),
+            'website': f'{G_SITE}/moviepages/{number}/index.html',
             'source': 'carib.py',
             'series': get_series(lx),
         }
@@ -101,24 +100,25 @@ def get_series(lx: html.HtmlElement) -> str:
         return ''
 
 def get_runtime(lx: html.HtmlElement) -> str:
-    return str(lx.xpath( "//span[@class='spec-content']/span[@itemprop='duration']/text()")[0]).strip()
+    return str(lx.xpath("//span[@class='spec-content']/span[@itemprop='duration']/text()")[0]).strip()
 
-def get_actor_photo(browser):
-    htmla = browser.page.select('#moviepages > div > div:nth-child(1) > div.movie-info.section > ul > li:nth-child(1) > span.spec-content > a')
+def get_actor_photo(lx, session):
+    htmla = lx.xpath("//*[@id='moviepages']/div[@class='container']/div[@class='inner-container']/div[@class='movie-info section']/ul/li[@class='movie-spec']/span[@class='spec-content']/a[@itemprop='actor']")
+    names = lx.xpath("//*[@id='moviepages']/div[@class='container']/div[@class='inner-container']/div[@class='movie-info section']/ul/li[@class='movie-spec']/span[@class='spec-content']/a[@itemprop='actor']/span[@itemprop='name']/text()")
     t = {}
-    for a in htmla:
-        if a.text.strip() == '他':
+    for i, name in enumerate(names):
+        if name.strip() == '他':
             continue
-        p = {a.text.strip(): a['href']}
+        p = {name.strip(): htmla[i].attrib['href']}
         t.update(p)
     o = {}
     for k, v in t.items():
         if '/search_act/' not in v:
             continue
-        r = browser.open_relative(v)
+        r = session.get(urljoin(G_SITE, v))
         if not r.ok:
             continue
-        html = browser.page.prettify()
+        html = r.text
         pos = html.find('.full-bg')
         if pos<0:
             continue
@@ -126,7 +126,7 @@ def get_actor_photo(browser):
         cssBGjpgs = re.findall(r'background: url\((.+\.jpg)', css, re.I)
         if not cssBGjpgs or not len(cssBGjpgs[0]):
             continue
-        p = {k: urljoin(browser.url, cssBGjpgs[0])}
+        p = {k: urljoin(r.url, cssBGjpgs[0])}
         o.update(p)
     return o
 

@@ -118,8 +118,15 @@ def main_uncensored(number):
 def main(number):
     try:
         try:
+            url = "https://www." + secrets.choice([
+                'buscdn.fun', 'busdmm.fun', 'busfan.fun', 'busjav.fun',
+                'cdnbus.fun',
+                'dmmbus.fun', 'dmmsee.fun',
+                'fanbus.us',
+                'seedmm.fun',
+                ]) + "/"
             try:
-                htmlcode = get_html('https://www.fanbus.us/' + number)
+                htmlcode = get_html(url + number)
             except:
                 htmlcode = get_html('https://www.javbus.com/' + number)
             if "<title>404 Page Not Found" in htmlcode:

@@ -4,6 +4,7 @@ import re
 import json
 import builtins
 from ADC_function import *
+from lxml.html import fromstring
 from multiprocessing import Pool
 from multiprocessing.dummy import Pool as ThreadPool
 from difflib import SequenceMatcher
@@ -110,24 +111,30 @@ def _getStoryline_mp(site, number, title, debug):
 
 def getStoryline_airav(number, debug):
     try:
-        number_up = number
         site = secrets.choice(('airav.cc','airav4.club'))
         url = f'https://{site}/searchresults.aspx?Search={number}&Type=0'
-        res, browser = get_html_by_browser(url, return_type='browser')
-        if not res.ok:
-            raise ValueError(f"get_html_by_browser('{url}') failed")
-        avs = browser.page.select_one('div.resultcontent > ul > li:nth-child(1) > div')
-        if number_up not in avs.a.h3.text.upper():
+        res, session = get_html_session(url, return_type='session')
+        if not res:
+            raise ValueError(f"get_html_by_session('{url}') failed")
+        lx = fromstring(res.text)
+        urls = lx.xpath('//div[@class="resultcontent"]/ul/li/div/a[@class="ga_click"]/@href')
+        txts = lx.xpath('//div[@class="resultcontent"]/ul/li/div/a[@class="ga_click"]/h3[@class="one_name ga_name"]/text()')
+        detail_url = None
+        for i, txt in enumerate(txts):
+            if re.search(number, txt, re.I):
+                detail_url = urljoin(res.url, urls[i])
+                break
+        if detail_url is None:
             raise ValueError("number not found")
-        detail_url = avs.a['href']
-        res = browser.open_relative(detail_url)
+        res = session.get(detail_url)
         if not res.ok:
-            raise ValueError(f"browser.open_relative('{detail_url}') failed")
-        t = browser.page.select_one('head > title').text
-        airav_number = str(re.findall(r'^\s*\[(.*?)]', t)[0]).upper()
-        if number.upper() != airav_number:
+            raise ValueError(f"session.get('{detail_url}') failed")
+        lx = fromstring(res.text)
+        t = str(lx.xpath('/html/head/title/text()')[0]).strip()
+        airav_number = str(re.findall(r'^\s*\[(.*?)]', t)[0])
+        if not re.search(number, airav_number, re.I):
             raise ValueError(f"page number ->[{airav_number}] not match")
-        desc = browser.page.select_one('li.introduction > span').text.strip()
+        desc = str(lx.xpath('//span[@id="ContentPlaceHolder1_Label2"]/text()')[0]).strip()
         return desc
     except Exception as e:
         if debug:
@@ -140,9 +147,9 @@ def getStoryline_airavwiki(number, debug):
     try:
         kwd = number[:6] if re.match(r'\d{6}[\-_]\d{2,3}', number) else number
         url = f'https://www.airav.wiki/api/video/list?lang=zh-TW&lng=zh-TW&search={kwd}'
-        result, browser = get_html_by_browser(url, return_type='browser')
-        if not result.ok:
-            raise ValueError(f"get_html_by_browser('{url}','{number}') failed")
+        result, session = get_html_session(url, return_type='session')
+        if not result:
+            raise ValueError(f"get_html_session('{url}','{number}') failed")
         j = json.loads(result.content)
         if int(j.get('count')) == 0:
             raise ValueError("number not found")
@@ -150,12 +157,12 @@ def getStoryline_airavwiki(number, debug):
         for r in j["result"]:
             n = r['barcode']
             if re.search(number, n, re.I):
-                link = f'/api/video/barcode/{n}?lng=zh-TW'
+                link = urljoin(result.url, f'/api/video/barcode/{n}?lng=zh-TW')
                 break
         if link is None:
             raise ValueError("number not found")
-        result = browser.open_relative(link)
-        if not result.ok or not re.search(number, browser.url, re.I):
+        result = session.get(link)
+        if not result.ok or not re.search(number, result.url, re.I):
             raise ValueError("detail page not found")
         j = json.loads(result.content)
         if int(j.get('count')) != 1:
@@ -221,7 +228,7 @@ def getStoryline_avno1(number, debug):  #获取剧情介绍 从avno1.cc取得
             form_select='div.wrapper > div.header > div.search > form',
             fields = {'kw' : number},
             return_type = 'browser')
-        if not result.ok:
+        if not result:
             raise ValueError(f"get_html_by_form('{url}','{number}') failed")
         s = browser.page.select('div.type_movie > div > ul > li > div')
         for div in s:
@@ -261,41 +268,45 @@ def getStoryline_amazon(q_title, number, debug):
     if not isinstance(q_title, str) or not len(q_title):
         return None
     try:
-        amazon_cookie, _ = load_cookies('amazon.json')
-        cookie = amazon_cookie if isinstance(amazon_cookie, dict) else None
+        cookie, cookies_filepath = load_cookies('amazon.json')
         url = "https://www.amazon.co.jp/s?k=" + q_title
-        res, browser = get_html_by_browser(url, cookies=cookie, return_type='browser')
-        if not res.ok:
-            raise ValueError("get_html_by_browser() failed")
-        lks = browser.links(r'/black-curtain/save-eligibility/black-curtain')
-        if isinstance(lks, list) and len(lks):
-            browser.follow_link(lks[0])
+        res, session = get_html_session(url, cookies=cookie, return_type='session')
+        if not res:
+            raise ValueError("get_html_session() failed")
+        lx = fromstring(res.text)
+        lks = lx.xpath('//a[contains(@href, "/black-curtain/save-eligibility/black-curtain")]/@href')
+        if len(lks) and lks[0].startswith('/'):
+            res = session.get(urljoin(res.url, lks[0]))
             cookie = None
-        html = etree.fromstring(str(browser.page), etree.HTMLParser())
-        titles = html.xpath("//span[contains(@class,'a-color-base a-text-normal')]/text()")
-        urls = html.xpath("//span[contains(@class,'a-color-base a-text-normal')]/../@href")
+            lx = fromstring(res.text)
+        titles = lx.xpath("//span[contains(@class,'a-color-base a-text-normal')]/text()")
+        urls = lx.xpath("//span[contains(@class,'a-color-base a-text-normal')]/../@href")
         if not len(urls) or len(urls) != len(titles):
             raise ValueError("titles not found")
         idx = amazon_select_one(titles, q_title, number, debug)
         if not isinstance(idx, int) or idx < 0:
             raise ValueError("title and number not found")
-        furl = urls[idx]
-        r = browser.open_relative(furl)
-        if not r.ok:
+        furl = urljoin(res.url, urls[idx])
+        res = session.get(furl)
+        if not res.ok:
             raise ValueError("browser.open_relative()) failed.")
-        lks = browser.links(r'/black-curtain/save-eligibility/black-curtain')
-        if isinstance(lks, list) and len(lks):
-            browser.follow_link(lks[0])
+        lx = fromstring(res.text)
+        lks = lx.xpath('//a[contains(@href, "/black-curtain/save-eligibility/black-curtain")]/@href')
+        if len(lks) and lks[0].startswith('/'):
+            res = session.get(urljoin(res.url, lks[0]))
             cookie = None
-
-        ama_t = browser.page.select_one('#productDescription > p').text.replace('\n',' ').strip()
-        ama_t = re.sub(r'審査番号:\d+', '', ama_t)
+            lx = fromstring(res.text)
+        div = lx.xpath('//*[@id="productDescription"]')[0]
+        ama_t = ' '.join([e.text.strip() for e in div if not re.search('Comment|h3', str(e.tag), re.I) and isinstance(e.text, str)])
+        ama_t = re.sub(r'審査番号:\d+', '', ama_t).strip()
 
         if cookie is None:
-        # 自动创建的cookies文件放在搜索路径表的末端，最低优先级。有amazon.co.jp帐号的用户可以从浏览器导出cookie放在靠前搜索路径
+            # 删除无效cookies，无论是用户创建还是自动创建，以避免持续故障
+            Path(cookies_filepath).unlink(missing_ok=True)
+            # 自动创建的cookies文件放在搜索路径表的末端，最低优先级。有amazon.co.jp帐号的用户可以从浏览器导出cookie放在靠前搜索路径
             ama_save = Path.home() / ".local/share/avdc/amazon.json"
             ama_save.parent.mkdir(parents=True, exist_ok=True)
-            ama_save.write_text(json.dumps(browser.session.cookies.get_dict(), sort_keys=True, indent=4), encoding='utf-8')
+            ama_save.write_text(json.dumps(session.cookies.get_dict(), sort_keys=True, indent=4), encoding='utf-8')
 
         return ama_t
 

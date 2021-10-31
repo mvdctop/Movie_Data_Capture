@@ -4,7 +4,6 @@ import re
 from lxml import etree
 import json
 from ADC_function import *
-from mechanicalsoup.stateful_browser import StatefulBrowser
 from WebCrawler.storyline import getStoryline
 # import io
 # sys.stdout = io.TextIOWrapper(sys.stdout.buffer, errors = 'replace', line_buffering = True)
@@ -30,8 +29,8 @@ def getActor(html):
         idx = idx + 1
     return r
 
-def getaphoto(url,  browser):
-    html_page = browser.open_relative(url).text if isinstance(browser, StatefulBrowser) else get_html(url)
+def getaphoto(url, session):
+    html_page = session.get(url).text if isinstance(session, requests.Session) else get_html(url)
     img_prether = re.compile(r'<span class\=\"avatar\" style\=\"background\-image\: url\((.*?)\)')
     img_url = img_prether.findall(html_page)
     if img_url:
@@ -39,7 +38,7 @@ def getaphoto(url,  browser):
     else:
         return ''
 
-def getActorPhoto(html, javdb_site,  browser): #//*[@id="star_qdt"]/li/a/img
+def getActorPhoto(html, javdb_site, session):
     actorall = html.xpath('//strong[contains(text(),"演員:")]/../span/a[starts-with(@href,"/actors/")]')
     if not actorall:
         return {}
@@ -47,7 +46,7 @@ def getActorPhoto(html, javdb_site,  browser): #//*[@id="star_qdt"]/li/a/img
     actor_photo = {}
     for i in actorall:
         if i.text in a:
-            actor_photo[i.text] = getaphoto(urljoin(f'https://{javdb_site}.com', i.attrib['href']), browser)
+            actor_photo[i.text] = getaphoto(urljoin(f'https://{javdb_site}.com', i.attrib['href']), session)
     return actor_photo
 
 def getStudio(a, html):
@@ -178,15 +177,6 @@ def getDirector(html):
     result1 = str(html.xpath('//strong[contains(text(),"導演")]/../span/text()')).strip(" ['']")
     result2 = str(html.xpath('//strong[contains(text(),"導演")]/../span/a/text()')).strip(" ['']")
     return str(result1 + result2).strip('+').replace("', '", '').replace('"', '')
-def getOutline0(number):  #获取剧情介绍 airav.wiki站点404，函数暂时更名，等无法恢复时删除
-    try:
-        htmlcode = get_html('https://cn.airav.wiki/video/' + number)
-        from WebCrawler.airav import getOutline as airav_getOutline
-        result = airav_getOutline(htmlcode)
-        return result
-    except:
-        pass
-    return ''
 def getOutline(number, title):  #获取剧情介绍 多进程并发查询
     return getStoryline(number,title)
 def getSeries(html):
@@ -224,11 +214,11 @@ def main(number):
             javdb_site = secrets.choice(javdb_sites)
         if debug:
             print(f'[!]javdb:select site {javdb_site}')
-        browser = None
+        session = None
         try:
             javdb_url = 'https://' + javdb_site + '.com/search?q=' + number + '&f=all'
-            res, browser = get_html_by_browser(javdb_url, cookies=javdb_cookies, return_type='browser')
-            if not res.ok:
+            res, session = get_html_session(javdb_url, cookies=javdb_cookies, return_type='session')
+            if not res:
                 raise
             query_result = res.text
         except:
@@ -251,8 +241,9 @@ def main(number):
                     raise ValueError("number not found")
                 correct_url = urls[0]
         try:
-            if isinstance(browser, StatefulBrowser):  # get faster benefit from http keep-alive
-                detail_page = browser.open_relative(correct_url).text
+            if isinstance(session, requests.Session):  # get faster benefit from http keep-alive
+                javdb_detail_url = urljoin(res.url, correct_url)
+                detail_page = session.get(javdb_detail_url).text
             else:
                 javdb_detail_url = 'https://' + javdb_site + '.com' + correct_url
                 detail_page = get_html(javdb_detail_url, cookies=javdb_cookies)
@@ -303,8 +294,8 @@ def main(number):
             'tag': getTag(lx),
             'label': getLabel(lx),
             'year': getYear(detail_page),  # str(re.search('\d{4}',getRelease(a)).group()),
-#            'actor_photo': getActorPhoto(lx, javdb_site,  browser),
-            'website': 'https://javdb.com' + correct_url,
+#            'actor_photo': getActorPhoto(lx, javdb_site,  session),
+            'website': urljoin('https://javdb.com', correct_url),
             'source': 'javdb.py',
             'series': getSeries(lx),
 

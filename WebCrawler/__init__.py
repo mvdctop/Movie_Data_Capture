@@ -328,6 +328,6 @@ def special_characters_replacement(text) -> str:
                 replace('|', 'ǀ').       # U+01C0 LATIN LETTER DENTAL CLICK @ Basic Multilingual Plane
                 replace('&lsquo;', '‘'). # U+02018 LEFT SINGLE QUOTATION MARK
                 replace('&rsquo;', '’'). # U+02019 RIGHT SINGLE QUOTATION MARK
-                replace('&amp;', '＆').
-                replace('&hellip;','…')
+                replace('&hellip;','…').
+                replace('&amp;', '＆')
             )

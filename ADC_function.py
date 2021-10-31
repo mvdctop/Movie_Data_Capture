@@ -98,59 +98,113 @@ class TimeoutHTTPAdapter(HTTPAdapter):
             kwargs["timeout"] = self.timeout
         return super().send(request, **kwargs)
 
-def get_html_by_browser(url, cookies: dict = None, ua: str = None, return_type: str = None):
+
+#  with keep-alive feature
+def get_html_session(url:str = None, cookies: dict = None, ua: str = None, return_type: str = None):
+    configProxy = config.getInstance().proxy()
+    session = requests.Session()
+    if isinstance(cookies, dict) and len(cookies):
+        requests.utils.add_dict_to_cookiejar(session.cookies, cookies)
+    retries = Retry(total=configProxy.retry, connect=configProxy.retry, backoff_factor=1, status_forcelist=[429, 500, 502, 503, 504])
+    session.mount("https://", TimeoutHTTPAdapter(max_retries=retries, timeout=configProxy.timeout))
+    session.mount("http://", TimeoutHTTPAdapter(max_retries=retries, timeout=configProxy.timeout))
+    if configProxy.enable:
+        session.verify = config.getInstance().cacert_file()
+        session.proxies = configProxy.proxies()
+    headers = {"User-Agent": ua or G_USER_AGENT}
+    session.headers = headers
+    try:
+        if isinstance(url, str) and len(url):
+            result = session.get(str(url))
+        else: # 空url参数直接返回可重用session对象，无需设置return_type
+            return session
+        if not result.ok:
+            return None
+        if return_type == "object":
+            return result
+        elif return_type == "content":
+            return result.content
+        elif return_type == "session":
+            return result, session
+        else:
+            result.encoding = "utf-8"
+            return result.text
+    except requests.exceptions.ProxyError:
+        print("[-]get_html_session() Proxy error! Please check your Proxy")
+    except Exception as e:
+        print(f"[-]get_html_session() failed. {e}")
+    return None
+
+
+def get_html_by_browser(url:str = None, cookies: dict = None, ua: str = None, return_type: str = None):
     configProxy = config.getInstance().proxy()
     s = requests.Session()
     if isinstance(cookies, dict) and len(cookies):
         requests.utils.add_dict_to_cookiejar(s.cookies, cookies)
-    retries = Retry(connect=configProxy.retry, backoff_factor=1, status_forcelist=[429, 500, 502, 503, 504])
+    retries = Retry(total=configProxy.retry, connect=configProxy.retry, backoff_factor=1, status_forcelist=[429, 500, 502, 503, 504])
     s.mount("https://", TimeoutHTTPAdapter(max_retries=retries, timeout=configProxy.timeout))
     s.mount("http://", TimeoutHTTPAdapter(max_retries=retries, timeout=configProxy.timeout))
     if configProxy.enable:
+        s.verify = config.getInstance().cacert_file()
         s.proxies = configProxy.proxies()
-    browser = mechanicalsoup.StatefulBrowser(user_agent=ua or G_USER_AGENT, session=s)
-    result = browser.open(url)
-    if not result.ok:
-        return ''
-    result.encoding = "utf-8"
-    if return_type == "object":
-        return result
-    elif return_type == "content":
-        return result.content
-    elif return_type == "browser":
-        return result, browser
-    else:
-        return result.text
-
+    try:
+        browser = mechanicalsoup.StatefulBrowser(user_agent=ua or G_USER_AGENT, session=s)
+        if isinstance(url, str) and len(url):
+            result = browser.open(url)
+        else:
+            return browser
+        if not result.ok:
+            return None
+        result.encoding = "utf-8"
+        if return_type == "object":
+            return result
+        elif return_type == "content":
+            return result.content
+        elif return_type == "browser":
+            return result, browser
+        else:
+            return result.text
+    except requests.exceptions.ProxyError:
+        print("[-]get_html_by_browser() Proxy error! Please check your Proxy")
+    except Exception as e:
+        print(f'[-]get_html_by_browser() Failed! {e}')
+    return None
 
 def get_html_by_form(url, form_select: str = None, fields: dict = None, cookies: dict = None, ua: str = None, return_type: str = None):
     configProxy = config.getInstance().proxy()
     s = requests.Session()
     if isinstance(cookies, dict) and len(cookies):
         requests.utils.add_dict_to_cookiejar(s.cookies, cookies)
-    retries = Retry(connect=configProxy.retry, backoff_factor=1, status_forcelist=[429, 500, 502, 503, 504])
+    retries = Retry(total=configProxy.retry, connect=configProxy.retry, backoff_factor=1, status_forcelist=[429, 500, 502, 503, 504])
     s.mount("https://", TimeoutHTTPAdapter(max_retries=retries, timeout=configProxy.timeout))
     s.mount("http://", TimeoutHTTPAdapter(max_retries=retries, timeout=configProxy.timeout))
     if configProxy.enable:
+        s.verify = config.getInstance().cacert_file()
         s.proxies = configProxy.proxies()
-    browser = mechanicalsoup.StatefulBrowser(user_agent=ua or G_USER_AGENT, session=s)
-    result = browser.open(url)
-    if not result.ok:
-        return ''
-    form = browser.select_form() if form_select is None else browser.select_form(form_select)
-    if isinstance(fields, dict):
-        for k, v in fields.items():
-            browser[k] = v
-    response = browser.submit_selected()
-    response.encoding = "utf-8"
-    if return_type == "object":
-        return response
-    elif return_type == "content":
-        return response.content
-    elif return_type == "browser":
-        return response, browser
-    else:
-        return response.text
+    try:
+        browser = mechanicalsoup.StatefulBrowser(user_agent=ua or G_USER_AGENT, session=s)
+        result = browser.open(url)
+        if not result.ok:
+            return None
+        form = browser.select_form() if form_select is None else browser.select_form(form_select)
+        if isinstance(fields, dict):
+            for k, v in fields.items():
+                browser[k] = v
+        response = browser.submit_selected()
+        response.encoding = "utf-8"
+        if return_type == "object":
+            return response
+        elif return_type == "content":
+            return response.content
+        elif return_type == "browser":
+            return response, browser
+        else:
+            return response.text
+    except requests.exceptions.ProxyError:
+        print("[-]get_html_by_form() Proxy error! Please check your Proxy")
+    except Exception as e:
+        print(f'[-]get_html_by_form() Failed! {e}')
+    return None
 
 
 # def get_javlib_cookie() -> [dict, str]:
@@ -645,3 +699,33 @@ def file_not_exist_or_empty(filepath) -> bool:
 # 日语简单检测
 def is_japanese(s) -> bool:
     return bool(re.search(r'[\u3040-\u309F\u30A0-\u30FF\uFF66-\uFF9F]', s, re.UNICODE))
+
+
+if __name__ == "__main__":
+    import sys, timeit
+    from http.client import HTTPConnection
+    s = get_html_session()
+    def benchmark(t, url):
+        print(f"HTTP GET Benchmark times:{t} url:{url}")
+        tm = timeit.timeit(f"_ = session1.get('{url}')",
+            "from __main__ import get_html_session;session1=get_html_session()",
+            number=t)
+        print(f'===={tm:2.5f}s get_html_session() Keep-Alive enable====')
+        tm = timeit.timeit(f"_ = browser1.open('{url}')",
+            "from __main__ import get_html_by_browser;browser1=get_html_by_browser()",
+            number=t)
+        print(f'===={tm:2.5f}s get_html_by_browser() Keep-Alive enable====')
+        tm = timeit.timeit(f"_ = get_html('{url}')",
+            "from __main__ import get_html",
+            number=t)
+        print(f'===={tm:2.5f}s get_html() ====')
+    t = 100
+    #url = "https://www.189.cn/"
+    url = "http://www.chinaunicom.com"
+    HTTPConnection.debuglevel = 1
+    _ = s.get(url)
+    HTTPConnection.debuglevel = 0
+    # Usage: python ./ADC_function.py https://cn.bing.com/
+    if len(sys.argv)>1:
+        url = sys.argv[1]
+    benchmark(t, url)
