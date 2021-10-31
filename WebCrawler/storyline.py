@@ -27,6 +27,8 @@ class noThread(object):
 def getStoryline(number, title, sites: list=None):
     start_time = time.time()
     conf = config.getInstance()
+    if not conf.is_storyline():
+        return ''
     debug = conf.debug() or conf.storyline_show() == 2
     storyine_sites = conf.storyline_site().split(',') if sites is None else sites
     if is_uncensored(number):
@@ -137,7 +139,7 @@ def getStoryline_airav(number, debug):
 def getStoryline_airavwiki(number, debug):
     try:
         kwd = number[:6] if re.match(r'\d{6}[\-_]\d{2,3}', number) else number
-        url = f'https://www.airav.wiki/api/video/list?barcode=GZAP-055&lang=zh-TW&search={kwd}&lng=zh-CN'
+        url = f'https://www.airav.wiki/api/video/list?lang=zh-TW&lng=zh-TW&search={kwd}'
         result, browser = get_html_by_browser(url, return_type='browser')
         if not result.ok:
             raise ValueError(f"get_html_by_browser('{url}','{number}') failed")
@@ -148,7 +150,7 @@ def getStoryline_airavwiki(number, debug):
         for r in j["result"]:
             n = r['barcode']
             if re.search(number, n, re.I):
-                link = f'/api/video/barcode/{n}?lng=zh-CN'
+                link = f'/api/video/barcode/{n}?lng=zh-TW'
                 break
         if link is None:
             raise ValueError("number not found")
@@ -163,6 +165,7 @@ def getStoryline_airavwiki(number, debug):
             raise ValueError("detail page number not match, got ->[{detail_number}]")
         desc = j["result"]['description']
         return desc
+
     except Exception as e:
         if debug:
             print(f"[-]MP def getStoryline_airavwiki Error: {e}, number [{number}].")
@@ -196,11 +199,11 @@ def getStoryline_58avgo(number, debug):
         result = browser.follow_link(link)
         if not result.ok or 'playon.aspx' not in browser.url:
             raise ValueError("detail page not found")
-        title = browser.page.select('head > title')[0].text.strip()
+        title = browser.page.select_one('head > title').text.strip()
         detail_number = str(re.findall('\[(.*?)]', title)[0])
         if not re.search(number, detail_number, re.I):
             raise ValueError("detail page number not match, got ->[{detail_number}]")
-        return browser.page.select('#ContentPlaceHolder1_Label2')[0].text.strip()
+        return browser.page.select_one('#ContentPlaceHolder1_Label2').text.strip()
     except Exception as e:
         if debug:
             print(f"[-]MP getOutline_58avgo Error: {e}, number [{number}].")
