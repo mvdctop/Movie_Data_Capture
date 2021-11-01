@@ -30,7 +30,7 @@ def getActor(html):
     return r
 
 def getaphoto(url, session):
-    html_page = session.get(url).text if isinstance(session, requests.Session) else get_html(url)
+    html_page = session.get(url).text if session is not None else get_html(url)
     img_prether = re.compile(r'<span class\=\"avatar\" style\=\"background\-image\: url\((.*?)\)')
     img_url = img_prether.findall(html_page)
     if img_url:
@@ -215,14 +215,21 @@ def main(number):
         if debug:
             print(f'[!]javdb:select site {javdb_site}')
         session = None
+        javdb_url = 'https://' + javdb_site + '.com/search?q=' + number + '&f=all'
         try:
-            javdb_url = 'https://' + javdb_site + '.com/search?q=' + number + '&f=all'
+            if debug:
+                raise # try get_html_by_scraper() branch
             res, session = get_html_session(javdb_url, cookies=javdb_cookies, return_type='session')
             if not res:
                 raise
             query_result = res.text
         except:
-            query_result = get_html('https://javdb.com/search?q=' + number + '&f=all', cookies=javdb_cookies)
+            res, session = get_html_by_scraper(javdb_url, cookies=javdb_cookies, return_type='scraper')
+            if not res:
+                raise ValueError('page not found')
+            query_result = res.text
+        if session is None:
+            raise ValueError('page not found')
         html = etree.fromstring(query_result, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
         # javdb sometime returns multiple results,
         # and the first elememt maybe not the one we are looking for
@@ -241,14 +248,12 @@ def main(number):
                     raise ValueError("number not found")
                 correct_url = urls[0]
         try:
-            if isinstance(session, requests.Session):  # get faster benefit from http keep-alive
+                # get faster benefit from http keep-alive
                 javdb_detail_url = urljoin(res.url, correct_url)
                 detail_page = session.get(javdb_detail_url).text
-            else:
-                javdb_detail_url = 'https://' + javdb_site + '.com' + correct_url
-                detail_page = get_html(javdb_detail_url, cookies=javdb_cookies)
         except:
             detail_page = get_html('https://javdb.com' + correct_url, cookies=javdb_cookies)
+            session = None
 
         # etree.fromstring开销很大，最好只用一次，而它的xpath很快，比bs4 find/select快，可以多用
         lx = etree.fromstring(detail_page, etree.HTMLParser())
@@ -309,7 +314,7 @@ def main(number):
 
 
     except Exception as e:
-        if config.getInstance().debug():
+        if debug:
             print(e)
         dic = {"title": ""}
     js = json.dumps(dic, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ':'), )  # .encode('UTF-8')
@@ -324,12 +329,12 @@ if __name__ == "__main__":
     # print(main('BANK-022'))
     # print(main('070116-197'))
     # print(main('093021_539'))  # 没有剧照 片商pacopacomama
-    # print(main('FC2-2278260'))
+    print(main('FC2-2278260'))
     # print(main('FC2-735670'))
     # print(main('FC2-1174949')) # not found
     print(main('MVSD-439'))
     # print(main('EHM0001')) # not found
-    # print(main('FC2-2314275'))
+    print(main('FC2-2314275'))
     # print(main('EBOD-646'))
     # print(main('LOVE-262'))
     print(main('ABP-890'))

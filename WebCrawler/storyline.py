@@ -59,7 +59,7 @@ def getStoryline(number, title, sites: list=None):
                 return value
         return ''
     # 以下debug结果输出会写入日志，进程池中的则不会，只在标准输出中显示
-    s = f'[!]Storyline{G_mode_txt[run_mode]}模式运行{len(apply_sites)}个进程总用时(含启动开销){time.time() - start_time:.3f}秒，结束于{time.strftime("%H:%M:%S")}'
+    s = f'[!]Storyline{G_mode_txt[run_mode]}模式运行{len(apply_sites)}个任务共耗时(含启动开销){time.time() - start_time:.3f}秒，结束于{time.strftime("%H:%M:%S")}'
     first = True
     sel = ''
     for i, site in enumerate(apply_sites):
@@ -175,7 +175,7 @@ def getStoryline_airavwiki(number, debug):
 
     except Exception as e:
         if debug:
-            print(f"[-]MP def getStoryline_airavwiki Error: {e}, number [{number}].")
+            print(f"[-]MP getStoryline_airavwiki Error: {e}, number [{number}].")
         pass
     return ''
 
@@ -190,7 +190,7 @@ def getStoryline_58avgo(number, debug):
         result, browser = get_html_by_form(url,
             fields = {'ctl00$TextBox_SearchKeyWord' : kwd},
             return_type = 'browser')
-        if not result.ok:
+        if not result:
             raise ValueError(f"get_html_by_form('{url}','{number}') failed")
         if f'searchresults.aspx?Search={kwd}' not in browser.url:
             raise ValueError("number not found")
@@ -219,6 +219,29 @@ def getStoryline_58avgo(number, debug):
 
 
 def getStoryline_avno1(number, debug):  #获取剧情介绍 从avno1.cc取得
+    try:
+        site = secrets.choice(['1768av.club','2nine.net','av999.tv','avno1.cc',
+            'hotav.biz','iqq2.xyz','javhq.tv',
+            'www.hdsex.cc','www.porn18.cc','www.xxx18.cc',])
+        url = f'http://{site}/cn/search.php?kw_type=key&kw={number}'
+        lx = fromstring(get_html_by_scraper(url))
+        descs = lx.xpath('//div[@class="type_movie"]/div/ul/li/div/@data-description')
+        titles = lx.xpath('//div[@class="type_movie"]/div/ul/li/div/a/h3/text()')
+        if not descs or not len(descs):
+            raise ValueError(f"number not found")
+        for i, title in enumerate(titles):
+            page_number = title[title.rfind(' '):].strip()
+            if re.search(number, page_number, re.I):
+                return descs[i].strip()
+        raise ValueError(f"page number ->[{page_number}] not match")
+    except Exception as e:
+        if debug:
+            print(f"[-]MP getOutline_avno1 Error: {e}, number [{number}].")
+        pass
+    return ''
+
+
+def getStoryline_avno1OLD(number, debug):  #获取剧情介绍 从avno1.cc取得
     try:
         url = 'http://www.avno1.cc/cn/' + secrets.choice(['usercenter.php?item=' +
                 secrets.choice(['pay_support', 'qa', 'contact', 'guide-vpn']),
@@ -342,6 +365,8 @@ def amazon_select_one(a_titles, q_title, number, debug):
                     pos = pos_near
             if pos < 0:
                 if category(char) == 'Nd':
+                    return -1
+                if re.match(r'[\u4e00|\u4e8c|\u4e09|\u56db|\u4e94|\u516d|\u4e03|\u516b|\u4e5d|\u5341]', char, re.U):
                     return -1
                 ama_t = ama_t[:cloc]
                 findlen = 0
