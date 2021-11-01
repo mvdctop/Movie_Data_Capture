@@ -106,10 +106,10 @@ def get_actor_photo(lx, session):
     htmla = lx.xpath("//*[@id='moviepages']/div[@class='container']/div[@class='inner-container']/div[@class='movie-info section']/ul/li[@class='movie-spec']/span[@class='spec-content']/a[@itemprop='actor']")
     names = lx.xpath("//*[@id='moviepages']/div[@class='container']/div[@class='inner-container']/div[@class='movie-info section']/ul/li[@class='movie-spec']/span[@class='spec-content']/a[@itemprop='actor']/span[@itemprop='name']/text()")
     t = {}
-    for i, name in enumerate(names):
+    for name, a in zip(names, htmla):
         if name.strip() == '他':
             continue
-        p = {name.strip(): htmla[i].attrib['href']}
+        p = {name.strip(): a.attrib['href']}
         t.update(p)
     o = {}
     for k, v in t.items():

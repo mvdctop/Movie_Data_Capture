@@ -52,9 +52,9 @@ def getStoryline(number, title, sites: list=None):
     run_mode = conf.storyline_mode()
     assert run_mode in (0,1,2)
     with ThreadPool(cores) if run_mode == 1 else Pool(cores) if run_mode == 2 else noThread() as pool:
-        result = pool.map(getStoryline_mp, mp_args)
+        results = pool.map(getStoryline_mp, mp_args)
     if not debug and conf.storyline_show() == 0:
-        for value in result:
+        for value in results:
             if isinstance(value, str) and len(value):
                 return value
         return ''
@@ -62,12 +62,12 @@ def getStoryline(number, title, sites: list=None):
     s = f'[!]Storyline{G_mode_txt[run_mode]}模式运行{len(apply_sites)}个任务共耗时(含启动开销){time.time() - start_time:.3f}秒，结束于{time.strftime("%H:%M:%S")}'
     first = True
     sel = ''
-    for i, site in enumerate(apply_sites):
-        sl = len(result[i]) if isinstance(result[i], str) else 0
+    for site, desc in zip(apply_sites, results):
+        sl = len(desc) if isinstance(desc, str) else 0
         if sl and first:
             s += f'，[选中{site}字数:{sl}]'
             first = False
-            sel = result[i]
+            sel = desc
         elif sl:
             s += f'，{site}字数:{sl}'
         else:
@@ -120,9 +120,9 @@ def getStoryline_airav(number, debug):
         urls = lx.xpath('//div[@class="resultcontent"]/ul/li/div/a[@class="ga_click"]/@href')
         txts = lx.xpath('//div[@class="resultcontent"]/ul/li/div/a[@class="ga_click"]/h3[@class="one_name ga_name"]/text()')
         detail_url = None
-        for i, txt in enumerate(txts):
+        for txt, url in zip(txts, urls):
             if re.search(number, txt, re.I):
-                detail_url = urljoin(res.url, urls[i])
+                detail_url = urljoin(res.url, url)
                 break
         if detail_url is None:
             raise ValueError("number not found")
@@ -229,10 +229,10 @@ def getStoryline_avno1(number, debug):  #获取剧情介绍 从avno1.cc取得
         titles = lx.xpath('//div[@class="type_movie"]/div/ul/li/div/a/h3/text()')
         if not descs or not len(descs):
             raise ValueError(f"number not found")
-        for i, title in enumerate(titles):
+        for title, desc in zip(titles, descs):
             page_number = title[title.rfind(' '):].strip()
             if re.search(number, page_number, re.I):
-                return descs[i].strip()
+                return desc.strip()
         raise ValueError(f"page number ->[{page_number}] not match")
     except Exception as e:
         if debug:
