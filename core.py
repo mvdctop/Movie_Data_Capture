@@ -217,14 +217,12 @@ def extrafanart_download_one_by_one(data, path, filepath):
         print(f'[!]Extrafanart download one by one mode runtime {time.perf_counter() - tm_start:.3f}s')
 
 def download_one_file(args):
-    return _download_one_file(*args)
-
-def _download_one_file(url: str, save_path: Path):
-    filebytes = get_html(url, return_type='content')
-    if isinstance(filebytes, bytes) and len(filebytes):
-        if len(filebytes) == save_path.open('wb').write(filebytes):
-            return str(save_path)
-    return None
+    def _inner(url: str, save_path: Path):
+        filebytes = get_html(url, return_type='content')
+        if isinstance(filebytes, bytes) and len(filebytes):
+            if len(filebytes) == save_path.open('wb').write(filebytes):
+                return str(save_path)
+    return _inner(*args)
 
 def extrafanart_download_threadpool(url_list, save_dir, number):
     tm_start = time.perf_counter()

@@ -77,36 +77,34 @@ def getStoryline(number, title, sites: list=None):
 
 
 def getStoryline_mp(args):
-    return _getStoryline_mp(*args)
-
-
-# 注：新进程的print()不会写入日志中，将来调试修复失效数据源需直接查看标准输出，issue信息需截图屏幕
-def _getStoryline_mp(site, number, title, debug):
-    start_time = time.time()
-    storyline = None
-    if not isinstance(site, str):
+    def _inner(site, number, title, debug):
+        start_time = time.time()
+        storyline = None
+        if not isinstance(site, str):
+            return storyline
+        elif site == "airavwiki":
+            storyline = getStoryline_airavwiki(number, debug)
+        elif site == "airav":
+            storyline = getStoryline_airav(number, debug)
+        elif site == "avno1":
+            storyline = getStoryline_avno1(number, debug)
+        elif site == "xcity":
+            storyline = getStoryline_xcity(number, debug)
+        elif site == "amazon":
+            storyline = getStoryline_amazon(title, number, debug)
+        elif site == "58avgo":
+            storyline = getStoryline_58avgo(number, debug)
+        if not debug:
+            return storyline
+        # 进程池模式的子进程getStoryline_*()的print()不会写入日志中，线程池和顺序执行不受影响
+        print("[!]MP 进程[{}]运行{:.3f}秒，结束于{}返回结果: {}".format(
+                site,
+                time.time() - start_time,
+                time.strftime("%H:%M:%S"),
+                storyline if isinstance(storyline, str) and len(storyline) else '[空]')
+        )
         return storyline
-    elif site == "airavwiki":
-        storyline = getStoryline_airavwiki(number, debug)
-    elif site == "airav":
-        storyline = getStoryline_airav(number, debug)
-    elif site == "avno1":
-        storyline = getStoryline_avno1(number, debug)
-    elif site == "xcity":
-        storyline = getStoryline_xcity(number, debug)
-    elif site == "amazon":
-        storyline = getStoryline_amazon(title, number, debug)
-    elif site == "58avgo":
-        storyline = getStoryline_58avgo(number, debug)
-    if not debug:
-        return storyline
-    print("[!]MP 进程[{}]运行{:.3f}秒，结束于{}返回结果: {}".format(
-            site,
-            time.time() - start_time,
-            time.strftime("%H:%M:%S"),
-            storyline if isinstance(storyline, str) and len(storyline) else '[空]')
-    )
-    return storyline
+    return _inner(*args)
 
 
 def getStoryline_airav(number, debug):
