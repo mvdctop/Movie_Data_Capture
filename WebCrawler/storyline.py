@@ -325,7 +325,7 @@ def getStoryline_amazon(q_title, number, debug):
 
         if cookie is None:
             # 删除无效cookies，无论是用户创建还是自动创建，以避免持续故障
-            Path(cookies_filepath).unlink(missing_ok=True)
+            cookies_filepath and len(cookies_filepath) and Path(cookies_filepath).is_file() and Path(cookies_filepath).unlink(missing_ok=True)
             # 自动创建的cookies文件放在搜索路径表的末端，最低优先级。有amazon.co.jp帐号的用户可以从浏览器导出cookie放在靠前搜索路径
             ama_save = Path.home() / ".local/share/avdc/amazon.json"
             ama_save.parent.mkdir(parents=True, exist_ok=True)
