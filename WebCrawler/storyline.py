@@ -53,25 +53,28 @@ def getStoryline(number, title, sites: list=None):
     assert run_mode in (0,1,2)
     with ThreadPool(cores) if run_mode == 1 else Pool(cores) if run_mode == 2 else noThread() as pool:
         results = pool.map(getStoryline_mp, mp_args)
+    sel = ''
     if not debug and conf.storyline_show() == 0:
         for value in results:
             if isinstance(value, str) and len(value):
-                return value
-        return ''
+                if not is_japanese(value):
+                    return value
+                if not len(sel):
+                    sel = value
+        return sel
     # 以下debug结果输出会写入日志，进程池中的则不会，只在标准输出中显示
     s = f'[!]Storyline{G_mode_txt[run_mode]}模式运行{len(apply_sites)}个任务共耗时(含启动开销){time.time() - start_time:.3f}秒，结束于{time.strftime("%H:%M:%S")}'
-    first = True
-    sel = ''
+    sel_site = ''
     for site, desc in zip(apply_sites, results):
         sl = len(desc) if isinstance(desc, str) else 0
-        if sl and first:
-            s += f'，[选中{site}字数:{sl}]'
-            first = False
-            sel = desc
-        elif sl:
-            s += f'，{site}字数:{sl}'
-        else:
-            s += f'，{site}:空'
+        if not is_japanese(desc):
+            sel_site, sel = site, desc
+            break
+        if sl and not len(sel_site):
+            sel_site, sel = site, desc
+    for site, desc in zip(apply_sites, results):
+        sl = len(desc) if isinstance(desc, str) else 0
+        s += f'，[选中{site}字数:{sl}]' if site == sel_site else f'，{site}字数:{sl}' if sl else f'，{site}:空'
     print(s)
     return sel
 
