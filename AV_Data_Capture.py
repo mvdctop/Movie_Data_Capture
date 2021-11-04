@@ -9,6 +9,7 @@ import urllib3
 import signal
 from opencc import OpenCC
 
+import ADC_function
 import config
 from datetime import datetime, timedelta
 import time
@@ -471,6 +472,19 @@ def main():
 
     if conf.update_check():
         check_update(version)
+
+    # Download Mapping Table
+    if not os.path.exists(str(Path.home() / logdir / 'mapping_actor.xml')):
+        ADC_function.download_file_with_filename(
+            "https://raw.githubusercontent.com/yoshiko2/AV_Data_Capture/master/MappingTable/mapping_actor.xml",
+            "mapping_actor.xml", str(Path.home() / logdir))
+        print("[+] [1/2] Mapping Table Downloaded")
+
+    if not os.path.exists(str(Path.home() / logdir / 'mapping_info.xml')):
+        ADC_function.download_file_with_filename(
+            "https://raw.githubusercontent.com/yoshiko2/AV_Data_Capture/master/MappingTable/mapping_info.xml",
+            "mapping_info.xml", str(Path.home() / logdir))
+        print("[+] [2/2] Mapping Table Downloaded")
 
     print(f"[+]Load Config file '{conf.ini_path}'.")
     if conf.debug():
