@@ -474,16 +474,16 @@ def main():
         check_update(version)
 
     # Download Mapping Table
-    if not os.path.exists(str(Path.home() / logdir / 'mapping_actor.xml')):
+    if not os.path.exists(str(Path.home() / '.local' / 'share' / 'avdc' / 'mapping_actor.xml')):
         ADC_function.download_file_with_filename(
             "https://raw.githubusercontent.com/yoshiko2/AV_Data_Capture/master/MappingTable/mapping_actor.xml",
-            "mapping_actor.xml", str(Path.home() / logdir))
+            "mapping_actor.xml", str(Path.home() / '.local' / 'share' / 'avdc'))
         print("[+] [1/2] Mapping Table Downloaded")
 
-    if not os.path.exists(str(Path.home() / logdir / 'mapping_info.xml')):
+    if not os.path.exists(str(Path.home() / '.local' / 'share' / 'avdc' / 'mapping_info.xml')):
         ADC_function.download_file_with_filename(
             "https://raw.githubusercontent.com/yoshiko2/AV_Data_Capture/master/MappingTable/mapping_info.xml",
-            "mapping_info.xml", str(Path.home() / logdir))
+            "mapping_info.xml", str(Path.home() / '.local' / 'share' / 'avdc'))
         print("[+] [2/2] Mapping Table Downloaded")
 
     print(f"[+]Load Config file '{conf.ini_path}'.")
