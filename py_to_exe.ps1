@@ -2,6 +2,7 @@
 # Set-ExecutionPolicy RemoteSigned -Scope CurrentUser -Force
 
 $CLOUDSCRAPER_PATH=$(python -c 'import cloudscraper as _; print(_.__path__[0])' | select -Last 1)
+$OPENCC_PATH=$(python -c 'import opencc as _; print(_.__path__[0])' | select -Last 1)
 
 mkdir build
 mkdir __pycache__
@@ -10,6 +11,7 @@ pyinstaller --onefile AV_Data_Capture.py `
     --hidden-import ADC_function.py `
     --hidden-import core.py `
     --add-data "$CLOUDSCRAPER_PATH;cloudscraper" `
+    --add-data "$OPENCC_PATH;opencc" `
     --add-data "Img;Img" `
     --add-data "config.ini;." `
 

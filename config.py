@@ -246,23 +246,29 @@ class Config:
     def debug(self) -> bool:
         return self.getboolean_override("debug_mode", "switch")
 
+    def is_storyline(self) -> bool:
+        try:
+            return self.conf.getboolean("storyline", "switch")
+        except:
+            return True
+
     def storyline_site(self) -> str:
         try:
             return self.conf.get("storyline", "site")
         except:
-            return "avno1"
+            return "1:avno1,4:airavwiki"
 
     def storyline_censored_site(self) -> str:
         try:
             return self.conf.get("storyline", "censored_site")
         except:
-            return "airav,xcity,amazon"
+            return "2:airav,5:xcity,6:amazon"
 
     def storyline_uncensored_site(self) -> str:
         try:
             return self.conf.get("storyline", "uncensored_site")
         except:
-            return "58avgo"
+            return "3:58avgo"
 
     def storyline_show(self) -> int:
         try:
@@ -277,6 +283,19 @@ class Config:
             return v if v in (0,1,2) else 2 if v > 2 else 0
         except:
             return 1
+
+    def cc_convert_mode(self) -> int:
+        try:
+            v = self.conf.getint("cc_convert", "mode")
+            return v if v in (0,1,2) else 2 if v > 2 else 0
+        except:
+            return 1
+
+    def cc_convert_vars(self) -> str:
+        try:
+            return self.conf.get("cc_convert", "vars")
+        except:
+            return "actor,director,label,outline,series,studio,tag,title"
 
     @staticmethod
     def _exit(sec: str) -> None:
@@ -374,11 +393,18 @@ class Config:
 
         sec14 = "storyline"
         conf.add_section(sec14)
-        conf.set(sec14, "site", "avno1")
-        conf.set(sec14, "censored_site", "airav,xcity,amazon")
-        conf.set(sec14, "uncensored_site", "58avgo")
+        conf.set(sec14, "switch", 1)
+        conf.set(sec14, "site", "1:avno1,4:airavwiki")
+        conf.set(sec14, "censored_site", "2:airav,5:xcity,6:amazon")
+        conf.set(sec14, "uncensored_site", "3:58avgo")
         conf.set(sec14, "show_result", 0)
         conf.set(sec14, "run_mode", 1)
+        conf.set(sec14, "cc_convert", 1)
+
+        sec15 = "cc_convert"
+        conf.add_section(sec15)
+        conf.set(sec15, "mode", 1)
+        conf.set(sec15, "vars", "actor,director,label,outline,series,studio,tag,title")
 
         return conf
 

@@ -17,6 +17,8 @@ make:
 
 	@echo "[+]Pyinstaller make"
 	pyinstaller --onefile AV_Data_Capture.py  --hidden-import ADC_function.py --hidden-import core.py \
+		--add-data "`python3 -c 'import cloudscraper as _; print(_.__path__[0])' | tail -n 1`:cloudscraper" \
+		--add-data "`python3 -c 'import opencc as _; print(_.__path__[0])' | tail -n 1`:opencc" \
 		--add-data "Img:Img" \
 		--add-data "config.ini:." \
 

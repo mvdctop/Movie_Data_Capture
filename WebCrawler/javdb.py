@@ -4,7 +4,6 @@ import re
 from lxml import etree
 import json
 from ADC_function import *
-from mechanicalsoup.stateful_browser import StatefulBrowser
 from WebCrawler.storyline import getStoryline
 # import io
 # sys.stdout = io.TextIOWrapper(sys.stdout.buffer, errors = 'replace', line_buffering = True)
@@ -30,8 +29,8 @@ def getActor(html):
         idx = idx + 1
     return r
 
-def getaphoto(url,  browser):
-    html_page = browser.open_relative(url).text if isinstance(browser, StatefulBrowser) else get_html(url)
+def getaphoto(url, session):
+    html_page = session.get(url).text if session is not None else get_html(url)
     img_prether = re.compile(r'<span class\=\"avatar\" style\=\"background\-image\: url\((.*?)\)')
     img_url = img_prether.findall(html_page)
     if img_url:
@@ -39,7 +38,7 @@ def getaphoto(url,  browser):
     else:
         return ''
 
-def getActorPhoto(html, javdb_site,  browser): #//*[@id="star_qdt"]/li/a/img
+def getActorPhoto(html, javdb_site, session):
     actorall = html.xpath('//strong[contains(text(),"演員:")]/../span/a[starts-with(@href,"/actors/")]')
     if not actorall:
         return {}
@@ -47,7 +46,7 @@ def getActorPhoto(html, javdb_site,  browser): #//*[@id="star_qdt"]/li/a/img
     actor_photo = {}
     for i in actorall:
         if i.text in a:
-            actor_photo[i.text] = getaphoto(urljoin(f'https://{javdb_site}.com', i.attrib['href']), browser)
+            actor_photo[i.text] = getaphoto(urljoin(f'https://{javdb_site}.com', i.attrib['href']), session)
     return actor_photo
 
 def getStudio(a, html):
@@ -178,15 +177,6 @@ def getDirector(html):
     result1 = str(html.xpath('//strong[contains(text(),"導演")]/../span/text()')).strip(" ['']")
     result2 = str(html.xpath('//strong[contains(text(),"導演")]/../span/a/text()')).strip(" ['']")
     return str(result1 + result2).strip('+').replace("', '", '').replace('"', '')
-def getOutline0(number):  #获取剧情介绍 airav.wiki站点404，函数暂时更名，等无法恢复时删除
-    try:
-        htmlcode = get_html('https://cn.airav.wiki/video/' + number)
-        from WebCrawler.airav import getOutline as airav_getOutline
-        result = airav_getOutline(htmlcode)
-        return result
-    except:
-        pass
-    return ''
 def getOutline(number, title):  #获取剧情介绍 多进程并发查询
     return getStoryline(number,title)
 def getSeries(html):
@@ -224,15 +214,22 @@ def main(number):
             javdb_site = secrets.choice(javdb_sites)
         if debug:
             print(f'[!]javdb:select site {javdb_site}')
-        browser = None
+        session = None
+        javdb_url = 'https://' + javdb_site + '.com/search?q=' + number + '&f=all'
         try:
-            javdb_url = 'https://' + javdb_site + '.com/search?q=' + number + '&f=all'
-            res, browser = get_html_by_browser(javdb_url, cookies=javdb_cookies, return_type='browser')
-            if not res.ok:
+            if debug:
+                raise # try get_html_by_scraper() branch
+            res, session = get_html_session(javdb_url, cookies=javdb_cookies, return_type='session')
+            if not res:
                 raise
             query_result = res.text
         except:
-            query_result = get_html('https://javdb.com/search?q=' + number + '&f=all', cookies=javdb_cookies)
+            res, session = get_html_by_scraper(javdb_url, cookies=javdb_cookies, return_type='scraper')
+            if not res:
+                raise ValueError('page not found')
+            query_result = res.text
+        if session is None:
+            raise ValueError('page not found')
         html = etree.fromstring(query_result, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
         # javdb sometime returns multiple results,
         # and the first elememt maybe not the one we are looking for
@@ -251,13 +248,12 @@ def main(number):
                     raise ValueError("number not found")
                 correct_url = urls[0]
         try:
-            if isinstance(browser, StatefulBrowser):  # get faster benefit from http keep-alive
-                detail_page = browser.open_relative(correct_url).text
-            else:
-                javdb_detail_url = 'https://' + javdb_site + '.com' + correct_url
-                detail_page = get_html(javdb_detail_url, cookies=javdb_cookies)
+                # get faster benefit from http keep-alive
+                javdb_detail_url = urljoin(res.url, correct_url)
+                detail_page = session.get(javdb_detail_url).text
         except:
             detail_page = get_html('https://javdb.com' + correct_url, cookies=javdb_cookies)
+            session = None
 
         # etree.fromstring开销很大，最好只用一次，而它的xpath很快，比bs4 find/select快，可以多用
         lx = etree.fromstring(detail_page, etree.HTMLParser())
@@ -303,8 +299,8 @@ def main(number):
             'tag': getTag(lx),
             'label': getLabel(lx),
             'year': getYear(detail_page),  # str(re.search('\d{4}',getRelease(a)).group()),
-#            'actor_photo': getActorPhoto(lx, javdb_site,  browser),
-            'website': 'https://javdb.com' + correct_url,
+#            'actor_photo': getActorPhoto(lx, javdb_site,  session),
+            'website': urljoin('https://javdb.com', correct_url),
             'source': 'javdb.py',
             'series': getSeries(lx),
 
@@ -318,7 +314,7 @@ def main(number):
 
 
     except Exception as e:
-        if config.getInstance().debug():
+        if debug:
             print(e)
         dic = {"title": ""}
     js = json.dumps(dic, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ':'), )  # .encode('UTF-8')
@@ -333,12 +329,12 @@ if __name__ == "__main__":
     # print(main('BANK-022'))
     # print(main('070116-197'))
     # print(main('093021_539'))  # 没有剧照 片商pacopacomama
-    # print(main('FC2-2278260'))
+    print(main('FC2-2278260'))
     # print(main('FC2-735670'))
     # print(main('FC2-1174949')) # not found
     print(main('MVSD-439'))
     # print(main('EHM0001')) # not found
-    # print(main('FC2-2314275'))
+    print(main('FC2-2314275'))
     # print(main('EBOD-646'))
     # print(main('LOVE-262'))
     print(main('ABP-890'))

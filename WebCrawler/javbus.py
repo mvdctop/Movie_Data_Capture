@@ -5,6 +5,7 @@ from lxml import etree#need install
 import json
 from ADC_function import *
 from WebCrawler.storyline import getStoryline
+import inspect
 
 def getActorPhoto(html):
     actors = html.xpath('//div[@class="star-name"]/a')
@@ -60,6 +61,8 @@ def getCID(html):
     result = re.sub('/.*?.jpg','',string)
     return result
 def getOutline(number, title):  #获取剧情介绍 多进程并发查询
+    if any(caller for caller in inspect.stack() if os.path.basename(caller.filename) == 'airav.py'):
+        return ''   # 从airav.py过来的调用不计算outline直接返回，避免重复抓取数据拖慢处理速度
     return getStoryline(number,title)
 def getSeriseJa(html):
     x = html.xpath('//span[contains(text(),"シリーズ:")]/../a/text()')
@@ -115,8 +118,15 @@ def main_uncensored(number):
 def main(number):
     try:
         try:
+            url = "https://www." + secrets.choice([
+                'buscdn.fun', 'busdmm.fun', 'busfan.fun', 'busjav.fun',
+                'cdnbus.fun',
+                'dmmbus.fun', 'dmmsee.fun',
+                'fanbus.us',
+                'seedmm.fun',
+                ]) + "/"
             try:
-                htmlcode = get_html('https://www.fanbus.us/' + number)
+                htmlcode = get_html(url + number)
             except:
                 htmlcode = get_html('https://www.javbus.com/' + number)
             if "<title>404 Page Not Found" in htmlcode:

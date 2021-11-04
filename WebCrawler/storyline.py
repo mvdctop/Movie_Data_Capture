@@ -4,13 +4,14 @@ import re
 import json
 import builtins
 from ADC_function import *
+from lxml.html import fromstring
 from multiprocessing import Pool
 from multiprocessing.dummy import Pool as ThreadPool
 from difflib import SequenceMatcher
 from unicodedata import category
 from number_parser import is_uncensored
 
-G_registered_storyline_site = {"airav", "avno1", "xcity", "amazon", "58avgo"}
+G_registered_storyline_site = {"airavwiki", "airav", "avno1", "xcity", "amazon", "58avgo"}
 
 G_mode_txt = ('顺序执行','线程池','进程池')
 
@@ -27,6 +28,8 @@ class noThread(object):
 def getStoryline(number, title, sites: list=None):
     start_time = time.time()
     conf = config.getInstance()
+    if not conf.is_storyline():
+        return ''
     debug = conf.debug() or conf.storyline_show() == 2
     storyine_sites = conf.storyline_site().split(',') if sites is None else sites
     if is_uncensored(number):
@@ -49,88 +52,130 @@ def getStoryline(number, title, sites: list=None):
     run_mode = conf.storyline_mode()
     assert run_mode in (0,1,2)
     with ThreadPool(cores) if run_mode == 1 else Pool(cores) if run_mode == 2 else noThread() as pool:
-        result = pool.map(getStoryline_mp, mp_args)
+        results = pool.map(getStoryline_mp, mp_args)
     if not debug and conf.storyline_show() == 0:
-        for value in result:
+        for value in results:
             if isinstance(value, str) and len(value):
                 return value
         return ''
     # 以下debug结果输出会写入日志，进程池中的则不会，只在标准输出中显示
-    cnt = len(apply_sites)
-    s = f'[!]Storyline{G_mode_txt[run_mode]}模式运行{cnt}个进程总用时(含启动开销){time.time() - start_time:.3f}秒，结束于{time.strftime("%H:%M:%S")}'
+    s = f'[!]Storyline{G_mode_txt[run_mode]}模式运行{len(apply_sites)}个任务共耗时(含启动开销){time.time() - start_time:.3f}秒，结束于{time.strftime("%H:%M:%S")}'
     first = True
     sel = ''
-    for i in range(cnt):
-        sl = len(result[i])if isinstance(result[i], str) else 0
+    for site, desc in zip(apply_sites, results):
+        sl = len(desc) if isinstance(desc, str) else 0
         if sl and first:
-            s += f'，[选中{apply_sites[i]}字数:{sl}]'
+            s += f'，[选中{site}字数:{sl}]'
             first = False
-            sel = result[i]
+            sel = desc
         elif sl:
-            s += f'，{apply_sites[i]}字数:{sl}'
+            s += f'，{site}字数:{sl}'
         else:
-            s += f'，{apply_sites[i]}:空'
+            s += f'，{site}:空'
     print(s)
     return sel
 
 
 def getStoryline_mp(args):
-    return _getStoryline_mp(*args)
-
-
-# 注：新进程的print()不会写入日志中，将来调试修复失效数据源需直接查看标准输出，issue信息需截图屏幕
-def _getStoryline_mp(site, number, title, debug):
-    start_time = time.time()
-    storyline = None
-    if not isinstance(site, str):
+    def _inner(site, number, title, debug):
+        start_time = time.time()
+        storyline = None
+        if not isinstance(site, str):
+            return storyline
+        elif site == "airavwiki":
+            storyline = getStoryline_airavwiki(number, debug)
+        elif site == "airav":
+            storyline = getStoryline_airav(number, debug)
+        elif site == "avno1":
+            storyline = getStoryline_avno1(number, debug)
+        elif site == "xcity":
+            storyline = getStoryline_xcity(number, debug)
+        elif site == "amazon":
+            storyline = getStoryline_amazon(title, number, debug)
+        elif site == "58avgo":
+            storyline = getStoryline_58avgo(number, debug)
+        if not debug:
+            return storyline
+        # 进程池模式的子进程getStoryline_*()的print()不会写入日志中，线程池和顺序执行不受影响
+        print("[!]MP 进程[{}]运行{:.3f}秒，结束于{}返回结果: {}".format(
+                site,
+                time.time() - start_time,
+                time.strftime("%H:%M:%S"),
+                storyline if isinstance(storyline, str) and len(storyline) else '[空]')
+        )
         return storyline
-    elif site == "airav":
-        storyline = getStoryline_airav(number, debug)
-    elif site == "avno1":
-        storyline = getStoryline_avno1(number, debug)
-    elif site == "xcity":
-        storyline = getStoryline_xcity(number, debug)
-    elif site == "amazon":
-        storyline = getStoryline_amazon(title, number, debug)
-    elif site == "58avgo":
-        storyline = getStoryline_58avgo(number, debug)
-    if not debug:
-        return storyline
-    print("[!]MP 进程[{}]运行{:.3f}秒，结束于{}返回结果: {}".format(
-            site,
-            time.time() - start_time,
-            time.strftime("%H:%M:%S"),
-            storyline if isinstance(storyline, str) and len(storyline) else '[空]')
-    )
-    return storyline
+    return _inner(*args)
 
 
 def getStoryline_airav(number, debug):
     try:
-        number_up = number
         site = secrets.choice(('airav.cc','airav4.club'))
         url = f'https://{site}/searchresults.aspx?Search={number}&Type=0'
-        res, browser = get_html_by_browser(url, return_type='browser')
-        if not res.ok:
-            raise ValueError(f"get_html_by_browser('{url}') failed")
-        avs = browser.page.select_one('div.resultcontent > ul > li:nth-child(1) > div')
-        if number_up not in avs.select_one('a > h3').text.upper():
+        res, session = get_html_session(url, return_type='session')
+        if not res:
+            raise ValueError(f"get_html_by_session('{url}') failed")
+        lx = fromstring(res.text)
+        urls = lx.xpath('//div[@class="resultcontent"]/ul/li/div/a[@class="ga_click"]/@href')
+        txts = lx.xpath('//div[@class="resultcontent"]/ul/li/div/a[@class="ga_click"]/h3[@class="one_name ga_name"]/text()')
+        detail_url = None
+        for txt, url in zip(txts, urls):
+            if re.search(number, txt, re.I):
+                detail_url = urljoin(res.url, url)
+                break
+        if detail_url is None:
             raise ValueError("number not found")
-        detail_url = avs.select_one('a')['href']
-        res = browser.open_relative(detail_url)
+        res = session.get(detail_url)
         if not res.ok:
-            raise ValueError(f"browser.open_relative('{detail_url}') failed")
-        t = browser.page.select_one('head > title').text
-        airav_number = str(re.findall(r'^\s*\[(.*?)]', t)[0]).upper()
-        if number.upper() != airav_number:
+            raise ValueError(f"session.get('{detail_url}') failed")
+        lx = fromstring(res.text)
+        t = str(lx.xpath('/html/head/title/text()')[0]).strip()
+        airav_number = str(re.findall(r'^\s*\[(.*?)]', t)[0])
+        if not re.search(number, airav_number, re.I):
             raise ValueError(f"page number ->[{airav_number}] not match")
-        desc = browser.page.select_one('li.introduction > span').text.strip()
+        desc = str(lx.xpath('//span[@id="ContentPlaceHolder1_Label2"]/text()')[0]).strip()
         return desc
     except Exception as e:
         if debug:
             print(f"[-]MP getStoryline_airav Error: {e},number [{number}].")
         pass
     return None
+
+
+def getStoryline_airavwiki(number, debug):
+    try:
+        kwd = number[:6] if re.match(r'\d{6}[\-_]\d{2,3}', number) else number
+        url = f'https://www.airav.wiki/api/video/list?lang=zh-TW&lng=zh-TW&search={kwd}'
+        result, session = get_html_session(url, return_type='session')
+        if not result:
+            raise ValueError(f"get_html_session('{url}','{number}') failed")
+        j = json.loads(result.content)
+        if int(j.get('count')) == 0:
+            raise ValueError("number not found")
+        link = None
+        for r in j["result"]:
+            n = r['barcode']
+            if re.search(number, n, re.I):
+                link = urljoin(result.url, f'/api/video/barcode/{n}?lng=zh-TW')
+                break
+        if link is None:
+            raise ValueError("number not found")
+        result = session.get(link)
+        if not result.ok or not re.search(number, result.url, re.I):
+            raise ValueError("detail page not found")
+        j = json.loads(result.content)
+        if int(j.get('count')) != 1:
+            raise ValueError("number not found")
+        detail_number = j["result"]['barcode']
+        if not re.search(number, detail_number, re.I):
+            raise ValueError("detail page number not match, got ->[{detail_number}]")
+        desc = j["result"]['description']
+        return desc
+
+    except Exception as e:
+        if debug:
+            print(f"[-]MP getStoryline_airavwiki Error: {e}, number [{number}].")
+        pass
+    return ''
 
 
 def getStoryline_58avgo(number, debug):
@@ -143,27 +188,27 @@ def getStoryline_58avgo(number, debug):
         result, browser = get_html_by_form(url,
             fields = {'ctl00$TextBox_SearchKeyWord' : kwd},
             return_type = 'browser')
-        if not result.ok:
+        if not result:
             raise ValueError(f"get_html_by_form('{url}','{number}') failed")
         if f'searchresults.aspx?Search={kwd}' not in browser.url:
             raise ValueError("number not found")
         s = browser.page.select('div.resultcontent > ul > li.listItem > div.one-info-panel.one > a.ga_click')
         link = None
-        for i in range(len(s)):
-            title = s[i].h3.text.strip()
+        for a in s:
+            title = a.h3.text.strip()
             if re.search(number, title, re.I):
-                link = s[i]
+                link = a
                 break
         if link is None:
             raise ValueError("number not found")
         result = browser.follow_link(link)
         if not result.ok or 'playon.aspx' not in browser.url:
             raise ValueError("detail page not found")
-        title = browser.page.select('head > title')[0].text.strip()
+        title = browser.page.select_one('head > title').text.strip()
         detail_number = str(re.findall('\[(.*?)]', title)[0])
         if not re.search(number, detail_number, re.I):
             raise ValueError("detail page number not match, got ->[{detail_number}]")
-        return browser.page.select('#ContentPlaceHolder1_Label2')[0].text.strip()
+        return browser.page.select_one('#ContentPlaceHolder1_Label2').text.strip()
     except Exception as e:
         if debug:
             print(f"[-]MP getOutline_58avgo Error: {e}, number [{number}].")
@@ -173,6 +218,29 @@ def getStoryline_58avgo(number, debug):
 
 def getStoryline_avno1(number, debug):  #获取剧情介绍 从avno1.cc取得
     try:
+        site = secrets.choice(['1768av.club','2nine.net','av999.tv','avno1.cc',
+            'hotav.biz','iqq2.xyz','javhq.tv',
+            'www.hdsex.cc','www.porn18.cc','www.xxx18.cc',])
+        url = f'http://{site}/cn/search.php?kw_type=key&kw={number}'
+        lx = fromstring(get_html_by_scraper(url))
+        descs = lx.xpath('//div[@class="type_movie"]/div/ul/li/div/@data-description')
+        titles = lx.xpath('//div[@class="type_movie"]/div/ul/li/div/a/h3/text()')
+        if not descs or not len(descs):
+            raise ValueError(f"number not found")
+        for title, desc in zip(titles, descs):
+            page_number = title[title.rfind(' '):].strip()
+            if re.search(number, page_number, re.I):
+                return desc.strip()
+        raise ValueError(f"page number ->[{page_number}] not match")
+    except Exception as e:
+        if debug:
+            print(f"[-]MP getOutline_avno1 Error: {e}, number [{number}].")
+        pass
+    return ''
+
+
+def getStoryline_avno1OLD(number, debug):  #获取剧情介绍 从avno1.cc取得
+    try:
         url = 'http://www.avno1.cc/cn/' + secrets.choice(['usercenter.php?item=' +
                 secrets.choice(['pay_support', 'qa', 'contact', 'guide-vpn']),
                 '?top=1&cat=hd', '?top=1', '?cat=hd', 'porn', '?cat=jp', '?cat=us', 'recommend_category.php'
@@ -181,14 +249,14 @@ def getStoryline_avno1(number, debug):  #获取剧情介绍 从avno1.cc取得
             form_select='div.wrapper > div.header > div.search > form',
             fields = {'kw' : number},
             return_type = 'browser')
-        if not result.ok:
+        if not result:
             raise ValueError(f"get_html_by_form('{url}','{number}') failed")
         s = browser.page.select('div.type_movie > div > ul > li > div')
-        for i in range(len(s)):
-            title = s[i].a.h3.text.strip()
+        for div in s:
+            title = div.a.h3.text.strip()
             page_number = title[title.rfind(' '):].strip()
             if re.search(number, page_number, re.I):
-                return s[i]['data-description'].strip()
+                return div['data-description'].strip()
         raise ValueError(f"page number ->[{page_number}] not match")
     except Exception as e:
         if debug:
@@ -221,41 +289,45 @@ def getStoryline_amazon(q_title, number, debug):
     if not isinstance(q_title, str) or not len(q_title):
         return None
     try:
-        amazon_cookie, _ = load_cookies('amazon.json')
-        cookie = amazon_cookie if isinstance(amazon_cookie, dict) else None
+        cookie, cookies_filepath = load_cookies('amazon.json')
         url = "https://www.amazon.co.jp/s?k=" + q_title
-        res, browser = get_html_by_browser(url, cookies=cookie, return_type='browser')
-        if not res.ok:
-            raise ValueError("get_html_by_browser() failed")
-        lks = browser.links(r'/black-curtain/save-eligibility/black-curtain')
-        if isinstance(lks, list) and len(lks):
-            browser.follow_link(lks[0])
+        res, session = get_html_session(url, cookies=cookie, return_type='session')
+        if not res:
+            raise ValueError("get_html_session() failed")
+        lx = fromstring(res.text)
+        lks = lx.xpath('//a[contains(@href, "/black-curtain/save-eligibility/black-curtain")]/@href')
+        if len(lks) and lks[0].startswith('/'):
+            res = session.get(urljoin(res.url, lks[0]))
             cookie = None
-        html = etree.fromstring(str(browser.page), etree.HTMLParser())
-        titles = html.xpath("//span[contains(@class,'a-color-base a-text-normal')]/text()")
-        urls = html.xpath("//span[contains(@class,'a-color-base a-text-normal')]/../@href")
+            lx = fromstring(res.text)
+        titles = lx.xpath("//span[contains(@class,'a-color-base a-text-normal')]/text()")
+        urls = lx.xpath("//span[contains(@class,'a-color-base a-text-normal')]/../@href")
         if not len(urls) or len(urls) != len(titles):
             raise ValueError("titles not found")
         idx = amazon_select_one(titles, q_title, number, debug)
         if not isinstance(idx, int) or idx < 0:
             raise ValueError("title and number not found")
-        furl = urls[idx]
-        r = browser.open_relative(furl)
-        if not r.ok:
+        furl = urljoin(res.url, urls[idx])
+        res = session.get(furl)
+        if not res.ok:
             raise ValueError("browser.open_relative()) failed.")
-        lks = browser.links(r'/black-curtain/save-eligibility/black-curtain')
-        if isinstance(lks, list) and len(lks):
-            browser.follow_link(lks[0])
+        lx = fromstring(res.text)
+        lks = lx.xpath('//a[contains(@href, "/black-curtain/save-eligibility/black-curtain")]/@href')
+        if len(lks) and lks[0].startswith('/'):
+            res = session.get(urljoin(res.url, lks[0]))
             cookie = None
-
-        ama_t = browser.page.select_one('#productDescription > p').text.replace('\n',' ').strip()
-        ama_t = re.sub(r'審査番号:\d+', '', ama_t)
+            lx = fromstring(res.text)
+        div = lx.xpath('//*[@id="productDescription"]')[0]
+        ama_t = ' '.join([e.text.strip() for e in div if not re.search('Comment|h3', str(e.tag), re.I) and isinstance(e.text, str)])
+        ama_t = re.sub(r'審査番号:\d+', '', ama_t).strip()
 
         if cookie is None:
-        # 自动创建的cookies文件放在搜索路径表的末端，最低优先级。有amazon.co.jp帐号的用户可以从浏览器导出cookie放在靠前搜索路径
+            # 删除无效cookies，无论是用户创建还是自动创建，以避免持续故障
+            cookies_filepath and len(cookies_filepath) and Path(cookies_filepath).is_file() and Path(cookies_filepath).unlink(missing_ok=True)
+            # 自动创建的cookies文件放在搜索路径表的末端，最低优先级。有amazon.co.jp帐号的用户可以从浏览器导出cookie放在靠前搜索路径
             ama_save = Path.home() / ".local/share/avdc/amazon.json"
             ama_save.parent.mkdir(parents=True, exist_ok=True)
-            ama_save.write_text(json.dumps(browser.session.cookies.get_dict(), sort_keys=True, indent=4), encoding='utf-8')
+            ama_save.write_text(json.dumps(session.cookies.get_dict(), sort_keys=True, indent=4), encoding='utf-8')
 
         return ama_t
 
@@ -270,32 +342,31 @@ def amazon_select_one(a_titles, q_title, number, debug):
     sel = -1
     ratio = 0
     que_t = ''.join(c for c in q_title if not re.match(r'(P|S|Z).*', category(c), re.A))
-    for loc in range(len(a_titles)):
-        t = a_titles[loc]
-        if re.search(number, t, re.I): # 基本不带番号，但也有极个别有的，找到番号相同的直接通过
-            return loc
-        if not re.search('DVD|Blu-ray', t, re.I):
+    for tloc, title in enumerate(a_titles):
+        if re.search(number, title, re.I): # 基本不带番号，但也有极个别有的，找到番号相同的直接通过
+            return tloc
+        if not re.search('DVD|Blu-ray', title, re.I):
             continue
-        ama_t = str(re.sub('DVD|Blu-ray', "", t, re.I))
+        ama_t = str(re.sub('DVD|Blu-ray', "", title, re.I))
         ama_t = ''.join(c for c in ama_t if not re.match(r'(P|S|Z).*', category(c), re.A))
         findlen = 0
         lastpos = -1
-        cnt = len(ama_t)
-        for c in reversed(ama_t):
-            cnt -= 1
-            pos = que_t.rfind(c)
+        for cloc, char in reversed(tuple(enumerate(ama_t))):
+            pos = que_t.rfind(char)
             if lastpos >= 0:
-                pos_near = que_t[:lastpos].rfind(c)
+                pos_near = que_t[:lastpos].rfind(char)
                 if pos_near < 0:
                     findlen = 0
                     lastpos = -1
-                    ama_t = ama_t[:cnt+1]
+                    ama_t = ama_t[:cloc+1]
                 else:
                     pos = pos_near
             if pos < 0:
-                if category(c) == 'Nd':
+                if category(char) == 'Nd':
                     return -1
-                ama_t = ama_t[:cnt]
+                if re.match(r'[\u4e00|\u4e8c|\u4e09|\u56db|\u4e94|\u516d|\u4e03|\u516b|\u4e5d|\u5341]', char, re.U):
+                    return -1
+                ama_t = ama_t[:cloc]
                 findlen = 0
                 lastpos = -1
                 continue
@@ -311,7 +382,7 @@ def amazon_select_one(a_titles, q_title, number, debug):
             return -1
         r = SequenceMatcher(None, ama_t, que_t).ratio()
         if r > ratio:
-            sel = loc
+            sel = tloc
             ratio = r
             save_t_ = ama_t
             if ratio > 0.999:
