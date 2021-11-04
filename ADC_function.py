@@ -770,3 +770,61 @@ if __name__ == "__main__":
     if len(sys.argv)>1:
         url = sys.argv[1]
     benchmark(t, url)
+
+def download_file_with_filename(url, filename, path):
+    conf = config.getInstance()
+    configProxy = conf.proxy()
+
+    for i in range(configProxy.retry):
+        try:
+            if configProxy.enable:
+                if not os.path.exists(path):
+                    try:
+                        os.makedirs(path)
+                    except:
+                        print(f"[-]Fatal error! Can not make folder '{path}'")
+                        sys.exit(0)
+                proxies = configProxy.proxies()
+                headers = {
+                    'User-Agent': G_USER_AGENT}
+                r = requests.get(url, headers=headers, timeout=configProxy.timeout, proxies=proxies)
+                if r == '':
+                    print('[-]Movie Download Data not found!')
+                    return
+                with open(os.path.join(path, filename), "wb") as code:
+                    code.write(r.content)
+                return
+            else:
+                if not os.path.exists(path):
+                    try:
+                        os.makedirs(path)
+                    except:
+                        print(f"[-]Fatal error! Can not make folder '{path}'")
+                        sys.exit(0)
+                headers = {
+                    'User-Agent': G_USER_AGENT}
+                r = requests.get(url, timeout=configProxy.timeout, headers=headers)
+                if r == '':
+                    print('[-]Movie Download Data not found!')
+                    return
+                with open(os.path.join(path, filename), "wb") as code:
+                    code.write(r.content)
+                return
+        except requests.exceptions.RequestException:
+            i += 1
+            print('[-]Download :  Connect retry ' + str(i) + '/' + str(configProxy.retry))
+        except requests.exceptions.ConnectionError:
+            i += 1
+            print('[-]Download :  Connect retry ' + str(i) + '/' + str(configProxy.retry))
+        except requests.exceptions.ProxyError:
+            i += 1
+            print('[-]Download :  Connect retry ' + str(i) + '/' + str(configProxy.retry))
+        except requests.exceptions.ConnectTimeout:
+            i += 1
+            print('[-]Download :  Connect retry ' + str(i) + '/' + str(configProxy.retry))
+        except IOError:
+            raise ValueError(f"[-]Create Directory '{path}' failed!")
+            return
+    print('[-]Connect Failed! Please check your Proxy or Network!')
+    raise ValueError('[-]Connect Failed! Please check your Proxy or Network!')
+    return
