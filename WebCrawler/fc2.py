@@ -14,7 +14,7 @@ def getTitle_fc2com(htmlcode): #获取厂商
     return result
 def getActor_fc2com(htmlcode):
     try:
-        html = etree.fromstring(htmlcode, etree.HTMLParser())
+        htmtml = etree.fromstring(htmlcode, etree.HTMLParser())
         result = html.xpath('//*[@id="top"]/div[1]/section[1]/div/section/div[2]/ul/li[3]/a/text()')[0]
         return result
     except:
@@ -48,10 +48,7 @@ def getCover_fc2com(htmlcode2): #获取厂商 #
 #     return result
 def getTag_fc2com(lx):
     result = lx.xpath("//a[@class='tag tagTag']/text()")
-    tag = []
-    for i in result:
-        tag.append(ADC_function.translateTag_to_sc(i))
-    return tag
+    return result
 def getYear_fc2com(release):
     try:
         result = re.search('\d{4}',release).group()

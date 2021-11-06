@@ -1,8 +1,12 @@
 import json
 import re
 from multiprocessing.pool import ThreadPool
+
+import ADC_function
 import config
 from ADC_function import translate
+from lxml import etree
+from pathlib import Path
 
 # =========website========
 from . import airav
@@ -36,6 +40,9 @@ def get_data_from_json(file_number, oCC):  # 从JSON返回元数据
     """
     iterate through all services and fetch the data
     """
+
+    actor_mapping_data = etree.parse(str(Path.home() / '.local' / 'share' / 'avdc' / 'mapping_actor.xml'))
+    info_mapping_data = etree.parse(str(Path.home() / '.local' / 'share' / 'avdc' / 'mapping_info.xml'))
 
     func_mapping = {
         "airav": airav.main,
@@ -292,12 +299,38 @@ def get_data_from_json(file_number, oCC):  # 从JSON返回元数据
 
     if oCC:
         cc_vars = conf.cc_convert_vars().split(",")
+        ccm = conf.cc_convert_mode()
         for cc in cc_vars:
             if cc == "actor":
-                json_data['actor_list'] = [oCC.convert(aa) for aa in json_data['actor_list']]
-                json_data['actor'] = oCC.convert(json_data['actor'])
+                try:
+                    if ccm == 1:
+                        json_data['actor_list'] = [actor_mapping_data.xpath('a[contains(@keyword, $name)]/@zh_cn', name=aa)[0] for aa in json_data['actor_list']]
+                        json_data['actor'] = actor_mapping_data.xpath('a[contains(@keyword, $name)]/@zh_cn', name=json_data['actor'])[0]
+                    elif ccm == 2:
+                        json_data['actor_list'] = [actor_mapping_data.xpath('a[contains(@keyword, $name)]/@zh_tw', name=aa)[0] for aa in json_data['actor_list']]
+                        json_data['actor'] = actor_mapping_data.xpath('a[contains(@keyword, $name)]/@zh_tw', name=json_data['actor'])[0]
+                    # elif ccm == 3:
+                    #     json_data['actor_list'] = [actor_mapping_data.xpath('a[contains(@keyword, $name)]/@jp', name=aa)[0] for aa in json_data['actor_list']]
+                    #     json_data['actor'] = actor_mapping_data.xpath('a[contains(@keyword, $name)]/@jp', name=json_data['actor'])[0]
+                except:
+                    json_data['actor_list'] = [oCC.convert(aa) for aa in json_data['actor_list']]
+                    json_data['actor'] = oCC.convert(json_data['actor'])
             elif cc == "tag":
-                json_data[cc] = [oCC.convert(t) for t in json_data[cc]]
+                try:
+                    if ccm == 1:
+                        json_data[cc] = [info_mapping_data.xpath('a[contains(@keyword, $name)]/@zh_cn', name=t)[0] for t in json_data[cc]]
+                        json_data[cc] = ADC_function.delete_all_elements_in_list("删除", json_data[cc])
+                    elif ccm == 2:
+                        json_data[cc] = [info_mapping_data.xpath('a[contains(@keyword, $name)]/@zh_tw', name=t)[0] for t in json_data[cc]]
+                        json_data[cc] = ADC_function.delete_all_elements_in_list("删除", json_data[cc])
+                    # elif ccm == 3:
+                    #     json_data[cc] = [info_mapping_data.xpath('a[contains(@keyword, $name)]/@jp', name=t)[0] for t in json_data[cc]]
+                    #     #json_data[cc] = ADC_function.delete_list_all_elements("删除", json_data[cc])
+                except:
+                    json_data[cc] = [oCC.convert(t) for t in json_data[cc]]
+            # elif cc == "studio":
+            # elif cc == "series":
+            # elif cc == "label":
             else:
                 try:
                     json_data[cc] = oCC.convert(json_data[cc])

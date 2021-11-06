@@ -65,13 +65,7 @@ def getTag(a):
     result2 = str(html.xpath('//th[contains(text(),"ジャンル：")]/../td/text()')).strip(" ['']").strip('\\n    ').strip(
         '\\n')
     result = str(result1 + result2).strip('+').replace("', '\\n",",").replace("', '","").replace('"','').replace(',,','').split(',')
-    total = []
-    for i in result:
-        try:
-            total.append(translateTag_to_sc(i))
-        except:
-            pass
-    return total
+    return result
 def getCover(htmlcode):
     html = etree.fromstring(htmlcode, etree.HTMLParser())
     result = str(html.xpath('//*[@id="EnlargeImage"]/@href')).strip(" ['']")
