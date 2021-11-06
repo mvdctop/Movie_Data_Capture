@@ -137,9 +137,9 @@ def get_html_session(url:str = None, cookies: dict = None, ua: str = None, retur
     return None
 
 
-def get_html_by_browser(url:str = None, cookies: dict = None, ua: str = None, return_type: str = None, encoding: str = None):
+def get_html_by_browser(url:str = None, cookies: dict = None, ua: str = None, return_type: str = None, encoding: str = None, use_scraper: bool = False):
     configProxy = config.getInstance().proxy()
-    s = requests.Session()
+    s = create_scraper(browser={'custom': ua or G_USER_AGENT,}) if use_scraper else requests.Session()
     if isinstance(cookies, dict) and len(cookies):
         requests.utils.add_dict_to_cookiejar(s.cookies, cookies)
     retries = Retry(total=configProxy.retry, connect=configProxy.retry, backoff_factor=1, status_forcelist=[429, 500, 502, 503, 504])
@@ -239,9 +239,9 @@ def get_html_by_scraper(url:str = None, cookies: dict = None, ua: str = None, re
             result.encoding = encoding or "utf-8"
             return result.text
     except requests.exceptions.ProxyError:
-        print("[-]get_html_session() Proxy error! Please check your Proxy")
+        print("[-]get_html_by_scraper() Proxy error! Please check your Proxy")
     except Exception as e:
-        print(f"[-]get_html_session() failed. {e}")
+        print(f"[-]get_html_by_scraper() failed. {e}")
     return None
 
 
