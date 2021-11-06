@@ -90,8 +90,11 @@ def getRelease(html):
 
 
 def getTag(html):
-    x = html.xpath('//span[@class="koumoku" and text()="ジャンル"]/../a[starts-with(@href,"/avod/genre/")]/text()')
-    return [translateTag_to_sc(i.strip()) for i in x if len(i.strip())] if len(x) and len(x[0]) else []
+    result = html.xpath('//span[@class="koumoku" and text()="ジャンル"]/../a[starts-with(@href,"/avod/genre/")]/text()')
+    total = []
+    for i in result:
+        total.append(i.replace("\n","").replace("\t",""))
+    return total
 
 
 def getCover_small(html, index=0):

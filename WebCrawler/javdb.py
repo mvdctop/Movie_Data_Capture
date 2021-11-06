@@ -108,23 +108,11 @@ def getRelease(a):
 def getTag(html):
     try:
         result = html.xpath('//strong[contains(text(),"類別")]/../span/a/text()')
-        total = []
-        for i in result:
-            try:
-                total.append(translateTag_to_sc(i))
-            except:
-                pass
-        return total
+        return result
 
     except:
         result = html.xpath('//strong[contains(text(),"類別")]/../span/text()')
-        total = []
-        for i in result:
-            try:
-                total.append(translateTag_to_sc(i))
-            except:
-                pass
-        return total
+        return result
 
 def getCover_small(html, index=0):
     # same issue mentioned below,

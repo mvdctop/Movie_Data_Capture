@@ -72,8 +72,7 @@ def getSerise(html):   #获取系列
     return str(x[0]) if len(x) else ''
 def getTag(html):  # 获取标签
     klist = html.xpath('/html/head/meta[@name="keywords"]/@content')[0].split(',')
-    taglist = [translateTag_to_sc(v) for v in klist[1:]]
-    return taglist
+    return klist
 def getExtrafanart(htmlcode):  # 获取剧照
     html_pather = re.compile(r'<div id=\"sample-waterfall\">[\s\S]*?</div></a>\s*?</div>')
     html = html_pather.search(htmlcode)

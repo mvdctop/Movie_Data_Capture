@@ -76,11 +76,8 @@ def get_actor(lx: html.HtmlElement):
     return r
 
 def get_tag(lx: html.HtmlElement) -> str:
-    r = []
     genres = lx.xpath("//span[@class='spec-content']/a[@itemprop='genre']/text()")
-    for g in genres:
-        r.append(translateTag_to_sc(str(g)))
-    return r
+    return genres
 
 def get_extrafanart(lx: html.HtmlElement) -> str:
     r = []

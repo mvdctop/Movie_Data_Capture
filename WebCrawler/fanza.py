@@ -123,25 +123,12 @@ def getTag(text):
         result = html.xpath(
             "//td[contains(text(),'ジャンル：')]/following-sibling::td/a/text()"
         )
-        total = []
-        for i in result:
-            try:
-                total.append(translateTag_to_sc(i))
-            except:
-                pass
-        return total
+        return result
     except:
         result = html.xpath(
             "//td[contains(text(),'ジャンル：')]/following-sibling::td/text()"
         )
-        total = []
-        for i in result:
-            try:
-                total.append(translateTag_to_sc(i))
-            except:
-                pass
-        return total
-    return result
+        return result
 
 
 def getCover(text, number):
