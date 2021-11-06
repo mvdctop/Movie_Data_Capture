@@ -9,7 +9,6 @@ from PIL import Image
 from io import BytesIO
 from pathlib import Path
 from datetime import datetime
-from concurrent.futures import ThreadPoolExecutor
 
 from ADC_function import *
 from WebCrawler import get_data_from_json
@@ -216,33 +215,24 @@ def extrafanart_download_one_by_one(data, path, filepath):
     if conf.debug():
         print(f'[!]Extrafanart download one by one mode runtime {time.perf_counter() - tm_start:.3f}s')
 
-def download_one_file(args):
-    def _inner(url: str, save_path: Path):
-        filebytes = get_html(url, return_type='content')
-        if isinstance(filebytes, bytes) and len(filebytes):
-            if len(filebytes) == save_path.open('wb').write(filebytes):
-                return str(save_path)
-    return _inner(*args)
 
 def extrafanart_download_threadpool(url_list, save_dir, number):
     tm_start = time.perf_counter()
     conf = config.getInstance()
     extrafanart_dir = Path(save_dir) / conf.get_extrafanart()
     download_only_missing_images = conf.download_only_missing_images()
-    mp_args = []
+    dn_list = []
     for i, url in enumerate(url_list, start=1):
         jpg_fullpath = extrafanart_dir /  f'extrafanart-{i}.jpg'
         if download_only_missing_images and not file_not_exist_or_empty(jpg_fullpath):
             continue
-        mp_args.append((url, jpg_fullpath))
-    if not len(mp_args):
+        dn_list.append((url, jpg_fullpath))
+    if not len(dn_list):
         return
-    extrafanart_dir.mkdir(parents=True, exist_ok=True)
-    parallel = min(len(mp_args), conf.extrafanart_thread_pool_download())
+    parallel = min(len(dn_list), conf.extrafanart_thread_pool_download())
     if parallel > 100:
         print('[!]Warrning: Parallel download thread too large may cause website ban IP!')
-    with ThreadPoolExecutor(parallel) as pool:
-        result = list(pool.map(download_one_file, mp_args))
+    result = parallel_download_files(dn_list, parallel)
     failed = 0
     for i, r in enumerate(result, start=1):
         if not r:
@@ -254,6 +244,7 @@ def extrafanart_download_threadpool(url_list, save_dir, number):
         print(f"[+]Successfully downloaded {len(result)} extrafanart to '{extrafanart_dir}'")
     if conf.debug():
         print(f'[!]Extrafanart download ThreadPool mode runtime {time.perf_counter() - tm_start:.3f}s')
+
 
 # 封面是否下载成功，否则移动到failed
 def image_download(cover, number, leak_word, c_word, path, filepath):

@@ -15,6 +15,7 @@ import mechanicalsoup
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 from cloudscraper import create_scraper
+from concurrent.futures import ThreadPoolExecutor
 
 
 def getXpathSingle(htmlcode, xpath):
@@ -489,6 +490,37 @@ def download_file_with_filename(url, filename, path):
     print('[-]Connect Failed! Please check your Proxy or Network!')
     raise ValueError('[-]Connect Failed! Please check your Proxy or Network!')
     return
+
+def download_one_file(args):
+    def _inner(url: str, save_path: Path):
+        filebytes = get_html(url, return_type='content')
+        if isinstance(filebytes, bytes) and len(filebytes):
+            if len(filebytes) == save_path.open('wb').write(filebytes):
+                return str(save_path)
+    return _inner(*args)
+
+'''用法示例: 2线程同时下载两个不同文件，并保存到不同路径，路径目录可未创建，但需要具备对目标目录和文件的写权限
+parallel_download_files([
+    ('https://site1/img/p1.jpg', 'C:/temp/img/p1.jpg'),
+    ('https://site2/cover/n1.xml', 'C:/tmp/cover/n1.xml')
+    ])
+'''
+# dn_list 可以是 tuple或者list: ((url1, save_fullpath1),(url2, save_fullpath2),)
+# parallel: 并行下载的线程池线程数，为0则由函数自己决定
+def parallel_download_files(dn_list, parallel: int = 0):
+    mp_args = []
+    for url, fullpath in dn_list:
+        if url and isinstance(url, str) and url.startswith('http') and fullpath and isinstance(fullpath, (str, Path)) and len(str(fullpath)):
+            fullpath = Path(fullpath)
+            fullpath.parent.mkdir(parents=True, exist_ok=True)
+            mp_args.append((url, fullpath))
+    if not len(mp_args):
+        return []
+    if not isinstance(parallel, int) or parallel not in range(1,200):
+        parallel = min(5, len(mp_args))
+    with ThreadPoolExecutor(parallel) as pool:
+        results = list(pool.map(download_one_file, mp_args))
+    return results
 
 def delete_all_elements_in_list(string,lists):
     new_lists = []
