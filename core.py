@@ -549,16 +549,19 @@ def get_part(filepath):
 
 def debug_print(data: json):
     try:
-        print("[+] ---Debug info---")
+        print("[+] ------- DEBUG INFO -------")
         for i, v in data.items():
             if i == 'outline':
-                print('[+]  -', i, '    :', len(v), 'characters')
+                print('[+]  -', "%-14s" % i, ':', len(v), 'characters')
                 continue
             if i == 'actor_photo' or i == 'year':
                 continue
-            print('[+]  -', "%-11s" % i, ':', v)
+            if i == 'extrafanart':
+                print('[+]  -', "%-14s" % i, ':', len(v), 'links')
+                continue
+            print('[+]  -', "%-14s" % i, ':', v)
 
-        print("[+] ---Debug info---")
+        print("[+] ------- DEBUG INFO -------")
     except:
         pass
 
