@@ -290,7 +290,11 @@ def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, f
         with open(nfo_path, "wt", encoding='UTF-8') as code:
             print('<?xml version="1.0" encoding="UTF-8" ?>', file=code)
             print("<movie>", file=code)
-            print(" <title>" + naming_rule + "</title>", file=code)
+            print("  <title>" + naming_rule + "</title>", file=code)
+            print("  <originaltitle>" + naming_rule + "</originaltitle>", file=code)
+            print("  <sorttitle>" + naming_rule + "</sorttitle>", file=code)
+            print("  <customrating>JP-18+</customrating>", file=code)
+            print("  <mpaa>JP-18+</mpaa>", file=code)
             print("  <set>", file=code)
             print("  </set>", file=code)
             print("  <studio>" + studio + "</studio>", file=code)
@@ -305,7 +309,7 @@ def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, f
             try:
                 for key in actor_list:
                     print("  <actor>", file=code)
-                    print("   <name>" + key + "</name>", file=code)
+                    print("    <name>" + key + "</name>", file=code)
                     print("  </actor>", file=code)
             except:
                 aaaa = ''
@@ -337,6 +341,8 @@ def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, f
                 aaaaaaaa = ''
             print("  <num>" + number + "</num>", file=code)
             print("  <premiered>" + release + "</premiered>", file=code)
+            print("  <releasedate>" + release + "</releasedate>", file=code)
+            print("  <release>" + release + "</release>", file=code)
             print("  <cover>" + cover + "</cover>", file=code)
             if config.getInstance().is_trailer():
                 print("  <trailer>" + trailer + "</trailer>", file=code)
