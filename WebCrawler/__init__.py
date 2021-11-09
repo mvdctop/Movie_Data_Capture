@@ -275,16 +275,14 @@ def get_data_from_json(file_number, oCC):  # 从JSON返回元数据
         for translate_value in translate_values:
             if json_data[translate_value] == "":
                 continue
-            t = ""
-            # if conf.get_transalte_engine() == "baidu":
-            #     json_data[translate_value] = translate(
-            #         json_data[translate_value],
-            #         target_language="zh",
-            #         engine=conf.get_transalte_engine(),
-            #         app_id=conf.get_transalte_appId(),
-            #         key=conf.get_transalte_key(),
-            #         delay=conf.get_transalte_delay(),
-            #     )
+            if translate_value == "title":
+                title_dict = json.load(
+                    open(str(Path.home() / '.local' / 'share' / 'avdc' / 'c_number.json'), 'r', encoding="utf-8"))
+                try:
+                    json_data[translate_value] = title_dict[number]
+                    continue
+                except:
+                    pass
             if conf.get_transalte_engine() == "azure":
                 t = translate(
                     json_data[translate_value],

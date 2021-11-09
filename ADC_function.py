@@ -299,27 +299,6 @@ f"https://{gsite}/translate_a/single?client=gtx&dt=t&dj=1&ie=UTF-8&sl=auto&tl={t
 
         translate_list = [i["trans"] for i in result.json()["sentences"]]
         trans_result = trans_result.join(translate_list)
-    # elif engine == "baidu":
-    #     url = "https://fanyi-api.baidu.com/api/trans/vip/translate"
-    #     salt = secrets.randbelow(1435660287) + 1  # random.randint(1, 1435660288)
-    #     sign = app_id + src + str(salt) + key
-    #     sign = hashlib.md5(sign.encode()).hexdigest()
-    #     url += (
-    #         "?appid="
-    #         + app_id
-    #         + "&q="
-    #         + src
-    #         + "&from=auto&to="
-    #         + target_language
-    #         + "&salt="
-    #         + str(salt)
-    #         + "&sign="
-    #         + sign
-    #     )
-    #     result = get_html(url=url, return_type="object")
-    #
-    #     translate_list = [i["dst"] for i in result.json()["trans_result"]]
-    #     trans_result = trans_result.join(translate_list)
     elif engine == "azure":
         url = "https://api.cognitive.microsofttranslator.com/translate?api-version=3.0&to=" + target_language
         headers = {
