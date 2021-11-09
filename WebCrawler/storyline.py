@@ -66,12 +66,12 @@ def getStoryline(number, title, sites: list=None):
     s = f'[!]Storyline{G_mode_txt[run_mode]}模式运行{len(apply_sites)}个任务共耗时(含启动开销){time.time() - start_time:.3f}秒，结束于{time.strftime("%H:%M:%S")}'
     sel_site = ''
     for site, desc in zip(apply_sites, results):
-        sl = len(desc) if isinstance(desc, str) else 0
-        if not is_japanese(desc):
-            sel_site, sel = site, desc
-            break
-        if sl and not len(sel_site):
-            sel_site, sel = site, desc
+        if isinstance(desc, str) and len(desc):
+            if not is_japanese(desc):
+                sel_site, sel = site, desc
+                break
+            if not len(sel_site):
+                sel_site, sel = site, desc
     for site, desc in zip(apply_sites, results):
         sl = len(desc) if isinstance(desc, str) else 0
         s += f'，[选中{site}字数:{sl}]' if site == sel_site else f'，{site}字数:{sl}' if sl else f'，{site}:空'
