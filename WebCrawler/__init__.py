@@ -214,45 +214,6 @@ def get_data_from_json(file_number, oCC):  # 从JSON返回元数据
         cover_small = tmpArr[0].strip('\"').strip('\'')
     # ====================处理异常字符 END================== #\/:*?"<>|
 
-    # ===  替换Studio片假名
-    studio = studio.replace('アイエナジー','Energy')
-    studio = studio.replace('アイデアポケット','Idea Pocket')
-    studio = studio.replace('アキノリ','AKNR')
-    studio = studio.replace('アタッカーズ','Attackers')
-    studio = re.sub('アパッチ.*','Apache',studio)
-    studio = studio.replace('アマチュアインディーズ','SOD')
-    studio = studio.replace('アリスJAPAN','Alice Japan')
-    studio = studio.replace('オーロラプロジェクト・アネックス','Aurora Project Annex')
-    studio = studio.replace('クリスタル映像','Crystal 映像')
-    studio = studio.replace('グローリークエスト','Glory Quest')
-    studio = studio.replace('ダスッ！','DAS！')
-    studio = studio.replace('ディープス','DEEP’s')
-    studio = studio.replace('ドグマ','Dogma')
-    studio = studio.replace('プレステージ','PRESTIGE')
-    studio = studio.replace('ムーディーズ','MOODYZ')
-    studio = studio.replace('メディアステーション','宇宙企画')
-    studio = studio.replace('ワンズファクトリー','WANZ FACTORY')
-    studio = studio.replace('エスワン ナンバーワンスタイル','S1')
-    studio = studio.replace('エスワンナンバーワンスタイル','S1')
-    studio = studio.replace('SODクリエイト','SOD')
-    studio = studio.replace('サディスティックヴィレッジ','SOD')
-    studio = studio.replace('V＆Rプロダクツ','V＆R PRODUCE')
-    studio = studio.replace('V＆RPRODUCE','V＆R PRODUCE')
-    studio = studio.replace('レアルワークス','Real Works')
-    studio = studio.replace('マックスエー','MAX-A')
-    studio = studio.replace('ピーターズMAX','PETERS MAX')
-    studio = studio.replace('プレミアム','PREMIUM')
-    studio = studio.replace('ナチュラルハイ','NATURAL HIGH')
-    studio = studio.replace('マキシング','MAXING')
-    studio = studio.replace('エムズビデオグループ','M’s Video Group')
-    studio = studio.replace('ミニマム','Minimum')
-    studio = studio.replace('ワープエンタテインメント','WAAP Entertainment')
-    studio = studio.replace('pacopacomama,パコパコママ','pacopacomama')
-    studio = studio.replace('パコパコママ','pacopacomama')
-    studio = re.sub('.*/妄想族','妄想族',studio)
-    studio = studio.replace('/',' ')
-    # ===  替换Studio片假名 END
-
     # 返回处理后的json_data
     json_data['title'] = title
     json_data['original_title'] = title
@@ -275,16 +236,14 @@ def get_data_from_json(file_number, oCC):  # 从JSON返回元数据
         for translate_value in translate_values:
             if json_data[translate_value] == "":
                 continue
-            t = ""
-            # if conf.get_transalte_engine() == "baidu":
-            #     json_data[translate_value] = translate(
-            #         json_data[translate_value],
-            #         target_language="zh",
-            #         engine=conf.get_transalte_engine(),
-            #         app_id=conf.get_transalte_appId(),
-            #         key=conf.get_transalte_key(),
-            #         delay=conf.get_transalte_delay(),
-            #     )
+            if translate_value == "title":
+                title_dict = json.load(
+                    open(str(Path.home() / '.local' / 'share' / 'avdc' / 'c_number.json'), 'r', encoding="utf-8"))
+                try:
+                    json_data[translate_value] = title_dict[number]
+                    continue
+                except:
+                    pass
             if conf.get_transalte_engine() == "azure":
                 t = translate(
                     json_data[translate_value],
@@ -309,9 +268,9 @@ def get_data_from_json(file_number, oCC):  # 从JSON返回元数据
                     elif ccm == 2:
                         json_data['actor_list'] = [actor_mapping_data.xpath('a[contains(@keyword, $name)]/@zh_tw', name=aa)[0] for aa in json_data['actor_list']]
                         json_data['actor'] = actor_mapping_data.xpath('a[contains(@keyword, $name)]/@zh_tw', name=json_data['actor'])[0]
-                    # elif ccm == 3:
-                    #     json_data['actor_list'] = [actor_mapping_data.xpath('a[contains(@keyword, $name)]/@jp', name=aa)[0] for aa in json_data['actor_list']]
-                    #     json_data['actor'] = actor_mapping_data.xpath('a[contains(@keyword, $name)]/@jp', name=json_data['actor'])[0]
+                    elif ccm == 3:
+                        json_data['actor_list'] = [actor_mapping_data.xpath('a[contains(@keyword, $name)]/@jp', name=aa)[0] for aa in json_data['actor_list']]
+                        json_data['actor'] = actor_mapping_data.xpath('a[contains(@keyword, $name)]/@jp', name=json_data['actor'])[0]
                 except:
                     json_data['actor_list'] = [oCC.convert(aa) for aa in json_data['actor_list']]
                     json_data['actor'] = oCC.convert(json_data['actor'])
@@ -323,16 +282,23 @@ def get_data_from_json(file_number, oCC):  # 从JSON返回元数据
                     elif ccm == 2:
                         json_data[cc] = [info_mapping_data.xpath('a[contains(@keyword, $name)]/@zh_tw', name=t)[0] for t in json_data[cc]]
                         json_data[cc] = ADC_function.delete_all_elements_in_list("删除", json_data[cc])
-                    # elif ccm == 3:
-                    #     json_data[cc] = [info_mapping_data.xpath('a[contains(@keyword, $name)]/@jp', name=t)[0] for t in json_data[cc]]
-                    #     #json_data[cc] = ADC_function.delete_list_all_elements("删除", json_data[cc])
+                    elif ccm == 3:
+                        json_data[cc] = [info_mapping_data.xpath('a[contains(@keyword, $name)]/@jp', name=t)[0] for t in json_data[cc]]
+                        json_data[cc] = ADC_function.delete_list_all_elements("删除", json_data[cc])
                 except:
                     json_data[cc] = [oCC.convert(t) for t in json_data[cc]]
-            # elif cc == "studio":
-            # elif cc == "series":
-            # elif cc == "label":
             else:
                 try:
+                    if ccm == 1:
+                        json_data[cc] = actor_mapping_data.xpath('a[contains(@keyword, $name)]/@zh_cn', name=json_data[cc])[0]
+                        json_data[cc] = ADC_function.delete_list_all_elements("删除", json_data[cc])
+                    elif ccm == 2:
+                        json_data[cc] = actor_mapping_data.xpath('a[contains(@keyword, $name)]/@zh_tw', name=json_data[cc])[0]
+                        json_data[cc] = ADC_function.delete_list_all_elements("删除", json_data[cc])
+                    elif ccm == 3:
+                        json_data[cc] = actor_mapping_data.xpath('a[contains(@keyword, $name)]/@jp', name=json_data[cc])[0]
+                        json_data[cc] = ADC_function.delete_list_all_elements("删除", json_data[cc])
+                except IndexError:
                     json_data[cc] = oCC.convert(json_data[cc])
                 except:
                     pass

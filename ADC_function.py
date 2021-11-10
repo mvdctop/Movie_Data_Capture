@@ -15,6 +15,7 @@ import mechanicalsoup
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 from cloudscraper import create_scraper
+from concurrent.futures import ThreadPoolExecutor
 
 
 def getXpathSingle(htmlcode, xpath):
@@ -136,9 +137,9 @@ def get_html_session(url:str = None, cookies: dict = None, ua: str = None, retur
     return None
 
 
-def get_html_by_browser(url:str = None, cookies: dict = None, ua: str = None, return_type: str = None, encoding: str = None):
+def get_html_by_browser(url:str = None, cookies: dict = None, ua: str = None, return_type: str = None, encoding: str = None, use_scraper: bool = False):
     configProxy = config.getInstance().proxy()
-    s = requests.Session()
+    s = create_scraper(browser={'custom': ua or G_USER_AGENT,}) if use_scraper else requests.Session()
     if isinstance(cookies, dict) and len(cookies):
         requests.utils.add_dict_to_cookiejar(s.cookies, cookies)
     retries = Retry(total=configProxy.retry, connect=configProxy.retry, backoff_factor=1, status_forcelist=[429, 500, 502, 503, 504])
@@ -238,9 +239,9 @@ def get_html_by_scraper(url:str = None, cookies: dict = None, ua: str = None, re
             result.encoding = encoding or "utf-8"
             return result.text
     except requests.exceptions.ProxyError:
-        print("[-]get_html_session() Proxy error! Please check your Proxy")
+        print("[-]get_html_by_scraper() Proxy error! Please check your Proxy")
     except Exception as e:
-        print(f"[-]get_html_session() failed. {e}")
+        print(f"[-]get_html_by_scraper() failed. {e}")
     return None
 
 
@@ -298,27 +299,6 @@ f"https://{gsite}/translate_a/single?client=gtx&dt=t&dj=1&ie=UTF-8&sl=auto&tl={t
 
         translate_list = [i["trans"] for i in result.json()["sentences"]]
         trans_result = trans_result.join(translate_list)
-    # elif engine == "baidu":
-    #     url = "https://fanyi-api.baidu.com/api/trans/vip/translate"
-    #     salt = secrets.randbelow(1435660287) + 1  # random.randint(1, 1435660288)
-    #     sign = app_id + src + str(salt) + key
-    #     sign = hashlib.md5(sign.encode()).hexdigest()
-    #     url += (
-    #         "?appid="
-    #         + app_id
-    #         + "&q="
-    #         + src
-    #         + "&from=auto&to="
-    #         + target_language
-    #         + "&salt="
-    #         + str(salt)
-    #         + "&sign="
-    #         + sign
-    #     )
-    #     result = get_html(url=url, return_type="object")
-    #
-    #     translate_list = [i["dst"] for i in result.json()["trans_result"]]
-    #     trans_result = trans_result.join(translate_list)
     elif engine == "azure":
         url = "https://api.cognitive.microsofttranslator.com/translate?api-version=3.0&to=" + target_language
         headers = {
@@ -489,6 +469,37 @@ def download_file_with_filename(url, filename, path):
     print('[-]Connect Failed! Please check your Proxy or Network!')
     raise ValueError('[-]Connect Failed! Please check your Proxy or Network!')
     return
+
+def download_one_file(args):
+    def _inner(url: str, save_path: Path):
+        filebytes = get_html(url, return_type='content')
+        if isinstance(filebytes, bytes) and len(filebytes):
+            if len(filebytes) == save_path.open('wb').write(filebytes):
+                return str(save_path)
+    return _inner(*args)
+
+'''用法示例: 2线程同时下载两个不同文件，并保存到不同路径，路径目录可未创建，但需要具备对目标目录和文件的写权限
+parallel_download_files([
+    ('https://site1/img/p1.jpg', 'C:/temp/img/p1.jpg'),
+    ('https://site2/cover/n1.xml', 'C:/tmp/cover/n1.xml')
+    ])
+'''
+# dn_list 可以是 tuple或者list: ((url1, save_fullpath1),(url2, save_fullpath2),)
+# parallel: 并行下载的线程池线程数，为0则由函数自己决定
+def parallel_download_files(dn_list, parallel: int = 0):
+    mp_args = []
+    for url, fullpath in dn_list:
+        if url and isinstance(url, str) and url.startswith('http') and fullpath and isinstance(fullpath, (str, Path)) and len(str(fullpath)):
+            fullpath = Path(fullpath)
+            fullpath.parent.mkdir(parents=True, exist_ok=True)
+            mp_args.append((url, fullpath))
+    if not len(mp_args):
+        return []
+    if not isinstance(parallel, int) or parallel not in range(1,200):
+        parallel = min(5, len(mp_args))
+    with ThreadPoolExecutor(parallel) as pool:
+        results = list(pool.map(download_one_file, mp_args))
+    return results
 
 def delete_all_elements_in_list(string,lists):
     new_lists = []

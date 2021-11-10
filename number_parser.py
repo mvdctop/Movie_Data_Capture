@@ -4,7 +4,7 @@ import sys
 import config
 
 G_spat = re.compile(
-    "^22-sht\.me|-fhd|_fhd|^fhd_|^fhd-|-hd|_hd|^hd_|^hd-|-sd|_sd|-1080p|_1080p|-720p|_720p|^hhd800\.com@",
+    "^22-sht\.me|-fhd|_fhd|^fhd_|^fhd-|-hd|_hd|^hd_|^hd-|-sd|_sd|-1080p|_1080p|-720p|_720p|^hhd800\.com@|-uncensored|_uncensored|-leak|_leak",
     re.IGNORECASE)
 
 
@@ -44,7 +44,10 @@ def get_number(debug,file_path: str) -> str:
             lower_check = filename.lower()
             if 'fc2' in lower_check:
                 filename = lower_check.replace('ppv', '').replace('--', '-').replace('_', '-').upper()
-            return str(re.search(r'\w+(-|_)\w+', filename, re.A).group())
+            filename = re.sub("(-|_)cd\d{1,2}", "", filename, flags=re.IGNORECASE)
+            file_number = str(re.search(r'\w+(-|_)\w+', filename, re.A).group())
+            file_number = re.sub("(-|_)c$", "", file_number, flags=re.IGNORECASE)
+            return file_number.upper()
         else:  # 提取不含减号-的番号，FANZA CID
             # 欧美番号匹配规则
             oumei = re.search(r'[a-zA-Z]+\.\d{2}\.\d{2}\.\d{2}', filepath)
@@ -119,6 +122,15 @@ if __name__ == "__main__":
 #     import doctest
 #     doctest.testmod(raise_on_error=True)
     test_use_cases = (
+        "MEYD-594-C.mp4",
+        "SSIS-001_C.mp4",
+        "SSIS100-C.mp4",
+        "SSIS101_C.mp4",
+        "ssni984.mp4",
+        "ssni666.mp4",
+        "SDDE-625_uncensored_C.mp4",
+        "SDDE-625_uncensored_leak_C.mp4",
+        "SDDE-625_uncensored_leak_C_cd1.mp4",
         "Tokyo Hot n9001 FHD.mp4", # 无-号，以前无法正确提取
         "TokyoHot-n1287-HD SP2006 .mp4",
         "caribean-020317_001.nfo",     # -号误命名为_号的

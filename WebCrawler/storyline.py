@@ -53,25 +53,28 @@ def getStoryline(number, title, sites: list=None):
     assert run_mode in (0,1,2)
     with ThreadPool(cores) if run_mode == 1 else Pool(cores) if run_mode == 2 else noThread() as pool:
         results = pool.map(getStoryline_mp, mp_args)
+    sel = ''
     if not debug and conf.storyline_show() == 0:
         for value in results:
             if isinstance(value, str) and len(value):
-                return value
-        return ''
+                if not is_japanese(value):
+                    return value
+                if not len(sel):
+                    sel = value
+        return sel
     # 以下debug结果输出会写入日志，进程池中的则不会，只在标准输出中显示
     s = f'[!]Storyline{G_mode_txt[run_mode]}模式运行{len(apply_sites)}个任务共耗时(含启动开销){time.time() - start_time:.3f}秒，结束于{time.strftime("%H:%M:%S")}'
-    first = True
-    sel = ''
+    sel_site = ''
     for site, desc in zip(apply_sites, results):
         sl = len(desc) if isinstance(desc, str) else 0
-        if sl and first:
-            s += f'，[选中{site}字数:{sl}]'
-            first = False
-            sel = desc
-        elif sl:
-            s += f'，{site}字数:{sl}'
-        else:
-            s += f'，{site}:空'
+        if not is_japanese(desc):
+            sel_site, sel = site, desc
+            break
+        if sl and not len(sel_site):
+            sel_site, sel = site, desc
+    for site, desc in zip(apply_sites, results):
+        sl = len(desc) if isinstance(desc, str) else 0
+        s += f'，[选中{site}字数:{sl}]' if site == sel_site else f'，{site}字数:{sl}' if sl else f'，{site}:空'
     print(s)
     return sel
 
@@ -144,36 +147,36 @@ def getStoryline_airav(number, debug):
 def getStoryline_airavwiki(number, debug):
     try:
         kwd = number[:6] if re.match(r'\d{6}[\-_]\d{2,3}', number) else number
-        url = f'https://www.airav.wiki/api/video/list?lang=zh-TW&lng=zh-TW&search={kwd}'
-        result, session = get_html_session(url, return_type='session')
-        if not result:
-            raise ValueError(f"get_html_session('{url}','{number}') failed")
-        j = json.loads(result.content)
-        if int(j.get('count')) == 0:
-            raise ValueError("number not found")
+        url = f'https://cn.airav.wiki/?search={kwd}'
+        result, browser = get_html_by_browser(url, return_type='browser', use_scraper=True)
+        if not result.ok:
+            raise ValueError(f"get_html_by_browser('{url}','{number}') failed")
+        s = browser.page.select('div.row > div > div.videoList.row > div > a.d-block')
         link = None
-        for r in j["result"]:
-            n = r['barcode']
-            if re.search(number, n, re.I):
-                link = urljoin(result.url, f'/api/video/barcode/{n}?lng=zh-TW')
+        for a in s:
+            title = a.img['title']
+            list_number = re.findall('^(.*?)\s+', title, re.A)[0].strip()
+            if kwd == number:  # 番号PRED-164 和 RED-164需要能够区分
+                if re.match(f'^{number}$', list_number, re.I):
+                    link = a
+                    break
+            elif re.search(number, list_number, re.I):
+                link = a
                 break
         if link is None:
             raise ValueError("number not found")
-        result = session.get(link)
-        if not result.ok or not re.search(number, result.url, re.I):
+        result = browser.follow_link(link)
+        if not result.ok or not re.search(number, browser.url, re.I):
             raise ValueError("detail page not found")
-        j = json.loads(result.content)
-        if int(j.get('count')) != 1:
-            raise ValueError("number not found")
-        detail_number = j["result"]['barcode']
+        title = browser.page.select('head > title')[0].text.strip()
+        detail_number = str(re.findall('\[(.*?)]', title)[0])
         if not re.search(number, detail_number, re.I):
             raise ValueError("detail page number not match, got ->[{detail_number}]")
-        desc = j["result"]['description']
+        desc = browser.page.select_one('div.d-flex.videoDataBlock > div.synopsis > p').text.strip()
         return desc
-
     except Exception as e:
         if debug:
-            print(f"[-]MP getStoryline_airavwiki Error: {e}, number [{number}].")
+            print(f"[-]MP def getStoryline_airavwiki Error: {e}, number [{number}].")
         pass
     return ''
 
@@ -196,7 +199,8 @@ def getStoryline_58avgo(number, debug):
         link = None
         for a in s:
             title = a.h3.text.strip()
-            if re.search(number, title, re.I):
+            list_number = title[title.rfind(' ')+1:].strip()
+            if re.search(number, list_number, re.I):
                 link = a
                 break
         if link is None:
@@ -227,9 +231,13 @@ def getStoryline_avno1(number, debug):  #获取剧情介绍 从avno1.cc取得
         titles = lx.xpath('//div[@class="type_movie"]/div/ul/li/div/a/h3/text()')
         if not descs or not len(descs):
             raise ValueError(f"number not found")
+        partial_num = bool(re.match(r'\d{6}[\-_]\d{2,3}', number))
         for title, desc in zip(titles, descs):
-            page_number = title[title.rfind(' '):].strip()
-            if re.search(number, page_number, re.I):
+            page_number = title[title.rfind(' ')+1:].strip()
+            if not partial_num:
+                if re.match(f'^{number}$', page_number, re.I):
+                    return desc.strip()
+            elif re.search(number, page_number, re.I):
                 return desc.strip()
         raise ValueError(f"page number ->[{page_number}] not match")
     except Exception as e:
@@ -254,7 +262,7 @@ def getStoryline_avno1OLD(number, debug):  #获取剧情介绍 从avno1.cc取得
         s = browser.page.select('div.type_movie > div > ul > li > div')
         for div in s:
             title = div.a.h3.text.strip()
-            page_number = title[title.rfind(' '):].strip()
+            page_number = title[title.rfind(' ')+1:].strip()
             if re.search(number, page_number, re.I):
                 return div['data-description'].strip()
         raise ValueError(f"page number ->[{page_number}] not match")

@@ -14,7 +14,7 @@ import config
 from datetime import datetime, timedelta
 import time
 from pathlib import Path
-from ADC_function import  file_modification_days, get_html
+from ADC_function import  file_modification_days, get_html, parallel_download_files
 from number_parser import get_number
 from core import core_main, moveFailedFolder
 
@@ -473,18 +473,24 @@ def main():
     if conf.update_check():
         check_update(version)
 
-    # Download Mapping Table
-    if not os.path.exists(str(Path.home() / '.local' / 'share' / 'avdc' / 'mapping_actor.xml')):
-        ADC_function.download_file_with_filename(
+    # Download Mapping Table, parallel version
+    down_map_tab = []
+    actor_xml = Path.home() / '.local' / 'share' / 'avdc' / 'mapping_actor.xml'
+    if not actor_xml.exists():
+        down_map_tab.append((
             "https://raw.githubusercontent.com/yoshiko2/AV_Data_Capture/master/MappingTable/mapping_actor.xml",
-            "mapping_actor.xml", str(Path.home() / '.local' / 'share' / 'avdc'))
-        print("[+] [1/2] Mapping Table Downloaded")
-
-    if not os.path.exists(str(Path.home() / '.local' / 'share' / 'avdc' / 'mapping_info.xml')):
-        ADC_function.download_file_with_filename(
+            actor_xml))
+    info_xml = Path.home() / '.local' / 'share' / 'avdc' / 'mapping_info.xml'
+    if not info_xml.exists():
+        down_map_tab.append((
             "https://raw.githubusercontent.com/yoshiko2/AV_Data_Capture/master/MappingTable/mapping_info.xml",
-            "mapping_info.xml", str(Path.home() / '.local' / 'share' / 'avdc'))
-        print("[+] [2/2] Mapping Table Downloaded")
+            info_xml))
+    res = parallel_download_files(down_map_tab)
+    for i, fp in enumerate(res, start=1):
+        if fp and len(fp):
+            print(f"[+] [{i}/{len(res)}] Mapping Table Downloaded to {fp}")
+        else:
+            print(f"[-] [{i}/{len(res)}] Mapping Table Download failed")
 
     print(f"[+]Load Config file '{conf.ini_path}'.")
     if conf.debug():
