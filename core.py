@@ -494,7 +494,13 @@ def paste_file_to_folder(filepath, path, number, leak_word, c_word):  # 文件�
 
         for subname in sub_res:
             sub_filepath = str(filepath_obj.with_suffix(subname))
-            if os.path.isfile(sub_filepath):  # 字幕移动
+            if os.path.isfile(sub_filepath.replace(subname,".chs" + subname)):
+                sub_filepath = sub_filepath.replace(subname,".chs" + subname)
+                subname = ".chs" + subname
+            elif os.path.isfile(sub_filepath.replace(subname,".cht" + subname)):
+                sub_filepath = sub_filepath.replace(subname, ".cht" + subname)
+                subname = ".cht" + subname
+            if os.path.isfile(sub_filepath):
                 shutil.move(sub_filepath, os.path.join(path, f"{number}{leak_word}{c_word}{subname}"))
                 print('[+]Sub moved!')
                 return True
