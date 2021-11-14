@@ -57,8 +57,8 @@ def getCover_small(html):
     result = str(html.xpath('//*[@id="waterfall"]/div/a/div[1]/img/@src')).strip(" ['']")
     return result
 def getTag(html):
-    result = html.xpath('/html/head/meta[@name="keywords"]/@content')[0].split(',')
-    return result
+    x = html.xpath('/html/head/meta[@name="keywords"]/@content')[0].split(',')
+    return [i.strip() for i in x[2:]]  if len(x) > 2 else []
 def getSeries(html):
     try:
         result1 = str(html.xpath('//span[contains(text(),"系列:")]/../span[2]/text()')).strip(" ['']")
