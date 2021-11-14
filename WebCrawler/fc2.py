@@ -14,7 +14,7 @@ def getTitle_fc2com(htmlcode): #获取厂商
     return result
 def getActor_fc2com(htmlcode):
     try:
-        htmtml = etree.fromstring(htmlcode, etree.HTMLParser())
+        html = etree.fromstring(htmlcode, etree.HTMLParser())
         result = html.xpath('//*[@id="top"]/div[1]/section[1]/div/section/div[2]/ul/li[3]/a/text()')[0]
         return result
     except:
