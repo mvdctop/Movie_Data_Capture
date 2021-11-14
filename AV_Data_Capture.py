@@ -474,15 +474,10 @@ def main():
         check_update(version)
 
     # Download Mapping Table, parallel version
-    user_data_home = Path.home() / '.local' / 'share' / 'avdc'
-    map_tab = (
-        ('https://raw.githubusercontent.com/yoshiko2/AV_Data_Capture/master/MappingTable/mapping_actor.xml',
-        user_data_home / 'mapping_actor.xml'),
-        ('https://raw.githubusercontent.com/yoshiko2/AV_Data_Capture/master/MappingTable/mapping_info.xml',
-        user_data_home / 'mapping_info.xml'),
-        ('https://raw.githubusercontent.com/yoshiko2/AV_Data_Capture/master/MappingTable/c_number.json',
-        user_data_home / 'c_number.json')
-    )
+    def fmd(f):
+        return ('https://raw.githubusercontent.com/yoshiko2/AV_Data_Capture/master/MappingTable/' + f,
+            Path.home() / '.local' / 'share' / 'avdc' / f)
+    map_tab = (fmd('mapping_actor.xml'), fmd('mapping_info.xml'), fmd('c_number.json'))
     res = parallel_download_files(((k, v) for k, v in map_tab if not v.exists()))
     for i, fp in enumerate(res, start=1):
         if fp and len(fp):
