@@ -7,6 +7,7 @@ import shutil
 import typing
 import urllib3
 import signal
+import platform
 from opencc import OpenCC
 
 import ADC_function
@@ -462,9 +463,12 @@ def main():
         signal.signal(signal.SIGWINCH, sigdebug_handler)
     dupe_stdout_to_logfile(logdir)
 
+    platform_total = str(platform.platform() + ' - ' + platform.machine() + ' - Python-' + platform.python_version())
+
     print('[*]================== AV Data Capture ===================')
     print('[*]' + version.center(54))
     print('[*]======================================================')
+    print('[*]' + platform_total)
     print('[*]严禁在墙内宣传本项目')
 
     start_time = time.time()
