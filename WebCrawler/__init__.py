@@ -260,6 +260,8 @@ def get_data_from_json(file_number, oCC):  # 从JSON返回元数据
         cc_vars = conf.cc_convert_vars().split(",")
         ccm = conf.cc_convert_mode()
         for cc in cc_vars:
+            if json_data[cc] == "" or len(json_data[cc]) == 0:
+                continue
             if cc == "actor":
                 try:
                     if ccm == 1:
