@@ -48,7 +48,7 @@ def get_html(url, cookies: dict = None, ua: str = None, return_type: str = None,
             elif return_type == "content":
                 return result.content
             else:
-                result.encoding = result.apparent_encoding
+                result.encoding = encoding or result.apparent_encoding
                 return result.text
         except requests.exceptions.ProxyError:
             print("[-]Proxy error! Please check your Proxy")
