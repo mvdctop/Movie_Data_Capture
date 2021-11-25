@@ -52,12 +52,13 @@ def get_html(url, cookies: dict = None, ua: str = None, return_type: str = None,
                 return result.text
         except requests.exceptions.ProxyError:
             print("[-]Proxy error! Please check your Proxy")
-            return
+            raise requests.exceptions.ProxyError
         except Exception as e:
             print("[-]Connect retry {}/{}".format(i + 1, configProxy.retry))
             errors = str(e)
     print('[-]Connect Failed! Please check your Proxy or Network!')
     print("[-]" + errors)
+    raise Exception('Connect Failed')
 
 
 def post_html(url: str, query: dict, headers: dict = None) -> requests.Response:
