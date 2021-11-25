@@ -259,46 +259,58 @@ def get_data_from_json(file_number, oCC):  # 从JSON返回元数据
     if oCC:
         cc_vars = conf.cc_convert_vars().split(",")
         ccm = conf.cc_convert_mode()
+        def convert_list(mapping_data,language,vars):
+            total = []
+            for i in vars:
+                if len(mapping_data.xpath('a[contains(@keyword, $name)]/@' + language, name=i)) != 0:
+                    i = mapping_data.xpath('a[contains(@keyword, $name)]/@' + language, name=i)[0]
+                total.append(i)
+            return total
+        def convert(mapping_data,language,vars):
+            if len(mapping_data.xpath('a[contains(@keyword, $name)]/@' + language, name=vars)) != 0:
+                return mapping_data.xpath('a[contains(@keyword, $name)]/@' + language, name=vars)[0]
+            else:
+                return vars
         for cc in cc_vars:
             if json_data[cc] == "" or len(json_data[cc]) == 0:
                 continue
             if cc == "actor":
                 try:
                     if ccm == 1:
-                        json_data['actor_list'] = [actor_mapping_data.xpath('a[contains(@keyword, $name)]/@zh_cn', name=aa)[0] for aa in json_data['actor_list']]
-                        json_data['actor'] = actor_mapping_data.xpath('a[contains(@keyword, $name)]/@zh_cn', name=json_data['actor'])[0]
+                        json_data['actor_list'] = convert_list(actor_mapping_data, "zh_cn", json_data['actor_list'])
+                        json_data['actor'] = convert(actor_mapping_data, "zh_cn", json_data['actor'])
                     elif ccm == 2:
-                        json_data['actor_list'] = [actor_mapping_data.xpath('a[contains(@keyword, $name)]/@zh_tw', name=aa)[0] for aa in json_data['actor_list']]
-                        json_data['actor'] = actor_mapping_data.xpath('a[contains(@keyword, $name)]/@zh_tw', name=json_data['actor'])[0]
+                        json_data['actor_list'] = convert_list(actor_mapping_data, "zh_tw", json_data['actor_list'])
+                        json_data['actor'] = convert(actor_mapping_data, "zh_tw", json_data['actor'])
                     elif ccm == 3:
-                        json_data['actor_list'] = [actor_mapping_data.xpath('a[contains(@keyword, $name)]/@jp', name=aa)[0] for aa in json_data['actor_list']]
-                        json_data['actor'] = actor_mapping_data.xpath('a[contains(@keyword, $name)]/@jp', name=json_data['actor'])[0]
+                        json_data['actor_list'] = convert_list(actor_mapping_data, "jp", json_data['actor_list'])
+                        json_data['actor'] = convert(actor_mapping_data, "jp", json_data['actor'])
                 except:
                     json_data['actor_list'] = [oCC.convert(aa) for aa in json_data['actor_list']]
                     json_data['actor'] = oCC.convert(json_data['actor'])
             elif cc == "tag":
                 try:
                     if ccm == 1:
-                        json_data[cc] = [info_mapping_data.xpath('a[contains(@keyword, $name)]/@zh_cn', name=t)[0] for t in json_data[cc]]
+                        json_data[cc] = convert_list(info_mapping_data, "zh_cn", json_data[cc])
                         json_data[cc] = ADC_function.delete_all_elements_in_list("删除", json_data[cc])
                     elif ccm == 2:
-                        json_data[cc] = [info_mapping_data.xpath('a[contains(@keyword, $name)]/@zh_tw', name=t)[0] for t in json_data[cc]]
+                        json_data[cc] = convert_list(info_mapping_data, "zh_tw", json_data[cc])
                         json_data[cc] = ADC_function.delete_all_elements_in_list("删除", json_data[cc])
                     elif ccm == 3:
-                        json_data[cc] = [info_mapping_data.xpath('a[contains(@keyword, $name)]/@jp', name=t)[0] for t in json_data[cc]]
+                        json_data[cc] = convert_list(info_mapping_data, "jp", json_data[cc])
                         json_data[cc] = ADC_function.delete_list_all_elements("删除", json_data[cc])
                 except:
                     json_data[cc] = [oCC.convert(t) for t in json_data[cc]]
             else:
                 try:
                     if ccm == 1:
-                        json_data[cc] = actor_mapping_data.xpath('a[contains(@keyword, $name)]/@zh_cn', name=json_data[cc])[0]
+                        json_data[cc] = convert(info_mapping_data, "zh_cn", json_data[cc])
                         json_data[cc] = ADC_function.delete_list_all_elements("删除", json_data[cc])
                     elif ccm == 2:
-                        json_data[cc] = actor_mapping_data.xpath('a[contains(@keyword, $name)]/@zh_tw', name=json_data[cc])[0]
+                        json_data[cc] = convert(info_mapping_data, "zh_tw", json_data[cc])
                         json_data[cc] = ADC_function.delete_list_all_elements("删除", json_data[cc])
                     elif ccm == 3:
-                        json_data[cc] = actor_mapping_data.xpath('a[contains(@keyword, $name)]/@jp', name=json_data[cc])[0]
+                        json_data[cc] = convert(info_mapping_data, "jp", json_data[cc])
                         json_data[cc] = ADC_function.delete_list_all_elements("删除", json_data[cc])
                 except IndexError:
                     json_data[cc] = oCC.convert(json_data[cc])
