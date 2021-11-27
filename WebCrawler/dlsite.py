@@ -153,7 +153,7 @@ def main(number):
         js = json.dumps(dic, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ':'), )  # .encode('UTF-8')
         return js
     except Exception as e:
-        if config.Config().debug():
+        if config.getInstance().debug():
             print(e)
         data = {
             "title": "",

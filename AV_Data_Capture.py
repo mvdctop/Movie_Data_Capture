@@ -6,12 +6,16 @@ import sys
 import shutil
 import typing
 import urllib3
+import signal
+import platform
+from opencc import OpenCC
 
+import ADC_function
 import config
 from datetime import datetime, timedelta
 import time
 from pathlib import Path
-from ADC_function import  file_modification_days, get_html, is_link
+from ADC_function import  file_modification_days, get_html, parallel_download_files
 from number_parser import get_number
 from core import core_main, moveFailedFolder
 
@@ -34,31 +38,55 @@ def check_update(local_version):
         print("[*]======================================================")
 
 
-def argparse_function(ver: str) -> typing.Tuple[str, str, bool]:
-    parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)
+def argparse_function(ver: str) -> typing.Tuple[str, str, str, str, bool]:
+    conf = config.getInstance()
+    parser = argparse.ArgumentParser(epilog=f"Load Config file '{conf.ini_path}'.")
     parser.add_argument("file", default='', nargs='?', help="Single Movie file path.")
     parser.add_argument("-p","--path",default='',nargs='?',help="Analysis folder path.")
-    # parser.add_argument("-c", "--config", default='config.ini', nargs='?', help="The config file Path.")
-    default_logdir = os.path.join(Path.home(),'.avlogs')
+    parser.add_argument("-m","--main-mode",default='',nargs='?',help="Main mode. 1:Scraping 2:Organizing 3:Scraping in analysis folder")
+    parser.add_argument("-n", "--number", default='', nargs='?', help="Custom file number of single movie file.")
+    # parser.add_argument("-C", "--config", default='config.ini', nargs='?', help="The config file Path.")
+    default_logdir = str(Path.home() / '.avlogs')
     parser.add_argument("-o","--log-dir",dest='logdir',default=default_logdir,nargs='?',
-        help=f"""Duplicate stdout and stderr to logfiles
-in logging folder, default on.
-default for current user: {default_logdir}
-Use --log-dir= to turn off logging feature.""")
-    parser.add_argument("-n", "--number", default='', nargs='?', help="Custom file number")
-    parser.add_argument("-a", "--auto-exit", dest='autoexit', action="store_true",
-                        help="Auto exit after program complete")
+        help=f"""Duplicate stdout and stderr to logfiles in logging folder, default on.
+        default folder for current user: '{default_logdir}'. Change default folder to an empty file,
+        or use --log-dir= to turn log off.""")
     parser.add_argument("-q","--regex-query",dest='regexstr',default='',nargs='?',help="python re module regex filepath filtering.")
+    parser.add_argument("-d","--nfo-skip-days",dest='days',default='',nargs='?', help="Override nfo_skip_days value in config.")
+    parser.add_argument("-c","--stop-counter",dest='cnt',default='',nargs='?', help="Override stop_counter value in config.")
+    parser.add_argument("-i", "--ignore-failed-list", action="store_true", help="Ignore failed list '{}'".format(
+                         os.path.join(os.path.abspath(conf.failed_folder()), 'failed_list.txt')))
+    parser.add_argument("-a", "--auto-exit", action="store_true",
+                        help="Auto exit after program complete")
+    parser.add_argument("-g","--debug", action="store_true",
+                        help="Turn on debug mode to generate diagnostic log for issue report.")
+    parser.add_argument("-z","--zero-operation",dest='zero_op', action="store_true",
+                        help="""Only show job list of files and numbers, and **NO** actual operation
+is performed. It may help you correct wrong numbers before real job.""")
     parser.add_argument("-v", "--version", action="version", version=ver)
+
     args = parser.parse_args()
+    def get_natural_number_or_none(value):
+        return int(value) if isinstance(value, str) and value.isnumeric() and int(value)>=0 else None
+    def get_str_or_none(value):
+        return value if isinstance(value, str) and len(value) else None
+    def get_bool_or_none(value):
+        return True if isinstance(value, bool) and value else None
+    config.G_conf_override["common:main_mode"] = get_natural_number_or_none(args.main_mode)
+    config.G_conf_override["common:source_folder"] = get_str_or_none(args.path)
+    config.G_conf_override["common:auto_exit"] = get_bool_or_none(args.auto_exit)
+    config.G_conf_override["common:nfo_skip_days"] = get_natural_number_or_none(args.days)
+    config.G_conf_override["common:stop_counter"] = get_natural_number_or_none(args.cnt)
+    config.G_conf_override["common:ignore_failed_list"] = get_bool_or_none(args.ignore_failed_list)
+    config.G_conf_override["debug_mode:switch"] = get_bool_or_none(args.debug)
 
-    return args.file, args.path, args.number, args.autoexit, args.logdir, args.regexstr
-
+    return args.file, args.number, args.logdir, args.regexstr, args.zero_op
 
 class OutLogger(object):
     def __init__(self, logfile) -> None:
         self.term = sys.stdout
         self.log = open(logfile,"w",encoding='utf-8',buffering=1)
+        self.filepath = logfile
     def __del__(self):
         self.close()
     def __enter__(self):
@@ -85,6 +113,7 @@ class ErrLogger(OutLogger):
     def __init__(self, logfile) -> None:
         self.term = sys.stderr
         self.log = open(logfile,"w",encoding='utf-8',buffering=1)
+        self.filepath = logfile
     def close(self):
         if self.term != None:
             sys.stderr = self.term
@@ -97,14 +126,18 @@ class ErrLogger(OutLogger):
 def dupe_stdout_to_logfile(logdir: str):
     if not isinstance(logdir, str) or len(logdir) == 0:
         return
-    if not os.path.isdir(logdir):
-        os.makedirs(logdir)
-        if not os.path.isdir(logdir):
-            return
-
+    log_dir = Path(logdir)
+    if not log_dir.exists():
+        try:
+            log_dir.mkdir(parents=True,exist_ok=True)
+        except:
+            pass
+    if not log_dir.is_dir():
+        return  # Tips for disabling logs by change directory to a same name empty regular file
+    abslog_dir = log_dir.resolve()
     log_tmstr = datetime.now().strftime("%Y%m%dT%H%M%S")
-    logfile = os.path.join(logdir, f'avdc_{log_tmstr}.txt')
-    errlog = os.path.join(logdir, f'avdc_{log_tmstr}_err.txt')
+    logfile = abslog_dir / f'avdc_{log_tmstr}.txt'
+    errlog = abslog_dir / f'avdc_{log_tmstr}_err.txt'
 
     sys.stdout = OutLogger(logfile)
     sys.stderr = ErrLogger(errlog)
@@ -113,28 +146,126 @@ def dupe_stdout_to_logfile(logdir: str):
 def close_logfile(logdir: str):
     if not isinstance(logdir, str) or len(logdir) == 0 or not os.path.isdir(logdir):
         return
+    #日志关闭前保存日志路径
+    filepath = None
+    try:
+        filepath = sys.stdout.filepath
+    except:
+        pass
     sys.stdout.close()
     sys.stderr.close()
+    log_dir = Path(logdir).resolve()
+    if isinstance(filepath, Path):
+        print(f"Log file '{filepath}' saved.")
+        assert(filepath.parent.samefile(log_dir))
     # 清理空文件
-    for current_dir, subdirs, files in os.walk(logdir, topdown=False):
+    for f in log_dir.glob(r'*_err.txt'):
+        if f.stat().st_size == 0:
+            try:
+                f.unlink(missing_ok=True)
+            except:
+                pass
+    # 合并日志 只检测日志目录内的文本日志，忽略子目录。三天前的日志，按日合并为单个日志，三个月前的日志，
+    # 按月合并为单个月志，去年及以前的月志，今年4月以后将之按年合并为年志
+    # 测试步骤：
+    """
+    LOGDIR=/tmp/avlog
+    mkdir -p $LOGDIR
+    for f in {2016..2020}{01..12}{01..28};do;echo $f>$LOGDIR/avdc_${f}T235959.txt;done
+    for f in {01..09}{01..28};do;echo 2021$f>$LOGDIR/avdc_2021${f}T235959.txt;done
+    for f in {00..23};do;echo 20211001T$f>$LOGDIR/avdc_20211001T${f}5959.txt;done
+    echo "$(ls -1 $LOGDIR|wc -l) files in $LOGDIR"
+    # 1932 files in /tmp/avlog
+    avdc -zgic1 -d0 -m3 -o $LOGDIR
+    # python3 ./AV_Data_Capture.py -zgic1 -o $LOGDIR
+    ls $LOGDIR
+    # rm -rf $LOGDIR
+    """
+    today = datetime.today()
+    # 第一步，合并到日。3天前的日志，文件名是同一天的合并为一份日志
+    for i in range(1):
+        txts = [f for f in log_dir.glob(r'*.txt') if re.match(r'^avdc_\d{8}T\d{6}$', f.stem, re.A)]
+        if not txts or not len(txts):
+            break
+        e = [f for f in txts if '_err' in f.stem]
+        txts.sort()
+        tmstr_3_days_ago = (today.replace(hour=0) - timedelta(days=3)).strftime("%Y%m%dT99")
+        deadline_day = f'avdc_{tmstr_3_days_ago}'
+        day_merge = [f for f in txts if f.stem < deadline_day]
+        if not day_merge or not len(day_merge):
+            break
+        cutday = len('T235959.txt')  # cut length avdc_20201201|T235959.txt
+        for f in day_merge:
+            try:
+                day_file_name = str(f)[:-cutday] + '.txt' # avdc_20201201.txt
+                with open(day_file_name, 'a', encoding='utf-8') as m:
+                    m.write(f.read_text(encoding='utf-8'))
+                f.unlink(missing_ok=True)
+            except:
+                pass
+    # 第二步，合并到月
+    for i in range(1):  # 利用1次循环的break跳到第二步，避免大块if缩进或者使用goto语法
+        txts = [f for f in log_dir.glob(r'*.txt') if re.match(r'^avdc_\d{8}$', f.stem, re.A)]
+        if not txts or not len(txts):
+            break
+        txts.sort()
+        tmstr_3_month_ago = (today.replace(day=1) - timedelta(days=3*30)).strftime("%Y%m32")
+        deadline_month = f'avdc_{tmstr_3_month_ago}'
+        month_merge = [f for f in txts if f.stem < deadline_month]
+        if not month_merge or not len(month_merge):
+            break
+        tomonth = len('01.txt')  # cut length avdc_202012|01.txt
+        for f in month_merge:
+            try:
+                month_file_name = str(f)[:-tomonth] + '.txt' # avdc_202012.txt
+                with open(month_file_name, 'a', encoding='utf-8') as m:
+                    m.write(f.read_text(encoding='utf-8'))
+                f.unlink(missing_ok=True)
+            except:
+                pass
+    # 第三步，月合并到年
+    if today.month < 4:
+        return
+    mons = [f for f in log_dir.glob(r'*.txt') if re.match(r'^avdc_\d{6}$', f.stem, re.A)]
+    if not mons or not len(mons):
+        return
+    mons.sort()
+    deadline_year = f'avdc_{today.year-1}13'
+    year_merge = [f for f in mons if f.stem < deadline_year]
+    if not year_merge or not len(year_merge):
+        return
+    toyear = len('12.txt')   # cut length avdc_2020|12.txt
+    for f in year_merge:
         try:
-            for f in files:
-                full_name = os.path.join(current_dir, f)
-                if os.path.getsize(full_name) == 0:
-                    os.remove(full_name)
+            year_file_name = str(f)[:-toyear] + '.txt' # avdc_2020.txt
+            with open(year_file_name, 'a', encoding='utf-8') as y:
+                y.write(f.read_text(encoding='utf-8'))
+            f.unlink(missing_ok=True)
         except:
             pass
+    # 第四步，压缩年志 如果有压缩需求，请自行手工压缩，或者使用外部脚本来定时完成。推荐nongnu的lzip，对于
+    # 这种粒度的文本日志，压缩比是目前最好的。lzip -9的运行参数下，日志压缩比要高于xz -9，而且内存占用更少，
+    # 多核利用率更高(plzip多线程版本)，解压速度更快。压缩后的大小差不多是未压缩时的2.4%到3.7%左右，
+    # 100MB的日志文件能缩小到3.7MB。
 
 
-# 重写视频文件扫描，消除递归，取消全局变量，新增失败文件列表跳过处理
-def movie_lists(root, conf, regexstr):
-    escape_folder = re.split("[,，]", conf.escape_folder())
+def signal_handler(*args):
+    print('[!]Ctrl+C detected, Exit.')
+    sys.exit(9)
+
+def sigdebug_handler(*args):
+    config.G_conf_override["debug_mode:switch"] = not config.G_conf_override["debug_mode:switch"]
+    print('[!]Debug {}'.format('On' if config.getInstance().debug() else 'oFF'))
+
+
+# 新增失败文件列表跳过处理，及.nfo修改天数跳过处理，提示跳过视频总数，调试模式(-g)下详细被跳过文件，跳过小广告
+def movie_lists(source_folder, regexstr):
+    conf = config.getInstance()
     main_mode = conf.main_mode()
     debug = conf.debug()
     nfo_skip_days = conf.nfo_skip_days()
     soft_link = conf.soft_link()
-    total = []
-    file_type = conf.media_type().upper().split(",")
+    file_type = conf.media_type().lower().split(",")
     trailerRE = re.compile(r'-trailer\.', re.IGNORECASE)
     cliRE = None
     if isinstance(regexstr, str) and len(regexstr):
@@ -142,72 +273,94 @@ def movie_lists(root, conf, regexstr):
             cliRE = re.compile(regexstr, re.IGNORECASE)
         except:
             pass
+    failed_list_txt_path = Path(conf.failed_folder()).resolve() / 'failed_list.txt'
     failed_set = set()
-    if main_mode == 3 or soft_link:
+    if (main_mode == 3 or soft_link) and not conf.ignore_failed_list():
         try:
-            with open(os.path.join(conf.failed_folder(), 'failed_list.txt'), 'r', encoding='utf-8')  as flt:
-                flist = flt.read().splitlines()
-                failed_set = set(flist)
-                flt.close()
-            if len(flist) != len(failed_set):
-                with open(os.path.join(conf.failed_folder(), 'failed_list.txt'), 'w', encoding='utf-8')  as flt:
-                    flt.writelines([line + '\n' for line in failed_set])
-                    flt.close()
+            flist = failed_list_txt_path.read_text(encoding='utf-8').splitlines()
+            failed_set = set(flist)
+            if len(flist) != len(failed_set): # 检查去重并写回，但是不改变failed_list.txt内条目的先后次序，重复的只保留最后的
+                fset = failed_set.copy()
+                for i in range(len(flist)-1, -1, -1):
+                    fset.remove(flist[i]) if flist[i] in fset else flist.pop(i)
+                failed_list_txt_path.write_text('\n'.join(flist) + '\n', encoding='utf-8')
+                assert len(fset) == 0 and len(flist) == len(failed_set)
         except:
             pass
-    for current_dir, subdirs, files in os.walk(root, topdown=False):
-        if len(set(current_dir.replace("\\","/").split("/")) & set(escape_folder)) > 0:
+    if not Path(source_folder).is_dir():
+        print('[-]Source folder not found!')
+        return []
+    total = []
+    source = Path(source_folder).resolve()
+    skip_failed_cnt, skip_nfo_days_cnt = 0, 0
+    escape_folder_set = set(re.split("[,，]", conf.escape_folder()))
+    for full_name in source.glob(r'**/*'):
+        if main_mode != 3 and set(full_name.parent.parts) & escape_folder_set:
             continue
-        for f in files:
-            full_name = os.path.join(current_dir, f)
-            if not os.path.splitext(full_name)[1].upper() in file_type:
-                continue
-            absf = os.path.abspath(full_name)
-            if absf in failed_set:
-                if debug:
-                    print('[!]Skip failed file:', absf)
-                continue
-            if cliRE and not cliRE.search(absf):
-                continue
-            if main_mode == 3 and nfo_skip_days > 0:
-                nfo = Path(absf).with_suffix('.nfo')
-                if file_modification_days(nfo) <= nfo_skip_days:
-                    continue
-            if (main_mode == 3 or not is_link(absf)) and not trailerRE.search(f):
-                total.append(absf)
+        if not full_name.suffix.lower() in file_type:
+            continue
+        absf = str(full_name)
+        if absf in failed_set:
+            skip_failed_cnt += 1
+            if debug:
+                print('[!]Skip failed movie:', absf)
+            continue
+        is_sym = full_name.is_symlink()
+        if main_mode != 3 and (is_sym or full_name.stat().st_nlink > 1):  # 短路布尔 符号链接不取stat()，因为符号链接可能指向不存在目标
+            continue # file is symlink or hardlink(Linux/NTFS/Darwin)
+        # 调试用0字节样本允许通过，去除小于120MB的广告'苍老师强力推荐.mp4'(102.2MB)'黑道总裁.mp4'(98.4MB)'有趣的妹子激情表演.MP4'(95MB)'有趣的臺灣妹妹直播.mp4'(15.1MB)
+        movie_size = 0 if is_sym else full_name.stat().st_size  # 同上 符号链接不取stat()及st_size，直接赋0跳过小视频检测
+        if movie_size > 0 and movie_size < 125829120:  # 1024*1024*120=125829120
+            continue
+        if cliRE and not cliRE.search(absf) or trailerRE.search(full_name.name):
+            continue
+        if main_mode == 3 and nfo_skip_days > 0 and file_modification_days(full_name.with_suffix('.nfo')) <= nfo_skip_days:
+            skip_nfo_days_cnt += 1
+            if debug:
+                print(f"[!]Skip movie by it's .nfo which modified within {nfo_skip_days} days: '{absf}'")
+            continue
+        total.append(absf)
+
+    if skip_failed_cnt:
+        print(f"[!]Skip {skip_failed_cnt} movies in failed list '{failed_list_txt_path}'.")
+    if skip_nfo_days_cnt:
+        print(f"[!]Skip {skip_nfo_days_cnt} movies in source folder '{source}' who's .nfo modified within {nfo_skip_days} days.")
     if nfo_skip_days <= 0 or not soft_link or main_mode == 3:
         return total
     # 软连接方式，已经成功削刮的也需要从成功目录中检查.nfo更新天数，跳过N天内更新过的
     skip_numbers = set()
-    success_folder = conf.success_folder()
-    for current_dir, subdirs, files in os.walk(success_folder, topdown=False):
-        for f in files:
-            f_obj = Path(f)
-            if f_obj.suffix.lower() != '.nfo':
-                continue
-            if file_modification_days(Path(current_dir) / f_obj) > nfo_skip_days:
-                continue
-            number = get_number(False, f_obj.stem)
-            if number:
-                skip_numbers.add(number.upper())
+    success_folder = Path(conf.success_folder()).resolve()
+    for f in success_folder.glob(r'**/*'):
+        if not re.match(r'\.nfo', f.suffix, re.IGNORECASE):
+            continue
+        if file_modification_days(f) > nfo_skip_days:
+            continue
+        number = get_number(False, f.stem)
+        if not number:
+            continue
+        skip_numbers.add(number.lower())
+
     rm_list = []
     for f in total:
         n_number = get_number(False, os.path.basename(f))
-        if n_number and n_number.upper() in skip_numbers:
+        if n_number and n_number.lower() in skip_numbers:
             rm_list.append(f)
     for f in rm_list:
         total.remove(f)
+        if debug:
+            print(f"[!]Skip file successfully processed within {nfo_skip_days} days: '{f}'")
+    if len(rm_list):
+        print(f"[!]Skip {len(rm_list)} movies in success folder '{success_folder}' who's .nfo modified within {nfo_skip_days} days.")
+
     return total
 
 
 def create_failed_folder(failed_folder):
-    if not os.path.isdir(failed_folder):  # 新建failed文件夹
+    if not os.path.exists(failed_folder):  # 新建failed文件夹
         try:
             os.makedirs(failed_folder)
-            if not os.path.isdir(failed_folder):
-                raise
         except:
-            print("[-]failed!can not be make folder 'failed'\n[-](Please run as Administrator)")
+            print(f"[-]Fatal error! Can not make folder '{failed_folder}'")
             sys.exit(0)
 
 
@@ -227,24 +380,29 @@ def rm_empty_folder(path):
             pass
 
 
-def create_data_and_move(file_path: str, c: config.Config, debug):
+def create_data_and_move(file_path: str, zero_op, oCC):
     # Normalized number, eg: 111xxx-222.mp4 -> xxx-222.mp4
-    file_name = os.path.basename(file_path)
-    n_number = get_number(debug, file_name)
+    debug = config.getInstance().debug()
+    n_number = get_number(debug, os.path.basename(file_path))
     file_path = os.path.abspath(file_path)
 
     if debug == True:
-        print(f"[!]Making Data for [{file_path}], the number is [{n_number}]")
+        print(f"[!] [{n_number}] As Number making data for '{file_path}'")
+        if zero_op:
+            return
         if n_number:
-            core_main(file_path, n_number, c)
+            core_main(file_path, n_number, oCC)
         else:
             print("[-] number empty ERROR")
+            moveFailedFolder(file_path)
         print("[*]======================================================")
     else:
         try:
-            print(f"[!]Making Data for [{file_path}], the number is [{n_number}]")
+            print(f"[!] [{n_number}] As Number making data for '{file_path}'")
+            if zero_op:
+                return
             if n_number:
-                core_main(file_path, n_number, c)
+                core_main(file_path, n_number, oCC)
             else:
                 raise ValueError("number empty")
             print("[*]======================================================")
@@ -253,22 +411,26 @@ def create_data_and_move(file_path: str, c: config.Config, debug):
             print('[-]', err)
 
             try:
-                moveFailedFolder(file_path, conf)
+                moveFailedFolder(file_path)
             except Exception as err:
                 print('[!]', err)
 
 
-def create_data_and_move_with_custom_number(file_path: str, c: config.Config, custom_number):
+def create_data_and_move_with_custom_number(file_path: str, custom_number, oCC):
+    conf = config.getInstance()
     file_name = os.path.basename(file_path)
     try:
-        print("[!]Making Data for [{}], the number is [{}]".format(file_path, custom_number))
-        core_main(file_path, custom_number, c)
+        print("[!] [{1}] As Number making data for '{0}'".format(file_path, custom_number))
+        if custom_number:
+            core_main(file_path, custom_number, oCC)
+        else:
+            print("[-] number empty ERROR")
         print("[*]======================================================")
     except Exception as err:
         print("[-] [{}] ERROR:".format(file_path))
         print('[-]', err)
 
-        if c.soft_link():
+        if conf.soft_link():
             print("[-]Link {} to failed folder".format(file_path))
             os.symlink(file_path, os.path.join(conf.failed_folder(), file_name))
         else:
@@ -279,69 +441,113 @@ def create_data_and_move_with_custom_number(file_path: str, c: config.Config, cu
                 print('[!]', err)
 
 
-if __name__ == '__main__':
-    version = '5.0.1'
+def main():
+    version = '5.0.5'
     urllib3.disable_warnings() #Ignore http proxy warning
-    # Parse command line args
-    single_file_path, folder_path, custom_number, auto_exit, logdir, regexstr = argparse_function(version)
 
+    # Read config.ini first, in argparse_function() need conf.failed_folder()
+    conf = config.Config("config.ini")
+
+    # Parse command line args
+    single_file_path, custom_number, logdir, regexstr, zero_op = argparse_function(version)
+
+    main_mode = conf.main_mode()
+    if not main_mode in (1, 2, 3):
+        print(f"[-]Main mode must be 1 or 2 or 3! You can run '{os.path.basename(sys.argv[0])} --help' for more help.")
+        sys.exit(4)
+
+    signal.signal(signal.SIGINT, signal_handler)
+    if sys.platform == 'win32':
+        signal.signal(signal.SIGBREAK, sigdebug_handler)
+    else:
+        signal.signal(signal.SIGWINCH, sigdebug_handler)
     dupe_stdout_to_logfile(logdir)
+
+    platform_total = str(' - ' + platform.platform() + ' \n[*] - ' + platform.machine() + ' - Python-' + platform.python_version())
 
     print('[*]================== AV Data Capture ===================')
     print('[*]' + version.center(54))
-    print('[*]' + "PRC国庆限定版".center(50))
     print('[*]======================================================')
-    print('[*]严禁在墙内宣传本项目')
+    print('[*]' + platform_total)
+    print('[*]================= 严禁在墙内宣传本项目 ===================')
 
-    # Read config.ini
-    conf = config.Config("config.ini")
-
+    start_time = time.time()
+    print('[+]Start at', time.strftime("%Y-%m-%d %H:%M:%S"))
 
     if conf.update_check():
         check_update(version)
 
+    # Download Mapping Table, parallel version
+    def fmd(f):
+        return ('https://raw.githubusercontent.com/yoshiko2/AV_Data_Capture/master/MappingTable/' + f,
+            Path.home() / '.local' / 'share' / 'avdc' / f)
+    map_tab = (fmd('mapping_actor.xml'), fmd('mapping_info.xml'), fmd('c_number.json'))
+    res = parallel_download_files(((k, v) for k, v in map_tab if not v.exists()))
+    for i, fp in enumerate(res, start=1):
+        if fp and len(fp):
+            print(f"[+] [{i}/{len(res)}] Mapping Table Downloaded to {fp}")
+        else:
+            print(f"[-] [{i}/{len(res)}] Mapping Table Download failed")
+
+    print(f"[+]Load Config file '{conf.ini_path}'.")
     if conf.debug():
         print('[+]Enable debug')
     if conf.soft_link():
         print('[!]Enable soft link')
-    #print('[!]CmdLine:'," ".join(sys.argv[1:]))
+    if len(sys.argv)>1:
+        print('[!]CmdLine:'," ".join(sys.argv[1:]))
+    print('[+]Main Working mode ## {}: {} ## {}{}{}'
+        .format(*(main_mode, ['Scraping', 'Organizing', 'Scraping in analysis folder'][main_mode-1],
+        "" if not conf.multi_threading() else ", multi_threading on",
+        "" if conf.nfo_skip_days() == 0 else f", nfo_skip_days={conf.nfo_skip_days()}",
+        "" if conf.stop_counter() == 0 else f", stop_counter={conf.stop_counter()}"
+        ) if not single_file_path else ('-','Single File', '','',''))
+    )
 
     create_failed_folder(conf.failed_folder())
-    start_time = time.time()
+
+    # create OpenCC converter
+    ccm = conf.cc_convert_mode()
+    try:
+        oCC = None if ccm == 0 else OpenCC('t2s.json' if ccm == 1 else 's2t.json')
+    except:
+        # some OS no OpennCC cpython, try opencc-python-reimplemented.
+        # pip uninstall opencc && pip install opencc-python-reimplemented
+        oCC = None if ccm == 0 else OpenCC('t2s' if ccm == 1 else 's2t')
 
     if not single_file_path == '': #Single File
         print('[+]==================== Single File =====================')
         if custom_number == '':
-            create_data_and_move_with_custom_number(single_file_path, conf, get_number(conf.debug(), os.path.basename(single_file_path)))
+            create_data_and_move_with_custom_number(single_file_path, get_number(conf.debug(), os.path.basename(single_file_path)), oCC)
         else:
-            create_data_and_move_with_custom_number(single_file_path, conf, custom_number)
+            create_data_and_move_with_custom_number(single_file_path, custom_number, oCC)
     else:
-        if folder_path == '':
+        folder_path = conf.source_folder()
+        if not isinstance(folder_path, str) or folder_path == '':
             folder_path = os.path.abspath(".")
 
-        movie_list = movie_lists(folder_path, conf, regexstr)
+        movie_list = movie_lists(folder_path, regexstr)
 
         count = 0
         count_all = str(len(movie_list))
-        print('[+]Find', count_all, 'movies. Start at', time.strftime("%Y-%m-%d %H:%M:%S"))
-        main_mode = conf.main_mode()
+        print('[+]Find', count_all, 'movies.')
+        print('[*]======================================================')
         stop_count = conf.stop_counter()
         if stop_count<1:
             stop_count = 999999
         else:
             count_all = str(min(len(movie_list), stop_count))
-        if main_mode == 3:
-            print(f'[!]运行模式：**维护模式**，本程序将在处理{count_all}个视频文件后停止，如需后台执行自动退出请结合 -a 参数。')
+
         for movie_path in movie_list:  # 遍历电影列表 交给core处理
             count = count + 1
             percentage = str(count / int(count_all) * 100)[:4] + '%'
-            print('[!] - ' + percentage + ' [' + str(count) + '/' + count_all + '] -')
-            create_data_and_move(movie_path, conf, conf.debug())
+            print('[!] {:>30}{:>21}'.format('- ' + percentage + ' [' + str(count) + '/' + count_all + '] -', time.strftime("%H:%M:%S")))
+            create_data_and_move(movie_path, zero_op, oCC)
             if count >= stop_count:
                 print("[!]Stop counter triggered!")
                 break
 
-    if conf.del_empty_folder():
+    if conf.del_empty_folder() and not zero_op:
         rm_empty_folder(conf.success_folder())
         rm_empty_folder(conf.failed_folder())
         if len(folder_path):
@@ -353,9 +559,15 @@ if __name__ == '__main__':
         " End at", time.strftime("%Y-%m-%d %H:%M:%S"))
 
     print("[+]All finished!!!")
-    if not (conf.auto_exit() or auto_exit):
-        input("Press enter key exit, you can check the error message before you exit...")
 
     close_logfile(logdir)
 
+    if not conf.auto_exit():
+        input("Press enter key exit, you can check the error message before you exit...")
+
     sys.exit(0)
+
+import multiprocessing
+if __name__ == '__main__':
+    multiprocessing.freeze_support()
+    main()

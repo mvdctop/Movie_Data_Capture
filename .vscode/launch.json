@@ -8,11 +8,26 @@
             "name": "Python: 当前文件",
             "type": "python",
             "request": "launch",
-            "program": "${file}",
             "console": "integratedTerminal",
-            "args": [
-                "-p","/Volumes/movie/a b"
-            ]
+            "env": {
+                "PYTHONIOENCODING": "utf-8"
+            },
+            "program": "${workspaceFolder}/AV_Data_capture.py",
+            "program1": "${workspaceFolder}/WebCrawler/javbus.py",
+            "program2": "${workspaceFolder}/WebCrawler/javdb.py",
+            "program3": "${workspaceFolder}/WebCrawler/xcity.py",
+            "program4": "${workspaceFolder}/number_parser.py",
+            "program5": "${workspaceFolder}/config.py",
+            "cwd0": "${fileDirname}",
+            "cwd1": "${workspaceFolder}/dist",
+            "cwd2": "${env:HOME}${env:USERPROFILE}/.avdc",
+            "args0": ["-a","-p","J:/Downloads","-o","J:/log"],
+            "args1": ["-g","-m","3","-c","1","-d","0"],
+            "args2": ["-igd0", "-m3", "-p", "J:/JAV_output", "-q", "121220_001"],
+            "args3": ["-agd0","-m3", "-q", ".*","-p","J:/#JAV_output3"],
+            "args4": ["-gic1", "-d0", "-m3", "-o", "avlog", "-p", "I:/JAV_output"],
+            "args5": ["-gic1", "-d0", "-m1", "-o", "avlog", "-p", "J:/Downloads"],
+            "args6": ["-z", "-o", "J:/log"]
         }
     ]
 }

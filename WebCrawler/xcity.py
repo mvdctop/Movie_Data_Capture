@@ -3,16 +3,12 @@ sys.path.append('../')
 import re
 from lxml import etree
 import json
-from bs4 import BeautifulSoup
 from ADC_function import *
-
-
-# import sys
+from WebCrawler.storyline import getStoryline
 # import io
 # sys.stdout = io.TextIOWrapper(sys.stdout.buffer, errors = 'replace', line_buffering = True)
 
-def getTitle(a):
-    html = etree.fromstring(a, etree.HTMLParser())
+def getTitle(html):
     result = html.xpath('//*[@id="program_detail_title"]/text()')[0]
     return result
 
@@ -43,8 +39,7 @@ def getActorPhoto(browser):
     return o
 
 
-def getStudio(a):
-    html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
+def getStudio(html):
     try:
         result = str(html.xpath('//*[@id="avodDetails"]/div/div[3]/div[2]/div/ul[1]/li[4]/a/span/text()')).strip(" ['']")
     except:
@@ -52,20 +47,14 @@ def getStudio(a):
     return result.strip('+').replace("', '", '').replace('"', '')
 
 
-def getRuntime(a):
-    html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
+def getRuntime(html):
     try:
-        result1 = html.xpath('//*[@id="avodDetails"]/div/div[3]/div[2]/div/ul[2]/li[3]/text()')[0]
-    except:
-        return ''
-    try:
-        return re.findall('\d+',result1)[0]
+        x = html.xpath('//span[@class="koumoku" and text()="収録時間"]/../text()')[1].strip()
+        return x
     except:
         return ''
 
-
-def getLabel(a):
-    html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
+def getLabel(html):
     try:
         result = html.xpath('//*[@id="avodDetails"]/div/div[3]/div[2]/div/ul[1]/li[5]/a/span/text()')[0]
         return result
@@ -73,8 +62,7 @@ def getLabel(a):
         return ''
 
 
-def getNum(a):
-    html = etree.fromstring(a, etree.HTMLParser())
+def getNum(html):
     try:
         result = html.xpath('//*[@id="hinban"]/text()')[0]
         return result
@@ -90,8 +78,7 @@ def getYear(getRelease):
         return getRelease
 
 
-def getRelease(a):
-    html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
+def getRelease(html):
     try:
         result = str(html.xpath('//*[@id="avodDetails"]/div/div[3]/div[2]/div/ul[1]/li[2]/text()')[1])
     except:
@@ -102,31 +89,25 @@ def getRelease(a):
         return ''
 
 
-def getTag(a):
-    result2=[]
-    html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
-    result1 = html.xpath('//*[@id="avodDetails"]/div/div[3]/div[2]/div/ul[1]/li[6]/a/text()')
-    for i in result1:
-        i=i.replace(u'\n','')
-        i=i.replace(u'\t','')
-        if len(i):
-            result2.append(i)
-    return result2
+def getTag(html):
+    result = html.xpath('//span[@class="koumoku" and text()="ジャンル"]/../a[starts-with(@href,"/avod/genre/")]/text()')
+    total = []
+    for i in result:
+        total.append(i.replace("\n","").replace("\t",""))
+    return total
 
 
-def getCover_small(a, index=0):
+def getCover_small(html, index=0):
     # same issue mentioned below,
     # javdb sometime returns multiple results
     # DO NOT just get the firt one, get the one with correct index number
-    html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
     result = html.xpath("//div[@class='item-image fix-scale-cover']/img/@src")[index]
     if not 'https' in result:
         result = 'https:' + result
     return result
 
 
-def getCover(htmlcode):
-    html = etree.fromstring(htmlcode, etree.HTMLParser())
+def getCover(html):
     try:
         result = html.xpath('//*[@id="avodDetails"]/div/div[3]/div[1]/p/a/@href')[0]
         return 'https:' + result
@@ -134,8 +115,7 @@ def getCover(htmlcode):
         return ''
 
 
-def getDirector(a):
-    html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
+def getDirector(html):
     try:
         result = html.xpath('//*[@id="program_detail_director"]/text()')[0].replace(u'\n','').replace(u'\t', '')
         return result
@@ -143,19 +123,21 @@ def getDirector(a):
         return ''
 
 
-def getOutline(htmlcode):
-    html = etree.fromstring(htmlcode, etree.HTMLParser())
+def getOutline(html, number, title):
+    storyline_site = config.getInstance().storyline_site().split(',')
+    a = set(storyline_site) & {'airav', 'avno1'}  # 只要中文的简介文字
+    if len(a):
+        site = [n for n in storyline_site if n in a]
+        g = getStoryline(number, title, site)
+        if len(g):
+            return g
     try:
-        result = html.xpath('//*[@id="avodDetails"]/div/div[3]/div[2]/div/ul[2]/li[5]/p/text()')[0]
+        x = html.xpath('//h2[@class="title-detail"]/../p[@class="lead"]/text()')[0]
+        return x.replace(getNum(html), '')
     except:
         return ''
-    try:
-        return re.sub('\\\\\w*\d+','',result)
-    except:
-        return result
 
-def getSeries(htmlcode):
-    html = etree.fromstring(htmlcode, etree.HTMLParser())
+def getSeries(html):
     try:
         try:
             result = html.xpath("//span[contains(text(),'シリーズ')]/../a/span/text()")[0]
@@ -181,11 +163,10 @@ def getExtrafanart(htmlcode):  # 获取剧照
             return s
     return ''
 
-def main(number):
-    try:
+def open_by_browser(number):
         xcity_number = number.replace('-','')
         query_result, browser = get_html_by_form(
-            'https://xcity.jp/about/',
+            'https://xcity.jp/' + secrets.choice(['about/','sitemap/','policy/','law/','help/','main/']),
             fields = {'q' : xcity_number.lower()},
             return_type = 'browser')
         if not query_result or not query_result.ok:
@@ -193,38 +174,44 @@ def main(number):
         result = browser.follow_link(browser.links('avod\/detail')[0])
         if not result.ok:
             raise ValueError("xcity.py: detail page not found")
-        detail_page = str(browser.page)
+        return str(browser.page), browser
+
+def main(number):
+    try:
+        detail_page, browser = open_by_browser(number)
         url = browser.url
-        newnum = getNum(detail_page).upper()
+        lx = etree.fromstring(detail_page, etree.HTMLParser())
+        newnum = getNum(lx).upper()
         number_up = number.upper()
         if newnum != number_up:
-            if newnum == xcity_number.upper():
+            if newnum == number.replace('-','').upper():
                 newnum = number_up
             else:
                 raise ValueError("xcity.py: number not found")
+        title = getTitle(lx)
         dic = {
             'actor': getActor(browser),
-            'title': getTitle(detail_page),
-            'studio': getStudio(detail_page),
-            'outline': getOutline(detail_page),
-            'runtime': getRuntime(detail_page),
-            'director': getDirector(detail_page),
-            'release': getRelease(detail_page),
+            'title': title,
+            'studio': getStudio(lx),
+            'outline': getOutline(lx, number, title),
+            'runtime': getRuntime(lx),
+            'director': getDirector(lx),
+            'release': getRelease(lx),
             'number': newnum,
-            'cover': getCover(detail_page),
+            'cover': getCover(lx),
             'cover_small': '',
             'extrafanart': getExtrafanart(detail_page),
             'imagecut': 1,
-            'tag': getTag(detail_page),
-            'label': getLabel(detail_page),
-            'year': getYear(getRelease(detail_page)),  # str(re.search('\d{4}',getRelease(a)).group()),
+            'tag': getTag(lx),
+            'label': getLabel(lx),
+            'year': getYear(getRelease(lx)),  # str(re.search('\d{4}',getRelease(a)).group()),
 #            'actor_photo': getActorPhoto(browser),
             'website': url,
             'source': 'xcity.py',
-            'series': getSeries(detail_page),
+            'series': getSeries(lx),
         }
     except Exception as e:
-        if config.Config().debug():
+        if config.getInstance().debug():
             print(e)
         dic = {"title": ""}
 

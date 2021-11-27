@@ -19,7 +19,7 @@ CLI 版本
 #### 本地电影刮削与整理一体化解决方案
 
 # 文档
-* [官方WIKI（不看你怎么用）](https://github.com/yoshiko2/AV_Data_Capture/wiki)
+* [官方教程WIKI](https://github.com/yoshiko2/AV_Data_Capture/wiki)
 * [VergilGao's Docker部署](https://github.com/VergilGao/docker-avdc)
 
 # 下载
@@ -29,7 +29,7 @@ CLI 版本
 当你查阅、下载了本项目源代码或二进制程序，即代表你接受了以下条款
 
 * 本软件仅供技术交流，学术交流使用
-* **请勿在热门的社交平台上宣传此项目**
+* **请勿在墙内的社交平台上宣传此项目**
 * 本软件作者编写出该软件旨在学习 Python ，提高编程水平
 * 本软件不提供任何影片下载的线索
 * 用户在使用本软件前，请用户了解并遵守当地法律法规，如果本软件使用过程中存在违反当地法律法规的行为，请勿使用该软件

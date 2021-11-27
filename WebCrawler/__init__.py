@@ -1,8 +1,12 @@
 import json
 import re
 from multiprocessing.pool import ThreadPool
+
+import ADC_function
 import config
 from ADC_function import translate
+from lxml import etree
+from pathlib import Path
 
 # =========website========
 from . import airav
@@ -32,10 +36,13 @@ def get_data_state(data: dict) -> bool:  # 元数据获取失败检测
 
     return True
 
-def get_data_from_json(file_number, conf: config.Config):  # 从JSON返回元数据
+def get_data_from_json(file_number, oCC):  # 从JSON返回元数据
     """
     iterate through all services and fetch the data
     """
+
+    actor_mapping_data = etree.parse(str(Path.home() / '.local' / 'share' / 'avdc' / 'mapping_actor.xml'))
+    info_mapping_data = etree.parse(str(Path.home() / '.local' / 'share' / 'avdc' / 'mapping_info.xml'))
 
     func_mapping = {
         "airav": airav.main,
@@ -53,6 +60,7 @@ def get_data_from_json(file_number, conf: config.Config):  # 从JSON返回元数
         "fc2club": fc2club.main
     }
 
+    conf = config.getInstance()
     # default fetch order list, from the beginning to the end
     sources = conf.sources().split(',')
     if not len(conf.sources()) > 80:
@@ -114,6 +122,7 @@ def get_data_from_json(file_number, conf: config.Config):  # 从JSON返回元数
             json_data = json.loads(pool.apply_async(func_mapping[source], (file_number,)).get())
             # if any service return a valid return, break
             if get_data_state(json_data):
+                print(f"[+]Find movie [{file_number}] metadata on website '{source}'")
                 break
         pool.close()
         pool.terminate()
@@ -125,6 +134,7 @@ def get_data_from_json(file_number, conf: config.Config):  # 从JSON返回元数
                 json_data = json.loads(func_mapping[source](file_number))
                 # if any service return a valid return, break
                 if get_data_state(json_data):
+                    print(f"[+]Find movie [{file_number}] metadata on website '{source}'")
                     break
             except:
                 break
@@ -132,6 +142,14 @@ def get_data_from_json(file_number, conf: config.Config):  # 从JSON返回元数
     # Return if data not found in all sources
     if not json_data:
         print('[-]Movie Number not found!')
+        return None
+
+    # 增加number严格判断，避免提交任何number，总是返回"本橋実来 ADZ335"，这种返回number不一致的数据源故障
+    # 目前选用number命名规则是javdb.com Domain Creation Date: 2013-06-19T18:34:27Z
+    # 然而也可以跟进关注其它命名规则例如airav.wiki Domain Creation Date: 2019-08-28T07:18:42.0Z
+    # 如果将来javdb.com命名规则下不同Studio出现同名碰撞导致无法区分，可考虑更换规则，更新相应的number分析和抓取代码。
+    if str(json_data.get('number')).upper() != file_number.upper():
+        print('[-]Movie number has changed! [{}]->[{}]'.format(file_number, str(json_data.get('number'))))
         return None
 
     # ================================================网站规则添加结束================================================
@@ -167,6 +185,10 @@ def get_data_from_json(file_number, conf: config.Config):  # 从JSON返回元数
 
     imagecut = json_data.get('imagecut')
     tag = str(json_data.get('tag')).strip("[ ]").replace("'", '').replace(" ", '').split(',')  # 字符串转列表 @
+    while 'XXXX' in tag:
+        tag.remove('XXXX')
+    while 'xxx' in tag:
+        tag.remove('xxx')
     actor = str(actor_list).strip("[ ]").replace("'", '').replace(" ", '')
 
     if title == '' or number == '':
@@ -192,45 +214,9 @@ def get_data_from_json(file_number, conf: config.Config):  # 从JSON返回元数
         cover_small = tmpArr[0].strip('\"').strip('\'')
     # ====================处理异常字符 END================== #\/:*?"<>|
 
-    # ===  替换Studio片假名
-    studio = studio.replace('アイエナジー','Energy')
-    studio = studio.replace('アイデアポケット','Idea Pocket')
-    studio = studio.replace('アキノリ','AKNR')
-    studio = studio.replace('アタッカーズ','Attackers')
-    studio = re.sub('アパッチ.*','Apache',studio)
-    studio = studio.replace('アマチュアインディーズ','SOD')
-    studio = studio.replace('アリスJAPAN','Alice Japan')
-    studio = studio.replace('オーロラプロジェクト・アネックス','Aurora Project Annex')
-    studio = studio.replace('クリスタル映像','Crystal 映像')
-    studio = studio.replace('グローリークエスト','Glory Quest')
-    studio = studio.replace('ダスッ！','DAS！')
-    studio = studio.replace('ディープス','DEEP’s')
-    studio = studio.replace('ドグマ','Dogma')
-    studio = studio.replace('プレステージ','PRESTIGE')
-    studio = studio.replace('ムーディーズ','MOODYZ')
-    studio = studio.replace('メディアステーション','宇宙企画')
-    studio = studio.replace('ワンズファクトリー','WANZ FACTORY')
-    studio = studio.replace('エスワン ナンバーワンスタイル','S1')
-    studio = studio.replace('エスワンナンバーワンスタイル','S1')
-    studio = studio.replace('SODクリエイト','SOD')
-    studio = studio.replace('サディスティックヴィレッジ','SOD')
-    studio = studio.replace('V＆Rプロダクツ','V＆R PRODUCE')
-    studio = studio.replace('V＆RPRODUCE','V＆R PRODUCE')
-    studio = studio.replace('レアルワークス','Real Works')
-    studio = studio.replace('マックスエー','MAX-A')
-    studio = studio.replace('ピーターズMAX','PETERS MAX')
-    studio = studio.replace('プレミアム','PREMIUM')
-    studio = studio.replace('ナチュラルハイ','NATURAL HIGH')
-    studio = studio.replace('マキシング','MAXING')
-    studio = studio.replace('エムズビデオグループ','M’s Video Group')
-    studio = studio.replace('ミニマム','Minimum')
-    studio = studio.replace('ワープエンタテインメント','WAAP Entertainment')
-    studio = re.sub('.*/妄想族','妄想族',studio)
-    studio = studio.replace('/',' ')
-    # ===  替换Studio片假名 END
-
     # 返回处理后的json_data
     json_data['title'] = title
+    json_data['original_title'] = title
     json_data['actor'] = actor
     json_data['release'] = release
     json_data['cover_small'] = cover_small
@@ -250,16 +236,14 @@ def get_data_from_json(file_number, conf: config.Config):  # 从JSON返回元数
         for translate_value in translate_values:
             if json_data[translate_value] == "":
                 continue
-            t = ""
-            # if conf.get_transalte_engine() == "baidu":
-            #     json_data[translate_value] = translate(
-            #         json_data[translate_value],
-            #         target_language="zh",
-            #         engine=conf.get_transalte_engine(),
-            #         app_id=conf.get_transalte_appId(),
-            #         key=conf.get_transalte_key(),
-            #         delay=conf.get_transalte_delay(),
-            #     )
+            if translate_value == "title":
+                title_dict = json.load(
+                    open(str(Path.home() / '.local' / 'share' / 'avdc' / 'c_number.json'), 'r', encoding="utf-8"))
+                try:
+                    json_data[translate_value] = title_dict[number]
+                    continue
+                except:
+                    pass
             if conf.get_transalte_engine() == "azure":
                 t = translate(
                     json_data[translate_value],
@@ -271,6 +255,67 @@ def get_data_from_json(file_number, conf: config.Config):  # 从JSON返回元数
                 t = translate(json_data[translate_value])
             if len(t):
                 json_data[translate_value] = special_characters_replacement(t)
+
+    if oCC:
+        cc_vars = conf.cc_convert_vars().split(",")
+        ccm = conf.cc_convert_mode()
+        def convert_list(mapping_data,language,vars):
+            total = []
+            for i in vars:
+                if len(mapping_data.xpath('a[contains(@keyword, $name)]/@' + language, name=i)) != 0:
+                    i = mapping_data.xpath('a[contains(@keyword, $name)]/@' + language, name=i)[0]
+                total.append(i)
+            return total
+        def convert(mapping_data,language,vars):
+            if len(mapping_data.xpath('a[contains(@keyword, $name)]/@' + language, name=vars)) != 0:
+                return mapping_data.xpath('a[contains(@keyword, $name)]/@' + language, name=vars)[0]
+            else:
+                return vars
+        for cc in cc_vars:
+            if json_data[cc] == "" or len(json_data[cc]) == 0:
+                continue
+            if cc == "actor":
+                try:
+                    if ccm == 1:
+                        json_data['actor_list'] = convert_list(actor_mapping_data, "zh_cn", json_data['actor_list'])
+                        json_data['actor'] = convert(actor_mapping_data, "zh_cn", json_data['actor'])
+                    elif ccm == 2:
+                        json_data['actor_list'] = convert_list(actor_mapping_data, "zh_tw", json_data['actor_list'])
+                        json_data['actor'] = convert(actor_mapping_data, "zh_tw", json_data['actor'])
+                    elif ccm == 3:
+                        json_data['actor_list'] = convert_list(actor_mapping_data, "jp", json_data['actor_list'])
+                        json_data['actor'] = convert(actor_mapping_data, "jp", json_data['actor'])
+                except:
+                    json_data['actor_list'] = [oCC.convert(aa) for aa in json_data['actor_list']]
+                    json_data['actor'] = oCC.convert(json_data['actor'])
+            elif cc == "tag":
+                try:
+                    if ccm == 1:
+                        json_data[cc] = convert_list(info_mapping_data, "zh_cn", json_data[cc])
+                        json_data[cc] = ADC_function.delete_all_elements_in_list("删除", json_data[cc])
+                    elif ccm == 2:
+                        json_data[cc] = convert_list(info_mapping_data, "zh_tw", json_data[cc])
+                        json_data[cc] = ADC_function.delete_all_elements_in_list("删除", json_data[cc])
+                    elif ccm == 3:
+                        json_data[cc] = convert_list(info_mapping_data, "jp", json_data[cc])
+                        json_data[cc] = ADC_function.delete_list_all_elements("删除", json_data[cc])
+                except:
+                    json_data[cc] = [oCC.convert(t) for t in json_data[cc]]
+            else:
+                try:
+                    if ccm == 1:
+                        json_data[cc] = convert(info_mapping_data, "zh_cn", json_data[cc])
+                        json_data[cc] = ADC_function.delete_list_all_elements("删除", json_data[cc])
+                    elif ccm == 2:
+                        json_data[cc] = convert(info_mapping_data, "zh_tw", json_data[cc])
+                        json_data[cc] = ADC_function.delete_list_all_elements("删除", json_data[cc])
+                    elif ccm == 3:
+                        json_data[cc] = convert(info_mapping_data, "jp", json_data[cc])
+                        json_data[cc] = ADC_function.delete_list_all_elements("删除", json_data[cc])
+                except IndexError:
+                    json_data[cc] = oCC.convert(json_data[cc])
+                except:
+                    pass
 
     naming_rule=""
     for i in conf.naming_rule().split("+"):
@@ -293,4 +338,9 @@ def special_characters_replacement(text) -> str:
                 replace('"', '＂').      # U+FF02 FULLWIDTH QUOTATION MARK @ Basic Multilingual Plane
                 replace('<', 'ᐸ').       # U+1438 CANADIAN SYLLABICS PA @ Basic Multilingual Plane
                 replace('>', 'ᐳ').       # U+1433 CANADIAN SYLLABICS PO @ Basic Multilingual Plane
-                replace('|', 'ǀ'))       # U+01C0 LATIN LETTER DENTAL CLICK @ Basic Multilingual Plane
+                replace('|', 'ǀ').       # U+01C0 LATIN LETTER DENTAL CLICK @ Basic Multilingual Plane
+                replace('&lsquo;', '‘'). # U+02018 LEFT SINGLE QUOTATION MARK
+                replace('&rsquo;', '’'). # U+02019 RIGHT SINGLE QUOTATION MARK
+                replace('&hellip;','…').
+                replace('&amp;', '＆')
+            )

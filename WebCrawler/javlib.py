@@ -34,10 +34,10 @@ def main(number: str):
     )
     soup = BeautifulSoup(result.text, "html.parser")
     lx = html.fromstring(str(soup))
-    
+
     fanhao_pather = re.compile(r'<a href=".*?".*?><div class="id">(.*?)</div>')
     fanhao = fanhao_pather.findall(result.text)
-    
+
     if "/?v=jav" in result.url:
         dic = {
             "title": get_title(lx, soup),
