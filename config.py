@@ -297,6 +297,12 @@ class Config:
         except:
             return "actor,director,label,outline,series,studio,tag,title"
 
+    def javdb_sites(self) -> str:
+        try:
+            return self.conf.get("javdb", "sites")
+        except:
+            return "33,34"
+
     @staticmethod
     def _exit(sec: str) -> None:
         print("[-] Read config error! Please check the {} section in config.ini", sec)

@@ -175,8 +175,10 @@ def getSeries(html):
 def main(number):
     # javdb更新后同一时间只能登录一个数字站，最新登录站会踢出旧的登录，因此按找到的第一个javdb*.json文件选择站点，
     # 如果无.json文件或者超过有效期，则随机选择一个站点。
-    javdb_sites = ["javdb31", "javdb32"]
-    debug =  config.getInstance().debug()
+    javdb_sites = config.getInstance().javdb_sites().split(',')
+    debug = config.getInstance().debug()
+    for i in javdb_sites:
+        javdb_sites[javdb_sites.index(i)] = "javdb" + i
     try:
         # if re.search(r'[a-zA-Z]+\.\d{2}\.\d{2}\.\d{2}', number).group():
         #     pass
