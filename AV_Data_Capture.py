@@ -469,25 +469,12 @@ def main():
     print('[*]' + version.center(54))
     print('[*]======================================================')
     print('[*]' + platform_total)
-    print('[*]================= 严禁在墙内宣传本项目 ===================')
+    print('[*]======================================================')
+    print('[*] - 严禁在墙内宣传本项目 - ')
+    print('[*]======================================================')
 
     start_time = time.time()
     print('[+]Start at', time.strftime("%Y-%m-%d %H:%M:%S"))
-
-    if conf.update_check():
-        check_update(version)
-
-    # Download Mapping Table, parallel version
-    def fmd(f):
-        return ('https://raw.githubusercontent.com/yoshiko2/AV_Data_Capture/master/MappingTable/' + f,
-            Path.home() / '.local' / 'share' / 'avdc' / f)
-    map_tab = (fmd('mapping_actor.xml'), fmd('mapping_info.xml'), fmd('c_number.json'))
-    res = parallel_download_files(((k, v) for k, v in map_tab if not v.exists()))
-    for i, fp in enumerate(res, start=1):
-        if fp and len(fp):
-            print(f"[+] [{i}/{len(res)}] Mapping Table Downloaded to {fp}")
-        else:
-            print(f"[-] [{i}/{len(res)}] Mapping Table Download failed")
 
     print(f"[+]Load Config file '{conf.ini_path}'.")
     if conf.debug():
@@ -504,7 +491,23 @@ def main():
         ) if not single_file_path else ('-','Single File', '','',''))
     )
 
+    if conf.update_check():
+        check_update(version)
+
     create_failed_folder(conf.failed_folder())
+
+    # Download Mapping Table, parallel version
+    def fmd(f):
+        return ('https://raw.githubusercontent.com/yoshiko2/AV_Data_Capture/master/MappingTable/' + f,
+                Path.home() / '.local' / 'share' / 'avdc' / f)
+
+    map_tab = (fmd('mapping_actor.xml'), fmd('mapping_info.xml'), fmd('c_number.json'))
+    res = parallel_download_files(((k, v) for k, v in map_tab if not v.exists()))
+    for i, fp in enumerate(res, start=1):
+        if fp and len(fp):
+            print(f"[+] [{i}/{len(res)}] Mapping Table Downloaded to {fp}")
+        else:
+            print(f"[-] [{i}/{len(res)}] Mapping Table Download failed")
 
     # create OpenCC converter
     ccm = conf.cc_convert_mode()

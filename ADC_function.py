@@ -4,6 +4,7 @@ import requests
 from pathlib import Path
 import secrets
 import os.path
+import os
 import uuid
 import json
 import time
@@ -50,14 +51,20 @@ def get_html(url, cookies: dict = None, ua: str = None, return_type: str = None,
             else:
                 result.encoding = encoding or result.apparent_encoding
                 return result.text
-        except requests.exceptions.ProxyError:
-            print("[-]Proxy error! Please check your Proxy")
-            raise requests.exceptions.ProxyError
         except Exception as e:
             print("[-]Connect retry {}/{}".format(i + 1, configProxy.retry))
             errors = str(e)
-    print('[-]Connect Failed! Please check your Proxy or Network!')
-    print("[-]" + errors)
+    if "getaddrinfo failed" in errors:
+        print("[-]Connect Failed! Please Check your proxy config")
+        debug = config.getInstance().debug()
+        if debug:
+            print("[-]" + errors)
+    else:
+        print("[-]" + errors)
+        print('[-]Connect Failed! Please check your Proxy or Network!')
+    print("[-] --- AUTO EXIT AFTER 30s !!! --- ")
+    time.sleep(30)
+    os._exit(-1)
     raise Exception('Connect Failed')
 
 
