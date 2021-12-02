@@ -451,6 +451,8 @@ def main():
     # Parse command line args
     single_file_path, custom_number, logdir, regexstr, zero_op = argparse_function(version)
 
+
+
     main_mode = conf.main_mode()
     if not main_mode in (1, 2, 3):
         print(f"[-]Main mode must be 1 or 2 or 3! You can run '{os.path.basename(sys.argv[0])} --help' for more help.")
@@ -508,6 +510,9 @@ def main():
             print(f"[+] [{i}/{len(res)}] Mapping Table Downloaded to {fp}")
         else:
             print(f"[-] [{i}/{len(res)}] Mapping Table Download failed")
+            print("[-] --- AUTO EXIT AFTER 30s !!! --- ")
+            time.sleep(30)
+            os._exit(-1)
 
     # create OpenCC converter
     ccm = conf.cc_convert_mode()

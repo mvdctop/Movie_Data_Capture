@@ -62,9 +62,6 @@ def get_html(url, cookies: dict = None, ua: str = None, return_type: str = None,
     else:
         print("[-]" + errors)
         print('[-]Connect Failed! Please check your Proxy or Network!')
-    print("[-] --- AUTO EXIT AFTER 30s !!! --- ")
-    time.sleep(30)
-    os._exit(-1)
     raise Exception('Connect Failed')
 
 
