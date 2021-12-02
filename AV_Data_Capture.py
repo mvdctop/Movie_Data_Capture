@@ -502,8 +502,11 @@ def main():
     def fmd(f):
         return ('https://raw.githubusercontent.com/yoshiko2/AV_Data_Capture/master/MappingTable/' + f,
                 Path.home() / '.local' / 'share' / 'avdc' / f)
-
     map_tab = (fmd('mapping_actor.xml'), fmd('mapping_info.xml'), fmd('c_number.json'))
+    for k,v in map_tab:
+        if file_modification_days(str(v)) >= conf.mapping_table_validity():
+            print("[+]Mapping Table Out of date! Remove",str(v))
+            os.remove(str(v))
     res = parallel_download_files(((k, v) for k, v in map_tab if not v.exists()))
     for i, fp in enumerate(res, start=1):
         if fp and len(fp):

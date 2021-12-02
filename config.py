@@ -142,6 +142,8 @@ class Config:
         return self.getboolean_override("common", "ignore_failed_list")
     def download_only_missing_images(self) -> bool:
         return self.conf.getboolean("common", "download_only_missing_images")
+    def mapping_table_validity(self) -> int:
+        return self.conf.getint("common", "mapping_table_validity")
     def is_transalte(self) -> bool:
         return self.conf.getboolean("transalte", "switch")
     def is_trailer(self) -> bool:
@@ -330,6 +332,7 @@ class Config:
         conf.set(sec1, "stop_counter", 0)
         conf.set(sec1, "ignore_failed_list", 0)
         conf.set(sec1, "download_only_missing_images", 1)
+        conf.set(sec1, "mapping_table_validity", 7)
 
         sec2 = "proxy"
         conf.add_section(sec2)
