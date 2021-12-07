@@ -415,6 +415,10 @@ class Config:
         conf.set(sec15, "mode", 1)
         conf.set(sec15, "vars", "actor,director,label,outline,series,studio,tag,title")
 
+        sec16 = "javdb"
+        conf.add_section(sec16)
+        conf.set(sec15, "sites", "33,34")
+
         return conf
 
 
