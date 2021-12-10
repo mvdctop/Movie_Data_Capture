@@ -2,6 +2,7 @@ import os
 import re
 import sys
 import configparser
+import time
 from pathlib import Path
 
 
@@ -47,10 +48,18 @@ class Config:
                 if self.conf.read(ini_path, encoding="utf-8-sig"):
                     if G_conf_override[0] is None:
                         G_conf_override[0] = self
-            except:
+            except UnicodeDecodeError:
                 if self.conf.read(ini_path, encoding="utf-8"):
                     if G_conf_override[0] is None:
                         G_conf_override[0] = self
+            except Exception as e:
+                print("ERROR: Config file can not read!")
+                print("读取配置文件出错！")
+                print('=================================')
+                print(e)
+                print("======= Auto exit in 60s ======== ")
+                time.sleep(60)
+                os._exit(-1)
         else:
             print("ERROR: Config file not found!")
             print("Please put config file into one of the following path:")
