@@ -38,7 +38,7 @@ jobs:
         if: matrix.os == 'macos-latest' || matrix.os == 'ubuntu-latest'
         run: |
           pyinstaller \
-            --onefile AV_Data_Capture.py \
+            --onefile Movie_Data_Capture.py \
             --hidden-import ADC_function.py \
             --hidden-import core.py \
             --add-data "$(python -c 'import cloudscraper as _; print(_.__path__[0])' | tail -n 1):cloudscraper" \
@@ -50,7 +50,7 @@ jobs:
         if: matrix.os == 'windows-latest'
         run: |
           pyinstaller `
-            --onefile AV_Data_Capture.py `
+            --onefile Movie_Data_Capture.py `
             --hidden-import ADC_function.py `
             --hidden-import core.py `
             --add-data "$(python -c 'import cloudscraper as _; print(_.__path__[0])' | tail -n 1);cloudscraper" `
@@ -65,15 +65,15 @@ jobs:
       - name: Set VERSION variable for macos/ubuntu
         if: matrix.os == 'macos-latest' || matrix.os == 'ubuntu-latest'
         run: |
-          echo "VERSION=$(python AV_Data_Capture.py --version)" >> $GITHUB_ENV
+          echo "VERSION=$(python Movie_Data_Capture.py --version)" >> $GITHUB_ENV
 
       - name: Set VERSION variable for windows
         if: matrix.os == 'windows-latest'
         run: |
-          echo "VERSION=$(python AV_Data_Capture.py --version)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          echo "VERSION=$(python Movie_Data_Capture.py --version)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v1
         with:
-          name: AV_Data_Capture-CLI-${{ env.VERSION }}-${{ runner.os }}-amd64
+          name: Movie_Data_Capture-CLI-${{ env.VERSION }}-${{ runner.os }}-amd64
           path: dist
