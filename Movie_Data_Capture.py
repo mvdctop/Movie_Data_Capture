@@ -22,10 +22,10 @@ from core import core_main, moveFailedFolder
 
 def check_update(local_version):
     try:
-        data = json.loads(get_html("https://api.github.com/repos/yoshiko2/AV_Data_Capture/releases/latest"))
+        data = json.loads(get_html("https://api.github.com/repos/yoshiko2/Movie_Data_Capture/releases/latest"))
     except:
         print("[-]Failed to update! Please check new version manually:")
-        print("[-] https://github.com/yoshiko2/AV_Data_Capture/releases")
+        print("[-] https://github.com/yoshiko2/Movie_Data_Capture/releases")
         print("[*]======================================================")
         return
 
@@ -34,7 +34,7 @@ def check_update(local_version):
     if local_version < remote:
         print("[*]" + ("* New update " + str(data["tag_name"]) + " *").center(54))
         print("[*]" + "↓ Download ↓".center(54))
-        print("[*]https://github.com/yoshiko2/AV_Data_Capture/releases")
+        print("[*]https://github.com/yoshiko2/Movie_Data_Capture/releases")
         print("[*]======================================================")
 
 
@@ -442,7 +442,7 @@ def create_data_and_move_with_custom_number(file_path: str, custom_number, oCC):
 
 
 def main():
-    version = '5.0.6'
+    version = '6.0.1'
     urllib3.disable_warnings() #Ignore http proxy warning
 
     # Read config.ini first, in argparse_function() need conf.failed_folder()
@@ -467,7 +467,7 @@ def main():
 
     platform_total = str(' - ' + platform.platform() + ' \n[*] - ' + platform.machine() + ' - Python-' + platform.python_version())
 
-    print('[*]================== AV Data Capture ===================')
+    print('[*]================= Movie Data Capture =================')
     print('[*]' + version.center(54))
     print('[*]======================================================')
     print('[*]' + platform_total)
