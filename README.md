@@ -26,7 +26,7 @@ CLI 版本
 * [Releases](https://github.com/yoshiko2/Movie_Data_Capture/releases/latest)
 
 # 贡献者
-[![](https://opencollective.com/movie_data_capture/contributors.svg?width=890)](https://github.com/yoshiko2/av_data_Capture/graphs/contributors)
+[![](https://opencollective.com/movie_data_capture/contributors.svg?width=890)](https://github.com/yoshiko2/movie_data_Capture/graphs/contributors)
 
 #  申明
 当你查阅、下载了本项目源代码或二进制程序，即代表你接受了以下条款
