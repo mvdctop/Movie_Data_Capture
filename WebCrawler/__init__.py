@@ -41,8 +41,8 @@ def get_data_from_json(file_number, oCC):  # 从JSON返回元数据
     iterate through all services and fetch the data
     """
 
-    actor_mapping_data = etree.parse(str(Path.home() / '.local' / 'share' / 'avdc' / 'mapping_actor.xml'))
-    info_mapping_data = etree.parse(str(Path.home() / '.local' / 'share' / 'avdc' / 'mapping_info.xml'))
+    actor_mapping_data = etree.parse(str(Path.home() / '.local' / 'share' / 'mdc' / 'mapping_actor.xml'))
+    info_mapping_data = etree.parse(str(Path.home() / '.local' / 'share' / 'mdc' / 'mapping_info.xml'))
 
     func_mapping = {
         "airav": airav.main,
@@ -238,7 +238,7 @@ def get_data_from_json(file_number, oCC):  # 从JSON返回元数据
                 continue
             if translate_value == "title":
                 title_dict = json.load(
-                    open(str(Path.home() / '.local' / 'share' / 'avdc' / 'c_number.json'), 'r', encoding="utf-8"))
+                    open(str(Path.home() / '.local' / 'share' / 'mdc' / 'c_number.json'), 'r', encoding="utf-8"))
                 try:
                     json_data[translate_value] = title_dict[number]
                     continue

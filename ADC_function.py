@@ -349,8 +349,8 @@ def load_cookies(filename):
     path_search_order = (
         Path.cwd() / filename,
         Path.home() / filename,
-        Path.home() / f".avdc/{filename}",
-        Path.home() / f".local/share/avdc/{filename}"
+        Path.home() / f".mdc/{filename}",
+        Path.home() / f".local/share/mdc/{filename}"
     )
     cookies_filename = None
     try:

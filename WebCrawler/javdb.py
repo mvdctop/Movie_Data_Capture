@@ -320,12 +320,12 @@ if __name__ == "__main__":
     # print(main('BANK-022'))
     # print(main('070116-197'))
     # print(main('093021_539'))  # 没有剧照 片商pacopacomama
-    print(main('FC2-2278260'))
+    #print(main('FC2-2278260'))
     # print(main('FC2-735670'))
     # print(main('FC2-1174949')) # not found
-    print(main('MVSD-439'))
+    #print(main('MVSD-439'))
     # print(main('EHM0001')) # not found
     print(main('FC2-2314275'))
     # print(main('EBOD-646'))
     # print(main('LOVE-262'))
-    print(main('ABP-890'))
+    #print(main('ABP-890'))

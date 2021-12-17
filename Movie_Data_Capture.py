@@ -46,7 +46,7 @@ def argparse_function(ver: str) -> typing.Tuple[str, str, str, str, bool]:
     parser.add_argument("-m","--main-mode",default='',nargs='?',help="Main mode. 1:Scraping 2:Organizing 3:Scraping in analysis folder")
     parser.add_argument("-n", "--number", default='', nargs='?', help="Custom file number of single movie file.")
     # parser.add_argument("-C", "--config", default='config.ini', nargs='?', help="The config file Path.")
-    default_logdir = str(Path.home() / '.avlogs')
+    default_logdir = str(Path.home() / '.mlogs')
     parser.add_argument("-o","--log-dir",dest='logdir',default=default_logdir,nargs='?',
         help=f"""Duplicate stdout and stderr to logfiles in logging folder, default on.
         default folder for current user: '{default_logdir}'. Change default folder to an empty file,
@@ -136,8 +136,8 @@ def dupe_stdout_to_logfile(logdir: str):
         return  # Tips for disabling logs by change directory to a same name empty regular file
     abslog_dir = log_dir.resolve()
     log_tmstr = datetime.now().strftime("%Y%m%dT%H%M%S")
-    logfile = abslog_dir / f'avdc_{log_tmstr}.txt'
-    errlog = abslog_dir / f'avdc_{log_tmstr}_err.txt'
+    logfile = abslog_dir / f'mdc_{log_tmstr}.txt'
+    errlog = abslog_dir / f'mdc_{log_tmstr}_err.txt'
 
     sys.stdout = OutLogger(logfile)
     sys.stderr = ErrLogger(errlog)
@@ -169,35 +169,35 @@ def close_logfile(logdir: str):
     # 按月合并为单个月志，去年及以前的月志，今年4月以后将之按年合并为年志
     # 测试步骤：
     """
-    LOGDIR=/tmp/avlog
+    LOGDIR=/tmp/mlog
     mkdir -p $LOGDIR
-    for f in {2016..2020}{01..12}{01..28};do;echo $f>$LOGDIR/avdc_${f}T235959.txt;done
-    for f in {01..09}{01..28};do;echo 2021$f>$LOGDIR/avdc_2021${f}T235959.txt;done
-    for f in {00..23};do;echo 20211001T$f>$LOGDIR/avdc_20211001T${f}5959.txt;done
+    for f in {2016..2020}{01..12}{01..28};do;echo $f>$LOGDIR/mdc_${f}T235959.txt;done
+    for f in {01..09}{01..28};do;echo 2021$f>$LOGDIR/mdc_2021${f}T235959.txt;done
+    for f in {00..23};do;echo 20211001T$f>$LOGDIR/mdc_20211001T${f}5959.txt;done
     echo "$(ls -1 $LOGDIR|wc -l) files in $LOGDIR"
-    # 1932 files in /tmp/avlog
-    avdc -zgic1 -d0 -m3 -o $LOGDIR
-    # python3 ./AV_Data_Capture.py -zgic1 -o $LOGDIR
+    # 1932 files in /tmp/mlog
+    mdc -zgic1 -d0 -m3 -o $LOGDIR
+    # python3 ./Movie_Data_Capture.py -zgic1 -o $LOGDIR
     ls $LOGDIR
     # rm -rf $LOGDIR
     """
     today = datetime.today()
     # 第一步，合并到日。3天前的日志，文件名是同一天的合并为一份日志
     for i in range(1):
-        txts = [f for f in log_dir.glob(r'*.txt') if re.match(r'^avdc_\d{8}T\d{6}$', f.stem, re.A)]
+        txts = [f for f in log_dir.glob(r'*.txt') if re.match(r'^mdc_\d{8}T\d{6}$', f.stem, re.A)]
         if not txts or not len(txts):
             break
         e = [f for f in txts if '_err' in f.stem]
         txts.sort()
         tmstr_3_days_ago = (today.replace(hour=0) - timedelta(days=3)).strftime("%Y%m%dT99")
-        deadline_day = f'avdc_{tmstr_3_days_ago}'
+        deadline_day = f'mdc_{tmstr_3_days_ago}'
         day_merge = [f for f in txts if f.stem < deadline_day]
         if not day_merge or not len(day_merge):
             break
-        cutday = len('T235959.txt')  # cut length avdc_20201201|T235959.txt
+        cutday = len('T235959.txt')  # cut length mdc_20201201|T235959.txt
         for f in day_merge:
             try:
-                day_file_name = str(f)[:-cutday] + '.txt' # avdc_20201201.txt
+                day_file_name = str(f)[:-cutday] + '.txt' # mdc_20201201.txt
                 with open(day_file_name, 'a', encoding='utf-8') as m:
                     m.write(f.read_text(encoding='utf-8'))
                 f.unlink(missing_ok=True)
@@ -205,19 +205,19 @@ def close_logfile(logdir: str):
                 pass
     # 第二步，合并到月
     for i in range(1):  # 利用1次循环的break跳到第二步，避免大块if缩进或者使用goto语法
-        txts = [f for f in log_dir.glob(r'*.txt') if re.match(r'^avdc_\d{8}$', f.stem, re.A)]
+        txts = [f for f in log_dir.glob(r'*.txt') if re.match(r'^mdc_\d{8}$', f.stem, re.A)]
         if not txts or not len(txts):
             break
         txts.sort()
         tmstr_3_month_ago = (today.replace(day=1) - timedelta(days=3*30)).strftime("%Y%m32")
-        deadline_month = f'avdc_{tmstr_3_month_ago}'
+        deadline_month = f'mdc_{tmstr_3_month_ago}'
         month_merge = [f for f in txts if f.stem < deadline_month]
         if not month_merge or not len(month_merge):
             break
-        tomonth = len('01.txt')  # cut length avdc_202012|01.txt
+        tomonth = len('01.txt')  # cut length mdc_202012|01.txt
         for f in month_merge:
             try:
-                month_file_name = str(f)[:-tomonth] + '.txt' # avdc_202012.txt
+                month_file_name = str(f)[:-tomonth] + '.txt' # mdc_202012.txt
                 with open(month_file_name, 'a', encoding='utf-8') as m:
                     m.write(f.read_text(encoding='utf-8'))
                 f.unlink(missing_ok=True)
@@ -226,18 +226,18 @@ def close_logfile(logdir: str):
     # 第三步，月合并到年
     if today.month < 4:
         return
-    mons = [f for f in log_dir.glob(r'*.txt') if re.match(r'^avdc_\d{6}$', f.stem, re.A)]
+    mons = [f for f in log_dir.glob(r'*.txt') if re.match(r'^mdc_\d{6}$', f.stem, re.A)]
     if not mons or not len(mons):
         return
     mons.sort()
-    deadline_year = f'avdc_{today.year-1}13'
+    deadline_year = f'mdc_{today.year-1}13'
     year_merge = [f for f in mons if f.stem < deadline_year]
     if not year_merge or not len(year_merge):
         return
-    toyear = len('12.txt')   # cut length avdc_2020|12.txt
+    toyear = len('12.txt')   # cut length mdc_2020|12.txt
     for f in year_merge:
         try:
-            year_file_name = str(f)[:-toyear] + '.txt' # avdc_2020.txt
+            year_file_name = str(f)[:-toyear] + '.txt' # mdc_2020.txt
             with open(year_file_name, 'a', encoding='utf-8') as y:
                 y.write(f.read_text(encoding='utf-8'))
             f.unlink(missing_ok=True)
@@ -500,8 +500,8 @@ def main():
 
     # Download Mapping Table, parallel version
     def fmd(f):
-        return ('https://raw.githubusercontent.com/yoshiko2/AV_Data_Capture/master/MappingTable/' + f,
-                Path.home() / '.local' / 'share' / 'avdc' / f)
+        return ('https://raw.githubusercontent.com/yoshiko2/Movie_Data_Capture/master/MappingTable/' + f,
+                Path.home() / '.local' / 'share' / 'mdc' / f)
     map_tab = (fmd('mapping_actor.xml'), fmd('mapping_info.xml'), fmd('c_number.json'))
     for k,v in map_tab:
         if v.exists():
