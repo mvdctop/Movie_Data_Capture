@@ -21,14 +21,15 @@ from core import core_main, moveFailedFolder
 
 
 def check_update(local_version):
+    htmlcode = ""
     try:
-        data = json.loads(get_html("https://api.github.com/repos/yoshiko2/Movie_Data_Capture/releases/latest"))
+        htmlcode = get_html("https://api.github.com/repos/yoshiko2/Movie_Data_Capture/releases/latest")
     except:
-        print("[-]Failed to update! Please check new version manually:")
-        print("[-] https://github.com/yoshiko2/Movie_Data_Capture/releases")
-        print("[*]======================================================")
-        return
-
+        print("===== Failed to connect to github =====")
+        print("========== AUTO EXIT IN 60s ===========")
+        time.sleep(60)
+        os._exit(-1)
+    data = json.loads(htmlcode)
     remote = int(data["tag_name"].replace(".",""))
     local_version = int(local_version.replace(".", ""))
     if local_version < remote:
