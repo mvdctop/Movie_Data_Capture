@@ -16,7 +16,7 @@ CLI 版本
 
 
 **本地电影元数据 抓取工具 | 刮削器**，配合本地影片管理软件 Emby, Jellyfin, Kodi 等管理本地影片，该软件起到分类与元数据（metadata）抓取作用，利用元数据信息来分类，仅供本地影片分类整理使用。  
-#### 本地电影刮削与整理一体化解决方案
+### 请勿在墙内的社交平台上宣传此项目
 
 # 文档
 * [官方教程WIKI](https://github.com/yoshiko2/Movie_Data_Capture/wiki)
