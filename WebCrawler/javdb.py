@@ -139,7 +139,7 @@ def getCover_small(html, index=0):
 def getTrailer(htmlcode):  # 获取预告片
     video_pather = re.compile(r'<video id\=\".*?>\s*?<source src=\"(.*?)\"')
     video = video_pather.findall(htmlcode)
-    if video:
+    if video[0] != "":
         if not 'https:' in video[0]:
             video_url = 'https:' + video[0]
         else:
