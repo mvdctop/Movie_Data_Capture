@@ -17,7 +17,7 @@ pyinstaller --onefile Movie_Data_Capture.py `
 
 rmdir -Recurse -Force build
 rmdir -Recurse -Force __pycache__
-rmdir -Recurse -Force AV_Data_Capture.spec
+rmdir -Recurse -Force Movie_Data_Capture.spec
 
 echo "[Make]Finish"
 pause
