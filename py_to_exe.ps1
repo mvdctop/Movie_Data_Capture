@@ -7,7 +7,7 @@ $OPENCC_PATH=$(python -c 'import opencc as _; print(_.__path__[0])' | select -La
 mkdir build
 mkdir __pycache__
 
-pyinstaller --onefile AV_Data_Capture.py `
+pyinstaller --onefile Movie_Data_Capture.py `
     --hidden-import ADC_function.py `
     --hidden-import core.py `
     --add-data "$CLOUDSCRAPER_PATH;cloudscraper" `
@@ -17,7 +17,7 @@ pyinstaller --onefile AV_Data_Capture.py `
 
 rmdir -Recurse -Force build
 rmdir -Recurse -Force __pycache__
-rmdir -Recurse -Force AV_Data_Capture.spec
+rmdir -Recurse -Force Movie_Data_Capture.spec
 
 echo "[Make]Finish"
 pause
