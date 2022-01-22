@@ -197,7 +197,7 @@ def getSeries(text):
         return ""
 
 def getExtrafanart(htmlcode):  # 获取剧照
-    html_pather = re.compile(r'<div id=\"sample-image-block\"[\s\S]*?<br></div></div>')
+    html_pather = re.compile(r'<div id=\"sample-image-block\"[\s\S]*?<br></div>\n</div>')
     html = html_pather.search(htmlcode)
     if html:
         html = html.group()
@@ -314,4 +314,4 @@ def main_htmlcode(number):
 if __name__ == "__main__":
     # print(main("DV-1562"))
     # print(main("96fad1217"))
-    print(main("pred00251"))
+    print(main("h_173ghmt68"))
