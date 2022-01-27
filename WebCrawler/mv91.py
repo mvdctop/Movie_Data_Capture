@@ -10,11 +10,10 @@ from ADC_function import *
 
 host = 'https://www.91mv.org'
 
-def getActorPhoto(htmlcode):
+def getActorPhoto(html):
     return ''
 
-def getTitle(htmlcode):  #获取标题
-    html = etree.fromstring(htmlcode, etree.HTMLParser())
+def getTitle(html):  #获取标题
     try:
         title = str(html.xpath('//div[@class="player-title"]/text()')[0])
         result = str(re.findall('(.*)(91.*-\d*)',title)[0][0])
@@ -22,11 +21,10 @@ def getTitle(htmlcode):  #获取标题
     except:
         return ''
 
-def getStudio(htmlcode): #获取厂商 已修改
+def getStudio(html): #获取厂商 已修改
     return '91制片厂'
 
-def getYear(htmlcode):   #获取年份
-    html = etree.fromstring(htmlcode, etree.HTMLParser())
+def getYear(html):   #获取年份
     try:
         result = str(html.xpath('//p[@class="date"]/text()')[0])
         date = result.replace('日期：','')
@@ -43,8 +41,7 @@ def getCover(htmlcode):  #获取封面图片
     except:
         return ''
 
-def getRelease(htmlcode): #获取出版日期
-    html = etree.fromstring(htmlcode, etree.HTMLParser())
+def getRelease(html): #获取出版日期
     try:
         result = str(html.xpath('//p[@class="date"]/text()')[0])
         date = result.replace('日期：','')
@@ -57,16 +54,14 @@ def getRelease(htmlcode): #获取出版日期
 def getRuntime(htmlcode): #获取播放时长
     return ''
 
-def getActor(htmlcode):   #获取女优
+def getActor(html):   #获取女优
     b=[]
-    html = etree.fromstring(htmlcode, etree.HTMLParser())
     for player in html.xpath('//p[@class="player-name"]/text()'):
         player = player.replace('主演：','')
         b.append(player)
     return b
 
-def getNum(htmlcode):     #获取番号
-    html = etree.fromstring(htmlcode, etree.HTMLParser())
+def getNum(html):     #获取番号
     try:
         title = str(html.xpath('//div[@class="player-title"]/text()')[0])
         result = str(re.findall('(.*)(91.*-\d*)',title)[0][1])
@@ -74,11 +69,10 @@ def getNum(htmlcode):     #获取番号
     except:
         return ''
 
-def getDirector(htmlcode): #获取导演 已修改
+def getDirector(html): #获取导演 已修改
     return ''
 
-def getOutline(htmlcode):  #获取概述
-    html = etree.fromstring(htmlcode, etree.HTMLParser())
+def getOutline(html):  #获取概述
     try:
         result = str(html.xpath('//div[@class="play-text"]/text()')[0])
         return result.strip()
@@ -89,8 +83,7 @@ def getOutline(htmlcode):  #获取概述
 def getSerise(htmlcode):   #获取系列 已修改
     return ''
 
-def getTag(htmlcode):  # 获取标签
-    html = etree.fromstring(htmlcode, etree.HTMLParser())
+def getTag(html):  # 获取标签
     return html.xpath('//div[@class="player-tag"]/text()')
 
 def getExtrafanart(htmlcode):  # 获取剧照
@@ -109,40 +102,40 @@ def main(number):
             htmlcode = get_html(url)
         except:
             print(number)
-
+        html = etree.fromstring(htmlcode, etree.HTMLParser())
         dic = {
             # 标题
-            'title': getTitle(htmlcode),
+            'title': getTitle(html),
             # 制作商
-            'studio': getStudio(htmlcode),
+            'studio': getStudio(html),
             # 年份
-            'year': getYear(htmlcode),
+            'year': getYear(html),
             # 简介
-            'outline': getOutline(htmlcode),
+            'outline': getOutline(html),
             # 
-            'runtime': getRuntime(htmlcode),
+            'runtime': getRuntime(html),
             # 导演 
-            'director': getDirector(htmlcode),
+            'director': getDirector(html),
             # 演员 
-            'actor': getActor(htmlcode),
+            'actor': getActor(html),
             # 发售日
-            'release': getRelease(htmlcode),
+            'release': getRelease(html),
             # 番号
-            'number': getNum(htmlcode),
+            'number': getNum(html),
             # 封面链接
             'cover': getCover(htmlcode),
             # 剧照获取
-            'extrafanart': getExtrafanart(htmlcode),
+            'extrafanart': getExtrafanart(html),
             'imagecut': 0,
             # 
-            'tag': getTag(htmlcode),
+            'tag': getTag(html),
             # 
-            'label': getSerise(htmlcode),
+            'label': getSerise(html),
             # 作者图片
             'website': url,
             'source': 'mv91.py',
             # 使用
-            'series': getSerise(htmlcode)
+            'series': getSerise(html)
         }
         js = json.dumps(dic, ensure_ascii=False, sort_keys=True, indent=4,separators=(',', ':'), )  # .encode('UTF-8')
         return js
