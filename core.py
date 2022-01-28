@@ -759,10 +759,7 @@ def core_main(file_path, number_th, oCC):
         # 检查小封面, 如果image cut为3，则下载小封面
         if imagecut == 3:
             small_cover_check(path, number, json_data.get('cover_small'), leak_word, c_word, hack_word, filepath)
-
-        fanart_path = os.path.join(path, f"{number}{leak_word}{c_word}{hack_word}-fanart{ext}")
-        poster_path = os.path.join(path, f"{number}{leak_word}{c_word}{hack_word}-poster{ext}")
-        thumb_path = os.path.join(path, f"{number}{leak_word}{c_word}{hack_word}-thumb{ext}")
+            
         # creatFolder会返回番号路径
         image_download( cover, fanart_path,thumb_path, path, filepath)
 
