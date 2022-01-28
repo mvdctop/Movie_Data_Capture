@@ -4,7 +4,7 @@ import pathlib
 import re
 import shutil
 import sys
-import face_recognition
+
 
 from PIL import Image
 from io import BytesIO
@@ -14,6 +14,7 @@ from datetime import datetime
 from ADC_function import *
 from WebCrawler import get_data_from_json
 from number_parser import is_uncensored
+
 
 def escape_path(path, escape_literals: str):  # Remove escape literals
     backslash = '\\'
@@ -369,16 +370,42 @@ def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, f
         moveFailedFolder(filepath)
         return
 
+def face_center(filename,model):
+    print('[+]Image found face  '+ model)
+    try:
+        if model == 'baidu':
+            from aip import AipBodyAnalysis
+            app_id = config.getInstance().face_app_id()
+            api_key = config.getInstance().face_api_key()
+            app_secret = config.getInstance().face_app_secret()
+            client = AipBodyAnalysis(app_id, api_key, app_secret)
+            with open(filename, 'rb') as fp:
+                img = fp.read()
+            result = client.bodyAnalysis(img)
+            # 中心点
+            return int(result["person_info"][0]['body_parts']['nose']['x'])
+        else:
+            import face_recognition
+            image = face_recognition.load_image_file(filename)
+            face_locations = face_recognition.face_locations(image, 0, model)
+            top, right, bottom, left = face_locations[0]
+            # 中心点
+            return int((right+left)/2)
+    except Exception as e:
+        print("[-]", e)
+        return 0
+
+
 def face_crop(filename,width, height):
-    # 新宽带是高度的2/3
+    # 新宽度是高度的2/3
     cropWidthHalf = int(height/3)
     try:
-        image = face_recognition.load_image_file(filename)
-        locations_model = config.getInstance().face_locations_model()
-        face_locations = face_recognition.face_locations(image, 0, locations_model)
-        top, right, bottom, left = face_locations[0]
-        # 中心点
-        center = (right+left)/2
+        locations_model = config.getInstance().face_locations_model().lower().split(',')
+        for model in locations_model:
+            center = face_center(filename,model)
+            # 如果找到就跳出循环
+            if center:
+                continue
         cropLeft = center-cropWidthHalf
         cropRight = center+cropWidthHalf
         # 越界处理
@@ -390,10 +417,9 @@ def face_crop(filename,width, height):
             cropRight = width
         return (cropLeft, 0, cropRight, height)
     except:
-        print('[-]not found face!' + filename)
+        print('[-]Not found face!   ' + filename)
         # 默认靠右切
         return (width-cropWidthHalf*2, 0, width, height)
-
 
 def cutImage(imagecut, path,fanart_path,poster_path):
     fullpath_fanart = os.path.join(path, fanart_path)
@@ -759,7 +785,7 @@ def core_main(file_path, number_th, oCC):
         # 检查小封面, 如果image cut为3，则下载小封面
         if imagecut == 3:
             small_cover_check(path, number, json_data.get('cover_small'), leak_word, c_word, hack_word, filepath)
-            
+
         # creatFolder会返回番号路径
         image_download( cover, fanart_path,thumb_path, path, filepath)
 
