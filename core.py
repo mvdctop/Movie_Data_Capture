@@ -405,7 +405,7 @@ def face_crop(filename,width, height):
             center = face_center(filename,model)
             # 如果找到就跳出循环
             if center:
-                continue
+                break
         cropLeft = center-cropWidthHalf
         cropRight = center+cropWidthHalf
         # 越界处理
