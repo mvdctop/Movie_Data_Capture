@@ -126,7 +126,7 @@ def main(number):
             'cover': getCover(htmlcode),
             # 剧照获取
             'extrafanart': getExtrafanart(html),
-            'imagecut': 0,
+            'imagecut': 1,
             # 
             'tag': getTag(html),
             # 

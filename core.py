@@ -4,6 +4,7 @@ import pathlib
 import re
 import shutil
 import sys
+import face_recognition
 
 from PIL import Image
 from io import BytesIO
@@ -245,14 +246,18 @@ def extrafanart_download_threadpool(url_list, save_dir, number):
     if conf.debug():
         print(f'[!]Extrafanart download ThreadPool mode runtime {time.perf_counter() - tm_start:.3f}s')
 
+def image_ext(url):
+    try:
+        return os.path.splitext(url)[-1]
+    except:
+        return ".jpg"
 
 # 封面是否下载成功，否则移动到failed
-def image_download(cover, number, leak_word, c_word, hack_word, path, filepath):
-    filename = f"{number}{leak_word}{c_word}{hack_word}-fanart.jpg"
-    full_filepath = os.path.join(path, filename)
+def image_download(cover, fanart_path,thumb_path, path, filepath):
+    full_filepath = os.path.join(path, fanart_path)
     if config.getInstance().download_only_missing_images() and not file_not_exist_or_empty(full_filepath):
         return
-    if download_file_with_filename(cover, filename, path, filepath) == 'failed':
+    if download_file_with_filename(cover, fanart_path, path, filepath) == 'failed':
         moveFailedFolder(filepath)
         return
 
@@ -260,17 +265,17 @@ def image_download(cover, number, leak_word, c_word, hack_word, path, filepath):
     for i in range(configProxy.retry):
         if file_not_exist_or_empty(full_filepath):
             print('[!]Image Download Failed! Trying again. [{}/3]', i + 1)
-            download_file_with_filename(cover, filename, path, filepath)
+            download_file_with_filename(cover, fanart_path, path, filepath)
             continue
         else:
             break
     if file_not_exist_or_empty(full_filepath):
         return
     print('[+]Image Downloaded!', full_filepath)
-    shutil.copyfile(full_filepath, os.path.join(path, f"{number}{leak_word}{c_word}{hack_word}-thumb.jpg"))
+    shutil.copyfile(full_filepath, os.path.join(path, thumb_path))
 
 
-def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, filepath, tag, actor_list, liuchu, uncensored, hack_word):
+def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, filepath, tag, actor_list, liuchu, uncensored, hack_word,fanart_path,poster_path,thumb_path):
     title, studio, year, outline, runtime, director, actor_photo, release, number, cover, trailer, website, series, label = get_info(json_data)
     if config.getInstance().main_mode() == 3:  # 模式3下，由于视频文件不做任何改变，.nfo文件必须和视频文件名称除后缀外完全一致，KODI等软件方可支持
         nfo_path = str(Path(filepath).with_suffix('.nfo'))
@@ -303,9 +308,9 @@ def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, f
             print("  <plot><![CDATA[" + outline + "]]></plot>", file=code)
             print("  <runtime>" + str(runtime).replace(" ", "") + "</runtime>", file=code)
             print("  <director>" + director + "</director>", file=code)
-            print("  <poster>" + number + leak_word + c_word + hack_word + "-poster.jpg</poster>", file=code)
-            print("  <thumb>" + number + leak_word + c_word + hack_word + "-thumb.jpg</thumb>", file=code)
-            print("  <fanart>" + number + leak_word + c_word + hack_word + '-fanart.jpg' + "</fanart>", file=code)
+            print("  <poster>" + poster_path + "</poster>", file=code)
+            print("  <thumb>" + thumb_path + "</thumb>", file=code)
+            print("  <fanart>" + fanart_path +  "</fanart>", file=code)
             try:
                 for key in actor_list:
                     print("  <actor>", file=code)
@@ -364,24 +369,56 @@ def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, f
         moveFailedFolder(filepath)
         return
 
+def face_crop(filename,width, height):
+    # 新宽带是高度的2/3
+    cropWidthHalf = int(height/3)
+    try:
+        image = face_recognition.load_image_file(filename)
+        locations_model = config.getInstance().face_locations_model()
+        face_locations = face_recognition.face_locations(image, 0, locations_model)
+        top, right, bottom, left = face_locations[0]
+        # 中心点
+        center = (right+left)/2
+        cropLeft = center-cropWidthHalf
+        cropRight = center+cropWidthHalf
+        # 越界处理
+        if cropLeft < 0:
+            cropLeft = 0
+            cropRight = cropWidthHalf*2
+        elif cropRight > width:
+            cropLeft = width-cropWidthHalf*2
+            cropRight = width
+        return (cropLeft, 0, cropRight, height)
+    except:
+        print('[-]not found face!' + filename)
+        # 默认靠右切
+        return (width-cropWidthHalf*2, 0, width, height)
 
-def cutImage(imagecut, path, number, leak_word, c_word, hack_word):
-    fullpath_noext = os.path.join(path, f"{number}{leak_word}{c_word}{hack_word}")
+
+def cutImage(imagecut, path,fanart_path,poster_path):
+    fullpath_fanart = os.path.join(path, fanart_path)
+    fullpath_poster = os.path.join(path, poster_path)
     if imagecut == 1: # 剪裁大封面
         try:
-            img = Image.open(fullpath_noext + '-fanart.jpg')
-            imgSize = img.size
-            w = img.width
-            h = img.height
-            img2 = img.crop((w / 1.9, 0, w, h))
-            img2.save(fullpath_noext + '-poster.jpg')
-            print('[+]Image Cutted!     ' + fullpath_noext + '-poster.jpg')
+            img = Image.open(fullpath_fanart)
+            width, height = img.size
+            if width/height > 2/3: # 如果宽度大于2
+                # 以人像为中心切取
+                img2 = img.crop(face_crop(fullpath_fanart,width, height))
+            elif width/height < 2/3: # 如果高度大于3
+                # 从底部向上切割
+                cropBottom = width*3/2
+                img2 = img.crop(0, 0, width, cropBottom)
+            else: # 如果等于2/3
+                img2 = img
+            img2.save(fullpath_poster)
+            print('[+]Image Cutted!     ' + fullpath_poster)
         except Exception as e:
             print(e)
             print('[-]Cover cut failed!')
     elif imagecut == 0: # 复制封面
-        shutil.copyfile(fullpath_noext + '-fanart.jpg', fullpath_noext + '-poster.jpg')
-        print('[+]Image Copyed!     ' + fullpath_noext + '-poster.jpg')
+        shutil.copyfile(fullpath_fanart, fullpath_poster)
+        print('[+]Image Copyed!     ' + fullpath_poster)
 
 # 此函数从gui版copy过来用用
 # 参数说明
@@ -652,6 +689,12 @@ def core_main(file_path, number_th, oCC):
     # 创建文件夹
     #path = create_folder(rootpath + '/' + conf.success_folder(),  json_data.get('location_rule'), json_data)
 
+
+    cover = json_data.get('cover')
+    ext = image_ext(cover)
+    fanart_path =  f"{number}{leak_word}{c_word}{hack_word}-fanart{ext}"
+    poster_path = f"{number}{leak_word}{c_word}{hack_word}-poster{ext}"
+    thumb_path =  f"{number}{leak_word}{c_word}{hack_word}-thumb{ext}"
     # main_mode
     #  1: 刮削模式 / Scraping mode
     #  2: 整理模式 / Organizing mode
@@ -666,8 +709,9 @@ def core_main(file_path, number_th, oCC):
         if imagecut == 3:
             small_cover_check(path, number,  json_data.get('cover_small'), leak_word, c_word, hack_word, filepath)
 
+
         # creatFolder会返回番号路径
-        image_download( json_data.get('cover'), number, leak_word, c_word, hack_word, path, filepath)
+        image_download( cover, fanart_path,thumb_path, path, filepath)
 
         if not multi_part or part.lower() == '-cd1':
             try:
@@ -683,30 +727,29 @@ def core_main(file_path, number_th, oCC):
             except:
                 pass
 
+       
+
         # 裁剪图
-        cutImage(imagecut, path, number, leak_word, c_word, hack_word)
+        cutImage(imagecut, path , fanart_path, poster_path)
 
         # 添加水印
-        poster_path = os.path.join(path, f"{number}{leak_word}{c_word}{hack_word}-poster.jpg")
-        thumb_path = os.path.join(path, f"{number}{leak_word}{c_word}{hack_word}-thumb.jpg")
         if conf.is_watermark():
-            add_mark(poster_path, thumb_path, cn_sub, leak, uncensored, hack)
+            add_mark(os.path.join(path,poster_path), os.path.join(path,thumb_path), cn_sub, leak, uncensored, hack)
 
         # 移动电影
         paste_file_to_folder(filepath, path, number, leak_word, c_word, hack_word)
 
         # 最后输出.nfo元数据文件，以完成.nfo文件创建作为任务成功标志
-        print_files(path, leak_word, c_word,  json_data.get('naming_rule'), part, cn_sub, json_data, filepath, tag,  json_data.get('actor_list'), liuchu, uncensored, hack_word)
+        print_files(path, leak_word, c_word,  json_data.get('naming_rule'), part, cn_sub, json_data, filepath, tag,  json_data.get('actor_list'), liuchu, uncensored, hack_word
+        ,fanart_path,poster_path,thumb_path)
 
     elif conf.main_mode() == 2:
         # 创建文件夹
         path = create_folder(json_data)
         # 移动文件
         paste_file_to_folder_mode2(filepath, path, multi_part, number, part, leak_word, c_word, hack_word)
-        poster_path = os.path.join(path, f"{number}{leak_word}{c_word}{hack_word}-poster.jpg")
-        thumb_path = os.path.join(path, f"{number}{leak_word}{c_word}{hack_word}-thumb.jpg")
         if conf.is_watermark():
-            add_mark(poster_path, thumb_path, cn_sub, leak, uncensored, hack)
+            add_mark(os.path.join(path,poster_path), os.path.join(path,thumb_path), cn_sub, leak, uncensored, hack)
 
     elif conf.main_mode() == 3:
         path = str(Path(file_path).parent)
@@ -717,8 +760,11 @@ def core_main(file_path, number_th, oCC):
         if imagecut == 3:
             small_cover_check(path, number, json_data.get('cover_small'), leak_word, c_word, hack_word, filepath)
 
+        fanart_path = os.path.join(path, f"{number}{leak_word}{c_word}{hack_word}-fanart{ext}")
+        poster_path = os.path.join(path, f"{number}{leak_word}{c_word}{hack_word}-poster{ext}")
+        thumb_path = os.path.join(path, f"{number}{leak_word}{c_word}{hack_word}-thumb{ext}")
         # creatFolder会返回番号路径
-        image_download(json_data.get('cover'), number, leak_word, c_word, hack_word, path, filepath)
+        image_download( cover, fanart_path,thumb_path, path, filepath)
 
         if not multi_part or part.lower() == '-cd1':
             # 下载预告片
@@ -730,14 +776,12 @@ def core_main(file_path, number_th, oCC):
                 extrafanart_download(json_data.get('extrafanart'), path, number, filepath)
 
         # 裁剪图
-        cutImage(imagecut, path, number, leak_word, c_word, hack_word)
+        cutImage(imagecut, path , fanart_path, poster_path)
 
         # 添加水印
-        poster_path = os.path.join(path, f"{number}{leak_word}{c_word}{hack_word}-poster.jpg")
-        thumb_path = os.path.join(path, f"{number}{leak_word}{c_word}{hack_word}-thumb.jpg")
         if conf.is_watermark():
-            add_mark(poster_path, thumb_path, cn_sub, leak, uncensored, hack)
+            add_mark(os.path.join(path,poster_path), os.path.join(path,thumb_path), cn_sub, leak, uncensored, hack)
 
         # 最后输出.nfo元数据文件，以完成.nfo文件创建作为任务成功标志
         print_files(path, leak_word, c_word, json_data.get('naming_rule'), part, cn_sub, json_data, filepath,
-                    tag, json_data.get('actor_list'), liuchu, uncensored, hack_word)
+                    tag, json_data.get('actor_list'), liuchu, uncensored, hack_word,fanart_path,poster_path,thumb_path)

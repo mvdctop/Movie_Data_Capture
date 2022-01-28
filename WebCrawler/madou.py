@@ -102,8 +102,7 @@ def getExtrafanart(html):  # 获取剧照
 def main(number):
     try:
         try:
-            number = number.lower().replace('md-', 'md').replace('mdx-',
-                                                                 'mdx').replace('mky-ap-', 'mkyap')
+            number = number.lower()
             url = "https://madou.club/" + number + ".html"
             htmlcode = get_html(url)
         except:
@@ -134,7 +133,7 @@ def main(number):
             'cover': getCover(htmlcode),
             # 剧照获取
             'extrafanart': getExtrafanart(html),
-            'imagecut': 0,
+            'imagecut': 1,
             #
             'tag': getTag(html),
             #
