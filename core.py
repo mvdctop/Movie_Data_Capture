@@ -370,8 +370,9 @@ def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, f
         moveFailedFolder(filepath)
         return
 
-def face_center(filename,model):
-    print('[+]Image found face  '+ model)
+
+def face_center(filename, model):
+    print('[+]Image found face  ' + model)
     try:
         if model == 'baidu':
             from aip import AipBodyAnalysis
@@ -382,67 +383,71 @@ def face_center(filename,model):
             with open(filename, 'rb') as fp:
                 img = fp.read()
             result = client.bodyAnalysis(img)
-            # 中心点
+            if 'error_code' in result:
+                raise result['error_msg']
+            print('[+]Found person      ' + str(result['person_num']))
+            # 中心点取鼻子x坐标
             return int(result["person_info"][0]['body_parts']['nose']['x'])
         else:
             import face_recognition
             image = face_recognition.load_image_file(filename)
             face_locations = face_recognition.face_locations(image, 0, model)
-            top, right, bottom, left = face_locations[0]
-            # 中心点
-            return int((right+left)/2)
+            if face_locations:
+                top, right, bottom, left = face_locations[0]
+                # 中心点
+                return int((right+left)/2)
     except Exception as e:
         print("[-]", e)
-        return 0
+    return 0
 
 
-def face_crop(filename,width, height):
+def face_crop(filename, width, height):
     # 新宽度是高度的2/3
     cropWidthHalf = int(height/3)
     try:
-        locations_model = config.getInstance().face_locations_model().lower().split(',')
+        locations_model = filter(lambda x : x,config.getInstance().face_locations_model().lower().split(','))
         for model in locations_model:
-            center = face_center(filename,model)
+            center = face_center(filename, model)
             # 如果找到就跳出循环
             if center:
-                break
-        cropLeft = center-cropWidthHalf
-        cropRight = center+cropWidthHalf
-        # 越界处理
-        if cropLeft < 0:
-            cropLeft = 0
-            cropRight = cropWidthHalf*2
-        elif cropRight > width:
-            cropLeft = width-cropWidthHalf*2
-            cropRight = width
-        return (cropLeft, 0, cropRight, height)
+                cropLeft = center-cropWidthHalf
+                cropRight = center+cropWidthHalf
+                # 越界处理
+                if cropLeft < 0:
+                    cropLeft = 0
+                    cropRight = cropWidthHalf*2
+                elif cropRight > width:
+                    cropLeft = width-cropWidthHalf*2
+                    cropRight = width
+                return (cropLeft, 0, cropRight, height)
     except:
         print('[-]Not found face!   ' + filename)
-        # 默认靠右切
-        return (width-cropWidthHalf*2, 0, width, height)
+    # 默认靠右切
+    return (width-cropWidthHalf*2, 0, width, height)
 
-def cutImage(imagecut, path,fanart_path,poster_path):
+
+def cutImage(imagecut, path, fanart_path, poster_path):
     fullpath_fanart = os.path.join(path, fanart_path)
     fullpath_poster = os.path.join(path, poster_path)
-    if imagecut == 1: # 剪裁大封面
+    if imagecut == 1:  # 剪裁大封面
         try:
             img = Image.open(fullpath_fanart)
             width, height = img.size
-            if width/height > 2/3: # 如果宽度大于2
+            if width/height > 2/3:  # 如果宽度大于2
                 # 以人像为中心切取
-                img2 = img.crop(face_crop(fullpath_fanart,width, height))
-            elif width/height < 2/3: # 如果高度大于3
+                img2 = img.crop(face_crop(fullpath_fanart, width, height))
+            elif width/height < 2/3:  # 如果高度大于3
                 # 从底部向上切割
                 cropBottom = width*3/2
                 img2 = img.crop(0, 0, width, cropBottom)
-            else: # 如果等于2/3
+            else:  # 如果等于2/3
                 img2 = img
             img2.save(fullpath_poster)
             print('[+]Image Cutted!     ' + fullpath_poster)
         except Exception as e:
             print(e)
             print('[-]Cover cut failed!')
-    elif imagecut == 0: # 复制封面
+    elif imagecut == 0:  # 复制封面
         shutil.copyfile(fullpath_fanart, fullpath_poster)
         print('[+]Image Copyed!     ' + fullpath_poster)
 
