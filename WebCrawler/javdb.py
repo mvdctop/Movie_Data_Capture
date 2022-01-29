@@ -139,7 +139,7 @@ def getCover_small(html, index=0):
 def getTrailer(htmlcode):  # 获取预告片
     video_pather = re.compile(r'<video id\=\".*?>\s*?<source src=\"(.*?)\"')
     video = video_pather.findall(htmlcode)
-    if video[0] != "":
+    if video and video[0] != "":
         if not 'https:' in video[0]:
             video_url = 'https:' + video[0]
         else:
@@ -179,7 +179,7 @@ def main(number):
     debug = config.getInstance().debug()
     for i in javdb_sites:
         javdb_sites[javdb_sites.index(i)] = "javdb" + i
-    javdb_sites.append("javdb")
+    #javdb_sites.append("javdb")
     try:
         # if re.search(r'[a-zA-Z]+\.\d{2}\.\d{2}\.\d{2}', number).group():
         #     pass
@@ -325,7 +325,7 @@ if __name__ == "__main__":
     # print(main('FC2-1174949')) # not found
     #print(main('MVSD-439'))
     # print(main('EHM0001')) # not found
-    print(main('FC2-2314275'))
+    print(main('032517_505'))
     # print(main('EBOD-646'))
     # print(main('LOVE-262'))
     #print(main('ABP-890'))
