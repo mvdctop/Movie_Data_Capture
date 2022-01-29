@@ -314,6 +314,22 @@ class Config:
         except:
             return "33,34"
 
+    def face_locations_model(self) -> str:
+        try:
+            return self.conf.get("face", "locations_model")
+        except:
+            return "hog"
+    
+    def face_app_id(self) -> str:
+        return self.conf.get("face", "appid")
+
+    def face_api_key(self) -> str:
+        return self.conf.get("face", "key")
+
+    def face_app_secret(self) -> str:
+        return self.conf.get("face", "secret")
+
+
     @staticmethod
     def _exit(sec: str) -> None:
         print("[-] Read config error! Please check the {} section in config.ini", sec)
