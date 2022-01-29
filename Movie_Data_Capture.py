@@ -455,6 +455,7 @@ def main():
 
 
     main_mode = conf.main_mode()
+    folder_path = ""
     if not main_mode in (1, 2, 3):
         print(f"[-]Main mode must be 1 or 2 or 3! You can run '{os.path.basename(sys.argv[0])} --help' for more help.")
         sys.exit(4)
