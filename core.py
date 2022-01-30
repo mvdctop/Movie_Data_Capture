@@ -14,6 +14,7 @@ from datetime import datetime
 from ADC_function import *
 from WebCrawler import get_data_from_json
 from number_parser import is_uncensored
+from ImageProcessing import face_crop
 
 
 def escape_path(path, escape_literals: str):  # Remove escape literals
@@ -369,47 +370,6 @@ def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, f
         print("[-]", e1)
         moveFailedFolder(filepath)
         return
-
-
-def face_center(filename, model):
-    print('[+]Image found face  ' + model)
-    try:
-            import face_recognition
-            image = face_recognition.load_image_file(filename)
-            face_locations = face_recognition.face_locations(image, 0, model)
-            if face_locations:
-                top, right, bottom, left = face_locations[0]
-                # 中心点
-                return int((right+left)/2)
-    except Exception as e:
-        print("[-]", e)
-    return 0
-
-
-def face_crop(filename, width, height):
-    # 新宽度是高度的2/3
-    cropWidthHalf = int(height/3)
-    try:
-        locations_model = filter(lambda x : x,config.getInstance().face_locations_model().lower().split(','))
-        for model in locations_model:
-            center = face_center(filename, model)
-            # 如果找到就跳出循环
-            if center:
-                cropLeft = center-cropWidthHalf
-                cropRight = center+cropWidthHalf
-                # 越界处理
-                if cropLeft < 0:
-                    cropLeft = 0
-                    cropRight = cropWidthHalf*2
-                elif cropRight > width:
-                    cropLeft = width-cropWidthHalf*2
-                    cropRight = width
-                return (cropLeft, 0, cropRight, height)
-    except:
-        print('[-]Not found face!   ' + filename)
-    # 默认靠右切
-    return (width-cropWidthHalf*2, 0, width, height)
-
 
 def cutImage(imagecut, path, fanart_path, poster_path):
     fullpath_fanart = os.path.join(path, fanart_path)
