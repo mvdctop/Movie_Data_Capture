@@ -51,14 +51,6 @@ def getRelease(html):  # 获取出版日期
 def getRuntime(html):  # 获取播放时长
     return ''
 
-
-def getActor(html):  # 获取女优
-    b = []
-    for player in html.xpath('//div[@class="article-tags"]/a/text()'):
-        b.append(player)
-    return b
-
-
 def getUrl(html):
     return str(html.xpath('//a[@class="share-weixin"]/@data-url')[0])
 
@@ -98,11 +90,18 @@ def getTag(html):  # 获取标签
 def getExtrafanart(html):  # 获取剧照
     return ''
 
+def cutTags(tags):
+    actors = []
+    tags = []
+    for tag in tags:
+        actors.append(tag)
+    return actors,tags
+
 
 def main(number):
     try:
         try:
-            number = number.lower()
+            number = number.lower().strip()
             url = "https://madou.club/" + number + ".html"
             htmlcode = get_html(url)
         except:
@@ -110,6 +109,8 @@ def main(number):
 
         html = etree.fromstring(htmlcode, etree.HTMLParser())
         url = getUrl(html)
+        tags = getTag(html)
+        actor,tags = cutTags(tags);
         dic = {
             # 标题
             'title': getTitle(html, number),
@@ -124,7 +125,7 @@ def main(number):
             # 导演
             'director': getDirector(html),
             # 演员
-            'actor': getActor(html),
+            'actor': actor,
             # 发售日
             'release': getRelease(html),
             # 番号
@@ -135,7 +136,7 @@ def main(number):
             'extrafanart': getExtrafanart(html),
             'imagecut': 1,
             #
-            'tag': getTag(html),
+            'tag': tags,
             #
             'label': getSerise(html),
             # 作者图片
@@ -160,5 +161,4 @@ def main(number):
 
 
 if __name__ == '__main__':
-    print(main('MD-0147'))
-    print(main('MD0147'))
+    print(main('MD0094'))
