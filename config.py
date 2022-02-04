@@ -314,6 +314,13 @@ class Config:
         except:
             return "33,34"
 
+    def face_locations_model(self) -> str:
+        try:
+            return self.conf.get("face", "locations_model")
+        except:
+            return "hog"
+
+
     @staticmethod
     def _exit(sec: str) -> None:
         print("[-] Read config error! Please check the {} section in config.ini", sec)

@@ -22,6 +22,8 @@ from . import xcity
 from . import dlsite
 from . import carib
 from . import fc2club
+from . import mv91
+from . import madou
 
 
 def get_data_state(data: dict) -> bool:  # 元数据获取失败检测
@@ -57,7 +59,9 @@ def get_data_from_json(file_number, oCC):  # 从JSON返回元数据
         # "javlib": javlib.main,
         "dlsite": dlsite.main,
         "carib": carib.main,
-        "fc2club": fc2club.main
+        "fc2club": fc2club.main,
+        "mv91": mv91.main,
+        "madou": madou.main
     }
 
     conf = config.getInstance()

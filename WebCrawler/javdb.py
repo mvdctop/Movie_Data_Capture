@@ -1,3 +1,4 @@
+import logging
 import sys
 sys.path.append('../')
 import re
@@ -139,7 +140,8 @@ def getCover_small(html, index=0):
 def getTrailer(htmlcode):  # 获取预告片
     video_pather = re.compile(r'<video id\=\".*?>\s*?<source src=\"(.*?)\"')
     video = video_pather.findall(htmlcode)
-    if video[0] != "":
+    # 加上数组判空
+    if video and video[0] != "":
         if not 'https:' in video[0]:
             video_url = 'https:' + video[0]
         else:
@@ -263,16 +265,14 @@ def main(number):
             # replace wit normal cover and cut it
             imagecut = 1
             cover_small = getCover(lx)
-
         dp_number = getNum(lx)
-        if dp_number.upper() != number:
-            raise ValueError("number not found")
+        if dp_number.upper() != number.upper():
+            raise ValueError("number not eq"+dp_number)
         title = getTitle(lx)
         if title and dp_number:
             number = dp_number
             # remove duplicate title
             title = title.replace(number, '').strip()
-
         dic = {
             'actor': getActor(lx),
             'title': title,
