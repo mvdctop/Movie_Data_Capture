@@ -14,7 +14,7 @@ from datetime import datetime
 from ADC_function import *
 from WebCrawler import get_data_from_json
 from number_parser import is_uncensored
-from ImageProcessing import face_crop
+from ImageProcessing import cutImage
 
 
 def escape_path(path, escape_literals: str):  # Remove escape literals
@@ -370,31 +370,6 @@ def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, f
         print("[-]", e1)
         moveFailedFolder(filepath)
         return
-
-def cutImage(imagecut, path, fanart_path, poster_path):
-    fullpath_fanart = os.path.join(path, fanart_path)
-    fullpath_poster = os.path.join(path, poster_path)
-    if imagecut == 1:  # 剪裁大封面
-        try:
-            img = Image.open(fullpath_fanart)
-            width, height = img.size
-            if width/height > 2/3:  # 如果宽度大于2
-                # 以人像为中心切取
-                img2 = img.crop(face_crop(fullpath_fanart, width, height))
-            elif width/height < 2/3:  # 如果高度大于3
-                # 从底部向上切割
-                cropBottom = width*3/2
-                img2 = img.crop(0, 0, width, cropBottom)
-            else:  # 如果等于2/3
-                img2 = img
-            img2.save(fullpath_poster)
-            print('[+]Image Cutted!     ' + fullpath_poster)
-        except Exception as e:
-            print(e)
-            print('[-]Cover cut failed!')
-    elif imagecut == 0:  # 复制封面
-        shutil.copyfile(fullpath_fanart, fullpath_poster)
-        print('[+]Image Copyed!     ' + fullpath_poster)
 
 # 此函数从gui版copy过来用用
 # 参数说明
