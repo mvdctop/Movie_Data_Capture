@@ -4,7 +4,8 @@ import sys
 import config
 
 G_spat = re.compile(
-    "^22-sht\.me|-fhd|_fhd|^fhd_|^fhd-|-hd|_hd|^hd_|^hd-|-sd|_sd|-1080p|_1080p|-720p|_720p|^hhd800\.com@|-uncensored|_uncensored|-leak|_leak",
+    "^22-sht\.me|-fhd|_fhd|^fhd_|^fhd-|-hd|_hd|^hd_|^hd-|-sd|_sd|-1080p|_1080p|-720p|_720p|"
+    "^hhd800\.com@|-uncensored|_uncensored|-leak|_leak|-4K|_4K",
     re.IGNORECASE)
 
 
