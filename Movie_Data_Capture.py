@@ -3,18 +3,21 @@ import json
 import os
 import re
 import sys
+import time
 import shutil
 import typing
 import urllib3
 import signal
 import platform
+import multiprocessing
+from datetime import datetime, timedelta
+from pathlib import Path
+
+
 from opencc import OpenCC
 
-import ADC_function
+
 import config
-from datetime import datetime, timedelta
-import time
-from pathlib import Path
 from ADC_function import  file_modification_days, get_html, parallel_download_files
 from number_parser import get_number
 from core import core_main, moveFailedFolder
@@ -581,7 +584,7 @@ def main():
 
     sys.exit(0)
 
-import multiprocessing
+
 if __name__ == '__main__':
     multiprocessing.freeze_support()
     main()
