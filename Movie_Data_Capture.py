@@ -13,12 +13,10 @@ import multiprocessing
 from datetime import datetime, timedelta
 from pathlib import Path
 
-
 from opencc import OpenCC
 
-
 import config
-from ADC_function import  file_modification_days, get_html, parallel_download_files
+from ADC_function import file_modification_days, get_html, parallel_download_files
 from number_parser import get_number
 from core import core_main, moveFailedFolder
 
@@ -33,7 +31,7 @@ def check_update(local_version):
         time.sleep(60)
         os._exit(-1)
     data = json.loads(htmlcode)
-    remote = int(data["tag_name"].replace(".",""))
+    remote = int(data["tag_name"].replace(".", ""))
     local_version = int(local_version.replace(".", ""))
     if local_version < remote:
         print("[*]" + ("* New update " + str(data["tag_name"]) + " *").center(54))
@@ -46,36 +44,44 @@ def argparse_function(ver: str) -> typing.Tuple[str, str, str, str, bool]:
     conf = config.getInstance()
     parser = argparse.ArgumentParser(epilog=f"Load Config file '{conf.ini_path}'.")
     parser.add_argument("file", default='', nargs='?', help="Single Movie file path.")
-    parser.add_argument("-p","--path",default='',nargs='?',help="Analysis folder path.")
-    parser.add_argument("-m","--main-mode",default='',nargs='?',help="Main mode. 1:Scraping 2:Organizing 3:Scraping in analysis folder")
+    parser.add_argument("-p", "--path", default='', nargs='?', help="Analysis folder path.")
+    parser.add_argument("-m", "--main-mode", default='', nargs='?',
+                        help="Main mode. 1:Scraping 2:Organizing 3:Scraping in analysis folder")
     parser.add_argument("-n", "--number", default='', nargs='?', help="Custom file number of single movie file.")
     # parser.add_argument("-C", "--config", default='config.ini', nargs='?', help="The config file Path.")
     default_logdir = str(Path.home() / '.mlogs')
-    parser.add_argument("-o","--log-dir",dest='logdir',default=default_logdir,nargs='?',
-        help=f"""Duplicate stdout and stderr to logfiles in logging folder, default on.
+    parser.add_argument("-o", "--log-dir", dest='logdir', default=default_logdir, nargs='?',
+                        help=f"""Duplicate stdout and stderr to logfiles in logging folder, default on.
         default folder for current user: '{default_logdir}'. Change default folder to an empty file,
         or use --log-dir= to turn log off.""")
-    parser.add_argument("-q","--regex-query",dest='regexstr',default='',nargs='?',help="python re module regex filepath filtering.")
-    parser.add_argument("-d","--nfo-skip-days",dest='days',default='',nargs='?', help="Override nfo_skip_days value in config.")
-    parser.add_argument("-c","--stop-counter",dest='cnt',default='',nargs='?', help="Override stop_counter value in config.")
+    parser.add_argument("-q", "--regex-query", dest='regexstr', default='', nargs='?',
+                        help="python re module regex filepath filtering.")
+    parser.add_argument("-d", "--nfo-skip-days", dest='days', default='', nargs='?',
+                        help="Override nfo_skip_days value in config.")
+    parser.add_argument("-c", "--stop-counter", dest='cnt', default='', nargs='?',
+                        help="Override stop_counter value in config.")
     parser.add_argument("-i", "--ignore-failed-list", action="store_true", help="Ignore failed list '{}'".format(
-                         os.path.join(os.path.abspath(conf.failed_folder()), 'failed_list.txt')))
+        os.path.join(os.path.abspath(conf.failed_folder()), 'failed_list.txt')))
     parser.add_argument("-a", "--auto-exit", action="store_true",
                         help="Auto exit after program complete")
-    parser.add_argument("-g","--debug", action="store_true",
+    parser.add_argument("-g", "--debug", action="store_true",
                         help="Turn on debug mode to generate diagnostic log for issue report.")
-    parser.add_argument("-z","--zero-operation",dest='zero_op', action="store_true",
+    parser.add_argument("-z", "--zero-operation", dest='zero_op', action="store_true",
                         help="""Only show job list of files and numbers, and **NO** actual operation
 is performed. It may help you correct wrong numbers before real job.""")
     parser.add_argument("-v", "--version", action="version", version=ver)
 
     args = parser.parse_args()
+
     def get_natural_number_or_none(value):
-        return int(value) if isinstance(value, str) and value.isnumeric() and int(value)>=0 else None
+        return int(value) if isinstance(value, str) and value.isnumeric() and int(value) >= 0 else None
+
     def get_str_or_none(value):
         return value if isinstance(value, str) and len(value) else None
+
     def get_bool_or_none(value):
         return True if isinstance(value, bool) and value else None
+
     config.G_conf_override["common:main_mode"] = get_natural_number_or_none(args.main_mode)
     config.G_conf_override["common:source_folder"] = get_str_or_none(args.path)
     config.G_conf_override["common:auto_exit"] = get_bool_or_none(args.auto_exit)
@@ -86,43 +92,53 @@ is performed. It may help you correct wrong numbers before real job.""")
 
     return args.file, args.number, args.logdir, args.regexstr, args.zero_op
 
+
 class OutLogger(object):
     def __init__(self, logfile) -> None:
         self.term = sys.stdout
-        self.log = open(logfile,"w",encoding='utf-8',buffering=1)
+        self.log = open(logfile, "w", encoding='utf-8', buffering=1)
         self.filepath = logfile
+
     def __del__(self):
         self.close()
+
     def __enter__(self):
         pass
+
     def __exit__(self, *args):
         self.close()
-    def write(self,msg):
+
+    def write(self, msg):
         self.term.write(msg)
         self.log.write(msg)
+
     def flush(self):
         self.term.flush()
         self.log.flush()
         os.fsync(self.log.fileno())
+
     def close(self):
-        if self.term != None:
+        if self.term is not None:
             sys.stdout = self.term
             self.term = None
-        if self.log != None:
+        if self.log is not None:
             self.log.close()
             self.log = None
 
 
 class ErrLogger(OutLogger):
+
     def __init__(self, logfile) -> None:
         self.term = sys.stderr
-        self.log = open(logfile,"w",encoding='utf-8',buffering=1)
+        self.log = open(logfile, "w", encoding='utf-8', buffering=1)
         self.filepath = logfile
+
     def close(self):
-        if self.term != None:
+        if self.term is not None:
             sys.stderr = self.term
             self.term = None
-        if self.log != None:
+
+        if self.log is not None:
             self.log.close()
             self.log = None
 
@@ -133,7 +149,7 @@ def dupe_stdout_to_logfile(logdir: str):
     log_dir = Path(logdir)
     if not log_dir.exists():
         try:
-            log_dir.mkdir(parents=True,exist_ok=True)
+            log_dir.mkdir(parents=True, exist_ok=True)
         except:
             pass
     if not log_dir.is_dir():
@@ -150,7 +166,7 @@ def dupe_stdout_to_logfile(logdir: str):
 def close_logfile(logdir: str):
     if not isinstance(logdir, str) or len(logdir) == 0 or not os.path.isdir(logdir):
         return
-    #日志关闭前保存日志路径
+    # 日志关闭前保存日志路径
     filepath = None
     try:
         filepath = sys.stdout.filepath
@@ -161,7 +177,7 @@ def close_logfile(logdir: str):
     log_dir = Path(logdir).resolve()
     if isinstance(filepath, Path):
         print(f"Log file '{filepath}' saved.")
-        assert(filepath.parent.samefile(log_dir))
+        assert (filepath.parent.samefile(log_dir))
     # 清理空文件
     for f in log_dir.glob(r'*_err.txt'):
         if f.stat().st_size == 0:
@@ -201,7 +217,7 @@ def close_logfile(logdir: str):
         cutday = len('T235959.txt')  # cut length mdc_20201201|T235959.txt
         for f in day_merge:
             try:
-                day_file_name = str(f)[:-cutday] + '.txt' # mdc_20201201.txt
+                day_file_name = str(f)[:-cutday] + '.txt'  # mdc_20201201.txt
                 with open(day_file_name, 'a', encoding='utf-8') as m:
                     m.write(f.read_text(encoding='utf-8'))
                 f.unlink(missing_ok=True)
@@ -213,7 +229,7 @@ def close_logfile(logdir: str):
         if not txts or not len(txts):
             break
         txts.sort()
-        tmstr_3_month_ago = (today.replace(day=1) - timedelta(days=3*30)).strftime("%Y%m32")
+        tmstr_3_month_ago = (today.replace(day=1) - timedelta(days=3 * 30)).strftime("%Y%m32")
         deadline_month = f'mdc_{tmstr_3_month_ago}'
         month_merge = [f for f in txts if f.stem < deadline_month]
         if not month_merge or not len(month_merge):
@@ -221,7 +237,7 @@ def close_logfile(logdir: str):
         tomonth = len('01.txt')  # cut length mdc_202012|01.txt
         for f in month_merge:
             try:
-                month_file_name = str(f)[:-tomonth] + '.txt' # mdc_202012.txt
+                month_file_name = str(f)[:-tomonth] + '.txt'  # mdc_202012.txt
                 with open(month_file_name, 'a', encoding='utf-8') as m:
                     m.write(f.read_text(encoding='utf-8'))
                 f.unlink(missing_ok=True)
@@ -234,14 +250,14 @@ def close_logfile(logdir: str):
     if not mons or not len(mons):
         return
     mons.sort()
-    deadline_year = f'mdc_{today.year-1}13'
+    deadline_year = f'mdc_{today.year - 1}13'
     year_merge = [f for f in mons if f.stem < deadline_year]
     if not year_merge or not len(year_merge):
         return
-    toyear = len('12.txt')   # cut length mdc_2020|12.txt
+    toyear = len('12.txt')  # cut length mdc_2020|12.txt
     for f in year_merge:
         try:
-            year_file_name = str(f)[:-toyear] + '.txt' # mdc_2020.txt
+            year_file_name = str(f)[:-toyear] + '.txt'  # mdc_2020.txt
             with open(year_file_name, 'a', encoding='utf-8') as y:
                 y.write(f.read_text(encoding='utf-8'))
             f.unlink(missing_ok=True)
@@ -257,13 +273,14 @@ def signal_handler(*args):
     print('[!]Ctrl+C detected, Exit.')
     sys.exit(9)
 
+
 def sigdebug_handler(*args):
     config.G_conf_override["debug_mode:switch"] = not config.G_conf_override["debug_mode:switch"]
     print('[!]Debug {}'.format('On' if config.getInstance().debug() else 'oFF'))
 
 
 # 新增失败文件列表跳过处理，及.nfo修改天数跳过处理，提示跳过视频总数，调试模式(-g)下详细被跳过文件，跳过小广告
-def movie_lists(source_folder, regexstr):
+def movie_lists(source_folder, regexstr: str) -> list[str]:
     conf = config.getInstance()
     main_mode = conf.main_mode()
     debug = conf.debug()
@@ -283,9 +300,9 @@ def movie_lists(source_folder, regexstr):
         try:
             flist = failed_list_txt_path.read_text(encoding='utf-8').splitlines()
             failed_set = set(flist)
-            if len(flist) != len(failed_set): # 检查去重并写回，但是不改变failed_list.txt内条目的先后次序，重复的只保留最后的
+            if len(flist) != len(failed_set):  # 检查去重并写回，但是不改变failed_list.txt内条目的先后次序，重复的只保留最后的
                 fset = failed_set.copy()
-                for i in range(len(flist)-1, -1, -1):
+                for i in range(len(flist) - 1, -1, -1):
                     fset.remove(flist[i]) if flist[i] in fset else flist.pop(i)
                 failed_list_txt_path.write_text('\n'.join(flist) + '\n', encoding='utf-8')
                 assert len(fset) == 0 and len(flist) == len(failed_set)
@@ -311,14 +328,15 @@ def movie_lists(source_folder, regexstr):
             continue
         is_sym = full_name.is_symlink()
         if main_mode != 3 and (is_sym or full_name.stat().st_nlink > 1):  # 短路布尔 符号链接不取stat()，因为符号链接可能指向不存在目标
-            continue # file is symlink or hardlink(Linux/NTFS/Darwin)
+            continue  # file is symlink or hardlink(Linux/NTFS/Darwin)
         # 调试用0字节样本允许通过，去除小于120MB的广告'苍老师强力推荐.mp4'(102.2MB)'黑道总裁.mp4'(98.4MB)'有趣的妹子激情表演.MP4'(95MB)'有趣的臺灣妹妹直播.mp4'(15.1MB)
         movie_size = 0 if is_sym else full_name.stat().st_size  # 同上 符号链接不取stat()及st_size，直接赋0跳过小视频检测
-        if movie_size > 0 and movie_size < 125829120:  # 1024*1024*120=125829120
+        if 0 < movie_size < 125829120:  # 1024*1024*120=125829120
             continue
         if cliRE and not cliRE.search(absf) or trailerRE.search(full_name.name):
             continue
-        if main_mode == 3 and nfo_skip_days > 0 and file_modification_days(full_name.with_suffix('.nfo')) <= nfo_skip_days:
+        if main_mode == 3 and nfo_skip_days > 0 and file_modification_days(
+                full_name.with_suffix('.nfo')) <= nfo_skip_days:
             skip_nfo_days_cnt += 1
             if debug:
                 print(f"[!]Skip movie by it's .nfo which modified within {nfo_skip_days} days: '{absf}'")
@@ -328,7 +346,8 @@ def movie_lists(source_folder, regexstr):
     if skip_failed_cnt:
         print(f"[!]Skip {skip_failed_cnt} movies in failed list '{failed_list_txt_path}'.")
     if skip_nfo_days_cnt:
-        print(f"[!]Skip {skip_nfo_days_cnt} movies in source folder '{source}' who's .nfo modified within {nfo_skip_days} days.")
+        print(
+            f"[!]Skip {skip_nfo_days_cnt} movies in source folder '{source}' who's .nfo modified within {nfo_skip_days} days.")
     if nfo_skip_days <= 0 or not soft_link or main_mode == 3:
         return total
     # 软连接方式，已经成功削刮的也需要从成功目录中检查.nfo更新天数，跳过N天内更新过的
@@ -354,13 +373,17 @@ def movie_lists(source_folder, regexstr):
         if debug:
             print(f"[!]Skip file successfully processed within {nfo_skip_days} days: '{f}'")
     if len(rm_list):
-        print(f"[!]Skip {len(rm_list)} movies in success folder '{success_folder}' who's .nfo modified within {nfo_skip_days} days.")
+        print(
+            f"[!]Skip {len(rm_list)} movies in success folder '{success_folder}' who's .nfo modified within {nfo_skip_days} days.")
 
     return total
 
 
-def create_failed_folder(failed_folder):
-    if not os.path.exists(failed_folder):  # 新建failed文件夹
+def create_failed_folder(failed_folder: str):
+    """
+    新建failed文件夹
+    """
+    if not os.path.exists(failed_folder):
         try:
             os.makedirs(failed_folder)
         except:
@@ -373,9 +396,7 @@ def rm_empty_folder(path):
     deleted = set()
     for current_dir, subdirs, files in os.walk(abspath, topdown=False):
         try:
-            still_has_subdirs = any(
-                 _ for subdir in subdirs if os.path.join(current_dir, subdir) not in deleted
-            )
+            still_has_subdirs = any(_ for subdir in subdirs if os.path.join(current_dir, subdir) not in deleted)
             if not any(files) and not still_has_subdirs and not os.path.samefile(path, current_dir):
                 os.rmdir(current_dir)
                 deleted.add(current_dir)
@@ -390,7 +411,7 @@ def create_data_and_move(file_path: str, zero_op, oCC):
     n_number = get_number(debug, os.path.basename(file_path))
     file_path = os.path.abspath(file_path)
 
-    if debug == True:
+    if debug is True:
         print(f"[!] [{n_number}] As Number making data for '{file_path}'")
         if zero_op:
             return
@@ -447,7 +468,7 @@ def create_data_and_move_with_custom_number(file_path: str, custom_number, oCC):
 
 def main():
     version = '6.0.1'
-    urllib3.disable_warnings() #Ignore http proxy warning
+    urllib3.disable_warnings()  # Ignore http proxy warning
 
     # Read config.ini first, in argparse_function() need conf.failed_folder()
     conf = config.Config("config.ini")
@@ -455,11 +476,9 @@ def main():
     # Parse command line args
     single_file_path, custom_number, logdir, regexstr, zero_op = argparse_function(version)
 
-
-
     main_mode = conf.main_mode()
     folder_path = ""
-    if not main_mode in (1, 2, 3):
+    if main_mode not in (1, 2, 3):
         print(f"[-]Main mode must be 1 or 2 or 3! You can run '{os.path.basename(sys.argv[0])} --help' for more help.")
         sys.exit(4)
 
@@ -470,7 +489,8 @@ def main():
         signal.signal(signal.SIGWINCH, sigdebug_handler)
     dupe_stdout_to_logfile(logdir)
 
-    platform_total = str(' - ' + platform.platform() + ' \n[*] - ' + platform.machine() + ' - Python-' + platform.python_version())
+    platform_total = str(
+        ' - ' + platform.platform() + ' \n[*] - ' + platform.machine() + ' - Python-' + platform.python_version())
 
     print('[*]================= Movie Data Capture =================')
     print('[*]' + version.center(54))
@@ -488,15 +508,15 @@ def main():
         print('[+]Enable debug')
     if conf.soft_link():
         print('[!]Enable soft link')
-    if len(sys.argv)>1:
-        print('[!]CmdLine:'," ".join(sys.argv[1:]))
+    if len(sys.argv) > 1:
+        print('[!]CmdLine:', " ".join(sys.argv[1:]))
     print('[+]Main Working mode ## {}: {} ## {}{}{}'
-        .format(*(main_mode, ['Scraping', 'Organizing', 'Scraping in analysis folder'][main_mode-1],
-        "" if not conf.multi_threading() else ", multi_threading on",
-        "" if conf.nfo_skip_days() == 0 else f", nfo_skip_days={conf.nfo_skip_days()}",
-        "" if conf.stop_counter() == 0 else f", stop_counter={conf.stop_counter()}"
-        ) if not single_file_path else ('-','Single File', '','',''))
-    )
+          .format(*(main_mode, ['Scraping', 'Organizing', 'Scraping in analysis folder'][main_mode - 1],
+                    "" if not conf.multi_threading() else ", multi_threading on",
+                    "" if conf.nfo_skip_days() == 0 else f", nfo_skip_days={conf.nfo_skip_days()}",
+                    "" if conf.stop_counter() == 0 else f", stop_counter={conf.stop_counter()}"
+                    ) if not single_file_path else ('-', 'Single File', '', '', ''))
+          )
 
     if conf.update_check():
         check_update(version)
@@ -507,8 +527,9 @@ def main():
     def fmd(f):
         return ('https://raw.githubusercontent.com/yoshiko2/Movie_Data_Capture/master/MappingTable/' + f,
                 Path.home() / '.local' / 'share' / 'mdc' / f)
+
     map_tab = (fmd('mapping_actor.xml'), fmd('mapping_info.xml'), fmd('c_number.json'))
-    for k,v in map_tab:
+    for k, v in map_tab:
         if v.exists():
             if file_modification_days(str(v)) >= conf.mapping_table_validity():
                 print("[+]Mapping Table Out of date! Remove", str(v))
@@ -528,14 +549,15 @@ def main():
     try:
         oCC = None if ccm == 0 else OpenCC('t2s.json' if ccm == 1 else 's2t.json')
     except:
-        # some OS no OpennCC cpython, try opencc-python-reimplemented.
+        # some OS no OpenCC cpython, try opencc-python-reimplemented.
         # pip uninstall opencc && pip install opencc-python-reimplemented
         oCC = None if ccm == 0 else OpenCC('t2s' if ccm == 1 else 's2t')
 
-    if not single_file_path == '': #Single File
+    if not single_file_path == '':  # Single File
         print('[+]==================== Single File =====================')
         if custom_number == '':
-            create_data_and_move_with_custom_number(single_file_path, get_number(conf.debug(), os.path.basename(single_file_path)), oCC)
+            create_data_and_move_with_custom_number(single_file_path,
+                                                    get_number(conf.debug(), os.path.basename(single_file_path)), oCC)
         else:
             create_data_and_move_with_custom_number(single_file_path, custom_number, oCC)
     else:
@@ -550,7 +572,7 @@ def main():
         print('[+]Find', count_all, 'movies.')
         print('[*]======================================================')
         stop_count = conf.stop_counter()
-        if stop_count<1:
+        if stop_count < 1:
             stop_count = 999999
         else:
             count_all = str(min(len(movie_list), stop_count))
@@ -558,7 +580,8 @@ def main():
         for movie_path in movie_list:  # 遍历电影列表 交给core处理
             count = count + 1
             percentage = str(count / int(count_all) * 100)[:4] + '%'
-            print('[!] {:>30}{:>21}'.format('- ' + percentage + ' [' + str(count) + '/' + count_all + '] -', time.strftime("%H:%M:%S")))
+            print('[!] {:>30}{:>21}'.format('- ' + percentage + ' [' + str(count) + '/' + count_all + '] -',
+                                            time.strftime("%H:%M:%S")))
             create_data_and_move(movie_path, zero_op, oCC)
             if count >= stop_count:
                 print("[!]Stop counter triggered!")
@@ -573,7 +596,7 @@ def main():
     end_time = time.time()
     total_time = str(timedelta(seconds=end_time - start_time))
     print("[+]Running time", total_time[:len(total_time) if total_time.rfind('.') < 0 else -3],
-        " End at", time.strftime("%Y-%m-%d %H:%M:%S"))
+          " End at", time.strftime("%Y-%m-%d %H:%M:%S"))
 
     print("[+]All finished!!!")
 
