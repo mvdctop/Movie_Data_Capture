@@ -467,7 +467,7 @@ def create_data_and_move_with_custom_number(file_path: str, custom_number, oCC):
 
 
 def main():
-    version = '6.0.1'
+    version = '6.0.2'
     urllib3.disable_warnings()  # Ignore http proxy warning
 
     # Read config.ini first, in argparse_function() need conf.failed_folder()
@@ -475,6 +475,8 @@ def main():
 
     # Parse command line args
     single_file_path, custom_number, logdir, regexstr, zero_op = argparse_function(version)
+
+
 
     main_mode = conf.main_mode()
     folder_path = ""

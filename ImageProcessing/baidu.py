@@ -11,12 +11,15 @@ def face_center(filename, model):
         img = fp.read()
     result = client.bodyAnalysis(img)
     if 'error_code' in result:
-        raise result['error_msg']
+        raise ValueError(result['error_msg'])
     print('[+]Found person      ' + str(result['person_num']))
     # 中心点取鼻子x坐标
-    max = 0
+    maxRight = 0
+    maxTop = 0
     for person_info in result["person_info"]:
         x = int(person_info['body_parts']['nose']['x'])
-        if x > max:
-            max = x
-    return max
+        top = int(person_info['location']['top'])
+        if x > maxRight:
+            maxRight = x
+            maxTop = top
+    return maxRight,maxTop
