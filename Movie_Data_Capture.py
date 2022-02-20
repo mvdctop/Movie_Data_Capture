@@ -98,9 +98,14 @@ class OutLogger(object):
         self.term.write(msg)
         self.log.write(msg)
     def flush(self):
-        self.term.flush()
-        self.log.flush()
-        os.fsync(self.log.fileno())
+        try:
+            self.term.flush()
+            self.log.flush()
+            os.fsync(self.log.fileno())
+            return True
+        except Exception as ex:
+            print("flush error,please handle me in future")
+            return False
     def close(self):
         if self.term != None:
             sys.stdout = self.term
