@@ -235,8 +235,8 @@ def get_data_from_json(file_number, oCC):  # 从JSON返回元数据
     json_data['studio'] = studio
     json_data['director'] = director
 
-    if conf.is_transalte():
-        translate_values = conf.transalte_values().split(",")
+    if conf.is_translate():
+        translate_values = conf.translate_values().split(",")
         for translate_value in translate_values:
             if json_data[translate_value] == "":
                 continue
@@ -248,12 +248,12 @@ def get_data_from_json(file_number, oCC):  # 从JSON返回元数据
                     continue
                 except:
                     pass
-            if conf.get_transalte_engine() == "azure":
+            if conf.get_translate_engine() == "azure":
                 t = translate(
                     json_data[translate_value],
                     target_language="zh-Hans",
-                    engine=conf.get_transalte_engine(),
-                    key=conf.get_transalte_key(),
+                    engine=conf.get_translate_engine(),
+                    key=conf.get_translate_key(),
                 )
             else:
                 t = translate(json_data[translate_value])
