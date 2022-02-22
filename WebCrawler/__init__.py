@@ -326,7 +326,8 @@ def get_data_from_json(file_number, oCC):  # 从JSON返回元数据
         if i not in json_data:
             naming_rule += i.strip("'").strip('"')
         else:
-            naming_rule += json_data.get(i)
+            item = json_data.get(i)
+            naming_rule += item if type(item) is not list else "&".join(item)
 
     json_data['naming_rule'] = naming_rule
     return json_data
