@@ -67,7 +67,7 @@ def get_data_from_json(file_number, oCC):  # 从JSON返回元数据
     conf = config.getInstance()
     # default fetch order list, from the beginning to the end
     sources = conf.sources().split(',')
-    if not len(conf.sources()) > 80:
+    if len(sources) <= len(func_mapping):
         # if the input file name matches certain rules,
         # move some web service to the beginning of the list
         lo_file_number = file_number.lower()
