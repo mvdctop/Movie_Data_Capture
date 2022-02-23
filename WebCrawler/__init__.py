@@ -68,7 +68,7 @@ def get_data_from_json(file_number, oCC):
     conf = config.getInstance()
     # default fetch order list, from the beginning to the end
     sources = conf.sources().split(',')
-    if not len(conf.sources()) > 80:
+    if len(sources) <= len(func_mapping):
         # if the input file name matches certain rules,
         # move some web service to the beginning of the list
         lo_file_number = file_number.lower()
@@ -327,7 +327,8 @@ def get_data_from_json(file_number, oCC):
         if i not in json_data:
             naming_rule += i.strip("'").strip('"')
         else:
-            naming_rule += json_data.get(i)
+            item = json_data.get(i)
+            naming_rule += item if type(item) is not list else "&".join(item)
 
     json_data['naming_rule'] = naming_rule
     return json_data
