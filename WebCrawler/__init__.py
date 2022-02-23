@@ -38,9 +38,10 @@ def get_data_state(data: dict) -> bool:  # 元数据获取失败检测
 
     return True
 
-def get_data_from_json(file_number, oCC):  # 从JSON返回元数据
+
+def get_data_from_json(file_number, oCC):
     """
-    iterate through all services and fetch the data
+    iterate through all services and fetch the data 从JSON返回元数据
     """
 
     actor_mapping_data = etree.parse(str(Path.home() / '.local' / 'share' / 'mdc' / 'mapping_actor.xml'))
@@ -331,6 +332,7 @@ def get_data_from_json(file_number, oCC):  # 从JSON返回元数据
 
     json_data['naming_rule'] = naming_rule
     return json_data
+
 
 def special_characters_replacement(text) -> str:
     if not isinstance(text, str):

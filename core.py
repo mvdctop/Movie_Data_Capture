@@ -371,15 +371,19 @@ def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, f
         moveFailedFolder(filepath)
         return
 
-# 此函数从gui版copy过来用用
-# 参数说明
-# poster_path
-# thumb_path
-# cn_sub   中文字幕  参数值为 1  0
-# leak     流出     参数值为 1   0
-# uncensored 无码   参数值为 1   0
-# ========================================================================加水印
-def add_mark(poster_path, thumb_path, cn_sub, leak, uncensored, hack):
+
+def add_mark(poster_path, thumb_path, cn_sub, leak, uncensored, hack) -> None:
+    """
+    add watermark on poster or thumb for describe extra properties 给海报和缩略图加属性水印
+
+    此函数从gui版copy过来用用
+
+    :poster_path 海报位置
+    :thumb_path 缩略图位置
+    :cn_sub: 中文字幕 可选值：1,"1" 或其他值
+    :uncensored 无码 可选值：1,"1" 或其他值
+    :hack 破解 可选值：1,"1" 或其他值
+    """
     mark_type = ''
     if cn_sub:
         mark_type += ',字幕'
@@ -395,6 +399,7 @@ def add_mark(poster_path, thumb_path, cn_sub, leak, uncensored, hack):
     print('[+]Thumb Add Mark:   ' + mark_type.strip(','))
     add_mark_thread(poster_path, cn_sub, leak, uncensored, hack)
     print('[+]Poster Add Mark:  ' + mark_type.strip(','))
+
 
 def add_mark_thread(pic_path, cn_sub, leak, uncensored, hack):
     size = 9
@@ -413,6 +418,7 @@ def add_mark_thread(pic_path, cn_sub, leak, uncensored, hack):
     if hack == 1 or hack == '1':
         add_to_pic(pic_path, img_pic, size, count, 4)
     img_pic.close()
+
 
 def add_to_pic(pic_path, img_pic, size, count, mode):
     mark_pic_path = ''
@@ -454,6 +460,7 @@ def add_to_pic(pic_path, img_pic, size, count, mode):
     img_pic.paste(img_subt, (pos[count]['x'], pos[count]['y']), mask=a)
     img_pic.save(pic_path, quality=95)
 # ========================结束=================================
+
 
 def paste_file_to_folder(filepath, path, number, leak_word, c_word, hack_word):  # 文件路径，番号，后缀，要移动至的位置
     filepath_obj = pathlib.Path(filepath)
@@ -545,6 +552,7 @@ def paste_file_to_folder_mode2(filepath, path, multi_part, number, part, leak_wo
     except OSError as oserr:
         print(f'[-]OS Error errno  {oserr.errno}')
         return
+
 
 def get_part(filepath):
     try:

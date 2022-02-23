@@ -280,7 +280,7 @@ def sigdebug_handler(*args):
 
 
 # 新增失败文件列表跳过处理，及.nfo修改天数跳过处理，提示跳过视频总数，调试模式(-g)下详细被跳过文件，跳过小广告
-def movie_lists(source_folder, regexstr: str) -> list[str]:
+def movie_lists(source_folder, regexstr: str) -> typing.List[str]:
     conf = config.getInstance()
     main_mode = conf.main_mode()
     debug = conf.debug()
@@ -526,7 +526,10 @@ def main():
     create_failed_folder(conf.failed_folder())
 
     # Download Mapping Table, parallel version
-    def fmd(f):
+    def fmd(f) -> typing.Tuple[str, Path]:
+        """
+
+        """
         return ('https://raw.githubusercontent.com/yoshiko2/Movie_Data_Capture/master/MappingTable/' + f,
                 Path.home() / '.local' / 'share' / 'mdc' / f)
 
