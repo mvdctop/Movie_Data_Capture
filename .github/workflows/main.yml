@@ -39,10 +39,11 @@ jobs:
         run: |
           pyinstaller \
             --onefile Movie_Data_Capture.py \
+            --hidden-import "ImageProcessing.hog" \
             --add-data "$(python -c 'import cloudscraper as _; print(_.__path__[0])' | tail -n 1):cloudscraper" \
             --add-data "$(python -c 'import opencc as _; print(_.__path__[0])' | tail -n 1):opencc" \
+            --add-data "$(python -c 'import face_recognition_models as _; print(_.__path__[0])' | tail -n 1):face_recognition_models" \
             --add-data "Img:Img" \
-            --add-data "ImageProcessing:ImageProcessing" \
             --add-data "config.ini:." \
 
       - name: Build with PyInstaller for windows
@@ -50,10 +51,11 @@ jobs:
         run: |
           pyinstaller `
             --onefile Movie_Data_Capture.py `
+            --hidden-import "ImageProcessing.hog" `
             --add-data "$(python -c 'import cloudscraper as _; print(_.__path__[0])' | tail -n 1);cloudscraper" `
             --add-data "$(python -c 'import opencc as _; print(_.__path__[0])' | tail -n 1);opencc" `
+            --add-data "$(python -c 'import face_recognition_models as _; print(_.__path__[0])' | tail -n 1):face_recognition_models" `
             --add-data "Img;Img" `
-            --add-data "ImageProcessing:ImageProcessing" `
             --add-data "config.ini;." `
 
       - name: Copy config.ini
