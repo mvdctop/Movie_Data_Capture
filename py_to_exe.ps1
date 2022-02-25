@@ -3,13 +3,14 @@
 
 $CLOUDSCRAPER_PATH=$(python -c 'import cloudscraper as _; print(_.__path__[0])' | select -Last 1)
 $OPENCC_PATH=$(python -c 'import opencc as _; print(_.__path__[0])' | select -Last 1)
+$FACE_RECOGNITION_MODELS=$(python -c 'import face_recognition_models as _; print(_.__path__[0])' | select -Last 1)
 
 mkdir build
 mkdir __pycache__
 
 pyinstaller --onefile Movie_Data_Capture.py `
-    --hidden-import ADC_function.py `
-    --hidden-import core.py `
+    --hidden-import "ImageProcessing.hog" `
+    --add-data "$FACE_RECOGNITION_MODELS;face_recognition_models" `
     --add-data "$CLOUDSCRAPER_PATH;cloudscraper" `
     --add-data "$OPENCC_PATH;opencc" `
     --add-data "Img;Img" `
