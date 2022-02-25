@@ -42,6 +42,7 @@ jobs:
             --add-data "$(python -c 'import cloudscraper as _; print(_.__path__[0])' | tail -n 1):cloudscraper" \
             --add-data "$(python -c 'import opencc as _; print(_.__path__[0])' | tail -n 1):opencc" \
             --add-data "Img:Img" \
+            --add-data "ImageProcessing:ImageProcessing" \
             --add-data "config.ini:." \
 
       - name: Build with PyInstaller for windows
@@ -52,6 +53,7 @@ jobs:
             --add-data "$(python -c 'import cloudscraper as _; print(_.__path__[0])' | tail -n 1);cloudscraper" `
             --add-data "$(python -c 'import opencc as _; print(_.__path__[0])' | tail -n 1);opencc" `
             --add-data "Img;Img" `
+            --add-data "ImageProcessing:ImageProcessing" `
             --add-data "config.ini;." `
 
       - name: Copy config.ini
