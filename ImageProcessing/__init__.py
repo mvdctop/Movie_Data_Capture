@@ -86,7 +86,8 @@ def face_center(filename, model):
         return mod.face_center(filename, model)
     except Exception as e:
         print('[-]Model found face  ' + filename)
-        logging.error(e)
+        if config.getInstance().debug() == 1:
+            logging.error(e)
         return (0, 0)
 
 if __name__ == '__main__':
