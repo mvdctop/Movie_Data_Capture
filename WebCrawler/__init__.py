@@ -38,9 +38,10 @@ def get_data_state(data: dict) -> bool:  # 元数据获取失败检测
 
     return True
 
-def get_data_from_json(file_number, oCC):  # 从JSON返回元数据
+
+def get_data_from_json(file_number, oCC):
     """
-    iterate through all services and fetch the data
+    iterate through all services and fetch the data 从JSON返回元数据
     """
 
     actor_mapping_data = etree.parse(str(Path.home() / '.local' / 'share' / 'mdc' / 'mapping_actor.xml'))
@@ -67,7 +68,7 @@ def get_data_from_json(file_number, oCC):  # 从JSON返回元数据
     conf = config.getInstance()
     # default fetch order list, from the beginning to the end
     sources = conf.sources().split(',')
-    if not len(conf.sources()) > 80:
+    if len(sources) <= len(func_mapping):
         # if the input file name matches certain rules,
         # move some web service to the beginning of the list
         lo_file_number = file_number.lower()
@@ -235,8 +236,8 @@ def get_data_from_json(file_number, oCC):  # 从JSON返回元数据
     json_data['studio'] = studio
     json_data['director'] = director
 
-    if conf.is_transalte():
-        translate_values = conf.transalte_values().split(",")
+    if conf.is_translate():
+        translate_values = conf.translate_values().split(",")
         for translate_value in translate_values:
             if json_data[translate_value] == "":
                 continue
@@ -248,12 +249,12 @@ def get_data_from_json(file_number, oCC):  # 从JSON返回元数据
                     continue
                 except:
                     pass
-            if conf.get_transalte_engine() == "azure":
+            if conf.get_translate_engine() == "azure":
                 t = translate(
                     json_data[translate_value],
                     target_language="zh-Hans",
-                    engine=conf.get_transalte_engine(),
-                    key=conf.get_transalte_key(),
+                    engine=conf.get_translate_engine(),
+                    key=conf.get_translate_key(),
                 )
             else:
                 t = translate(json_data[translate_value])
@@ -326,10 +327,12 @@ def get_data_from_json(file_number, oCC):  # 从JSON返回元数据
         if i not in json_data:
             naming_rule += i.strip("'").strip('"')
         else:
-            naming_rule += json_data.get(i)
+            item = json_data.get(i)
+            naming_rule += item if type(item) is not list else "&".join(item)
 
     json_data['naming_rule'] = naming_rule
     return json_data
+
 
 def special_characters_replacement(text) -> str:
     if not isinstance(text, str):

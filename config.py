@@ -5,18 +5,17 @@ import configparser
 import time
 from pathlib import Path
 
-
 G_conf_override = {
     # index 0 save Config() first instance for quick access by using getInstance()
-    0 : None,
+    0: None,
     # register override config items
-    "common:main_mode" : None,
-    "common:source_folder" : None,
-    "common:auto_exit" : None,
-    "common:nfo_skip_days" : None,
-    "common:stop_counter" : None,
-    "common:ignore_failed_list" : None,
-    "debug_mode:switch" : None
+    "common:main_mode": None,
+    "common:source_folder": None,
+    "common:auto_exit": None,
+    "common:nfo_skip_days": None,
+    "common:stop_counter": None,
+    "common:ignore_failed_list": None,
+    "debug_mode:switch": None
 }
 
 
@@ -81,7 +80,7 @@ class Config:
                 sys.exit(2)
             # 用户目录才确定具有写权限，因此选择 ~/mdc.ini 作为配置文件生成路径，而不是有可能并没有写权限的
             # 当前目录。目前版本也不再鼓励使用当前路径放置配置文件了，只是作为多配置文件的切换技巧保留。
-            write_path = path_search_order[2]   # Path.home() / "mdc.ini"
+            write_path = path_search_order[2]  # Path.home() / "mdc.ini"
             write_path.write_text(res_path.read_text(encoding='utf-8'), encoding='utf-8')
             print("Config file '{}' created.".format(write_path.resolve()))
             input("Press Enter key exit...")
@@ -98,14 +97,18 @@ class Config:
             #     print("[-]",e)
             #     sys.exit(3)
             #     #self.conf = self._default_config()
+
     def getboolean_override(self, section, item) -> bool:
-        return self.conf.getboolean(section, item) if G_conf_override[f"{section}:{item}"] is None else bool(G_conf_override[f"{section}:{item}"])
+        return self.conf.getboolean(section, item) if G_conf_override[f"{section}:{item}"] is None else bool(
+            G_conf_override[f"{section}:{item}"])
 
     def getint_override(self, section, item) -> int:
-        return self.conf.getint(section, item) if G_conf_override[f"{section}:{item}"] is None else int(G_conf_override[f"{section}:{item}"])
+        return self.conf.getint(section, item) if G_conf_override[f"{section}:{item}"] is None else int(
+            G_conf_override[f"{section}:{item}"])
 
     def get_override(self, section, item) -> str:
-        return self.conf.get(section, item) if G_conf_override[f"{section}:{item}"] is None else str(G_conf_override[f"{section}:{item}"])
+        return self.conf.get(section, item) if G_conf_override[f"{section}:{item}"] is None else str(
+            G_conf_override[f"{section}:{item}"])
 
     def main_mode(self) -> int:
         try:
@@ -127,34 +130,46 @@ class Config:
 
     def soft_link(self) -> bool:
         return self.conf.getboolean("common", "soft_link")
+
     def failed_move(self) -> bool:
         return self.conf.getboolean("common", "failed_move")
+
     def auto_exit(self) -> bool:
         return self.getboolean_override("common", "auto_exit")
-    def transalte_to_sc(self) -> bool:
-        return self.conf.getboolean("common", "transalte_to_sc")
+
+    def translate_to_sc(self) -> bool:
+        return self.conf.getboolean("common", "translate_to_sc")
+
     def multi_threading(self) -> bool:
         return self.conf.getboolean("common", "multi_threading")
+
     def del_empty_folder(self) -> bool:
         return self.conf.getboolean("common", "del_empty_folder")
+
     def nfo_skip_days(self) -> int:
         try:
             return self.getint_override("common", "nfo_skip_days")
         except:
             return 30
+
     def stop_counter(self) -> int:
         try:
             return self.getint_override("common", "stop_counter")
         except:
             return 0
+
     def ignore_failed_list(self) -> bool:
         return self.getboolean_override("common", "ignore_failed_list")
+
     def download_only_missing_images(self) -> bool:
         return self.conf.getboolean("common", "download_only_missing_images")
+
     def mapping_table_validity(self) -> int:
         return self.conf.getint("common", "mapping_table_validity")
-    def is_transalte(self) -> bool:
-        return self.conf.getboolean("transalte", "switch")
+
+    def is_translate(self) -> bool:
+        return self.conf.getboolean("translate", "switch")
+
     def is_trailer(self) -> bool:
         return self.conf.getboolean("trailer", "switch")
 
@@ -190,18 +205,25 @@ class Config:
             return extrafanart_download
         except ValueError:
             self._exit("extrafanart_folder")
-    def get_transalte_engine(self) -> str:
-        return self.conf.get("transalte","engine")
-    # def get_transalte_appId(self) ->str:
-    #     return self.conf.get("transalte","appid")
-    def get_transalte_key(self) -> str:
-        return self.conf.get("transalte","key")
-    def get_transalte_delay(self) -> int:
-        return self.conf.getint("transalte","delay")
-    def transalte_values(self) -> str:
-        return self.conf.get("transalte", "values")
+
+    def get_translate_engine(self) -> str:
+        return self.conf.get("translate", "engine")
+
+    # def get_translate_appId(self) ->str:
+    #     return self.conf.get("translate","appid")
+
+    def get_translate_key(self) -> str:
+        return self.conf.get("translate", "key")
+
+    def get_translate_delay(self) -> int:
+        return self.conf.getint("translate", "delay")
+
+    def translate_values(self) -> str:
+        return self.conf.get("translate", "values")
+
     def get_translate_service_site(self) -> str:
-        return self.conf.get("transalte", "service_site")
+        return self.conf.get("translate", "service_site")
+
     def proxy(self):
         try:
             sec = "proxy"
@@ -284,21 +306,21 @@ class Config:
     def storyline_show(self) -> int:
         try:
             v = self.conf.getint("storyline", "show_result")
-            return v if v in (0,1,2) else 2 if v > 2 else 0
+            return v if v in (0, 1, 2) else 2 if v > 2 else 0
         except:
             return 0
 
     def storyline_mode(self) -> int:
         try:
             v = self.conf.getint("storyline", "run_mode")
-            return v if v in (0,1,2) else 2 if v > 2 else 0
+            return v if v in (0, 1, 2) else 2 if v > 2 else 0
         except:
             return 1
 
     def cc_convert_mode(self) -> int:
         try:
             v = self.conf.getint("cc_convert", "mode")
-            return v if v in (0,1,2) else 2 if v > 2 else 0
+            return v if v in (0, 1, 2) else 2 if v > 2 else 0
         except:
             return 1
 
@@ -320,7 +342,6 @@ class Config:
         except:
             return "hog"
 
-
     @staticmethod
     def _exit(sec: str) -> None:
         print("[-] Read config error! Please check the {} section in config.ini", sec)
@@ -340,7 +361,7 @@ class Config:
         conf.set(sec1, "soft_link", "0")
         conf.set(sec1, "failed_move", "1")
         conf.set(sec1, "auto_exit", "0")
-        conf.set(sec1, "transalte_to_sc", "1")
+        conf.set(sec1, "translate_to_sc", "1")
         # actor_gender value: female or male or both or all(含人妖)
         conf.set(sec1, "actor_gender", "female")
         conf.set(sec1, "del_empty_folder", "1")
@@ -357,7 +378,6 @@ class Config:
         conf.set(sec2, "retry", "3")
         conf.set(sec2, "type", "socks5")
         conf.set(sec2, "cacert_file", "")
-
 
         sec3 = "Name_Rule"
         conf.add_section(sec3)
@@ -382,7 +402,7 @@ class Config:
         conf.add_section(sec7)
         conf.set(sec7, "switch", "0")
 
-        sec8 = "transalte"
+        sec8 = "translate"
         conf.add_section(sec8)
         conf.set(sec8, "switch", "0")
         conf.set(sec8, "engine", "google-free")
@@ -402,8 +422,10 @@ class Config:
 
         sec11 = "media"
         conf.add_section(sec11)
-        conf.set(sec11, "media_type", ".mp4,.avi,.rmvb,.wmv,.mov,.mkv,.flv,.ts,.webm,.MP4,.AVI,.RMVB,.WMV,.MOV,.MKV,.FLV,.TS,.WEBM,iso,ISO")
-        conf.set(sec11, "sub_type", ".smi,.srt,.idx,.sub,.sup,.psb,.ssa,.ass,.txt,.usf,.xss,.ssf,.rt,.lrc,.sbv,.vtt,.ttml")
+        conf.set(sec11, "media_type",
+                 ".mp4,.avi,.rmvb,.wmv,.mov,.mkv,.flv,.ts,.webm,.MP4,.AVI,.RMVB,.WMV,.MOV,.MKV,.FLV,.TS,.WEBM,iso,ISO")
+        conf.set(sec11, "sub_type",
+                 ".smi,.srt,.idx,.sub,.sup,.psb,.ssa,.ass,.txt,.usf,.xss,.ssf,.rt,.lrc,.sbv,.vtt,.ttml")
 
         sec12 = "watermark"
         conf.add_section(sec12)
@@ -464,7 +486,8 @@ class IniProxy():
         '''
         if self.address:
             if self.proxytype in self.SUPPORT_PROXY_TYPE:
-                proxies = {"http": self.proxytype + "://" + self.address, "https": self.proxytype + "://" + self.address}
+                proxies = {"http": self.proxytype + "://" + self.address,
+                           "https": self.proxytype + "://" + self.address}
             else:
                 proxies = {"http": "http://" + self.address, "https": "https://" + self.address}
         else:
@@ -477,13 +500,16 @@ if __name__ == "__main__":
     def evprint(evstr):
         code = compile(evstr, "<string>", "eval")
         print('{}: "{}"'.format(evstr, eval(code)))
+
+
     config = Config()
-    mfilter = {'conf', 'proxy', '_exit', '_default_config', 'getboolean_override', 'getint_override', 'get_override', 'ini_path'}
+    mfilter = {'conf', 'proxy', '_exit', '_default_config', 'getboolean_override', 'getint_override', 'get_override',
+               'ini_path'}
     for _m in [m for m in dir(config) if not m.startswith('__') and m not in mfilter]:
         evprint(f'config.{_m}()')
     pfilter = {'proxies', 'SUPPORT_PROXY_TYPE'}
     # test getInstance()
-    assert(getInstance() == config)
+    assert (getInstance() == config)
     for _p in [p for p in dir(getInstance().proxy()) if not p.startswith('__') and p not in pfilter]:
         evprint(f'getInstance().proxy().{_p}')
 
