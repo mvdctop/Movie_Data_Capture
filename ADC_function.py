@@ -566,3 +566,12 @@ def delete_all_elements_in_list(string: str, lists: typing.Iterable[str]):
         if i != string:
             new_lists.append(i)
     return new_lists
+
+def delete_all_elements_in_str(string_delete: str, string: str):
+    """
+    delete same string in given list
+    """
+    for i in string:
+        if i == string_delete:
+            string = string.replace(i,"")
+    return string

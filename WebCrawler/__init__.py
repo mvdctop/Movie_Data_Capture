@@ -275,7 +275,7 @@ def get_data_from_json(file_number, oCC):
             if len(mapping_data.xpath('a[contains(@keyword, $name)]/@' + language, name=vars)) != 0:
                 return mapping_data.xpath('a[contains(@keyword, $name)]/@' + language, name=vars)[0]
             else:
-                return vars
+                raise IndexError('keyword not found')
         for cc in cc_vars:
             if json_data[cc] == "" or len(json_data[cc]) == 0:
                 continue
@@ -303,20 +303,20 @@ def get_data_from_json(file_number, oCC):
                         json_data[cc] = ADC_function.delete_all_elements_in_list("删除", json_data[cc])
                     elif ccm == 3:
                         json_data[cc] = convert_list(info_mapping_data, "jp", json_data[cc])
-                        json_data[cc] = ADC_function.delete_list_all_elements("删除", json_data[cc])
+                        json_data[cc] = ADC_function.delete_all_elements_in_list("删除", json_data[cc])
                 except:
                     json_data[cc] = [oCC.convert(t) for t in json_data[cc]]
             else:
                 try:
                     if ccm == 1:
                         json_data[cc] = convert(info_mapping_data, "zh_cn", json_data[cc])
-                        json_data[cc] = ADC_function.delete_list_all_elements("删除", json_data[cc])
+                        json_data[cc] = ADC_function.delete_all_elements_in_str("删除", json_data[cc])
                     elif ccm == 2:
                         json_data[cc] = convert(info_mapping_data, "zh_tw", json_data[cc])
-                        json_data[cc] = ADC_function.delete_list_all_elements("删除", json_data[cc])
+                        json_data[cc] = ADC_function.delete_all_elements_in_str("删除", json_data[cc])
                     elif ccm == 3:
                         json_data[cc] = convert(info_mapping_data, "jp", json_data[cc])
-                        json_data[cc] = ADC_function.delete_list_all_elements("删除", json_data[cc])
+                        json_data[cc] = ADC_function.delete_all_elements_in_str("删除", json_data[cc])
                 except IndexError:
                     json_data[cc] = oCC.convert(json_data[cc])
                 except:
