@@ -113,9 +113,12 @@ class OutLogger(object):
         self.log.write(msg)
 
     def flush(self):
-        self.term.flush()
-        self.log.flush()
-        os.fsync(self.log.fileno())
+        if 'flush' in dir(self.term):
+            self.term.flush()
+        if 'flush' in dir(self.log):
+            self.log.flush()
+        if 'fileno' in dir(self.log):
+            os.fsync(self.log.fileno())
 
     def close(self):
         if self.term is not None:
