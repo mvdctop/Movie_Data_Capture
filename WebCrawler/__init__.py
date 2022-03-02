@@ -308,15 +308,19 @@ def get_data_from_json(file_number, oCC):
                     json_data[cc] = [oCC.convert(t) for t in json_data[cc]]
             else:
                 try:
+                    vcov = None
                     if ccm == 1:
-                        json_data[cc] = convert(info_mapping_data, "zh_cn", json_data[cc])
-                        json_data[cc] = ADC_function.delete_all_elements_in_str("删除", json_data[cc])
+                        vcov = convert(info_mapping_data, "zh_cn", json_data[cc])
                     elif ccm == 2:
-                        json_data[cc] = convert(info_mapping_data, "zh_tw", json_data[cc])
-                        json_data[cc] = ADC_function.delete_all_elements_in_str("删除", json_data[cc])
+                        vcov = convert(info_mapping_data, "zh_tw", json_data[cc])
                     elif ccm == 3:
-                        json_data[cc] = convert(info_mapping_data, "jp", json_data[cc])
-                        json_data[cc] = ADC_function.delete_all_elements_in_str("删除", json_data[cc])
+                        vcov = convert(info_mapping_data, "jp", json_data[cc])
+                    if vcov is None:
+                        pass
+                    elif "删除" == vcov:
+                        json_data.pop(cc)
+                    else:
+                        json_data[cc] = vcov
                 except IndexError:
                     json_data[cc] = oCC.convert(json_data[cc])
                 except:
