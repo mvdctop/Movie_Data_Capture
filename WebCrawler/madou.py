@@ -1,3 +1,5 @@
+import sys
+sys.path.append('../')
 from bs4 import BeautifulSoup  # need install
 from lxml import etree  # need install
 from pyquery import PyQuery as pq  # need install
@@ -5,10 +7,8 @@ from ADC_function import *
 import json
 import re
 from lib2to3.pgen2 import parse
-import sys
 
 from urllib.parse import urlparse, unquote
-sys.path.append('../')
 
 
 def getActorPhoto(html):
@@ -162,3 +162,4 @@ def main(number):
 
 if __name__ == '__main__':
     print(main('MD0094'))
+    print(main('MD0222'))

@@ -95,6 +95,10 @@ def get_data_from_json(file_number, oCC):
                 "rj" in lo_file_number or "vj" in lo_file_number
         ):
             sources.insert(0, sources.pop(sources.index("dlsite")))
+        elif "madou" in sources and (
+                re.match(r"^md[0-9]{4}$", lo_file_number)
+        ):
+            sources.insert(0, sources.pop(sources.index("madou")))
         elif re.match(r"^[a-z0-9]{3,}$", lo_file_number):
             if "javdb" in sources:
                 sources.insert(0, sources.pop(sources.index("javdb")))
