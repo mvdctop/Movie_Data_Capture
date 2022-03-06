@@ -19,8 +19,7 @@ def getTitle(html, number):  # 获取标题
     # <title>MD0140-2 / 家有性事EP2 爱在身边-麻豆社</title>
     # <title>MAD039 机灵可爱小叫花 强诱僧人迫犯色戒-麻豆社</title>
     browser_title = str(html.xpath("/html/head/title/text()")[0])
-    browser_title = browser_title[browser_title.find(' '):].replace('/','').strip()
-    return browser_title[:browser_title.find('-麻豆社')].strip()
+    return str(re.findall(r'^.*?( / | )(.*)-麻豆社$', browser_title)[0][1]).strip()
 
 
 def getStudio(html):  # 获取厂商 已修改
