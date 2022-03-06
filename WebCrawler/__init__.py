@@ -103,7 +103,7 @@ def get_data_from_json(file_number, oCC):
             if "madou" in sources:
                 sources.insert(0, sources.pop(sources.index("madou")))
         elif "madou" in sources and (
-                re.match(r"^[a-z0-9]{3,}-[0-9]{2,}$", lo_file_number)
+                re.match(r"^[a-z0-9]{3,}-[0-9]{1,}$", lo_file_number)
         ):
             sources.insert(0, sources.pop(sources.index("madou")))
 
