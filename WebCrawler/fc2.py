@@ -84,7 +84,7 @@ def getTrailer(htmlcode, number):
 def main(number):
     try:
         number = number.replace('FC2-', '').replace('fc2-', '')
-        htmlcode2 = ADC_function.get_html('https://adult.contents.fc2.com/article/' + number + '/')
+        htmlcode2 = ADC_function.get_html('https://adult.contents.fc2.com/article/' + number + '/', encoding='utf-8')
         actor = getActor_fc2com(htmlcode2)
         if not actor:
             actor = '素人'
@@ -123,4 +123,5 @@ def main(number):
 if __name__ == '__main__':
     print(main('FC2-1787685'))
     print(main('FC2-2086710'))
+    print(main('FC2-2182382'))
 
