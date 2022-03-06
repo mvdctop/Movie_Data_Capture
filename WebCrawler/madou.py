@@ -81,12 +81,14 @@ def getSerise(html):  # 获取系列 已修改
     return ''
 
 
-def getTag(html):  # 获取标签
-    return html.xpath('//div[@class="article-tags"]/a/text()')
+def getTag(html, studio):  # 获取标签
+    x = html.xpath('/html/head/meta[@name="keywords"]/@content')[0].split(',')
+    return [i.strip() for i in x if len(i.strip()) and studio not in i and '麻豆' not in i]
 
 
 def getExtrafanart(html):  # 获取剧照
     return ''
+
 
 def cutTags(tags):
     actors = []
@@ -107,13 +109,15 @@ def main(number):
 
         html = etree.fromstring(htmlcode, etree.HTMLParser())
         url = getUrl(html)
-        tags = getTag(html)
-        actor,tags = cutTags(tags);
+        studio = getStudio(html)
+        tags = getTag(html, studio)
+        #actor,tags = cutTags(tags) # 演员在tags中的位置不固定，放弃尝试获取
+        actor = ''
         dic = {
             # 标题
             'title': getTitle(html, number),
             # 制作商
-            'studio': getStudio(html),
+            'studio': studio,
             # 年份
             'year': getYear(html),
             # 简介
@@ -162,3 +166,5 @@ if __name__ == '__main__':
     print(main('MD0222'))
     print(main('MD0140-2'))
     print(main('MAD039'))
+    print(main('JDMY027'))
+
