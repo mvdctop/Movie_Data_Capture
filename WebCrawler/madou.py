@@ -16,12 +16,10 @@ def getActorPhoto(html):
 
 
 def getTitle(html, number):  # 获取标题
-    title = str(html.xpath('//h1[@class="article-title"]/text()')[0])
-    try:
-        result = str(re.split(r'[/|／|-]', title)[1])
-        return result.strip()
-    except:
-        return title.replace(number.upper(), '').strip()
+    # <title>MD0140-2 / 家有性事EP2 爱在身边-麻豆社</title>
+    browser_title = str(html.xpath("/html/head/title/text()")[0])
+    browser_title = browser_title[browser_title.find('/ ') + 2:].strip()
+    return browser_title[:browser_title.find('-麻豆社')].strip()
 
 
 def getStudio(html):  # 获取厂商 已修改
@@ -161,5 +159,5 @@ def main(number):
 
 
 if __name__ == '__main__':
-    print(main('MD0094'))
     print(main('MD0222'))
+    print(main('MD0140-2'))
