@@ -139,6 +139,7 @@ def getCover_small(html, index=0):
 def getTrailer(htmlcode):  # 获取预告片
     video_pather = re.compile(r'<video id\=\".*?>\s*?<source src=\"(.*?)\"')
     video = video_pather.findall(htmlcode)
+    # 加上数组判空
     if video and video[0] != "":
         if not 'https:' in video[0]:
             video_url = 'https:' + video[0]
@@ -263,16 +264,14 @@ def main(number):
             # replace wit normal cover and cut it
             imagecut = 1
             cover_small = getCover(lx)
-
         dp_number = getNum(lx)
-        if dp_number.upper() != number:
-            raise ValueError("number not found")
+        if dp_number.upper() != number.upper():
+            raise ValueError("number not eq"+dp_number)
         title = getTitle(lx)
         if title and dp_number:
             number = dp_number
             # remove duplicate title
             title = title.replace(number, '').strip()
-
         dic = {
             'actor': getActor(lx),
             'title': title,
@@ -325,7 +324,7 @@ if __name__ == "__main__":
     # print(main('FC2-1174949')) # not found
     #print(main('MVSD-439'))
     # print(main('EHM0001')) # not found
-    print(main('032517_505'))
+    print(main('FC2-2314275'))
     # print(main('EBOD-646'))
     # print(main('LOVE-262'))
     #print(main('ABP-890'))

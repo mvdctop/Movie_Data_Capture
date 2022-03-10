@@ -22,6 +22,8 @@ from . import xcity
 from . import dlsite
 from . import carib
 from . import fc2club
+from . import mv91
+from . import madou
 
 
 def get_data_state(data: dict) -> bool:  # 元数据获取失败检测
@@ -36,9 +38,10 @@ def get_data_state(data: dict) -> bool:  # 元数据获取失败检测
 
     return True
 
-def get_data_from_json(file_number, oCC):  # 从JSON返回元数据
+
+def get_data_from_json(file_number, oCC):
     """
-    iterate through all services and fetch the data
+    iterate through all services and fetch the data 从JSON返回元数据
     """
 
     actor_mapping_data = etree.parse(str(Path.home() / '.local' / 'share' / 'mdc' / 'mapping_actor.xml'))
@@ -57,13 +60,15 @@ def get_data_from_json(file_number, oCC):  # 从JSON返回元数据
         # "javlib": javlib.main,
         "dlsite": dlsite.main,
         "carib": carib.main,
-        "fc2club": fc2club.main
+        "fc2club": fc2club.main,
+        "mv91": mv91.main,
+        "madou": madou.main
     }
 
     conf = config.getInstance()
     # default fetch order list, from the beginning to the end
     sources = conf.sources().split(',')
-    if not len(conf.sources()) > 80:
+    if len(sources) <= len(func_mapping):
         # if the input file name matches certain rules,
         # move some web service to the beginning of the list
         lo_file_number = file_number.lower()
@@ -231,8 +236,8 @@ def get_data_from_json(file_number, oCC):  # 从JSON返回元数据
     json_data['studio'] = studio
     json_data['director'] = director
 
-    if conf.is_transalte():
-        translate_values = conf.transalte_values().split(",")
+    if conf.is_translate():
+        translate_values = conf.translate_values().split(",")
         for translate_value in translate_values:
             if json_data[translate_value] == "":
                 continue
@@ -244,12 +249,12 @@ def get_data_from_json(file_number, oCC):  # 从JSON返回元数据
                     continue
                 except:
                     pass
-            if conf.get_transalte_engine() == "azure":
+            if conf.get_translate_engine() == "azure":
                 t = translate(
                     json_data[translate_value],
                     target_language="zh-Hans",
-                    engine=conf.get_transalte_engine(),
-                    key=conf.get_transalte_key(),
+                    engine=conf.get_translate_engine(),
+                    key=conf.get_translate_key(),
                 )
             else:
                 t = translate(json_data[translate_value])
@@ -270,7 +275,7 @@ def get_data_from_json(file_number, oCC):  # 从JSON返回元数据
             if len(mapping_data.xpath('a[contains(@keyword, $name)]/@' + language, name=vars)) != 0:
                 return mapping_data.xpath('a[contains(@keyword, $name)]/@' + language, name=vars)[0]
             else:
-                return vars
+                raise IndexError('keyword not found')
         for cc in cc_vars:
             if json_data[cc] == "" or len(json_data[cc]) == 0:
                 continue
@@ -298,20 +303,20 @@ def get_data_from_json(file_number, oCC):  # 从JSON返回元数据
                         json_data[cc] = ADC_function.delete_all_elements_in_list("删除", json_data[cc])
                     elif ccm == 3:
                         json_data[cc] = convert_list(info_mapping_data, "jp", json_data[cc])
-                        json_data[cc] = ADC_function.delete_list_all_elements("删除", json_data[cc])
+                        json_data[cc] = ADC_function.delete_all_elements_in_list("删除", json_data[cc])
                 except:
                     json_data[cc] = [oCC.convert(t) for t in json_data[cc]]
             else:
                 try:
                     if ccm == 1:
                         json_data[cc] = convert(info_mapping_data, "zh_cn", json_data[cc])
-                        json_data[cc] = ADC_function.delete_list_all_elements("删除", json_data[cc])
+                        json_data[cc] = ADC_function.delete_all_elements_in_str("删除", json_data[cc])
                     elif ccm == 2:
                         json_data[cc] = convert(info_mapping_data, "zh_tw", json_data[cc])
-                        json_data[cc] = ADC_function.delete_list_all_elements("删除", json_data[cc])
+                        json_data[cc] = ADC_function.delete_all_elements_in_str("删除", json_data[cc])
                     elif ccm == 3:
                         json_data[cc] = convert(info_mapping_data, "jp", json_data[cc])
-                        json_data[cc] = ADC_function.delete_list_all_elements("删除", json_data[cc])
+                        json_data[cc] = ADC_function.delete_all_elements_in_str("删除", json_data[cc])
                 except IndexError:
                     json_data[cc] = oCC.convert(json_data[cc])
                 except:
@@ -322,10 +327,12 @@ def get_data_from_json(file_number, oCC):  # 从JSON返回元数据
         if i not in json_data:
             naming_rule += i.strip("'").strip('"')
         else:
-            naming_rule += json_data.get(i)
+            item = json_data.get(i)
+            naming_rule += item if type(item) is not list else "&".join(item)
 
     json_data['naming_rule'] = naming_rule
     return json_data
+
 
 def special_characters_replacement(text) -> str:
     if not isinstance(text, str):
