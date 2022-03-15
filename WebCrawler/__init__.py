@@ -100,6 +100,12 @@ def get_data_from_json(file_number, oCC):
                 sources.insert(0, sources.pop(sources.index("javdb")))
             if "xcity" in sources:
                 sources.insert(0, sources.pop(sources.index("xcity")))
+            if "madou" in sources:
+                sources.insert(0, sources.pop(sources.index("madou")))
+        elif "madou" in sources and (
+                re.match(r"^[a-z0-9]{3,}-[0-9]{1,}$", lo_file_number)
+        ):
+            sources.insert(0, sources.pop(sources.index("madou")))
 
     # check sources in func_mapping
     todel = []

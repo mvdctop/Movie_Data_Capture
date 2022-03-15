@@ -1,3 +1,5 @@
+import sys
+sys.path.append('../')
 from bs4 import BeautifulSoup  # need install
 from lxml import etree  # need install
 from pyquery import PyQuery as pq  # need install
@@ -5,10 +7,8 @@ from ADC_function import *
 import json
 import re
 from lib2to3.pgen2 import parse
-import sys
 
 from urllib.parse import urlparse, unquote
-sys.path.append('../')
 
 
 def getActorPhoto(html):
@@ -16,12 +16,10 @@ def getActorPhoto(html):
 
 
 def getTitle(html, number):  # 获取标题
-    title = str(html.xpath('//h1[@class="article-title"]/text()')[0])
-    try:
-        result = str(re.split(r'[/|／|-]', title)[1])
-        return result.strip()
-    except:
-        return title.replace(number.upper(), '').strip()
+    # <title>MD0140-2 / 家有性事EP2 爱在身边-麻豆社</title>
+    # <title>MAD039 机灵可爱小叫花 强诱僧人迫犯色戒-麻豆社</title>
+    browser_title = str(html.xpath("/html/head/title/text()")[0])
+    return str(re.findall(r'^.*?( / | )(.*)-麻豆社$', browser_title)[0][1]).strip()
 
 
 def getStudio(html):  # 获取厂商 已修改
@@ -83,12 +81,14 @@ def getSerise(html):  # 获取系列 已修改
     return ''
 
 
-def getTag(html):  # 获取标签
-    return html.xpath('//div[@class="article-tags"]/a/text()')
+def getTag(html, studio):  # 获取标签
+    x = html.xpath('/html/head/meta[@name="keywords"]/@content')[0].split(',')
+    return [i.strip() for i in x if len(i.strip()) and studio not in i and '麻豆' not in i]
 
 
 def getExtrafanart(html):  # 获取剧照
     return ''
+
 
 def cutTags(tags):
     actors = []
@@ -109,13 +109,15 @@ def main(number):
 
         html = etree.fromstring(htmlcode, etree.HTMLParser())
         url = getUrl(html)
-        tags = getTag(html)
-        actor,tags = cutTags(tags);
+        studio = getStudio(html)
+        tags = getTag(html, studio)
+        #actor,tags = cutTags(tags) # 演员在tags中的位置不固定，放弃尝试获取
+        actor = ''
         dic = {
             # 标题
             'title': getTitle(html, number),
             # 制作商
-            'studio': getStudio(html),
+            'studio': studio,
             # 年份
             'year': getYear(html),
             # 简介
@@ -161,4 +163,8 @@ def main(number):
 
 
 if __name__ == '__main__':
-    print(main('MD0094'))
+    print(main('MD0222'))
+    print(main('MD0140-2'))
+    print(main('MAD039'))
+    print(main('JDMY027'))
+
