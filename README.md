@@ -25,7 +25,7 @@ CLI 版本
 
 # 文档
 * [官方教程WIKI](https://github.com/yoshiko2/Movie_Data_Capture/wiki)
-* [VergilGao's Docker部署](https://github.com/VergilGao/docker-avdc)
+* [VergilGao's Docker部署](https://github.com/VergilGao/docker-mdc)
 
 # 下载
 * [Releases](https://github.com/yoshiko2/Movie_Data_Capture/releases/latest)
