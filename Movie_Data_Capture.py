@@ -330,8 +330,8 @@ def movie_lists(source_folder, regexstr: str) -> typing.List[str]:
                 print('[!]Skip failed movie:', absf)
             continue
         is_sym = full_name.is_symlink()
-        if main_mode != 3 and (is_sym or full_name.stat().st_nlink > 1):  # 短路布尔 符号链接不取stat()，因为符号链接可能指向不存在目标
-            continue  # file is symlink or hardlink(Linux/NTFS/Darwin)
+        if main_mode != 3 and (is_sym or (full_name.stat().st_nlink > 1 and not conf.scan_hardlink())):  # 短路布尔 符号链接不取stat()，因为符号链接可能指向不存在目标
+            continue  # 模式不等于3下跳过软连接和未配置硬链接刮削
         # 调试用0字节样本允许通过，去除小于120MB的广告'苍老师强力推荐.mp4'(102.2MB)'黑道总裁.mp4'(98.4MB)'有趣的妹子激情表演.MP4'(95MB)'有趣的臺灣妹妹直播.mp4'(15.1MB)
         movie_size = 0 if is_sym else full_name.stat().st_size  # 同上 符号链接不取stat()及st_size，直接赋0跳过小视频检测
         if 0 < movie_size < 125829120:  # 1024*1024*120=125829120

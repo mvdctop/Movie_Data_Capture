@@ -131,6 +131,9 @@ class Config:
     def soft_link(self) -> bool:
         return self.conf.getboolean("common", "soft_link")
 
+    def scan_hardlink(self) -> bool:
+        return self.conf.getboolean("common", "scan_hardlink", fallback=False)#未找到配置选项,默认不刮削
+
     def failed_move(self) -> bool:
         return self.conf.getboolean("common", "failed_move")
 
@@ -359,6 +362,7 @@ class Config:
         conf.set(sec1, "failed_output_folder", "failed")
         conf.set(sec1, "success_output_folder", "JAV_output")
         conf.set(sec1, "soft_link", "0")
+        conf.set(sec1, "scan_hardlink", "0")
         conf.set(sec1, "failed_move", "1")
         conf.set(sec1, "auto_exit", "0")
         conf.set(sec1, "translate_to_sc", "1")
