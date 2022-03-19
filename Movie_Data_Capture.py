@@ -524,7 +524,10 @@ def main():
           )
 
     if conf.update_check():
-        check_update(version)
+        try:
+            check_update(version)
+        except Exception as e:
+            print('[-]Update check failed!',e)
 
     create_failed_folder(conf.failed_folder())
 
