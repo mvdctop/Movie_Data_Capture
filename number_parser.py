@@ -6,7 +6,7 @@ import typing
 
 G_spat = re.compile(
     "^22-sht\.me|-fhd|_fhd|^fhd_|^fhd-|-hd|_hd|^hd_|^hd-|-sd|_sd|-1080p|_1080p|-720p|_720p|"
-    "^hhd800\.com@|-uncensored|_uncensored|-leak|_leak|-4K|_4K",
+    "^\w+\.(cc|com)@|-uncensored|_uncensored|-leak|_leak|-4K|_4K",
     re.IGNORECASE)
 
 
@@ -152,7 +152,10 @@ if __name__ == "__main__":
         "heydouga-4102-023-CD2.iso",  # 新支持片商格式 heydouga-4102-023 命名规则来自javdb数据源
         "HeyDOuGa4236-1048 Ai Qiu - .mp4",  # heydouga-4236-1048 命名规则来自javdb数据源
         "pacopacomama-093021_539-FHD.mkv",  # 新支持片商格式 093021_539 命名规则来自javdb数据源
-        "sbw99.cc@heyzo_hd_2636_full.mp4"
+        "sbw99.cc@heyzo_hd_2636_full.mp4",
+        "hhd800.com@STARS-566.mp4",
+        "jav20s8.com@GIGL-677.mp4",
+        "sbw99.cc@iesp-653.mp4"
     )
 
 
