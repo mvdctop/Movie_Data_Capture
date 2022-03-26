@@ -27,15 +27,15 @@ def escape_path(path, escape_literals: str):  # Remove escape literals
 def moveFailedFolder(filepath):
     conf = config.getInstance()
     failed_folder = conf.failed_folder()
-    soft_link = conf.soft_link()
+    link_mode = conf.link_mode()
     # 模式3或软连接，改为维护一个失败列表，启动扫描时加载用于排除该路径，以免反复处理
     # 原先的创建软连接到失败目录，并不直观，不方便找到失败文件位置，不如直接记录该文件路径
-    if conf.main_mode() == 3 or soft_link:
+    if conf.main_mode() == 3 or link_mode:
         ftxt = os.path.abspath(os.path.join(failed_folder, 'failed_list.txt'))
         print("[-]Add to Failed List file, see '%s'" % ftxt)
         with open(ftxt, 'a', encoding='utf-8') as flt:
             flt.write(f'{filepath}\n')
-    elif conf.failed_move() and not soft_link:
+    elif conf.failed_move() and not link_mode:
         failed_name = os.path.join(failed_folder, os.path.basename(filepath))
         mtxt = os.path.abspath(os.path.join(failed_folder, 'where_was_i_before_being_moved.txt'))
         print("'[-]Move to Failed output folder, see '%s'" % mtxt)
@@ -472,11 +472,19 @@ def paste_file_to_folder(filepath, path, number, leak_word, c_word, hack_word): 
         # 同名覆盖致使全部文件损失且不可追回的最坏情况
         if os.path.exists(targetpath):
             raise FileExistsError('File Exists on destination path, we will never overwriting.')
-        soft_link = config.getInstance().soft_link()
-        # 如果soft_link=1 使用软链接
-        if soft_link == 0:
+        link_mode = config.getInstance().link_mode()
+        # 如果link_mode 1: 建立软链接 2: 硬链接优先、无法建立硬链接再尝试软链接。
+        # 移除原先soft_link=2的功能代码，因默认记录日志，已经可追溯文件来源
+        create_softlink = False
+        if link_mode not in (1, 2):
             shutil.move(filepath, targetpath)
-        elif soft_link == 1:
+        elif link_mode == 2:
+            # 跨卷或跨盘符无法建立硬链接导致异常，回落到建立软链接
+            try:
+                os.link(filepath, targetpath, follow_symlinks=False)
+            except:
+                create_softlink = True
+        if link_mode == 1 or create_softlink:
             # 先尝试采用相对路径，以便网络访问时能正确打开视频，失败则可能是因为跨盘符等原因无法支持
             # 相对路径径，改用绝对路径方式尝试建立软链接
             try:
@@ -484,15 +492,6 @@ def paste_file_to_folder(filepath, path, number, leak_word, c_word, hack_word): 
                 os.symlink(filerelpath, targetpath)
             except:
                 os.symlink(filepath_obj.resolve(), targetpath)
-        elif soft_link == 2:
-            shutil.move(filepath, targetpath)
-            # 移走文件后，在原来位置增加一个可追溯的软链接，指向文件新位置
-            # 以便追查文件从原先位置被移动到哪里了，避免因为得到错误番号后改名移动导致的文件失踪
-            # 便于手工找回文件。由于目前软链接已经不会被刮削，文件名后缀无需再修改。
-            targetabspath = os.path.abspath(targetpath)
-            if targetabspath != os.path.abspath(filepath):
-                targetrelpath = os.path.relpath(targetabspath, file_parent_origin_path)
-                os.symlink(targetrelpath, filepath)
         sub_res = config.getInstance().sub_rule()
 
         for subname in sub_res:
@@ -504,8 +503,12 @@ def paste_file_to_folder(filepath, path, number, leak_word, c_word, hack_word): 
                 sub_filepath = sub_filepath.replace(subname, ".cht" + subname)
                 subname = ".cht" + subname
             if os.path.isfile(sub_filepath):
-                shutil.move(sub_filepath, os.path.join(path, f"{number}{leak_word}{c_word}{hack_word}{subname}"))
-                print('[+]Sub moved!')
+                if link_mode not in (1, 2):
+                    shutil.move(sub_filepath, os.path.join(path, f"{number}{leak_word}{c_word}{hack_word}{subname}"))
+                    print('[+]Sub moved!')
+                else:
+                    shutil.copyfile(sub_filepath, os.path.join(path, f"{number}{leak_word}{c_word}{hack_word}{subname}"))
+                    print('[+]Sub Copied!')
                 return True
 
     except FileExistsError as fee:
@@ -530,7 +533,7 @@ def paste_file_to_folder_mode2(filepath, path, multi_part, number, part, leak_wo
     if os.path.exists(targetpath):
         raise FileExistsError('File Exists on destination path, we will never overwriting.')
     try:
-        if config.getInstance().soft_link():
+        if config.getInstance().link_mode():
             os.symlink(filepath, targetpath)
         else:
             shutil.move(filepath, targetpath)
@@ -686,7 +689,7 @@ def core_main(file_path, number_th, oCC):
             except:
                 pass
 
-       
+
 
         # 裁剪图
         cutImage(imagecut, path , fanart_path, poster_path)

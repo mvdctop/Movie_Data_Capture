@@ -49,6 +49,8 @@ def argparse_function(ver: str) -> typing.Tuple[str, str, str, str, bool]:
                         help="Main mode. 1:Scraping 2:Organizing 3:Scraping in analysis folder")
     parser.add_argument("-n", "--number", default='', nargs='?', help="Custom file number of single movie file.")
     # parser.add_argument("-C", "--config", default='config.ini', nargs='?', help="The config file Path.")
+    parser.add_argument("-L", "--link-mode", default='', nargs='?',
+                        help="Create movie file link. 0:moving movie file, do not create link 1:soft link 2:try hard link first")
     default_logdir = str(Path.home() / '.mlogs')
     parser.add_argument("-o", "--log-dir", dest='logdir', default=default_logdir, nargs='?',
                         help=f"""Duplicate stdout and stderr to logfiles in logging folder, default on.
@@ -83,6 +85,7 @@ is performed. It may help you correct wrong numbers before real job.""")
         return True if isinstance(value, bool) and value else None
 
     config.G_conf_override["common:main_mode"] = get_natural_number_or_none(args.main_mode)
+    config.G_conf_override["common:link_mode"] = get_natural_number_or_none(args.link_mode)
     config.G_conf_override["common:source_folder"] = get_str_or_none(args.path)
     config.G_conf_override["common:auto_exit"] = get_bool_or_none(args.auto_exit)
     config.G_conf_override["common:nfo_skip_days"] = get_natural_number_or_none(args.days)
@@ -288,7 +291,7 @@ def movie_lists(source_folder, regexstr: str) -> typing.List[str]:
     main_mode = conf.main_mode()
     debug = conf.debug()
     nfo_skip_days = conf.nfo_skip_days()
-    soft_link = conf.soft_link()
+    link_mode = conf.link_mode()
     file_type = conf.media_type().lower().split(",")
     trailerRE = re.compile(r'-trailer\.', re.IGNORECASE)
     cliRE = None
@@ -299,7 +302,7 @@ def movie_lists(source_folder, regexstr: str) -> typing.List[str]:
             pass
     failed_list_txt_path = Path(conf.failed_folder()).resolve() / 'failed_list.txt'
     failed_set = set()
-    if (main_mode == 3 or soft_link) and not conf.ignore_failed_list():
+    if (main_mode == 3 or link_mode) and not conf.ignore_failed_list():
         try:
             flist = failed_list_txt_path.read_text(encoding='utf-8').splitlines()
             failed_set = set(flist)
@@ -351,7 +354,7 @@ def movie_lists(source_folder, regexstr: str) -> typing.List[str]:
     if skip_nfo_days_cnt:
         print(
             f"[!]Skip {skip_nfo_days_cnt} movies in source folder '{source}' who's .nfo modified within {nfo_skip_days} days.")
-    if nfo_skip_days <= 0 or not soft_link or main_mode == 3:
+    if nfo_skip_days <= 0 or not link_mode or main_mode == 3:
         return total
     # 软连接方式，已经成功削刮的也需要从成功目录中检查.nfo更新天数，跳过N天内更新过的
     skip_numbers = set()
@@ -458,7 +461,7 @@ def create_data_and_move_with_custom_number(file_path: str, custom_number, oCC):
         print("[-] [{}] ERROR:".format(file_path))
         print('[-]', err)
 
-        if conf.soft_link():
+        if conf.link_mode():
             print("[-]Link {} to failed folder".format(file_path))
             os.symlink(file_path, os.path.join(conf.failed_folder(), file_name))
         else:
@@ -511,7 +514,7 @@ def main():
     print(f"[+]Load Config file '{conf.ini_path}'.")
     if conf.debug():
         print('[+]Enable debug')
-    if conf.soft_link():
+    if conf.link_mode():
         print('[!]Enable soft link')
     if len(sys.argv) > 1:
         print('[!]CmdLine:', " ".join(sys.argv[1:]))
