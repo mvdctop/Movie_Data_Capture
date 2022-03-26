@@ -172,6 +172,12 @@ def getSeries(html):
     result1 = str(html.xpath('//strong[contains(text(),"系列")]/../span/text()')).strip(" ['']")
     result2 = str(html.xpath('//strong[contains(text(),"系列")]/../span/a/text()')).strip(" ['']")
     return str(result1 + result2).strip('+').replace("', '", '').replace('"', '')
+def getUserRating(html):
+    try:
+        result = str(html.xpath('//span[@class="score-stars"]/../text()')[0])
+        return result[:result.find('分')].strip()
+    except:
+        return
 
 def main(number):
     # javdb更新后同一时间只能登录一个数字站，最新登录站会踢出旧的登录，因此按找到的第一个javdb*.json文件选择站点，
@@ -295,6 +301,9 @@ def main(number):
             'series': getSeries(lx),
 
         }
+        userrating = getUserRating(lx)
+        if userrating:
+            dic['userrating'] = userrating
         if not dic['actor'] and re.match(r'FC2-[\d]+', number, re.A):
             dic['actor'].append('素人')
             if not dic['series']:
@@ -324,7 +333,7 @@ if __name__ == "__main__":
     # print(main('FC2-1174949')) # not found
     #print(main('MVSD-439'))
     # print(main('EHM0001')) # not found
-    print(main('FC2-2314275'))
+    #print(main('FC2-2314275'))
     # print(main('EBOD-646'))
     # print(main('LOVE-262'))
-    #print(main('ABP-890'))
+    print(main('ABP-890'))
