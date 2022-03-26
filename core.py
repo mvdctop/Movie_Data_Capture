@@ -354,6 +354,8 @@ def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, f
             print("  <premiered>" + release + "</premiered>", file=code)
             print("  <releasedate>" + release + "</releasedate>", file=code)
             print("  <release>" + release + "</release>", file=code)
+            if 'userrating' in json_data:
+                print("  <userrating>" + json_data['userrating'] + "</userrating>", file=code)
             print("  <cover>" + cover + "</cover>", file=code)
             if config.getInstance().is_trailer():
                 print("  <trailer>" + trailer + "</trailer>", file=code)
