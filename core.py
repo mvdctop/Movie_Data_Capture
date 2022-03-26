@@ -503,8 +503,12 @@ def paste_file_to_folder(filepath, path, number, leak_word, c_word, hack_word): 
                 sub_filepath = sub_filepath.replace(subname, ".cht" + subname)
                 subname = ".cht" + subname
             if os.path.isfile(sub_filepath):
-                shutil.move(sub_filepath, os.path.join(path, f"{number}{leak_word}{c_word}{hack_word}{subname}"))
-                print('[+]Sub moved!')
+                if link_mode not in (1, 2):
+                    shutil.move(sub_filepath, os.path.join(path, f"{number}{leak_word}{c_word}{hack_word}{subname}"))
+                    print('[+]Sub moved!')
+                else:
+                    shutil.copyfile(sub_filepath, os.path.join(path, f"{number}{leak_word}{c_word}{hack_word}{subname}"))
+                    print('[+]Sub Copied!')
                 return True
 
     except FileExistsError as fee:
