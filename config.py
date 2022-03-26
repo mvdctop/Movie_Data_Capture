@@ -10,6 +10,7 @@ G_conf_override = {
     0: None,
     # register override config items
     "common:main_mode": None,
+    "common:link_mode": None,
     "common:source_folder": None,
     "common:auto_exit": None,
     "common:nfo_skip_days": None,
@@ -128,8 +129,8 @@ class Config:
     def actor_gender(self) -> str:
         return self.conf.get("common", "actor_gender")
 
-    def soft_link(self) -> bool:
-        return self.conf.getboolean("common", "soft_link")
+    def link_mode(self) -> bool:
+        return self.getint_override("common", "link_mode")
 
     def scan_hardlink(self) -> bool:
         return self.conf.getboolean("common", "scan_hardlink", fallback=False)#未找到配置选项,默认不刮削
@@ -361,7 +362,7 @@ class Config:
         conf.set(sec1, "source_folder", "./")
         conf.set(sec1, "failed_output_folder", "failed")
         conf.set(sec1, "success_output_folder", "JAV_output")
-        conf.set(sec1, "soft_link", "0")
+        conf.set(sec1, "link_mode", "0")
         conf.set(sec1, "scan_hardlink", "0")
         conf.set(sec1, "failed_move", "1")
         conf.set(sec1, "auto_exit", "0")
