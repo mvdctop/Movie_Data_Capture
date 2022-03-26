@@ -302,7 +302,7 @@ def main(number):
 
         }
         userrating = getUserRating(lx)
-        if userrating is not None and len(userrating):
+        if userrating:
             dic['userrating'] = userrating
         if not dic['actor'] and re.match(r'FC2-[\d]+', number, re.A):
             dic['actor'].append('素人')
