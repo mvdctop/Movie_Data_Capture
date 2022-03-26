@@ -1,15 +1,14 @@
 import re
 from lxml import etree
 import json
-from bs4 import BeautifulSoup
 import sys
 sys.path.append('../')
 from ADC_function import *
 # import sys
 # import io
 # sys.stdout = io.TextIOWrapper(sys.stdout.buffer, errors = 'replace', line_buffering = True)
-#print(get_html('https://www.dlsite.com/pro/work/=/product_id/VJ013152.html'))
-#title //*[@id="work_name"]/a/text()
+#print(get_html('https://www.dlsite.com/maniax/work/=/product_id/VJ013152.html'))
+#title /html/head/title/text()
 #studio //th[contains(text(),"ブランド名")]/../td/span[1]/a/text()
 #release //th[contains(text(),"販売日")]/../td/a/text()
 #story //th[contains(text(),"シナリオ")]/../td/a/text()
@@ -18,14 +17,14 @@ from ADC_function import *
 #jianjie //*[@id="main_inner"]/div[3]/text()
 #photo //*[@id="work_left"]/div/div/div[2]/div/div[1]/div[1]/ul/li/img/@src
 
-#https://www.dlsite.com/pro/work/=/product_id/VJ013152.html
+#https://www.dlsite.com/maniax/work/=/product_id/VJ013152.html
 
-def getTitle(a):
-    html = etree.fromstring(a, etree.HTMLParser())
-    result = html.xpath('//*[@id="work_name"]/a/text()')[0]
+def getTitle(html):
+    result = str(html.xpath('/html/head/title/text()')[0])
+    result = result[:result.rfind(' | DLsite')]
+    result = result[:result.rfind(' [')]
     return result
-def getActor(a):  # //*[@id="center_column"]/div[2]/div[1]/div/table/tbody/tr[1]/td/text()
-    html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
+def getActor(html):  # //*[@id="center_column"]/div[2]/div[1]/div/table/tbody/tr[1]/td/text()
     try:
         result1 = html.xpath('//th[contains(text(),"声优")]/../td/a/text()')
     except:
@@ -38,8 +37,7 @@ def getActorPhoto(actor): #//*[@id="star_qdt"]/li/a/img
         p={i:''}
         d.update(p)
     return d
-def getStudio(a):
-    html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
+def getStudio(html):
     try:
         try:
             result = html.xpath('//th[contains(text(),"系列名")]/../td/span[1]/a/text()')[0]
@@ -53,8 +51,7 @@ def getRuntime(a):
     result1 = str(html.xpath('//strong[contains(text(),"時長")]/../span/text()')).strip(" ['']")
     result2 = str(html.xpath('//strong[contains(text(),"時長")]/../span/a/text()')).strip(" ['']")
     return str(result1 + result2).strip('+').rstrip('mi')
-def getLabel(a):
-    html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
+def getLabel(html):
     try:
         try:
             result = html.xpath('//th[contains(text(),"系列名")]/../td/span[1]/a/text()')[0]
@@ -69,12 +66,10 @@ def getYear(getRelease):
         return result
     except:
         return getRelease
-def getRelease(a):
-    html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
+def getRelease(html):
     result1 = html.xpath('//th[contains(text(),"贩卖日")]/../td/a/text()')[0]
     return result1.replace('年','-').replace('月','-').replace('日','')
-def getTag(a):
-    html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
+def getTag(html):
     try:
         result = html.xpath('//th[contains(text(),"分类")]/../td/div/a/text()')
         return result
@@ -96,26 +91,22 @@ def getCover_small(a, index=0):
         if not 'https' in result:
             result = 'https:' + result
         return result
-def getCover(htmlcode):
-    html = etree.fromstring(htmlcode, etree.HTMLParser())
-    result = html.xpath('//*[@id="work_left"]/div/div/div[2]/div/div[1]/div[1]/ul/li/img/@src')[0]
-    return result
-def getDirector(a):
-    html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
+def getCover(html):
+    result = html.xpath('//*[@id="work_left"]/div/div/div[2]/div/div[1]/div[1]/ul/li[1]/picture/source/@srcset')[0]
+    return result.replace('.webp', '.jpg')
+def getDirector(html):
     try:
         result = html.xpath('//th[contains(text(),"剧情")]/../td/a/text()')[0]
     except:
         result = ''
     return result
-def getOutline(htmlcode):
-    html = etree.fromstring(htmlcode, etree.HTMLParser())
+def getOutline(html):
     total = []
-    result = html.xpath('//*[@id="main_inner"]/div[3]/text()')
+    result = html.xpath('//*[@class="work_parts_area"]/p/text()')
     for i in result:
         total.append(i.strip('\r\n'))
     return str(total).strip(" ['']").replace("', '', '",r'\n').replace("', '",r'\n').strip(", '', '")
-def getSeries(a):
-    html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
+def getSeries(html):
     try:
         try:
             result = html.xpath('//th[contains(text(),"系列名")]/../td/span[1]/a/text()')[0]
@@ -127,28 +118,28 @@ def getSeries(a):
 def main(number):
     try:
         number = number.upper()
-        htmlcode = get_html('https://www.dlsite.com/pro/work/=/product_id/' + number + '.html',
+        htmlcode = get_html('https://www.dlsite.com/maniax/work/=/product_id/' + number + '.html/?locale=zh_CN',
                             cookies={'locale': 'zh-cn'})
-
+        html = etree.fromstring(htmlcode, etree.HTMLParser())
         dic = {
-            'actor': getActor(htmlcode),
-            'title': getTitle(htmlcode),
-            'studio': getStudio(htmlcode),
-            'outline': getOutline(htmlcode),
+            'actor': getActor(html),
+            'title': getTitle(html),
+            'studio': getStudio(html),
+            'outline': getOutline(html),
             'runtime': '',
-            'director': getDirector(htmlcode),
-            'release': getRelease(htmlcode),
+            'director': getDirector(html),
+            'release': getRelease(html),
             'number': number,
-            'cover': 'https:' + getCover(htmlcode),
+            'cover': 'https:' + getCover(html),
             'cover_small': '',
             'imagecut': 0,
-            'tag': getTag(htmlcode),
-            'label': getLabel(htmlcode),
-            'year': getYear(getRelease(htmlcode)),  # str(re.search('\d{4}',getRelease(a)).group()),
+            'tag': getTag(html),
+            'label': getLabel(html),
+            'year': getYear(getRelease(html)),  # str(re.search('\d{4}',getRelease(a)).group()),
             'actor_photo': '',
-            'website': 'https://www.dlsite.com/pro/work/=/product_id/' + number + '.html',
+            'website': 'https://www.dlsite.com/maniax/work/=/product_id/' + number + '.html',
             'source': 'dlsite.py',
-            'series': getSeries(htmlcode),
+            'series': getSeries(html),
         }
         js = json.dumps(dic, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ':'), )  # .encode('UTF-8')
         return js
@@ -166,4 +157,6 @@ def main(number):
 # main('DV-1562')
 # input("[+][+]Press enter key exit, you can check the error messge before you exit.\n[+][+]按回车键结束，你可以在结束之前查看和错误信息。")
 if __name__ == "__main__":
+    config.G_conf_override["debug_mode:switch"] = True
     print(main('VJ013178'))
+    print(main('RJ329607'))
