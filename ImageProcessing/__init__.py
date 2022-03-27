@@ -4,7 +4,7 @@ import config
 import importlib
 from PIL import Image
 import shutil
-
+from ADC_function import file_not_exist_or_empty
 
 def face_crop_width(filename, width, height):
     # 新宽度是高度的2/3
@@ -57,6 +57,8 @@ def face_crop_height(filename, width, height):
 def cutImage(imagecut, path, fanart_path, poster_path):
     fullpath_fanart = os.path.join(path, fanart_path)
     fullpath_poster = os.path.join(path, poster_path)
+    if config.getInstance().download_only_missing_images() and not file_not_exist_or_empty(fullpath_poster):
+        return
     if imagecut == 1:  # 剪裁大封面
         try:
             img = Image.open(fullpath_fanart)
@@ -92,4 +94,3 @@ def face_center(filename, model):
 
 if __name__ == '__main__':
     cutImage(1,'H:\\test\\','12.jpg','test.jpg')
-    

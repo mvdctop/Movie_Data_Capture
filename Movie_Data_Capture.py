@@ -514,8 +514,8 @@ def main():
     print(f"[+]Load Config file '{conf.ini_path}'.")
     if conf.debug():
         print('[+]Enable debug')
-    if conf.link_mode():
-        print('[!]Enable soft link')
+    if conf.link_mode() in (1, 2):
+        print('[!]Enable {} link'.format(('soft', 'hard')[conf.link_mode() - 1]))
     if len(sys.argv) > 1:
         print('[!]CmdLine:', " ".join(sys.argv[1:]))
     print('[+]Main Working mode ## {}: {} ## {}{}{}'
