@@ -355,7 +355,15 @@ def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, f
             print("  <releasedate>" + release + "</releasedate>", file=code)
             print("  <release>" + release + "</release>", file=code)
             if 'userrating' in json_data:
-                print("  <userrating>" + json_data['userrating'] + "</userrating>", file=code)
+                try:
+                    strrating = json_data['userrating']
+                    userrating = round(float(strrating) * 2.0)
+                    print(f"  <userrating>{userrating}</userrating>", file=code)
+                    print(f"  <rating>{userrating}</rating>", file=code)
+                    rating_score = round(float(strrating) * 20.0, 1)
+                    print(f"  <criticrating>{rating_score:.1f}</criticrating>", file=code)
+                except:
+                    pass
             print("  <cover>" + cover + "</cover>", file=code)
             if config.getInstance().is_trailer():
                 print("  <trailer>" + trailer + "</trailer>", file=code)
@@ -690,7 +698,6 @@ def core_main(file_path, number_th, oCC):
                     extrafanart_download(json_data.get('extrafanart'), path, number, filepath)
             except:
                 pass
-
 
 
         # 裁剪图
