@@ -304,6 +304,9 @@ def main(number):
         userrating = getUserRating(lx)
         if userrating:
             dic['userrating'] = userrating
+            dic['rating'] = userrating
+            rating_score = float(userrating) * 20.0
+            dic['criticrating'] = '{:.1f}'.format(rating_score) # 保存小数点后1位即可
         if not dic['actor'] and re.match(r'FC2-[\d]+', number, re.A):
             dic['actor'].append('素人')
             if not dic['series']:
