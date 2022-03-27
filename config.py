@@ -129,7 +129,7 @@ class Config:
     def actor_gender(self) -> str:
         return self.conf.get("common", "actor_gender")
 
-    def link_mode(self) -> bool:
+    def link_mode(self) -> int:
         return self.getint_override("common", "link_mode")
 
     def scan_hardlink(self) -> bool:
