@@ -175,7 +175,8 @@ def getSeries(html):
 def getUserRating(html):
     try:
         result = str(html.xpath('//span[@class="score-stars"]/../text()')[0])
-        return result[:result.find('分')].strip()
+        v = re.findall(r'(\d+|\d+\.\d+)分, 由(\d+)人評價', result)
+        return float(v[0][0]), int(v[0][1])
     except:
         return
 
@@ -302,8 +303,9 @@ def main(number):
 
         }
         userrating = getUserRating(lx)
-        if userrating:
-            dic['userrating'] = userrating
+        if isinstance(userrating, tuple) and len(userrating) == 2:
+            dic['用户评分'] = userrating[0]
+            dic['评分人数'] = userrating[1]
         if not dic['actor'] and re.match(r'FC2-[\d]+', number, re.A):
             dic['actor'].append('素人')
             if not dic['series']:
