@@ -354,16 +354,16 @@ def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, f
             print("  <premiered>" + release + "</premiered>", file=code)
             print("  <releasedate>" + release + "</releasedate>", file=code)
             print("  <release>" + release + "</release>", file=code)
-            if 'userrating' in json_data:
-                try:
-                    strrating = json_data['userrating']
-                    userrating = round(float(strrating) * 2.0)
-                    print(f"  <userrating>{userrating}</userrating>", file=code)
-                    print(f"  <rating>{userrating}</rating>", file=code)
-                    rating_score = round(float(strrating) * 20.0, 1)
-                    print(f"  <criticrating>{rating_score:.1f}</criticrating>", file=code)
-                except:
-                    pass
+            try:
+                strrating = json_data['userrating']
+                userrating = round(float(strrating) * 2.0)
+                print(f"  <userrating>{userrating}</userrating>", file=code)
+                rating = round(float(strrating) * 2.0, 1)
+                print(f"  <rating>{rating}</rating>", file=code)
+                rating_score = round(float(strrating) * 20.0, 1)
+                print(f"  <criticrating>{rating_score}</criticrating>", file=code)
+            except:
+                pass
             print("  <cover>" + cover + "</cover>", file=code)
             if config.getInstance().is_trailer():
                 print("  <trailer>" + trailer + "</trailer>", file=code)
