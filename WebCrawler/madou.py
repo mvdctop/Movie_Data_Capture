@@ -19,9 +19,10 @@ def getTitle(html):  # 获取标题
     # <title>MD0140-2 / 家有性事EP2 爱在身边-麻豆社</title>
     # <title>MAD039 机灵可爱小叫花 强诱僧人迫犯色戒-麻豆社</title>
     # <title>MD0094／贫嘴贱舌中出大嫂／坏嫂嫂和小叔偷腥内射受孕-麻豆社</title>
+    # <title>TM0002-我的痴女女友-麻豆社</title>
     browser_title = str(html.xpath("/html/head/title/text()")[0])
-    title = str(re.findall(r'^.*?( / | |／)(.*)-麻豆社$', browser_title)[0][1]).strip()
-    return title.replace('／', ' ')
+    title = str(re.findall(r'^[A-Z0-9 /／\-]*(.*)-麻豆社$', browser_title)[0]).strip()
+    return title
 
 def getStudio(html):  # 获取厂商 已修改
     try:
@@ -164,6 +165,8 @@ def main(number):
 
 
 if __name__ == '__main__':
+    config.G_conf_override['debug_mode:switch'] = True
+    print(main('TM0002'))
     print(main('MD0222'))
     print(main('MD0140-2'))
     print(main('MAD039'))
