@@ -61,7 +61,6 @@ def getNum(url, number):  # 获取番号
         filename = unquote(urlparse(url).path)
         # 裁剪文件名
         result = filename[1:-5].upper().strip()
-        print(result)
         # 移除中文
         if result.upper() != number.upper():
             result = re.split(r'[^\x00-\x7F]+', result, 1)[0]
