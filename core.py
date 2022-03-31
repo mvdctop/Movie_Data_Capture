@@ -355,10 +355,17 @@ def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, f
             print("  <releasedate>" + release + "</releasedate>", file=code)
             print("  <release>" + release + "</release>", file=code)
             try:
-                f_rating = float(json_data['userrating'])
-                print(f"  <userrating>{round(f_rating * 2.0)}</userrating>", file=code)
-                print(f"  <rating>{round(f_rating * 2.0, 1)}</rating>", file=code)
-                print(f"  <criticrating>{round(f_rating * 20.0, 1)}</criticrating>", file=code)
+                f_rating = json_data['用户评分']
+                uc = json_data['评分人数']
+                print(f"""  <userrating>{round(f_rating * 2.0)}</userrating>
+  <rating>{round(f_rating * 2.0, 1)}</rating>
+  <criticrating>{round(f_rating * 20.0, 1)}</criticrating>
+  <ratings>
+    <rating name="javdb" max="5" default="true">
+      <value>{f_rating}</value>
+      <votes>{uc}</votes>
+    </rating>
+  </ratings>""", file=code)
             except:
                 pass
             print("  <cover>" + cover + "</cover>", file=code)
