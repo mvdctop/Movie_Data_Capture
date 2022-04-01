@@ -5,7 +5,7 @@ import config
 import typing
 
 G_spat = re.compile(
-    "^\w+\.(cc|com)@|^22-sht\.me|"
+    "^\w+\.(cc|com|net|me|club|jp|tv|xyz|biz|wiki|info|tw|us|de)@|^22-sht\.me|"
     "^(fhd|hd|sd|1080p|720p|4K)(-|_)|"
     "(-|_)(fhd|hd|sd|1080p|720p|4K|uncensored|leak)",
     re.IGNORECASE)
