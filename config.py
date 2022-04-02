@@ -16,6 +16,7 @@ G_conf_override = {
     "common:nfo_skip_days": None,
     "common:stop_counter": None,
     "common:ignore_failed_list": None,
+    "common:rerun_delay": None,
     "debug_mode:switch": None
 }
 
@@ -103,9 +104,12 @@ class Config:
         return self.conf.getboolean(section, item) if G_conf_override[f"{section}:{item}"] is None else bool(
             G_conf_override[f"{section}:{item}"])
 
-    def getint_override(self, section, item) -> int:
-        return self.conf.getint(section, item) if G_conf_override[f"{section}:{item}"] is None else int(
-            G_conf_override[f"{section}:{item}"])
+    def getint_override(self, section, item, fallback=None) -> int:
+        if G_conf_override[f"{section}:{item}"] is not None:
+            return int(G_conf_override[f"{section}:{item}"])
+        if fallback is not None:
+            return self.conf.getint(section, item, fallback=fallback)
+        return self.conf.getint(section, item)
 
     def get_override(self, section, item) -> str:
         return self.conf.get(section, item) if G_conf_override[f"{section}:{item}"] is None else str(
@@ -151,16 +155,10 @@ class Config:
         return self.conf.getboolean("common", "del_empty_folder")
 
     def nfo_skip_days(self) -> int:
-        try:
-            return self.getint_override("common", "nfo_skip_days")
-        except:
-            return 30
+        return self.getint_override("common", "nfo_skip_days", fallback=30)
 
     def stop_counter(self) -> int:
-        try:
-            return self.getint_override("common", "stop_counter")
-        except:
-            return 0
+        return self.getint_override("common", "stop_counter", fallback=0)
 
     def ignore_failed_list(self) -> bool:
         return self.getboolean_override("common", "ignore_failed_list")
@@ -170,6 +168,24 @@ class Config:
 
     def mapping_table_validity(self) -> int:
         return self.conf.getint("common", "mapping_table_validity")
+
+    def rerun_delay(self) -> int:
+        value = self.get_override("common", "rerun_delay")
+        if not (isinstance(value, str) and re.match(r'^[\dsmh]+$', value, re.I)):
+            return 0   # not match '1h30m45s' or '30' or '1s2m1h4s5m'
+        if value.isnumeric() and int(value) >= 0:
+            return int(value)
+        sec = 0
+        sv = re.findall(r'(\d+)s', value, re.I)
+        mv = re.findall(r'(\d+)m', value, re.I)
+        hv = re.findall(r'(\d+)h', value, re.I)
+        for v in sv:
+            sec += int(v)
+        for v in mv:
+            sec += int(v) * 60
+        for v in hv:
+            sec += int(v) * 3600
+        return sec
 
     def is_translate(self) -> bool:
         return self.conf.getboolean("translate", "switch")
@@ -375,6 +391,7 @@ class Config:
         conf.set(sec1, "ignore_failed_list", 0)
         conf.set(sec1, "download_only_missing_images", 1)
         conf.set(sec1, "mapping_table_validity", 7)
+        conf.set(sec1, "rerun_delay", 0)
 
         sec2 = "proxy"
         conf.add_section(sec2)

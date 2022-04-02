@@ -62,6 +62,8 @@ def argparse_function(ver: str) -> typing.Tuple[str, str, str, str, bool]:
                         help="Override nfo_skip_days value in config.")
     parser.add_argument("-c", "--stop-counter", dest='cnt', default='', nargs='?',
                         help="Override stop_counter value in config.")
+    parser.add_argument("-R", "--rerun-delay", dest='delaytm', default='', nargs='?',
+                        help="Delay (eg. 1h10m30s or 60 (second)) time and rerun, until all movies proceed. Note: stop_counter value in config or -c must none zero.")
     parser.add_argument("-i", "--ignore-failed-list", action="store_true", help="Ignore failed list '{}'".format(
         os.path.join(os.path.abspath(conf.failed_folder()), 'failed_list.txt')))
     parser.add_argument("-a", "--auto-exit", action="store_true",
@@ -92,6 +94,7 @@ is performed. It may help you correct wrong numbers before real job.""")
     config.G_conf_override["common:stop_counter"] = get_natural_number_or_none(args.cnt)
     config.G_conf_override["common:ignore_failed_list"] = get_bool_or_none(args.ignore_failed_list)
     config.G_conf_override["debug_mode:switch"] = get_bool_or_none(args.debug)
+    config.G_conf_override["common:rerun_delay"] = get_str_or_none(args.delaytm)
 
     return args.file, args.number, args.logdir, args.regexstr, args.zero_op
 
@@ -250,29 +253,31 @@ def close_logfile(logdir: str):
             except:
                 pass
     # 第三步，月合并到年
-    if today.month < 4:
-        return
-    mons = [f for f in log_dir.glob(r'*.txt') if re.match(r'^mdc_\d{6}$', f.stem, re.A)]
-    if not mons or not len(mons):
-        return
-    mons.sort()
-    deadline_year = f'mdc_{today.year - 1}13'
-    year_merge = [f for f in mons if f.stem < deadline_year]
-    if not year_merge or not len(year_merge):
-        return
-    toyear = len('12.txt')  # cut length mdc_2020|12.txt
-    for f in year_merge:
-        try:
-            year_file_name = str(f)[:-toyear] + '.txt'  # mdc_2020.txt
-            with open(year_file_name, 'a', encoding='utf-8') as y:
-                y.write(f.read_text(encoding='utf-8'))
-            f.unlink(missing_ok=True)
-        except:
-            pass
+    for i in range(1):
+        if today.month < 4:
+            break
+        mons = [f for f in log_dir.glob(r'*.txt') if re.match(r'^mdc_\d{6}$', f.stem, re.A)]
+        if not mons or not len(mons):
+            break
+        mons.sort()
+        deadline_year = f'mdc_{today.year - 1}13'
+        year_merge = [f for f in mons if f.stem < deadline_year]
+        if not year_merge or not len(year_merge):
+            break
+        toyear = len('12.txt')  # cut length mdc_2020|12.txt
+        for f in year_merge:
+            try:
+                year_file_name = str(f)[:-toyear] + '.txt'  # mdc_2020.txt
+                with open(year_file_name, 'a', encoding='utf-8') as y:
+                    y.write(f.read_text(encoding='utf-8'))
+                f.unlink(missing_ok=True)
+            except:
+                pass
     # 第四步，压缩年志 如果有压缩需求，请自行手工压缩，或者使用外部脚本来定时完成。推荐nongnu的lzip，对于
     # 这种粒度的文本日志，压缩比是目前最好的。lzip -9的运行参数下，日志压缩比要高于xz -9，而且内存占用更少，
     # 多核利用率更高(plzip多线程版本)，解压速度更快。压缩后的大小差不多是未压缩时的2.4%到3.7%左右，
     # 100MB的日志文件能缩小到3.7MB。
+    return filepath
 
 
 def signal_handler(*args):
@@ -472,18 +477,9 @@ def create_data_and_move_with_custom_number(file_path: str, custom_number, oCC):
                 print('[!]', err)
 
 
-def main():
-    version = '6.0.3'
-    urllib3.disable_warnings()  # Ignore http proxy warning
-
-    # Read config.ini first, in argparse_function() need conf.failed_folder()
-    conf = config.Config("config.ini")
-
-    # Parse command line args
-    single_file_path, custom_number, logdir, regexstr, zero_op = argparse_function(version)
-
-
-
+def main(args: tuple) -> Path:
+    (single_file_path, custom_number, logdir, regexstr, zero_op) = args
+    conf = config.getInstance()
     main_mode = conf.main_mode()
     folder_path = ""
     if main_mode not in (1, 2, 3):
@@ -614,14 +610,55 @@ def main():
 
     print("[+]All finished!!!")
 
-    close_logfile(logdir)
+    return close_logfile(logdir)
+
+
+def 分析日志文件(logfile):
+    try:
+        if not (isinstance(logfile, Path) and logfile.is_file()):
+            raise FileNotFoundError('log file not found')
+        logtxt = logfile.read_text(encoding='utf-8')
+        扫描电影数 = int(re.findall(r'\[\+]Find (.*) movies\.', logtxt)[0])
+        已处理 = int(re.findall(r'\[1/(.*?)] -', logtxt)[0])
+        完成数 = logtxt.count(r'[+]Wrote!')
+        return 扫描电影数, 已处理, 完成数
+    except:
+        return None, None, None
+
+
+if __name__ == '__main__':
+    version = '6.0.3'
+    multiprocessing.freeze_support()
+    urllib3.disable_warnings()  # Ignore http proxy warning
+
+    # Read config.ini first, in argparse_function() need conf.failed_folder()
+    conf = config.Config("config.ini")
+
+    # Parse command line args
+    args = tuple(argparse_function(version))
+
+    再运行延迟 = conf.rerun_delay()
+    if 再运行延迟 > 0 and conf.stop_counter() > 0:
+        while True:
+            try:
+                logfile = main(args)
+                (扫描电影数, 已处理, 完成数) = 分析结果元组 = tuple(分析日志文件(logfile))
+                if all(isinstance(v, int) for v in 分析结果元组):
+                    剩余个数 = 扫描电影数 - 已处理
+                    print(f'All movies:{扫描电影数}  processed:{已处理}  successes:{完成数}  remain:{剩余个数}')
+                    if 剩余个数 == 0:
+                        break
+                    下次运行 = datetime.now() + timedelta(seconds=再运行延迟)
+                    print(f'Next run time: {下次运行.strftime("%H:%M:%S")}, rerun_delay={再运行延迟}, press Ctrl+C stop run.')
+                    time.sleep(再运行延迟)
+                else:
+                    break
+            except:
+                break
+    else:
+        main(args)
 
     if not conf.auto_exit():
         input("Press enter key exit, you can check the error message before you exit...")
 
     sys.exit(0)
-
-
-if __name__ == '__main__':
-    multiprocessing.freeze_support()
-    main()
