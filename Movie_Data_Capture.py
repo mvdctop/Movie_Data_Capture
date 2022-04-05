@@ -626,10 +626,18 @@ def 分析日志文件(logfile):
         return None, None, None
 
 
+def period(delta, pattern):
+    d = {'d': delta.days}
+    d['h'], rem = divmod(delta.seconds, 3600)
+    d['m'], d['s'] = divmod(rem, 60)
+    return pattern.format(**d)
+
+
 if __name__ == '__main__':
     version = '6.0.3'
     multiprocessing.freeze_support()
     urllib3.disable_warnings()  # Ignore http proxy warning
+    app_start = time.time()
 
     # Read config.ini first, in argparse_function() need conf.failed_folder()
     conf = config.Config("config.ini")
@@ -645,7 +653,12 @@ if __name__ == '__main__':
                 (扫描电影数, 已处理, 完成数) = 分析结果元组 = tuple(分析日志文件(logfile))
                 if all(isinstance(v, int) for v in 分析结果元组):
                     剩余个数 = 扫描电影数 - 已处理
-                    print(f'All movies:{扫描电影数}  processed:{已处理}  successes:{完成数}  remain:{剩余个数}')
+                    总用时 = timedelta(seconds = time.time() - app_start)
+                    print(f'All movies:{扫描电影数}  processed:{已处理}  successes:{完成数}  remain:{剩余个数}' +
+                        '  total time:{}'.format(
+                        period(总用时, "{d} day {h:02}:{m:02}:{s:02}") if 总用时.days == 1
+                            else period(总用时, "{d} days {h:02}:{m:02}:{s:02}") if 总用时.days > 1
+                            else period(总用时, "{h:02}:{m:02}:{s:02}")))
                     if 剩余个数 == 0:
                         break
                     下次运行 = datetime.now() + timedelta(seconds=再运行延迟)
