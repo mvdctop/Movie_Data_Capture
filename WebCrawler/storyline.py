@@ -308,8 +308,8 @@ def getStoryline_amazon(q_title, number, debug):
             res = session.get(urljoin(res.url, lks[0]))
             cookie = None
             lx = fromstring(res.text)
-        titles = lx.xpath("//span[contains(@class,'a-color-base a-text-normal')]/text()")
-        urls = lx.xpath("//span[contains(@class,'a-color-base a-text-normal')]/../@href")
+        titles = lx.xpath("//span[contains(@class,'a-size-base-plus a-color-base a-text-normal')]/text()")
+        urls = lx.xpath("//span[contains(@class,'a-size-base-plus a-color-base a-text-normal')]/../@href")
         if not len(urls) or len(urls) != len(titles):
             raise ValueError("titles not found")
         idx = amazon_select_one(titles, q_title, number, debug)
@@ -325,8 +325,9 @@ def getStoryline_amazon(q_title, number, debug):
             res = session.get(urljoin(res.url, lks[0]))
             cookie = None
             lx = fromstring(res.text)
-        div = lx.xpath('//*[@id="productDescription"]')[0]
-        ama_t = ' '.join([e.text.strip() for e in div if not re.search('Comment|h3', str(e.tag), re.I) and isinstance(e.text, str)])
+        p1 = lx.xpath('//*[@id="productDescription"]/p[1]/span/text()')
+        p2 = lx.xpath('//*[@id="productDescription"]/p[2]/span/text()')
+        ama_t = ' '.join(p1) + ' '.join(p2)
         ama_t = re.sub(r'審査番号:\d+', '', ama_t).strip()
 
         if cookie is None:
@@ -406,10 +407,10 @@ def amazon_select_one(a_titles, q_title, number, debug):
     # debug 模式下记录识别准确率日志
     if ratio < 0.9:
         # 相似度[0.5, 0.9)的淘汰结果单独记录日志
-        (Path.home() / '.avlogs/ratio0.5.txt').open('a', encoding='utf-8').write(
-            f' [{number}]  Ratio:{ratio}\n{a_titles[sel]}\n{q_title}\n{save_t_}\n{que_t}\n')
+        with (Path.home() / '.mlogs/ratio0.5.txt').open('a', encoding='utf-8') as hrt:
+            hrt.write(f' [{number}]  Ratio:{ratio}\n{a_titles[sel]}\n{q_title}\n{save_t_}\n{que_t}\n')
         return -1
     # 被采信的结果日志
-    (Path.home() / '.avlogs/ratio.txt').open('a', encoding='utf-8').write(
-        f' [{number}]  Ratio:{ratio}\n{a_titles[sel]}\n{q_title}\n{save_t_}\n{que_t}\n')
+    with (Path.home() / '.mlogs/ratio.txt').open('a', encoding='utf-8') as hrt:
+        hrt.write(f' [{number}]  Ratio:{ratio}\n{a_titles[sel]}\n{q_title}\n{save_t_}\n{que_t}\n')
     return sel
