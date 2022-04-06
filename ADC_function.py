@@ -381,7 +381,7 @@ def load_cookies(cookie_json_filename: str):
                 break
         if not cookies_filename:
             return None, None
-        return json.load(open(cookies_filename)), cookies_filename
+        return json.loads(Path(cookies_filename).read_text(encoding='utf-8')), cookies_filename
     except:
         return None, None
 
@@ -519,13 +519,12 @@ def download_one_file(args) -> str:
     wrapped for map function
     """
 
-    def _inner(url: str, save_path: Path):
-        filebytes = get_html(url, return_type='content')
-        if isinstance(filebytes, bytes) and len(filebytes):
-            if len(filebytes) == save_path.open('wb').write(filebytes):
+    (url, save_path) = args
+    filebytes = get_html(url, return_type='content')
+    if isinstance(filebytes, bytes) and len(filebytes):
+        with save_path.open('wb') as fpbyte:
+            if len(filebytes) == fpbyte.write(filebytes):
                 return str(save_path)
-
-    return _inner(*args)
 
 
 def parallel_download_files(dn_list: typing.Iterable[typing.Sequence], parallel: int = 0):
