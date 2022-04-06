@@ -655,10 +655,10 @@ if __name__ == '__main__':
                     剩余个数 = 扫描电影数 - 已处理
                     总用时 = timedelta(seconds = time.time() - app_start)
                     print(f'All movies:{扫描电影数}  processed:{已处理}  successes:{完成数}  remain:{剩余个数}' +
-                        '  total time:{}'.format(
-                        period(总用时, "{d} day {h:02}:{m:02}:{s:02}") if 总用时.days == 1
-                            else period(总用时, "{d} days {h:02}:{m:02}:{s:02}") if 总用时.days > 1
-                            else period(总用时, "{h:02}:{m:02}:{s:02}")))
+                        '  Elapsed time {}'.format(
+                        period(总用时, "{d} day {h}:{m:02}:{s:02}") if 总用时.days == 1
+                            else period(总用时, "{d} days {h}:{m:02}:{s:02}") if 总用时.days > 1
+                            else period(总用时, "{h}:{m:02}:{s:02}")))
                     if 剩余个数 == 0:
                         break
                     下次运行 = datetime.now() + timedelta(seconds=再运行延迟)
