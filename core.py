@@ -10,6 +10,7 @@ from PIL import Image
 from io import BytesIO
 from pathlib import Path
 from datetime import datetime
+from lxml import etree
 
 from ADC_function import *
 from WebCrawler import get_data_from_json
@@ -291,6 +292,12 @@ def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, f
                 print(f"[-]Fatal error! can not make folder '{path}'")
                 sys.exit(0)
 
+        old_nfo = None
+        try:
+            if os.path.isfile(nfo_path):
+                old_nfo = etree.parse(nfo_path)
+        except:
+            pass
         # KODI内查看影片信息时找不到number，配置naming_rule=number+'#'+title虽可解决
         # 但使得标题太长，放入时常为空的outline内会更适合，软件给outline留出的显示版面也较大
         outline = f"{number}#{outline}"
@@ -354,11 +361,17 @@ def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, f
             print("  <premiered>" + release + "</premiered>", file=code)
             print("  <releasedate>" + release + "</releasedate>", file=code)
             print("  <release>" + release + "</release>", file=code)
+            if old_nfo:
+                try:
+                    xur = old_nfo.xpath('//userrating/text()')[0]
+                    if isinstance(xur, str) and re.match('\d+\.\d+|\d+', xur.strip()):
+                        print(f"  <userrating>{xur.strip()}</userrating>", file=code)
+                except:
+                    pass
             try:
                 f_rating = json_data['用户评分']
                 uc = json_data['评分人数']
-                print(f"""  <userrating>{round(f_rating * 2.0)}</userrating>
-  <rating>{round(f_rating * 2.0, 1)}</rating>
+                print(f"""  <rating>{round(f_rating * 2.0, 1)}</rating>
   <criticrating>{round(f_rating * 20.0, 1)}</criticrating>
   <ratings>
     <rating name="javdb" max="5" default="true">
