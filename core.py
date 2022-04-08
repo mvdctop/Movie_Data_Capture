@@ -494,7 +494,6 @@ def add_to_pic(pic_path, img_pic, size, count, mode):
 def paste_file_to_folder(filepath, path, number, leak_word, c_word, hack_word):  # 文件路径，番号，后缀，要移动至的位置
     filepath_obj = pathlib.Path(filepath)
     houzhui = filepath_obj.suffix
-    file_parent_origin_path = str(filepath_obj.parent)
     try:
         targetpath = os.path.join(path, f"{number}{leak_word}{c_word}{hack_word}{houzhui}")
         # 任何情况下都不要覆盖，以免遭遇数据源或者引擎错误导致所有文件得到同一个number，逐一
@@ -520,25 +519,19 @@ def paste_file_to_folder(filepath, path, number, leak_word, c_word, hack_word): 
                 filerelpath = os.path.relpath(filepath, path)
                 os.symlink(filerelpath, targetpath)
             except:
-                os.symlink(filepath_obj.resolve(), targetpath)
-        sub_res = config.getInstance().sub_rule()
+                os.symlink(str(filepath_obj.resolve()), targetpath)
 
-        for subname in sub_res:
-            sub_filepath = str(filepath_obj.with_suffix(subname))
-            if os.path.isfile(sub_filepath.replace(subname,".chs" + subname)):
-                sub_filepath = sub_filepath.replace(subname,".chs" + subname)
-                subname = ".chs" + subname
-            elif os.path.isfile(sub_filepath.replace(subname,".cht" + subname)):
-                sub_filepath = sub_filepath.replace(subname, ".cht" + subname)
-                subname = ".cht" + subname
-            if os.path.isfile(sub_filepath):
+        sub_res = [subext.lower() for subext in config.getInstance().sub_rule()]
+        for subfile in filepath_obj.parent.glob('**/*'):
+            if subfile.is_file() and subfile.suffix.lower() in sub_res:
+                sub_targetpath = Path(path) / f"{number}{leak_word}{c_word}{hack_word}{''.join(subfile.suffixes)}"
                 if link_mode not in (1, 2):
-                    shutil.move(sub_filepath, os.path.join(path, f"{number}{leak_word}{c_word}{hack_word}{subname}"))
-                    print('[+]Sub moved!')
+                    shutil.move(str(subfile), str(sub_targetpath))
+                    print(f"[+]Sub Moved!  '{sub_targetpath.name}'")
                 else:
-                    shutil.copyfile(sub_filepath, os.path.join(path, f"{number}{leak_word}{c_word}{hack_word}{subname}"))
-                    print('[+]Sub Copied!')
-                return True
+                    shutil.copyfile(str(subfile), str(sub_targetpath))
+                    print(f"[+]Sub Copied!  '{sub_targetpath.name}'")
+        return
 
     except FileExistsError as fee:
         print(f'[-]FileExistsError: {fee}')
@@ -557,24 +550,37 @@ def paste_file_to_folder_mode2(filepath, path, multi_part, number, part, leak_wo
         number += part  # 这时number会被附加上CD1后缀
     filepath_obj = pathlib.Path(filepath)
     houzhui = filepath_obj.suffix
-    file_parent_origin_path = str(filepath_obj.parent)
     targetpath = os.path.join(path, f"{number}{part}{leak_word}{c_word}{hack_word}{houzhui}")
     if os.path.exists(targetpath):
         raise FileExistsError('File Exists on destination path, we will never overwriting.')
     try:
-        if config.getInstance().link_mode():
-            os.symlink(filepath, targetpath)
-        else:
+        link_mode = config.getInstance().link_mode()
+        create_softlink = False
+        if link_mode not in (1, 2):
             shutil.move(filepath, targetpath)
+        elif link_mode == 2:
+            try:
+                os.link(filepath, targetpath, follow_symlinks=False)
+            except:
+                create_softlink = True
+        if link_mode == 1 or create_softlink:
+            try:
+                filerelpath = os.path.relpath(filepath, path)
+                os.symlink(filerelpath, targetpath)
+            except:
+                os.symlink(str(filepath_obj.resolve()), targetpath)
 
-        sub_res = config.getInstance().sub_rule()
-        for subname in sub_res:
-            sub_filepath = str(filepath_obj.with_suffix(subname))
-            if os.path.isfile(sub_filepath):  # 字幕移动
-                shutil.move(sub_filepath, os.path.join(path, f"{number}{part}{leak_word}{c_word}{hack_word}{subname}"))
-                print('[+]Sub moved!')
-                print('[!]Success')
-                return True
+        sub_res = [subext.lower() for subext in config.getInstance().sub_rule()]
+        for subfile in filepath_obj.parent.glob('**/*'):
+            if subfile.is_file() and subfile.suffix.lower() in sub_res:
+                sub_targetpath = Path(path) / f"{number}{leak_word}{c_word}{hack_word}{''.join(subfile.suffixes)}"
+                if link_mode not in (1, 2):
+                    shutil.move(str(subfile), str(sub_targetpath))
+                    print(f"[+]Sub Moved!  '{sub_targetpath.name}'")
+                else:
+                    shutil.copyfile(str(subfile), str(sub_targetpath))
+                    print(f"[+]Sub Copied!  '{sub_targetpath.name}'")
+        return
     except FileExistsError as fee:
         print(f'[-]FileExistsError: {fee}')
         return
