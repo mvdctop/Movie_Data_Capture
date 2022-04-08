@@ -70,10 +70,12 @@ def get_info(json_data):  # 返回json里的数据
     return title, studio, year, outline, runtime, director, actor_photo, release, number, cover, trailer, website, series, label
 
 
-def small_cover_check(path, number, cover_small, leak_word, c_word, hack_word, filepath):
-    filename = f"{number}{leak_word}{c_word}{hack_word}-poster.jpg"
-    download_file_with_filename(cover_small, filename, path, filepath)
-    print('[+]Image Downloaded! ' + os.path.join(path, filename))
+def small_cover_check(path, filename, cover_small, movie_path):
+    full_filepath = os.path.join(path, filename)
+    if config.getInstance().download_only_missing_images() and not file_not_exist_or_empty(full_filepath):
+        return
+    download_file_with_filename(cover_small, filename, path, movie_path)
+    print('[+]Image Downloaded! ' + full_filepath)
 
 
 def create_folder(json_data):  # 创建文件夹
@@ -256,7 +258,7 @@ def image_ext(url):
         return ".jpg"
 
 # 封面是否下载成功，否则移动到failed
-def image_download(cover, fanart_path,thumb_path, path, filepath):
+def image_download(cover, fanart_path, thumb_path, path, filepath):
     full_filepath = os.path.join(path, fanart_path)
     if config.getInstance().download_only_missing_images() and not file_not_exist_or_empty(full_filepath):
         return
@@ -696,8 +698,7 @@ def core_main(file_path, number_th, oCC):
 
         # 检查小封面, 如果image cut为3，则下载小封面
         if imagecut == 3:
-            small_cover_check(path, number,  json_data.get('cover_small'), leak_word, c_word, hack_word, filepath)
-
+            small_cover_check(path, poster_path, json_data.get('cover_small'), filepath)
 
         # creatFolder会返回番号路径
         image_download( cover, fanart_path,thumb_path, path, filepath)
@@ -718,7 +719,7 @@ def core_main(file_path, number_th, oCC):
 
 
         # 裁剪图
-        cutImage(imagecut, path , fanart_path, poster_path)
+        cutImage(imagecut, path, fanart_path, poster_path)
 
         # 添加水印
         if conf.is_watermark():
@@ -746,7 +747,7 @@ def core_main(file_path, number_th, oCC):
 
         # 检查小封面, 如果image cut为3，则下载小封面
         if imagecut == 3:
-            small_cover_check(path, number, json_data.get('cover_small'), leak_word, c_word, hack_word, filepath)
+            small_cover_check(path, poster_path, json_data.get('cover_small'), filepath)
 
         # creatFolder会返回番号路径
         image_download( cover, fanart_path,thumb_path, path, filepath)
@@ -761,7 +762,7 @@ def core_main(file_path, number_th, oCC):
                 extrafanart_download(json_data.get('extrafanart'), path, number, filepath)
 
         # 裁剪图
-        cutImage(imagecut, path , fanart_path, poster_path)
+        cutImage(imagecut, path, fanart_path, poster_path)
 
         # 添加水印
         if conf.is_watermark():
