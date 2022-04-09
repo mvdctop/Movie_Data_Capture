@@ -55,18 +55,24 @@ def face_crop_height(filename, width, height):
     return (0, 0, width, cropHeight)
 
 
-def cutImage(imagecut, path, fanart_path, poster_path):
+def cutImage(imagecut, path, fanart_path, poster_path, skip_facerec=False):
     fullpath_fanart = os.path.join(path, fanart_path)
     fullpath_poster = os.path.join(path, poster_path)
-    if config.getInstance().download_only_missing_images() and not file_not_exist_or_empty(fullpath_poster):
+    if config.getInstance().face_aways_imagecut():
+        imagecut = 1
+    elif config.getInstance().download_only_missing_images() and not file_not_exist_or_empty(fullpath_poster):
         return
     if imagecut == 1:  # 剪裁大封面
         try:
             img = Image.open(fullpath_fanart)
             width, height = img.size
             if width/height > 2/3:  # 如果宽度大于2
-                # 以人像为中心切取
-                img2 = img.crop(face_crop_width(fullpath_fanart, width, height))
+                if skip_facerec:
+                    # 有码封面默认靠右切
+                    img2 = img.crop((width - int(height/3) * 2, 0, width, height))
+                else:
+                    # 以人像为中心切取
+                    img2 = img.crop(face_crop_width(fullpath_fanart, width, height))
             elif width/height < 2/3:  # 如果高度大于3
                 # 从底部向上切割
                 img2 = img.crop(face_crop_height(fullpath_fanart, width, height))

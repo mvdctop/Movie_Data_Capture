@@ -717,7 +717,7 @@ def core_main(file_path, number_th, oCC):
 
 
         # 裁剪图
-        cutImage(imagecut, path, fanart_path, poster_path)
+        cutImage(imagecut, path, fanart_path, poster_path, bool(conf.face_uncensored_only() and not uncensored))
 
         # 添加水印
         if conf.is_watermark():
@@ -760,7 +760,7 @@ def core_main(file_path, number_th, oCC):
                 extrafanart_download(json_data.get('extrafanart'), path, number, filepath)
 
         # 裁剪图
-        cutImage(imagecut, path, fanart_path, poster_path)
+        cutImage(imagecut, path, fanart_path, poster_path, bool(conf.face_uncensored_only() and not uncensored))
 
         # 添加水印
         if conf.is_watermark():

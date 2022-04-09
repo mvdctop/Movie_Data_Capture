@@ -346,22 +346,20 @@ class Config:
             return 1
 
     def cc_convert_vars(self) -> str:
-        try:
-            return self.conf.get("cc_convert", "vars")
-        except:
-            return "actor,director,label,outline,series,studio,tag,title"
+        return self.conf.get("cc_convert", "vars",
+            fallback="actor,director,label,outline,series,studio,tag,title")
 
     def javdb_sites(self) -> str:
-        try:
-            return self.conf.get("javdb", "sites")
-        except:
-            return "33,34"
+        return self.conf.get("javdb", "sites", fallback="38,39")
 
     def face_locations_model(self) -> str:
-        try:
-            return self.conf.get("face", "locations_model")
-        except:
-            return "hog"
+        return self.conf.get("face", "locations_model", fallback="hog")
+
+    def face_uncensored_only(self) -> bool:
+        return self.conf.getboolean("face", "uncensored_only", fallback=True)
+
+    def face_aways_imagecut(self) -> bool:
+        return self.conf.getboolean("face", "aways_imagecut", fallback=False)
 
     @staticmethod
     def _exit(sec: str) -> None:
