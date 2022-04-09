@@ -491,7 +491,7 @@ def add_to_pic(pic_path, img_pic, size, count, mode):
 # ========================结束=================================
 
 
-def paste_file_to_folder(filepath, path, number, leak_word, c_word, hack_word):  # 文件路径，番号，后缀，要移动至的位置
+def paste_file_to_folder(filepath, path, multi_part, number, part, leak_word, c_word, hack_word):  # 文件路径，番号，后缀，要移动至的位置
     filepath_obj = pathlib.Path(filepath)
     houzhui = filepath_obj.suffix
     try:
@@ -524,6 +524,8 @@ def paste_file_to_folder(filepath, path, number, leak_word, c_word, hack_word): 
         sub_res = [subext.lower() for subext in config.getInstance().sub_rule()]
         for subfile in filepath_obj.parent.glob('**/*'):
             if subfile.is_file() and subfile.suffix.lower() in sub_res:
+                if multi_part and part.lower() not in subfile.name.lower():
+                    continue
                 sub_targetpath = Path(path) / f"{number}{leak_word}{c_word}{hack_word}{''.join(subfile.suffixes)}"
                 if link_mode not in (1, 2):
                     shutil.move(str(subfile), str(sub_targetpath))
@@ -573,6 +575,8 @@ def paste_file_to_folder_mode2(filepath, path, multi_part, number, part, leak_wo
         sub_res = [subext.lower() for subext in config.getInstance().sub_rule()]
         for subfile in filepath_obj.parent.glob('**/*'):
             if subfile.is_file() and subfile.suffix.lower() in sub_res:
+                if multi_part and part.lower() not in subfile.name.lower():
+                    continue
                 sub_targetpath = Path(path) / f"{number}{leak_word}{c_word}{hack_word}{''.join(subfile.suffixes)}"
                 if link_mode not in (1, 2):
                     shutil.move(str(subfile), str(sub_targetpath))
@@ -589,18 +593,6 @@ def paste_file_to_folder_mode2(filepath, path, multi_part, number, part, leak_wo
         return
     except OSError as oserr:
         print(f'[-]OS Error errno  {oserr.errno}')
-        return
-
-
-def get_part(filepath):
-    try:
-        if re.search('-CD\d+', filepath):
-            return re.findall('-CD\d+', filepath)[0]
-        if re.search('-cd\d+', filepath):
-            return re.findall('-cd\d+', filepath)[0]
-    except:
-        print("[-]failed!Please rename the filename again!")
-        moveFailedFolder(filepath)
         return
 
 
@@ -657,9 +649,9 @@ def core_main(file_path, number_th, oCC):
     imagecut =  json_data.get('imagecut')
     tag =  json_data.get('tag')
     # =======================================================================判断-C,-CD后缀
-    if '-CD' in filepath or '-cd' in filepath:
+    if re.search('-CD\d+', filepath, re.IGNORECASE):
         multi_part = 1
-        part = get_part(filepath)
+        part = re.findall('-CD\d+', filepath, re.IGNORECASE)[0]
     if '-c.' in filepath or '-C.' in filepath or '中文' in filepath or '字幕' in filepath:
         cn_sub = '1'
         c_word = '-C'  # 中文字幕影片后缀
@@ -732,7 +724,7 @@ def core_main(file_path, number_th, oCC):
             add_mark(os.path.join(path,poster_path), os.path.join(path,thumb_path), cn_sub, leak, uncensored, hack)
 
         # 移动电影
-        paste_file_to_folder(filepath, path, number, leak_word, c_word, hack_word)
+        paste_file_to_folder(filepath, path, multi_part, number, part, leak_word, c_word, hack_word)
 
         # 最后输出.nfo元数据文件，以完成.nfo文件创建作为任务成功标志
         print_files(path, leak_word, c_word,  json_data.get('naming_rule'), part, cn_sub, json_data, filepath, tag,  json_data.get('actor_list'), liuchu, uncensored, hack_word
