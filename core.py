@@ -521,7 +521,7 @@ def paste_file_to_folder(filepath, path, multi_part, number, part, leak_word, c_
             except:
                 os.symlink(str(filepath_obj.resolve()), targetpath)
 
-        sub_res = [subext.lower() for subext in config.getInstance().sub_rule()]
+        sub_res = config.getInstance().sub_rule()
         for subfile in filepath_obj.parent.glob('**/*'):
             if subfile.is_file() and subfile.suffix.lower() in sub_res:
                 if multi_part and part.lower() not in subfile.name.lower():
@@ -572,7 +572,7 @@ def paste_file_to_folder_mode2(filepath, path, multi_part, number, part, leak_wo
             except:
                 os.symlink(str(filepath_obj.resolve()), targetpath)
 
-        sub_res = [subext.lower() for subext in config.getInstance().sub_rule()]
+        sub_res = config.getInstance().sub_rule()
         for subfile in filepath_obj.parent.glob('**/*'):
             if subfile.is_file() and subfile.suffix.lower() in sub_res:
                 if multi_part and part.lower() not in subfile.name.lower():

@@ -3,6 +3,7 @@ import re
 import sys
 import configparser
 import time
+import typing
 from pathlib import Path
 
 G_conf_override = {
@@ -263,8 +264,8 @@ class Config:
     def media_type(self) -> str:
         return self.conf.get('media', 'media_type')
 
-    def sub_rule(self):
-        return self.conf.get('media', 'sub_type').split(',')
+    def sub_rule(self) -> typing.Set[str]:
+        return set(self.conf.get('media', 'sub_type').lower().split(','))
 
     def naming_rule(self) -> str:
         return self.conf.get("Name_Rule", "naming_rule")
@@ -445,9 +446,9 @@ class Config:
         sec11 = "media"
         conf.add_section(sec11)
         conf.set(sec11, "media_type",
-                 ".mp4,.avi,.rmvb,.wmv,.mov,.mkv,.flv,.ts,.webm,.MP4,.AVI,.RMVB,.WMV,.MOV,.MKV,.FLV,.TS,.WEBM,iso,ISO")
+                 ".mp4,.avi,.rmvb,.wmv,.mov,.mkv,.flv,.ts,.webm,iso")
         conf.set(sec11, "sub_type",
-                 ".smi,.srt,.idx,.sub,.sup,.psb,.ssa,.ass,.txt,.usf,.xss,.ssf,.rt,.lrc,.sbv,.vtt,.ttml")
+                 ".smi,.srt,.idx,.sub,.sup,.psb,.ssa,.ass,.usf,.xss,.ssf,.rt,.lrc,.sbv,.vtt,.ttml")
 
         sec12 = "watermark"
         conf.add_section(sec12)
