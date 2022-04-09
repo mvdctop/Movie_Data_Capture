@@ -71,11 +71,11 @@ def get_info(json_data):  # 返回json里的数据
 
 
 def small_cover_check(path, filename, cover_small, movie_path):
-    full_filepath = os.path.join(path, filename)
-    if config.getInstance().download_only_missing_images() and not file_not_exist_or_empty(full_filepath):
+    full_filepath = Path(path) / filename
+    if config.getInstance().download_only_missing_images() and not file_not_exist_or_empty(str(full_filepath)):
         return
     download_file_with_filename(cover_small, filename, path, movie_path)
-    print('[+]Image Downloaded! ' + full_filepath)
+    print('[+]Image Downloaded! ' + full_filepath.name)
 
 
 def create_folder(json_data):  # 创建文件夹
@@ -216,7 +216,7 @@ def extrafanart_download_one_by_one(data, path, filepath):
                 break
         if file_not_exist_or_empty(jpg_fullpath):
             return
-        print('[+]Image Downloaded!', jpg_fullpath)
+        print('[+]Image Downloaded!', Path(jpg_fullpath).name)
         j += 1
     if conf.debug():
         print(f'[!]Extrafanart download one by one mode runtime {time.perf_counter() - tm_start:.3f}s')
@@ -247,7 +247,7 @@ def extrafanart_download_threadpool(url_list, save_dir, number):
     if failed: # 非致命错误，电影不移入失败文件夹，将来可以用模式3补齐
         print(f"[-]Failed downloaded {failed}/{len(result)} extrafanart images for [{number}] to '{extrafanart_dir}', you may retry run mode 3 later.")
     else:
-        print(f"[+]Successfully downloaded {len(result)} extrafanart to '{extrafanart_dir}'")
+        print(f"[+]Successfully downloaded {len(result)} extrafanarts.")
     if conf.debug():
         print(f'[!]Extrafanart download ThreadPool mode runtime {time.perf_counter() - tm_start:.3f}s')
 
@@ -276,7 +276,7 @@ def image_download(cover, fanart_path, thumb_path, path, filepath):
             break
     if file_not_exist_or_empty(full_filepath):
         return
-    print('[+]Image Downloaded!', full_filepath)
+    print('[+]Image Downloaded!', Path(full_filepath).name)
     shutil.copyfile(full_filepath, os.path.join(path, thumb_path))
 
 
@@ -529,10 +529,10 @@ def paste_file_to_folder(filepath, path, multi_part, number, part, leak_word, c_
                 sub_targetpath = Path(path) / f"{number}{leak_word}{c_word}{hack_word}{''.join(subfile.suffixes)}"
                 if link_mode not in (1, 2):
                     shutil.move(str(subfile), str(sub_targetpath))
-                    print(f"[+]Sub Moved!  '{sub_targetpath.name}'")
+                    print(f"[+]Sub Moved!        {sub_targetpath.name}")
                 else:
                     shutil.copyfile(str(subfile), str(sub_targetpath))
-                    print(f"[+]Sub Copied!  '{sub_targetpath.name}'")
+                    print(f"[+]Sub Copied!       {sub_targetpath.name}")
         return
 
     except FileExistsError as fee:
@@ -580,10 +580,10 @@ def paste_file_to_folder_mode2(filepath, path, multi_part, number, part, leak_wo
                 sub_targetpath = Path(path) / f"{number}{leak_word}{c_word}{hack_word}{''.join(subfile.suffixes)}"
                 if link_mode not in (1, 2):
                     shutil.move(str(subfile), str(sub_targetpath))
-                    print(f"[+]Sub Moved!  '{sub_targetpath.name}'")
+                    print(f"[+]Sub Moved!        {sub_targetpath.name}")
                 else:
                     shutil.copyfile(str(subfile), str(sub_targetpath))
-                    print(f"[+]Sub Copied!  '{sub_targetpath.name}'")
+                    print(f"[+]Sub Copied!       {sub_targetpath.name}")
         return
     except FileExistsError as fee:
         print(f'[-]FileExistsError: {fee}')

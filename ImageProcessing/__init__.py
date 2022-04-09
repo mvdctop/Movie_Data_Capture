@@ -2,6 +2,7 @@ import logging
 import os
 import config
 import importlib
+from pathlib import Path
 from PIL import Image
 import shutil
 from ADC_function import file_not_exist_or_empty
@@ -72,13 +73,13 @@ def cutImage(imagecut, path, fanart_path, poster_path):
             else:  # 如果等于2/3
                 img2 = img
             img2.save(fullpath_poster)
-            print('[+]Image Cutted!     ' + fullpath_poster)
+            print(f"[+]Image Cutted!     {Path(fullpath_poster).name}")
         except Exception as e:
             print(e)
             print('[-]Cover cut failed!')
     elif imagecut == 0:  # 复制封面
         shutil.copyfile(fullpath_fanart, fullpath_poster)
-        print('[+]Image Copyed!     ' + fullpath_poster)
+        print(f"[+]Image Copyed!     {Path(fullpath_poster).name}")
 
 
 def face_center(filename, model):
