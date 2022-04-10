@@ -101,9 +101,10 @@ is performed. It may help you correct wrong numbers before real job.""")
     no_net_op = False
     if conf.main_mode() == 3:
         no_net_op = args.no_network_operation
-        config.G_conf_override["common:stop_counter"] = 0
-        config.G_conf_override["common:rerun_delay"] = '0s'
-        config.G_conf_override["face:aways_imagecut"] = True
+        if no_net_op:
+            config.G_conf_override["common:stop_counter"] = 0
+            config.G_conf_override["common:rerun_delay"] = '0s'
+            config.G_conf_override["face:aways_imagecut"] = True
 
     return args.file, args.number, args.logdir, args.regexstr, args.zero_op, no_net_op
 

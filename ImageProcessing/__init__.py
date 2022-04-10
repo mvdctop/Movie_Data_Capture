@@ -7,9 +7,9 @@ from PIL import Image
 import shutil
 from ADC_function import file_not_exist_or_empty
 
-g_width_half_ratio = 2.12
 
 def face_crop_width(filename, width, height):
+    aspect_ratio = config.getInstance().face_aspect_ratio()
     # 新宽度是高度的2/3
     cropWidthHalf = int(height/3)
     try:
@@ -24,15 +24,15 @@ def face_crop_width(filename, width, height):
                 # 越界处理
                 if cropLeft < 0:
                     cropLeft = 0
-                    cropRight = cropWidthHalf*g_width_half_ratio
+                    cropRight = cropWidthHalf * aspect_ratio
                 elif cropRight > width:
-                    cropLeft = width-cropWidthHalf*g_width_half_ratio
+                    cropLeft = width - cropWidthHalf * aspect_ratio
                     cropRight = width
                 return (cropLeft, 0, cropRight, height)
     except:
         print('[-]Not found face!   ' + filename)
     # 默认靠右切
-    return (width-cropWidthHalf * g_width_half_ratio, 0, width, height)
+    return (width-cropWidthHalf * aspect_ratio, 0, width, height)
 
 
 def face_crop_height(filename, width, height):
@@ -58,11 +58,13 @@ def face_crop_height(filename, width, height):
 
 
 def cutImage(imagecut, path, fanart_path, poster_path, skip_facerec=False):
+    conf = config.getInstance()
     fullpath_fanart = os.path.join(path, fanart_path)
     fullpath_poster = os.path.join(path, poster_path)
-    if config.getInstance().face_aways_imagecut():
+    aspect_ratio = conf.face_aspect_ratio()
+    if conf.face_aways_imagecut():
         imagecut = 1
-    elif config.getInstance().download_only_missing_images() and not file_not_exist_or_empty(fullpath_poster):
+    elif conf.download_only_missing_images() and not file_not_exist_or_empty(fullpath_poster):
         return
     if imagecut == 1:  # 剪裁大封面
         try:
@@ -71,7 +73,7 @@ def cutImage(imagecut, path, fanart_path, poster_path, skip_facerec=False):
             if width/height > 2/3:  # 如果宽度大于2
                 if skip_facerec:
                     # 有码封面默认靠右切
-                    img2 = img.crop((width - int(height/3) * g_width_half_ratio, 0, width, height))
+                    img2 = img.crop((width - int(height/3) * aspect_ratio, 0, width, height))
                 else:
                     # 以人像为中心切取
                     img2 = img.crop(face_crop_width(fullpath_fanart, width, height))

@@ -365,6 +365,9 @@ class Config:
     def face_aways_imagecut(self) -> bool:
         return self.getboolean_override("face", "aways_imagecut", fallback=False)
 
+    def face_aspect_ratio(self) -> float:
+        return self.conf.getfloat("face", "aspect_ratio", fallback=2.12)
+
     @staticmethod
     def _exit(sec: str) -> None:
         print("[-] Read config error! Please check the {} section in config.ini", sec)
