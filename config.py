@@ -18,7 +18,8 @@ G_conf_override = {
     "common:stop_counter": None,
     "common:ignore_failed_list": None,
     "common:rerun_delay": None,
-    "debug_mode:switch": None
+    "debug_mode:switch": None,
+    "face:aways_imagecut": None
 }
 
 
@@ -101,9 +102,12 @@ class Config:
             #     sys.exit(3)
             #     #self.conf = self._default_config()
 
-    def getboolean_override(self, section, item) -> bool:
-        return self.conf.getboolean(section, item) if G_conf_override[f"{section}:{item}"] is None else bool(
-            G_conf_override[f"{section}:{item}"])
+    def getboolean_override(self, section, item, fallback=None) -> bool:
+        if G_conf_override[f"{section}:{item}"] is not None:
+            return bool(G_conf_override[f"{section}:{item}"])
+        if fallback is not None:
+            return self.conf.getboolean(section, item, fallback=fallback)
+        return self.conf.getboolean(section, item)
 
     def getint_override(self, section, item, fallback=None) -> int:
         if G_conf_override[f"{section}:{item}"] is not None:
@@ -359,7 +363,7 @@ class Config:
         return self.conf.getboolean("face", "uncensored_only", fallback=True)
 
     def face_aways_imagecut(self) -> bool:
-        return self.conf.getboolean("face", "aways_imagecut", fallback=False)
+        return self.getboolean_override("face", "aways_imagecut", fallback=False)
 
     @staticmethod
     def _exit(sec: str) -> None:

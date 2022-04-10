@@ -18,7 +18,7 @@ from opencc import OpenCC
 import config
 from ADC_function import file_modification_days, get_html, parallel_download_files
 from number_parser import get_number
-from core import core_main, moveFailedFolder
+from core import core_main, core_main_no_net_op, moveFailedFolder
 
 
 def check_update(local_version):
@@ -40,7 +40,7 @@ def check_update(local_version):
         print("[*]======================================================")
 
 
-def argparse_function(ver: str) -> typing.Tuple[str, str, str, str, bool]:
+def argparse_function(ver: str) -> typing.Tuple[str, str, str, str, bool, bool]:
     conf = config.getInstance()
     parser = argparse.ArgumentParser(epilog=f"Load Config file '{conf.ini_path}'.")
     parser.add_argument("file", default='', nargs='?', help="Single Movie file path.")
@@ -70,6 +70,8 @@ def argparse_function(ver: str) -> typing.Tuple[str, str, str, str, bool]:
                         help="Auto exit after program complete")
     parser.add_argument("-g", "--debug", action="store_true",
                         help="Turn on debug mode to generate diagnostic log for issue report.")
+    parser.add_argument("-N", "--no-network-operation", action="store_true",
+                        help="No network query, do not get metadata, for cover cropping purposes, only takes effect when main mode is 3.")
     parser.add_argument("-z", "--zero-operation", dest='zero_op', action="store_true",
                         help="""Only show job list of files and numbers, and **NO** actual operation
 is performed. It may help you correct wrong numbers before real job.""")
@@ -96,7 +98,14 @@ is performed. It may help you correct wrong numbers before real job.""")
     config.G_conf_override["debug_mode:switch"] = get_bool_or_none(args.debug)
     config.G_conf_override["common:rerun_delay"] = get_str_or_none(args.delaytm)
 
-    return args.file, args.number, args.logdir, args.regexstr, args.zero_op
+    no_net_op = False
+    if conf.main_mode() == 3:
+        no_net_op = args.no_network_operation
+        config.G_conf_override["common:stop_counter"] = 0
+        config.G_conf_override["common:rerun_delay"] = '0s'
+        config.G_conf_override["face:aways_imagecut"] = True
+
+    return args.file, args.number, args.logdir, args.regexstr, args.zero_op, no_net_op
 
 
 class OutLogger(object):
@@ -416,38 +425,44 @@ def rm_empty_folder(path):
             pass
 
 
-def create_data_and_move(file_path: str, zero_op, oCC):
+def create_data_and_move(movie_path: str, zero_op: bool, no_net_op: bool, oCC):
     # Normalized number, eg: 111xxx-222.mp4 -> xxx-222.mp4
     debug = config.getInstance().debug()
-    n_number = get_number(debug, os.path.basename(file_path))
-    file_path = os.path.abspath(file_path)
+    n_number = get_number(debug, os.path.basename(movie_path))
+    movie_path = os.path.abspath(movie_path)
 
     if debug is True:
-        print(f"[!] [{n_number}] As Number making data for '{file_path}'")
+        print(f"[!] [{n_number}] As Number making data for '{movie_path}'")
         if zero_op:
             return
         if n_number:
-            core_main(file_path, n_number, oCC)
+            if no_net_op:
+                core_main_no_net_op(movie_path, n_number)
+            else:
+                core_main(movie_path, n_number, oCC)
         else:
             print("[-] number empty ERROR")
-            moveFailedFolder(file_path)
+            moveFailedFolder(movie_path)
         print("[*]======================================================")
     else:
         try:
-            print(f"[!] [{n_number}] As Number making data for '{file_path}'")
+            print(f"[!] [{n_number}] As Number making data for '{movie_path}'")
             if zero_op:
                 return
             if n_number:
-                core_main(file_path, n_number, oCC)
+                if no_net_op:
+                    core_main_no_net_op(movie_path, n_number)
+                else:
+                    core_main(movie_path, n_number, oCC)
             else:
                 raise ValueError("number empty")
             print("[*]======================================================")
         except Exception as err:
-            print(f"[-] [{file_path}] ERROR:")
+            print(f"[-] [{movie_path}] ERROR:")
             print('[-]', err)
 
             try:
-                moveFailedFolder(file_path)
+                moveFailedFolder(movie_path)
             except Exception as err:
                 print('[!]', err)
 
@@ -478,7 +493,7 @@ def create_data_and_move_with_custom_number(file_path: str, custom_number, oCC):
 
 
 def main(args: tuple) -> Path:
-    (single_file_path, custom_number, logdir, regexstr, zero_op) = args
+    (single_file_path, custom_number, logdir, regexstr, zero_op, no_net_op) = args
     conf = config.getInstance()
     main_mode = conf.main_mode()
     folder_path = ""
@@ -592,7 +607,7 @@ def main(args: tuple) -> Path:
             percentage = str(count / int(count_all) * 100)[:4] + '%'
             print('[!] {:>30}{:>21}'.format('- ' + percentage + ' [' + str(count) + '/' + count_all + '] -',
                                             time.strftime("%H:%M:%S")))
-            create_data_and_move(movie_path, zero_op, oCC)
+            create_data_and_move(movie_path, zero_op, no_net_op, oCC)
             if count >= stop_count:
                 print("[!]Stop counter triggered!")
                 break

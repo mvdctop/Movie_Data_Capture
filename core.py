@@ -615,7 +615,46 @@ def debug_print(data: json):
         pass
 
 
-def core_main(file_path, number_th, oCC):
+def core_main_no_net_op(movie_path, number):
+    conf = config.getInstance()
+    leak_word = ''
+    leak = 0
+    c_word = ''
+    cn_sub = ''
+    hack = ''
+    hack_word = ''
+    ext = '.jpg'
+    imagecut = 1
+    path = str(Path(movie_path).parent)
+
+    if '-c.' in movie_path or '-C.' in movie_path or '中文' in movie_path or '字幕' in movie_path:
+        cn_sub = '1'
+        c_word = '-C'  # 中文字幕影片后缀
+    uncensored = 1 if is_uncensored(number) else 0
+    if '流出' in movie_path or 'uncensored' in movie_path:
+        leak_word = '-流出' # 流出影片后缀
+        leak = 1
+
+    if 'hack'.upper() in str(movie_path).upper() or '破解' in movie_path:
+        hack = 1
+        hack_word = "-hack"
+
+    fanart_path =  f"{number}{leak_word}{c_word}{hack_word}-fanart{ext}"
+    poster_path = f"{number}{leak_word}{c_word}{hack_word}-poster{ext}"
+    thumb_path =  f"{number}{leak_word}{c_word}{hack_word}-thumb{ext}"
+    full_fanart_path = os.path.join(path, fanart_path)
+    full_poster_path = os.path.join(path, poster_path)
+    full_thumb_path = os.path.join(path, thumb_path)
+
+    if not all(os.path.isfile(f) for f in (full_fanart_path, full_thumb_path)):
+        return
+
+    cutImage(imagecut, path, fanart_path, poster_path, bool(conf.face_uncensored_only() and not uncensored))
+    if conf.is_watermark():
+        add_mark(full_poster_path, full_thumb_path, cn_sub, leak, uncensored, hack)
+
+
+def core_main(movie_path, number_th, oCC):
     conf = config.getInstance()
     # =======================================================================初始化所需变量
     multi_part = 0
@@ -627,8 +666,6 @@ def core_main(file_path, number_th, oCC):
     hack = ''
     hack_word = ''
 
-
-    filepath = file_path  # 影片的路径 绝对路径
     # 下面被注释的变量不需要
     #rootpath= os.getcwd
     number = number_th
@@ -636,7 +673,7 @@ def core_main(file_path, number_th, oCC):
 
     # Return if blank dict returned (data not found)
     if not json_data:
-        moveFailedFolder(filepath)
+        moveFailedFolder(movie_path)
         return
 
     if json_data["number"] != number:
@@ -649,10 +686,10 @@ def core_main(file_path, number_th, oCC):
     imagecut =  json_data.get('imagecut')
     tag =  json_data.get('tag')
     # =======================================================================判断-C,-CD后缀
-    if re.search('-CD\d+', filepath, re.IGNORECASE):
+    if re.search('-CD\d+', movie_path, re.IGNORECASE):
         multi_part = 1
-        part = re.findall('-CD\d+', filepath, re.IGNORECASE)[0]
-    if '-c.' in filepath or '-C.' in filepath or '中文' in filepath or '字幕' in filepath:
+        part = re.findall('-CD\d+', movie_path, re.IGNORECASE)[0]
+    if '-c.' in movie_path or '-C.' in movie_path or '中文' in movie_path or '字幕' in movie_path:
         cn_sub = '1'
         c_word = '-C'  # 中文字幕影片后缀
 
@@ -660,14 +697,14 @@ def core_main(file_path, number_th, oCC):
     uncensored = 1 if is_uncensored(number) else 0
 
 
-    if '流出' in filepath or 'uncensored' in filepath:
+    if '流出' in movie_path or 'uncensored' in movie_path:
         liuchu = '流出'
         leak = 1
         leak_word = '-流出' # 流出影片后缀
     else:
         leak = 0
 
-    if 'hack'.upper() in str(filepath).upper() or '破解' in filepath:
+    if 'hack'.upper() in str(movie_path).upper() or '破解' in movie_path:
         hack = 1
         hack_word = "-hack"
 
@@ -696,22 +733,22 @@ def core_main(file_path, number_th, oCC):
 
         # 检查小封面, 如果image cut为3，则下载小封面
         if imagecut == 3:
-            small_cover_check(path, poster_path, json_data.get('cover_small'), filepath)
+            small_cover_check(path, poster_path, json_data.get('cover_small'), movie_path)
 
         # creatFolder会返回番号路径
-        image_download( cover, fanart_path,thumb_path, path, filepath)
+        image_download( cover, fanart_path,thumb_path, path, movie_path)
 
         if not multi_part or part.lower() == '-cd1':
             try:
                 # 下载预告片
                 if conf.is_trailer() and json_data.get('trailer'):
-                    trailer_download(json_data.get('trailer'), leak_word, c_word, hack_word, number, path, filepath)
+                    trailer_download(json_data.get('trailer'), leak_word, c_word, hack_word, number, path, movie_path)
             except:
                 pass
             try:
                 # 下载剧照 data, path, filepath
                 if conf.is_extrafanart() and json_data.get('extrafanart'):
-                    extrafanart_download(json_data.get('extrafanart'), path, number, filepath)
+                    extrafanart_download(json_data.get('extrafanart'), path, number, movie_path)
             except:
                 pass
 
@@ -724,40 +761,40 @@ def core_main(file_path, number_th, oCC):
             add_mark(os.path.join(path,poster_path), os.path.join(path,thumb_path), cn_sub, leak, uncensored, hack)
 
         # 移动电影
-        paste_file_to_folder(filepath, path, multi_part, number, part, leak_word, c_word, hack_word)
+        paste_file_to_folder(movie_path, path, multi_part, number, part, leak_word, c_word, hack_word)
 
         # 最后输出.nfo元数据文件，以完成.nfo文件创建作为任务成功标志
-        print_files(path, leak_word, c_word,  json_data.get('naming_rule'), part, cn_sub, json_data, filepath, tag,  json_data.get('actor_list'), liuchu, uncensored, hack_word
+        print_files(path, leak_word, c_word,  json_data.get('naming_rule'), part, cn_sub, json_data, movie_path, tag,  json_data.get('actor_list'), liuchu, uncensored, hack_word
         ,fanart_path,poster_path,thumb_path)
 
     elif conf.main_mode() == 2:
         # 创建文件夹
         path = create_folder(json_data)
         # 移动文件
-        paste_file_to_folder_mode2(filepath, path, multi_part, number, part, leak_word, c_word, hack_word)
+        paste_file_to_folder_mode2(movie_path, path, multi_part, number, part, leak_word, c_word, hack_word)
         if conf.is_watermark():
             add_mark(os.path.join(path,poster_path), os.path.join(path,thumb_path), cn_sub, leak, uncensored, hack)
 
     elif conf.main_mode() == 3:
-        path = str(Path(file_path).parent)
+        path = str(Path(movie_path).parent)
         if multi_part == 1:
             number += part  # 这时number会被附加上CD1后缀
 
         # 检查小封面, 如果image cut为3，则下载小封面
         if imagecut == 3:
-            small_cover_check(path, poster_path, json_data.get('cover_small'), filepath)
+            small_cover_check(path, poster_path, json_data.get('cover_small'), movie_path)
 
         # creatFolder会返回番号路径
-        image_download( cover, fanart_path,thumb_path, path, filepath)
+        image_download( cover, fanart_path, thumb_path, path, movie_path)
 
         if not multi_part or part.lower() == '-cd1':
             # 下载预告片
             if conf.is_trailer() and json_data.get('trailer'):
-                trailer_download(json_data.get('trailer'), leak_word, c_word, hack_word, number, path, filepath)
+                trailer_download(json_data.get('trailer'), leak_word, c_word, hack_word, number, path, movie_path)
 
             # 下载剧照 data, path, filepath
             if conf.is_extrafanart() and json_data.get('extrafanart'):
-                extrafanart_download(json_data.get('extrafanart'), path, number, filepath)
+                extrafanart_download(json_data.get('extrafanart'), path, number, movie_path)
 
         # 裁剪图
         cutImage(imagecut, path, fanart_path, poster_path, bool(conf.face_uncensored_only() and not uncensored))
@@ -767,5 +804,5 @@ def core_main(file_path, number_th, oCC):
             add_mark(os.path.join(path,poster_path), os.path.join(path,thumb_path), cn_sub, leak, uncensored, hack)
 
         # 最后输出.nfo元数据文件，以完成.nfo文件创建作为任务成功标志
-        print_files(path, leak_word, c_word, json_data.get('naming_rule'), part, cn_sub, json_data, filepath,
+        print_files(path, leak_word, c_word, json_data.get('naming_rule'), part, cn_sub, json_data, movie_path,
                     tag, json_data.get('actor_list'), liuchu, uncensored, hack_word,fanart_path,poster_path,thumb_path)
