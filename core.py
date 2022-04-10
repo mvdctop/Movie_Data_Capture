@@ -617,6 +617,7 @@ def debug_print(data: json):
 
 def core_main_no_net_op(movie_path, number):
     conf = config.getInstance()
+    part = ''
     leak_word = ''
     leak = 0
     c_word = ''
@@ -627,6 +628,8 @@ def core_main_no_net_op(movie_path, number):
     imagecut = 1
     path = str(Path(movie_path).parent)
 
+    if re.search('-CD\d+', movie_path, re.IGNORECASE):
+        part = re.findall('-CD\d+', movie_path, re.IGNORECASE)[0]
     if '-c.' in movie_path or '-C.' in movie_path or '中文' in movie_path or '字幕' in movie_path:
         cn_sub = '1'
         c_word = '-C'  # 中文字幕影片后缀
@@ -639,12 +642,19 @@ def core_main_no_net_op(movie_path, number):
         hack = 1
         hack_word = "-hack"
 
-    fanart_path =  f"{number}{leak_word}{c_word}{hack_word}-fanart{ext}"
-    poster_path = f"{number}{leak_word}{c_word}{hack_word}-poster{ext}"
-    thumb_path =  f"{number}{leak_word}{c_word}{hack_word}-thumb{ext}"
+    prestr = f"{number}{leak_word}{c_word}{hack_word}"
+    fanart_path =  f"{prestr}-fanart{ext}"
+    poster_path = f"{prestr}-poster{ext}"
+    thumb_path =  f"{prestr}-thumb{ext}"
     full_fanart_path = os.path.join(path, fanart_path)
     full_poster_path = os.path.join(path, poster_path)
     full_thumb_path = os.path.join(path, thumb_path)
+    full_nfo = Path(path) / f"{prestr}{part}.nfo"
+
+    if full_nfo.is_file():
+        nfo = full_nfo.read_text(encoding='utf-8')
+        if nfo.find(r'<tag>无码</tag>'):
+            uncensored = 1
 
     if not all(os.path.isfile(f) for f in (full_fanart_path, full_thumb_path)):
         return
@@ -695,7 +705,8 @@ def core_main(movie_path, number_th, oCC):
 
     # 判断是否无码
     uncensored = 1 if is_uncensored(number) else 0
-
+    if json_data.get('无码'):
+        uncensored = 1
 
     if '流出' in movie_path or 'uncensored' in movie_path:
         liuchu = '流出'

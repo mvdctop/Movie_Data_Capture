@@ -83,6 +83,9 @@ def getExtrafanart(htmlcode):  # 获取剧照
         if extrafanart_imgs:
             return [urljoin('https://www.javbus.com',img) for img in extrafanart_imgs]
     return ''
+def getUncensored(html):
+    x = html.xpath('//*[@id="navbar"]/ul[1]/li[@class="active"]/a[contains(@href,"uncensored")]')
+    return bool(x)
 
 def main_uncensored(number):
     htmlcode = get_html('https://www.javbus.com/ja/' + number)
@@ -109,6 +112,7 @@ def main_uncensored(number):
         'website': 'https://www.javbus.com/ja/' + number,
         'source': 'javbus.py',
         'series': getSeriseJa(lx),
+        '无码': getUncensored(lx)
     }
     js = json.dumps(dic, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ':'), )  # .encode('UTF-8')
     return js
@@ -151,6 +155,7 @@ def main(number):
                 'website': 'https://www.javbus.com/' + number,
                 'source': 'javbus.py',
                 'series': getSerise(lx),
+                '无码': getUncensored(lx)
             }
             js = json.dumps(dic, ensure_ascii=False, sort_keys=True, indent=4,separators=(',', ':'), )  # .encode('UTF-8')
             return js
