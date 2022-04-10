@@ -655,6 +655,8 @@ def core_main_no_net_op(movie_path, number):
         nfo = full_nfo.read_text(encoding='utf-8')
         if nfo.find(r'<tag>无码</tag>'):
             uncensored = 1
+    else:
+        return
 
     if not all(os.path.isfile(f) for f in (full_fanart_path, full_thumb_path)):
         return
