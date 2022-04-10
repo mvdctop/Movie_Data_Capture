@@ -180,7 +180,8 @@ def getUserRating(html):
     except:
         return
 def getUncensored(html):
-    x = html.xpath('//strong[contains(text(),"類別")]/../span/a[contains(@href,"/tags/uncensored?")]')
+    x = html.xpath('//strong[contains(text(),"類別")]/../span/a[contains(@href,"/tags/uncensored?")'
+                ' or contains(@href,"/tags/western?")]')
     return bool(x)
 
 def main(number):
@@ -342,3 +343,4 @@ if __name__ == "__main__":
     # print(main('EBOD-646'))
     # print(main('LOVE-262'))
     print(main('ABP-890'))
+    print(main('blacked.14.12.08'))
