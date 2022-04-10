@@ -705,8 +705,9 @@ def core_main(movie_path, number_th, oCC):
 
     # 判断是否无码
     uncensored = 1 if is_uncensored(number) else 0
-    if json_data.get('无码'):
-        uncensored = 1
+    unce = json_data.get('无码')
+    if type(unce) is bool:
+        uncensored = 1 if unce else 0
 
     if '流出' in movie_path or 'uncensored' in movie_path:
         liuchu = '流出'
