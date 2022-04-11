@@ -251,7 +251,8 @@ def main(number):
         # so get the hinban first, and then pass it to following functions
         fanza_hinban = getNum(htmlcode)
         out_num = fanza_hinban
-        if re.sub('-|_', '', number.lower()) == fanza_hinban:
+        number_lo = number.lower()
+        if re.sub('-|_', '', number_lo) == fanza_hinban or number_lo.replace('-', '00') == fanza_hinban:
             out_num = number
         data = {
             "title": getTitle(htmlcode).strip(),
