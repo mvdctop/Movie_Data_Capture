@@ -48,6 +48,8 @@ def get_number(debug: bool, file_path: str) -> str:
             if 'fc2' in lower_check:
                 filename = lower_check.replace('ppv', '').replace('--', '-').replace('_', '-').upper()
             filename = re.sub("(-|_)cd\d{1,2}", "", filename, flags=re.IGNORECASE)
+            if not re.search("-|_", filename): # 去掉-CD1之后再无-的情况，例如n1012-CD1.wmv
+                return str(re.search(r'\w+', filename[:filename.find('.')], re.A).group())
             file_number = str(re.search(r'\w+(-|_)\w+', filename, re.A).group())
             file_number = re.sub("(-|_)c$", "", file_number, flags=re.IGNORECASE)
             return file_number.upper()
@@ -157,7 +159,9 @@ if __name__ == "__main__":
         "hhd800.com@STARS-566-HD.mp4",
         "jav20s8.com@GIGL-677_4K.mp4",
         "sbw99.cc@iesp-653-4K.mp4",
-        "4K-ABP-358_C.mkv"
+        "4K-ABP-358_C.mkv",
+        "n1012-CD1.wmv",
+        "東热n1012-CD2.wmv",
     )
 
 
