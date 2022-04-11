@@ -161,7 +161,7 @@ if __name__ == "__main__":
         "sbw99.cc@iesp-653-4K.mp4",
         "4K-ABP-358_C.mkv",
         "n1012-CD1.wmv",
-        "東热n1012-CD2.wmv",
+        "[]n1012-CD2.wmv",
     )
 
 
