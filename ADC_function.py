@@ -18,6 +18,7 @@ from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 from cloudscraper import create_scraper
 from concurrent.futures import ThreadPoolExecutor
+from unicodedata import category
 
 
 def getXpathSingle(htmlcode, xpath):
@@ -566,6 +567,7 @@ def delete_all_elements_in_list(string: str, lists: typing.Iterable[str]):
             new_lists.append(i)
     return new_lists
 
+
 def delete_all_elements_in_str(string_delete: str, string: str):
     """
     delete same string in given list
@@ -574,3 +576,13 @@ def delete_all_elements_in_str(string_delete: str, string: str):
         if i == string_delete:
             string = string.replace(i,"")
     return string
+
+
+def cnspace(v: str, n: int) -> int:
+    """
+    print format空格填充对齐内容包含中文时的空格计算
+    """
+    cw = 0
+    for c in v:
+        cw += 1 if category(c) in ('Lo',) else 0
+    return n - cw

@@ -608,7 +608,7 @@ def debug_print(data: json):
             if i == 'extrafanart':
                 print('[+]  -', "%-14s" % i, ':', len(v), 'links')
                 continue
-            print('[+]  -', "%-14s" % i, ':', v)
+            print(f'[+]  - {i:<{cnspace(i,14)}} : {v}')
 
         print("[+] ------- DEBUG INFO -------")
     except:
