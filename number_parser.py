@@ -52,6 +52,8 @@ def get_number(debug: bool, file_path: str) -> str:
                 return str(re.search(r'\w+', filename[:filename.find('.')], re.A).group())
             file_number = str(re.search(r'\w+(-|_)\w+', filename, re.A).group())
             file_number = re.sub("(-|_)c$", "", file_number, flags=re.IGNORECASE)
+            if re.search("\d+ch$", file_number, flags=re.I):
+                file_number = file_number[:-2]
             return file_number.upper()
         else:  # 提取不含减号-的番号，FANZA CID
             # 欧美番号匹配规则
@@ -149,12 +151,12 @@ if __name__ == "__main__":
         "caribean-020317_001.nfo",  # -号误命名为_号的
         "257138_3xplanet_1Pondo_080521_001.mp4",
         "ADV-R0624-CD3.wmv",  # 多碟影片
-        "XXX-AV   22061-CD5.iso",  # 新支持片商格式 xxx-av-22061 命名规则来自javdb数据源
+        "XXX-AV   22061-CD5.iso",  # 支持片商格式 xxx-av-22061 命名规则来自javdb数据源
         "xxx-av 20589.mp4",
-        "Muramura-102114_145-HD.wmv",  # 新支持片商格式 102114_145  命名规则来自javdb数据源
-        "heydouga-4102-023-CD2.iso",  # 新支持片商格式 heydouga-4102-023 命名规则来自javdb数据源
+        "Muramura-102114_145-HD.wmv",  # 支持片商格式 102114_145  命名规则来自javdb数据源
+        "heydouga-4102-023-CD2.iso",  # 支持片商格式 heydouga-4102-023 命名规则来自javdb数据源
         "HeyDOuGa4236-1048 Ai Qiu - .mp4",  # heydouga-4236-1048 命名规则来自javdb数据源
-        "pacopacomama-093021_539-FHD.mkv",  # 新支持片商格式 093021_539 命名规则来自javdb数据源
+        "pacopacomama-093021_539-FHD.mkv",  # 支持片商格式 093021_539 命名规则来自javdb数据源
         "sbw99.cc@heyzo_hd_2636_full.mp4",
         "hhd800.com@STARS-566-HD.mp4",
         "jav20s8.com@GIGL-677_4K.mp4",
@@ -162,6 +164,10 @@ if __name__ == "__main__":
         "4K-ABP-358_C.mkv",
         "n1012-CD1.wmv",
         "[]n1012-CD2.wmv",
+        "rctd-460ch.mp4",  # 除支持-C硬字幕外，新支持ch硬字幕
+        "rctd-461CH-CD2.mp4",  # ch后可加CDn
+        "rctd-461-Cd3-C.mp4",  # CDn后可加-C
+        "rctd-461-C-cD4.mp4",  # cD1 Cd1 cd1 CD1 最终生成.nfo时统一为大写CD1
     )
 
 

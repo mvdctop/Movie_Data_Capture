@@ -629,8 +629,9 @@ def core_main_no_net_op(movie_path, number):
     path = str(Path(movie_path).parent)
 
     if re.search('-CD\d+', movie_path, re.IGNORECASE):
-        part = re.findall('-CD\d+', movie_path, re.IGNORECASE)[0]
-    if '-c.' in movie_path or '-C.' in movie_path or '中文' in movie_path or '字幕' in movie_path:
+        part = re.findall('-CD\d+', movie_path, re.IGNORECASE)[0].upper()
+    if re.search(r'-C(\.\w+$|-\w+)|\d+ch(\.\w+$|-\w+)', movie_path,
+            re.I) or '中文' in movie_path or '字幕' in movie_path:
         cn_sub = '1'
         c_word = '-C'  # 中文字幕影片后缀
     uncensored = 1 if is_uncensored(number) else 0
@@ -699,8 +700,9 @@ def core_main(movie_path, number_th, oCC):
     # =======================================================================判断-C,-CD后缀
     if re.search('-CD\d+', movie_path, re.IGNORECASE):
         multi_part = 1
-        part = re.findall('-CD\d+', movie_path, re.IGNORECASE)[0]
-    if '-c.' in movie_path or '-C.' in movie_path or '中文' in movie_path or '字幕' in movie_path:
+        part = re.findall('-CD\d+', movie_path, re.IGNORECASE)[0].upper()
+    if re.search(r'-C(\.\w+$|-\w+)|\d+ch(\.\w+$|-\w+)', movie_path,
+            re.I) or '中文' in movie_path or '字幕' in movie_path:
         cn_sub = '1'
         c_word = '-C'  # 中文字幕影片后缀
 
