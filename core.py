@@ -652,8 +652,7 @@ def core_main_no_net_op(movie_path, number):
     full_nfo = Path(path) / f"{prestr}{part}.nfo"
 
     if full_nfo.is_file():
-        nfo = full_nfo.read_text(encoding='utf-8')
-        if nfo.find(r'<tag>无码</tag>'):
+        if full_nfo.read_text(encoding='utf-8').find(r'<tag>无码</tag>') >= 0:
             uncensored = 1
     else:
         return
