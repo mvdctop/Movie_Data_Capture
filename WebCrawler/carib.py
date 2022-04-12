@@ -40,6 +40,7 @@ def main(number: str) -> json:
             'website': f'{G_SITE}/moviepages/{number}/index.html',
             'source': 'carib.py',
             'series': get_series(lx),
+            '无码': True
         }
         js = json.dumps(dic, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ':'), )
         return js

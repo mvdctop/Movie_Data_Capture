@@ -83,9 +83,13 @@ def getExtrafanart(htmlcode):  # 获取剧照
         if extrafanart_imgs:
             return [urljoin('https://www.javbus.com',img) for img in extrafanart_imgs]
     return ''
+def getUncensored(html):
+    x = html.xpath('//*[@id="navbar"]/ul[1]/li[@class="active"]/a[contains(@href,"uncensored")]')
+    return bool(x)
 
 def main_uncensored(number):
-    htmlcode = get_html('https://www.javbus.com/ja/' + number)
+    w_number = number.replace('.', '-')
+    htmlcode = get_html('https://www.javbus.red/' + w_number)
     if "<title>404 Page Not Found" in htmlcode:
         raise Exception('404 page not found')
     lx = etree.fromstring(htmlcode, etree.HTMLParser())
@@ -94,7 +98,7 @@ def main_uncensored(number):
         'title': title,
         'studio': getStudioJa(lx),
         'year': getYear(lx),
-        'outline': getOutline(number, title),
+        'outline': getOutline(w_number, title),
         'runtime': getRuntime(lx),
         'director': getDirectorJa(lx),
         'actor': getActor(lx),
@@ -106,9 +110,10 @@ def main_uncensored(number):
         'label': getSeriseJa(lx),
         'imagecut': 0,
 #        'actor_photo': '',
-        'website': 'https://www.javbus.com/ja/' + number,
+        'website': 'https://www.javbus.red/' + w_number,
         'source': 'javbus.py',
         'series': getSeriseJa(lx),
+        '无码': True
     }
     js = json.dumps(dic, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ':'), )  # .encode('UTF-8')
     return js
@@ -151,6 +156,7 @@ def main(number):
                 'website': 'https://www.javbus.com/' + number,
                 'source': 'javbus.py',
                 'series': getSerise(lx),
+                '无码': getUncensored(lx)
             }
             js = json.dumps(dic, ensure_ascii=False, sort_keys=True, indent=4,separators=(',', ':'), )  # .encode('UTF-8')
             return js
@@ -169,12 +175,13 @@ def main(number):
 
 if __name__ == "__main__" :
     config.G_conf_override['debug_mode:switch'] = True
-    print(main('ABP-888'))
-    print(main('ABP-960'))
-    print(main('ADV-R0624'))    # 404
-    print(main('MMNT-010'))
-    print(main('ipx-292'))
-    print(main('CEMD-011'))
-    print(main('CJOD-278'))
+    # print(main('ABP-888'))
+    # print(main('ABP-960'))
+    # print(main('ADV-R0624'))    # 404
+    # print(main('MMNT-010'))
+    # print(main('ipx-292'))
+    # print(main('CEMD-011'))
+    # print(main('CJOD-278'))
+    print(main('BrazzersExxtra.21.02.01'))
     print(main('100221_001'))
     print(main('AVSW-061'))

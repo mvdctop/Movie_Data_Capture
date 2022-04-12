@@ -18,7 +18,7 @@ from opencc import OpenCC
 import config
 from ADC_function import file_modification_days, get_html, parallel_download_files
 from number_parser import get_number
-from core import core_main, moveFailedFolder
+from core import core_main, core_main_no_net_op, moveFailedFolder
 
 
 def check_update(local_version):
@@ -40,7 +40,7 @@ def check_update(local_version):
         print("[*]======================================================")
 
 
-def argparse_function(ver: str) -> typing.Tuple[str, str, str, str, bool]:
+def argparse_function(ver: str) -> typing.Tuple[str, str, str, str, bool, bool]:
     conf = config.getInstance()
     parser = argparse.ArgumentParser(epilog=f"Load Config file '{conf.ini_path}'.")
     parser.add_argument("file", default='', nargs='?', help="Single Movie file path.")
@@ -62,12 +62,16 @@ def argparse_function(ver: str) -> typing.Tuple[str, str, str, str, bool]:
                         help="Override nfo_skip_days value in config.")
     parser.add_argument("-c", "--stop-counter", dest='cnt', default='', nargs='?',
                         help="Override stop_counter value in config.")
+    parser.add_argument("-R", "--rerun-delay", dest='delaytm', default='', nargs='?',
+                        help="Delay (eg. 1h10m30s or 60 (second)) time and rerun, until all movies proceed. Note: stop_counter value in config or -c must none zero.")
     parser.add_argument("-i", "--ignore-failed-list", action="store_true", help="Ignore failed list '{}'".format(
         os.path.join(os.path.abspath(conf.failed_folder()), 'failed_list.txt')))
     parser.add_argument("-a", "--auto-exit", action="store_true",
                         help="Auto exit after program complete")
     parser.add_argument("-g", "--debug", action="store_true",
                         help="Turn on debug mode to generate diagnostic log for issue report.")
+    parser.add_argument("-N", "--no-network-operation", action="store_true",
+                        help="No network query, do not get metadata, for cover cropping purposes, only takes effect when main mode is 3.")
     parser.add_argument("-z", "--zero-operation", dest='zero_op', action="store_true",
                         help="""Only show job list of files and numbers, and **NO** actual operation
 is performed. It may help you correct wrong numbers before real job.""")
@@ -92,8 +96,17 @@ is performed. It may help you correct wrong numbers before real job.""")
     config.G_conf_override["common:stop_counter"] = get_natural_number_or_none(args.cnt)
     config.G_conf_override["common:ignore_failed_list"] = get_bool_or_none(args.ignore_failed_list)
     config.G_conf_override["debug_mode:switch"] = get_bool_or_none(args.debug)
+    config.G_conf_override["common:rerun_delay"] = get_str_or_none(args.delaytm)
 
-    return args.file, args.number, args.logdir, args.regexstr, args.zero_op
+    no_net_op = False
+    if conf.main_mode() == 3:
+        no_net_op = args.no_network_operation
+        if no_net_op:
+            config.G_conf_override["common:stop_counter"] = 0
+            config.G_conf_override["common:rerun_delay"] = '0s'
+            config.G_conf_override["face:aways_imagecut"] = True
+
+    return args.file, args.number, args.logdir, args.regexstr, args.zero_op, no_net_op
 
 
 class OutLogger(object):
@@ -250,29 +263,31 @@ def close_logfile(logdir: str):
             except:
                 pass
     # 第三步，月合并到年
-    if today.month < 4:
-        return
-    mons = [f for f in log_dir.glob(r'*.txt') if re.match(r'^mdc_\d{6}$', f.stem, re.A)]
-    if not mons or not len(mons):
-        return
-    mons.sort()
-    deadline_year = f'mdc_{today.year - 1}13'
-    year_merge = [f for f in mons if f.stem < deadline_year]
-    if not year_merge or not len(year_merge):
-        return
-    toyear = len('12.txt')  # cut length mdc_2020|12.txt
-    for f in year_merge:
-        try:
-            year_file_name = str(f)[:-toyear] + '.txt'  # mdc_2020.txt
-            with open(year_file_name, 'a', encoding='utf-8') as y:
-                y.write(f.read_text(encoding='utf-8'))
-            f.unlink(missing_ok=True)
-        except:
-            pass
+    for i in range(1):
+        if today.month < 4:
+            break
+        mons = [f for f in log_dir.glob(r'*.txt') if re.match(r'^mdc_\d{6}$', f.stem, re.A)]
+        if not mons or not len(mons):
+            break
+        mons.sort()
+        deadline_year = f'mdc_{today.year - 1}13'
+        year_merge = [f for f in mons if f.stem < deadline_year]
+        if not year_merge or not len(year_merge):
+            break
+        toyear = len('12.txt')  # cut length mdc_2020|12.txt
+        for f in year_merge:
+            try:
+                year_file_name = str(f)[:-toyear] + '.txt'  # mdc_2020.txt
+                with open(year_file_name, 'a', encoding='utf-8') as y:
+                    y.write(f.read_text(encoding='utf-8'))
+                f.unlink(missing_ok=True)
+            except:
+                pass
     # 第四步，压缩年志 如果有压缩需求，请自行手工压缩，或者使用外部脚本来定时完成。推荐nongnu的lzip，对于
     # 这种粒度的文本日志，压缩比是目前最好的。lzip -9的运行参数下，日志压缩比要高于xz -9，而且内存占用更少，
     # 多核利用率更高(plzip多线程版本)，解压速度更快。压缩后的大小差不多是未压缩时的2.4%到3.7%左右，
     # 100MB的日志文件能缩小到3.7MB。
+    return filepath
 
 
 def signal_handler(*args):
@@ -360,7 +375,7 @@ def movie_lists(source_folder, regexstr: str) -> typing.List[str]:
     skip_numbers = set()
     success_folder = Path(conf.success_folder()).resolve()
     for f in success_folder.glob(r'**/*'):
-        if not re.match(r'\.nfo', f.suffix, re.IGNORECASE):
+        if not re.match(r'\.nfo$', f.suffix, re.IGNORECASE):
             continue
         if file_modification_days(f) > nfo_skip_days:
             continue
@@ -411,38 +426,44 @@ def rm_empty_folder(path):
             pass
 
 
-def create_data_and_move(file_path: str, zero_op, oCC):
+def create_data_and_move(movie_path: str, zero_op: bool, no_net_op: bool, oCC):
     # Normalized number, eg: 111xxx-222.mp4 -> xxx-222.mp4
     debug = config.getInstance().debug()
-    n_number = get_number(debug, os.path.basename(file_path))
-    file_path = os.path.abspath(file_path)
+    n_number = get_number(debug, os.path.basename(movie_path))
+    movie_path = os.path.abspath(movie_path)
 
     if debug is True:
-        print(f"[!] [{n_number}] As Number making data for '{file_path}'")
+        print(f"[!] [{n_number}] As Number making data for '{movie_path}'")
         if zero_op:
             return
         if n_number:
-            core_main(file_path, n_number, oCC)
+            if no_net_op:
+                core_main_no_net_op(movie_path, n_number)
+            else:
+                core_main(movie_path, n_number, oCC)
         else:
             print("[-] number empty ERROR")
-            moveFailedFolder(file_path)
+            moveFailedFolder(movie_path)
         print("[*]======================================================")
     else:
         try:
-            print(f"[!] [{n_number}] As Number making data for '{file_path}'")
+            print(f"[!] [{n_number}] As Number making data for '{movie_path}'")
             if zero_op:
                 return
             if n_number:
-                core_main(file_path, n_number, oCC)
+                if no_net_op:
+                    core_main_no_net_op(movie_path, n_number)
+                else:
+                    core_main(movie_path, n_number, oCC)
             else:
                 raise ValueError("number empty")
             print("[*]======================================================")
         except Exception as err:
-            print(f"[-] [{file_path}] ERROR:")
+            print(f"[-] [{movie_path}] ERROR:")
             print('[-]', err)
 
             try:
-                moveFailedFolder(file_path)
+                moveFailedFolder(movie_path)
             except Exception as err:
                 print('[!]', err)
 
@@ -472,18 +493,9 @@ def create_data_and_move_with_custom_number(file_path: str, custom_number, oCC):
                 print('[!]', err)
 
 
-def main():
-    version = '6.0.3'
-    urllib3.disable_warnings()  # Ignore http proxy warning
-
-    # Read config.ini first, in argparse_function() need conf.failed_folder()
-    conf = config.Config("config.ini")
-
-    # Parse command line args
-    single_file_path, custom_number, logdir, regexstr, zero_op = argparse_function(version)
-
-
-
+def main(args: tuple) -> Path:
+    (single_file_path, custom_number, logdir, regexstr, zero_op, no_net_op) = args
+    conf = config.getInstance()
     main_mode = conf.main_mode()
     folder_path = ""
     if main_mode not in (1, 2, 3):
@@ -596,7 +608,7 @@ def main():
             percentage = str(count / int(count_all) * 100)[:4] + '%'
             print('[!] {:>30}{:>21}'.format('- ' + percentage + ' [' + str(count) + '/' + count_all + '] -',
                                             time.strftime("%H:%M:%S")))
-            create_data_and_move(movie_path, zero_op, oCC)
+            create_data_and_move(movie_path, zero_op, no_net_op, oCC)
             if count >= stop_count:
                 print("[!]Stop counter triggered!")
                 break
@@ -614,14 +626,68 @@ def main():
 
     print("[+]All finished!!!")
 
-    close_logfile(logdir)
+    return close_logfile(logdir)
+
+
+def 分析日志文件(logfile):
+    try:
+        if not (isinstance(logfile, Path) and logfile.is_file()):
+            raise FileNotFoundError('log file not found')
+        logtxt = logfile.read_text(encoding='utf-8')
+        扫描电影数 = int(re.findall(r'\[\+]Find (.*) movies\.', logtxt)[0])
+        已处理 = int(re.findall(r'\[1/(.*?)] -', logtxt)[0])
+        完成数 = logtxt.count(r'[+]Wrote!')
+        return 扫描电影数, 已处理, 完成数
+    except:
+        return None, None, None
+
+
+def period(delta, pattern):
+    d = {'d': delta.days}
+    d['h'], rem = divmod(delta.seconds, 3600)
+    d['m'], d['s'] = divmod(rem, 60)
+    return pattern.format(**d)
+
+
+if __name__ == '__main__':
+    version = '6.0.3'
+    multiprocessing.freeze_support()
+    urllib3.disable_warnings()  # Ignore http proxy warning
+    app_start = time.time()
+
+    # Read config.ini first, in argparse_function() need conf.failed_folder()
+    conf = config.Config("config.ini")
+
+    # Parse command line args
+    args = tuple(argparse_function(version))
+
+    再运行延迟 = conf.rerun_delay()
+    if 再运行延迟 > 0 and conf.stop_counter() > 0:
+        while True:
+            try:
+                logfile = main(args)
+                (扫描电影数, 已处理, 完成数) = 分析结果元组 = tuple(分析日志文件(logfile))
+                if all(isinstance(v, int) for v in 分析结果元组):
+                    剩余个数 = 扫描电影数 - 已处理
+                    总用时 = timedelta(seconds = time.time() - app_start)
+                    print(f'All movies:{扫描电影数}  processed:{已处理}  successes:{完成数}  remain:{剩余个数}' +
+                        '  Elapsed time {}'.format(
+                        period(总用时, "{d} day {h}:{m:02}:{s:02}") if 总用时.days == 1
+                            else period(总用时, "{d} days {h}:{m:02}:{s:02}") if 总用时.days > 1
+                            else period(总用时, "{h}:{m:02}:{s:02}")))
+                    if 剩余个数 == 0:
+                        break
+                    下次运行 = datetime.now() + timedelta(seconds=再运行延迟)
+                    print(f'Next run time: {下次运行.strftime("%H:%M:%S")}, rerun_delay={再运行延迟}, press Ctrl+C stop run.')
+                    time.sleep(再运行延迟)
+                else:
+                    break
+            except:
+                break
+    else:
+        main(args)
 
     if not conf.auto_exit():
         input("Press enter key exit, you can check the error message before you exit...")
 
     sys.exit(0)
-
-
-if __name__ == '__main__':
-    multiprocessing.freeze_support()
-    main()

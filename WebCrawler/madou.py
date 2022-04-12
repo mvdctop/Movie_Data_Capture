@@ -146,7 +146,8 @@ def main(number):
             'website': url,
             'source': 'madou.py',
             # 使用
-            'series': getSerise(html)
+            'series': getSerise(html),
+            '无码': True
         }
         js = json.dumps(dic, ensure_ascii=False, sort_keys=True,
                         indent=4, separators=(',', ':'), )  # .encode('UTF-8')

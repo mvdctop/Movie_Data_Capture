@@ -179,6 +179,10 @@ def getUserRating(html):
         return float(v[0][0]), int(v[0][1])
     except:
         return
+def getUncensored(html):
+    x = html.xpath('//strong[contains(text(),"類別")]/../span/a[contains(@href,"/tags/uncensored?")'
+                ' or contains(@href,"/tags/western?")]')
+    return bool(x)
 
 def main(number):
     # javdb更新后同一时间只能登录一个数字站，最新登录站会踢出旧的登录，因此按找到的第一个javdb*.json文件选择站点，
@@ -300,7 +304,7 @@ def main(number):
             'website': urljoin('https://javdb.com', correct_url),
             'source': 'javdb.py',
             'series': getSeries(lx),
-
+            '无码': getUncensored(lx)
         }
         userrating = getUserRating(lx)
         if isinstance(userrating, tuple) and len(userrating) == 2:
@@ -328,7 +332,7 @@ if __name__ == "__main__":
     # print(main('blacked.20.05.30'))
     # print(main('AGAV-042'))
     # print(main('BANK-022'))
-    # print(main('070116-197'))
+    print(main('070116-197'))
     # print(main('093021_539'))  # 没有剧照 片商pacopacomama
     #print(main('FC2-2278260'))
     # print(main('FC2-735670'))
@@ -339,3 +343,4 @@ if __name__ == "__main__":
     # print(main('EBOD-646'))
     # print(main('LOVE-262'))
     print(main('ABP-890'))
+    print(main('blacked.14.12.08'))

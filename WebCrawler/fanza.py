@@ -250,6 +250,13 @@ def main(number):
         # but the hinban on the page is test00012
         # so get the hinban first, and then pass it to following functions
         fanza_hinban = getNum(htmlcode)
+        out_num = fanza_hinban
+        number_lo = number.lower()
+        if (re.sub('-|_', '', number_lo) == fanza_hinban or
+            number_lo.replace('-', '00') == fanza_hinban or
+            number_lo.replace('-', '') + 'so' == fanza_hinban
+        ):
+            out_num = number
         data = {
             "title": getTitle(htmlcode).strip(),
             "studio": getStudio(htmlcode),
@@ -258,7 +265,7 @@ def main(number):
             "director": getDirector(htmlcode) if "anime" not in chosen_url else "",
             "actor": getActor(htmlcode) if "anime" not in chosen_url else "",
             "release": getRelease(htmlcode),
-            "number": fanza_hinban,
+            "number": out_num,
             "cover": getCover(htmlcode, fanza_hinban),
             "imagecut": 1,
             "tag": getTag(htmlcode),
@@ -315,3 +322,5 @@ if __name__ == "__main__":
     # print(main("DV-1562"))
     # print(main("96fad1217"))
     print(main("pred00251"))
+    print(main("MIAA-391"))
+    print(main("OBA-326"))

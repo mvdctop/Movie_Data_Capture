@@ -3,6 +3,7 @@ import re
 import sys
 import configparser
 import time
+import typing
 from pathlib import Path
 
 G_conf_override = {
@@ -16,7 +17,9 @@ G_conf_override = {
     "common:nfo_skip_days": None,
     "common:stop_counter": None,
     "common:ignore_failed_list": None,
-    "debug_mode:switch": None
+    "common:rerun_delay": None,
+    "debug_mode:switch": None,
+    "face:aways_imagecut": None
 }
 
 
@@ -99,13 +102,19 @@ class Config:
             #     sys.exit(3)
             #     #self.conf = self._default_config()
 
-    def getboolean_override(self, section, item) -> bool:
-        return self.conf.getboolean(section, item) if G_conf_override[f"{section}:{item}"] is None else bool(
-            G_conf_override[f"{section}:{item}"])
+    def getboolean_override(self, section, item, fallback=None) -> bool:
+        if G_conf_override[f"{section}:{item}"] is not None:
+            return bool(G_conf_override[f"{section}:{item}"])
+        if fallback is not None:
+            return self.conf.getboolean(section, item, fallback=fallback)
+        return self.conf.getboolean(section, item)
 
-    def getint_override(self, section, item) -> int:
-        return self.conf.getint(section, item) if G_conf_override[f"{section}:{item}"] is None else int(
-            G_conf_override[f"{section}:{item}"])
+    def getint_override(self, section, item, fallback=None) -> int:
+        if G_conf_override[f"{section}:{item}"] is not None:
+            return int(G_conf_override[f"{section}:{item}"])
+        if fallback is not None:
+            return self.conf.getint(section, item, fallback=fallback)
+        return self.conf.getint(section, item)
 
     def get_override(self, section, item) -> str:
         return self.conf.get(section, item) if G_conf_override[f"{section}:{item}"] is None else str(
@@ -151,16 +160,10 @@ class Config:
         return self.conf.getboolean("common", "del_empty_folder")
 
     def nfo_skip_days(self) -> int:
-        try:
-            return self.getint_override("common", "nfo_skip_days")
-        except:
-            return 30
+        return self.getint_override("common", "nfo_skip_days", fallback=30)
 
     def stop_counter(self) -> int:
-        try:
-            return self.getint_override("common", "stop_counter")
-        except:
-            return 0
+        return self.getint_override("common", "stop_counter", fallback=0)
 
     def ignore_failed_list(self) -> bool:
         return self.getboolean_override("common", "ignore_failed_list")
@@ -170,6 +173,24 @@ class Config:
 
     def mapping_table_validity(self) -> int:
         return self.conf.getint("common", "mapping_table_validity")
+
+    def rerun_delay(self) -> int:
+        value = self.get_override("common", "rerun_delay")
+        if not (isinstance(value, str) and re.match(r'^[\dsmh]+$', value, re.I)):
+            return 0   # not match '1h30m45s' or '30' or '1s2m1h4s5m'
+        if value.isnumeric() and int(value) >= 0:
+            return int(value)
+        sec = 0
+        sv = re.findall(r'(\d+)s', value, re.I)
+        mv = re.findall(r'(\d+)m', value, re.I)
+        hv = re.findall(r'(\d+)h', value, re.I)
+        for v in sv:
+            sec += int(v)
+        for v in mv:
+            sec += int(v) * 60
+        for v in hv:
+            sec += int(v) * 3600
+        return sec
 
     def is_translate(self) -> bool:
         return self.conf.getboolean("translate", "switch")
@@ -247,8 +268,8 @@ class Config:
     def media_type(self) -> str:
         return self.conf.get('media', 'media_type')
 
-    def sub_rule(self):
-        return self.conf.get('media', 'sub_type').split(',')
+    def sub_rule(self) -> typing.Set[str]:
+        return set(self.conf.get('media', 'sub_type').lower().split(','))
 
     def naming_rule(self) -> str:
         return self.conf.get("Name_Rule", "naming_rule")
@@ -329,22 +350,23 @@ class Config:
             return 1
 
     def cc_convert_vars(self) -> str:
-        try:
-            return self.conf.get("cc_convert", "vars")
-        except:
-            return "actor,director,label,outline,series,studio,tag,title"
+        return self.conf.get("cc_convert", "vars",
+            fallback="actor,director,label,outline,series,studio,tag,title")
 
     def javdb_sites(self) -> str:
-        try:
-            return self.conf.get("javdb", "sites")
-        except:
-            return "33,34"
+        return self.conf.get("javdb", "sites", fallback="38,39")
 
     def face_locations_model(self) -> str:
-        try:
-            return self.conf.get("face", "locations_model")
-        except:
-            return "hog"
+        return self.conf.get("face", "locations_model", fallback="hog")
+
+    def face_uncensored_only(self) -> bool:
+        return self.conf.getboolean("face", "uncensored_only", fallback=True)
+
+    def face_aways_imagecut(self) -> bool:
+        return self.getboolean_override("face", "aways_imagecut", fallback=False)
+
+    def face_aspect_ratio(self) -> float:
+        return self.conf.getfloat("face", "aspect_ratio", fallback=2.12)
 
     @staticmethod
     def _exit(sec: str) -> None:
@@ -375,6 +397,7 @@ class Config:
         conf.set(sec1, "ignore_failed_list", 0)
         conf.set(sec1, "download_only_missing_images", 1)
         conf.set(sec1, "mapping_table_validity", 7)
+        conf.set(sec1, "rerun_delay", 0)
 
         sec2 = "proxy"
         conf.add_section(sec2)
@@ -428,9 +451,9 @@ class Config:
         sec11 = "media"
         conf.add_section(sec11)
         conf.set(sec11, "media_type",
-                 ".mp4,.avi,.rmvb,.wmv,.mov,.mkv,.flv,.ts,.webm,.MP4,.AVI,.RMVB,.WMV,.MOV,.MKV,.FLV,.TS,.WEBM,iso,ISO")
+                 ".mp4,.avi,.rmvb,.wmv,.mov,.mkv,.flv,.ts,.webm,iso")
         conf.set(sec11, "sub_type",
-                 ".smi,.srt,.idx,.sub,.sup,.psb,.ssa,.ass,.txt,.usf,.xss,.ssf,.rt,.lrc,.sbv,.vtt,.ttml")
+                 ".smi,.srt,.idx,.sub,.sup,.psb,.ssa,.ass,.usf,.xss,.ssf,.rt,.lrc,.sbv,.vtt,.ttml")
 
         sec12 = "watermark"
         conf.add_section(sec12)
