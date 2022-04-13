@@ -526,6 +526,8 @@ def paste_file_to_folder(filepath, path, multi_part, number, part, leak_word, c_
             if subfile.is_file() and subfile.suffix.lower() in sub_res:
                 if multi_part and part.lower() not in subfile.name.lower():
                     continue
+                if filepath_obj.stem.split('.')[0].lower() != subfile.stem.split('.')[0].lower():
+                    continue
                 sub_targetpath = Path(path) / f"{number}{leak_word}{c_word}{hack_word}{''.join(subfile.suffixes)}"
                 if link_mode not in (1, 2):
                     shutil.move(str(subfile), str(sub_targetpath))
@@ -628,14 +630,14 @@ def core_main_no_net_op(movie_path, number):
     imagecut = 1
     path = str(Path(movie_path).parent)
 
-    if re.search('-CD\d+', movie_path, re.IGNORECASE):
-        part = re.findall('-CD\d+', movie_path, re.IGNORECASE)[0].upper()
-    if re.search(r'-C(\.\w+$|-\w+)|\d+ch(\.\w+$|-\w+)', movie_path,
+    if re.search('[-_]CD\d+', movie_path, re.IGNORECASE):
+        part = re.findall('[-_]CD\d+', movie_path, re.IGNORECASE)[0].upper()
+    if re.search(r'[-_]C(\.\w+$|-\w+)|\d+ch(\.\w+$|-\w+)', movie_path,
             re.I) or '中文' in movie_path or '字幕' in movie_path:
         cn_sub = '1'
         c_word = '-C'  # 中文字幕影片后缀
     uncensored = 1 if is_uncensored(number) else 0
-    if '流出' in movie_path or 'uncensored' in movie_path:
+    if '流出' in movie_path or 'uncensored' in movie_path.lower():
         leak_word = '-流出' # 流出影片后缀
         leak = 1
 
@@ -698,10 +700,10 @@ def core_main(movie_path, number_th, oCC):
     imagecut =  json_data.get('imagecut')
     tag =  json_data.get('tag')
     # =======================================================================判断-C,-CD后缀
-    if re.search('-CD\d+', movie_path, re.IGNORECASE):
+    if re.search('[-_]CD\d+', movie_path, re.IGNORECASE):
         multi_part = 1
-        part = re.findall('-CD\d+', movie_path, re.IGNORECASE)[0].upper()
-    if re.search(r'-C(\.\w+$|-\w+)|\d+ch(\.\w+$|-\w+)', movie_path,
+        part = re.findall('[-_]CD\d+', movie_path, re.IGNORECASE)[0].upper()
+    if re.search(r'[-_]C(\.\w+$|-\w+)|\d+ch(\.\w+$|-\w+)', movie_path,
             re.I) or '中文' in movie_path or '字幕' in movie_path:
         cn_sub = '1'
         c_word = '-C'  # 中文字幕影片后缀
@@ -712,7 +714,7 @@ def core_main(movie_path, number_th, oCC):
     if type(unce) is bool:
         uncensored = 1 if unce else 0
 
-    if '流出' in movie_path or 'uncensored' in movie_path:
+    if '流出' in movie_path or 'uncensored' in movie_path.lower():
         liuchu = '流出'
         leak = 1
         leak_word = '-流出' # 流出影片后缀
