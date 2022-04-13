@@ -356,12 +356,17 @@ def movie_lists(source_folder, regexstr: str) -> typing.List[str]:
             continue
         if cliRE and not cliRE.search(absf) or trailerRE.search(full_name.name):
             continue
-        if main_mode == 3 and nfo_skip_days > 0 and file_modification_days(
-                full_name.with_suffix('.nfo')) <= nfo_skip_days:
-            skip_nfo_days_cnt += 1
-            if debug:
-                print(f"[!]Skip movie by it's .nfo which modified within {nfo_skip_days} days: '{absf}'")
-            continue
+        if main_mode == 3:
+            nfo = full_name.with_suffix('.nfo')
+            if not nfo.is_file():
+                if debug:
+                    print(f"[!]Metadata {nfo.name} not found for '{absf}'")
+                continue
+            if nfo_skip_days > 0 and file_modification_days(nfo) <= nfo_skip_days:
+                skip_nfo_days_cnt += 1
+                if debug:
+                    print(f"[!]Skip movie by it's .nfo which modified within {nfo_skip_days} days: '{absf}'")
+                continue
         total.append(absf)
 
     if skip_failed_cnt:
