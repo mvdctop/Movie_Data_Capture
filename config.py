@@ -181,15 +181,9 @@ class Config:
         if value.isnumeric() and int(value) >= 0:
             return int(value)
         sec = 0
-        sv = re.findall(r'(\d+)s', value, re.I)
-        mv = re.findall(r'(\d+)m', value, re.I)
-        hv = re.findall(r'(\d+)h', value, re.I)
-        for v in sv:
-            sec += int(v)
-        for v in mv:
-            sec += int(v) * 60
-        for v in hv:
-            sec += int(v) * 3600
+        sec += sum(int(v)  for v in re.findall(r'(\d+)s', value, re.I))
+        sec += sum(int(v)  for v in re.findall(r'(\d+)m', value, re.I)) * 60
+        sec += sum(int(v)  for v in re.findall(r'(\d+)h', value, re.I)) * 3600
         return sec
 
     def is_translate(self) -> bool:
