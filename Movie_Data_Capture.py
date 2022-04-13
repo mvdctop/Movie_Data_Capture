@@ -361,8 +361,7 @@ def movie_lists(source_folder, regexstr: str) -> typing.List[str]:
             if not nfo.is_file():
                 if debug:
                     print(f"[!]Metadata {nfo.name} not found for '{absf}'")
-                continue
-            if nfo_skip_days > 0 and file_modification_days(nfo) <= nfo_skip_days:
+            elif nfo_skip_days > 0 and file_modification_days(nfo) <= nfo_skip_days:
                 skip_nfo_days_cnt += 1
                 if debug:
                     print(f"[!]Skip movie by it's .nfo which modified within {nfo_skip_days} days: '{absf}'")
