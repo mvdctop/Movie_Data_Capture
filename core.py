@@ -526,6 +526,8 @@ def paste_file_to_folder(filepath, path, multi_part, number, part, leak_word, c_
             if subfile.is_file() and subfile.suffix.lower() in sub_res:
                 if multi_part and part.lower() not in subfile.name.lower():
                     continue
+                if filepath_obj.stem.split('.')[0].lower() != subfile.stem.split('.')[0].lower():
+                    continue
                 sub_targetpath = Path(path) / f"{number}{leak_word}{c_word}{hack_word}{''.join(subfile.suffixes)}"
                 if link_mode not in (1, 2):
                     shutil.move(str(subfile), str(sub_targetpath))
