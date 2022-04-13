@@ -637,7 +637,7 @@ def core_main_no_net_op(movie_path, number):
         cn_sub = '1'
         c_word = '-C'  # 中文字幕影片后缀
     uncensored = 1 if is_uncensored(number) else 0
-    if '流出' in movie_path or 'uncensored' in movie_path:
+    if '流出' in movie_path or 'uncensored' in movie_path.lower():
         leak_word = '-流出' # 流出影片后缀
         leak = 1
 
@@ -714,7 +714,7 @@ def core_main(movie_path, number_th, oCC):
     if type(unce) is bool:
         uncensored = 1 if unce else 0
 
-    if '流出' in movie_path or 'uncensored' in movie_path:
+    if '流出' in movie_path or 'uncensored' in movie_path.lower():
         liuchu = '流出'
         leak = 1
         leak_word = '-流出' # 流出影片后缀
