@@ -19,7 +19,8 @@ G_conf_override = {
     "common:ignore_failed_list": None,
     "common:rerun_delay": None,
     "debug_mode:switch": None,
-    "face:aways_imagecut": None
+    "face:aways_imagecut": None,
+    "priority:website" : None
 }
 
 
@@ -287,7 +288,7 @@ class Config:
             self._exit("update:update_check")
 
     def sources(self) -> str:
-        return self.conf.get("priority", "website")
+        return self.get_override("priority", "website")
 
     def escape_literals(self) -> str:
         return self.conf.get("escape", "literals")

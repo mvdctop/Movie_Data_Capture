@@ -72,6 +72,8 @@ def argparse_function(ver: str) -> typing.Tuple[str, str, str, str, bool, bool]:
                         help="Turn on debug mode to generate diagnostic log for issue report.")
     parser.add_argument("-N", "--no-network-operation", action="store_true",
                         help="No network query, do not get metadata, for cover cropping purposes, only takes effect when main mode is 3.")
+    parser.add_argument("-w", "--website", dest='site', default='', nargs='?',
+                        help="Override [priority]website= in config.")
     parser.add_argument("-z", "--zero-operation", dest='zero_op', action="store_true",
                         help="""Only show job list of files and numbers, and **NO** actual operation
 is performed. It may help you correct wrong numbers before real job.""")
@@ -97,6 +99,7 @@ is performed. It may help you correct wrong numbers before real job.""")
     config.G_conf_override["common:ignore_failed_list"] = get_bool_or_none(args.ignore_failed_list)
     config.G_conf_override["debug_mode:switch"] = get_bool_or_none(args.debug)
     config.G_conf_override["common:rerun_delay"] = get_str_or_none(args.delaytm)
+    config.G_conf_override["priority:website"] = get_str_or_none(args.site)
 
     no_net_op = False
     if conf.main_mode() == 3:
