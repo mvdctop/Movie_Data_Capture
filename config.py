@@ -20,7 +20,8 @@ G_conf_override = {
     "common:rerun_delay": None,
     "debug_mode:switch": None,
     "face:aways_imagecut": None,
-    "priority:website" : None
+    "priority:website": None,
+    "common:download_only_missing_images": None
 }
 
 
@@ -170,7 +171,7 @@ class Config:
         return self.getboolean_override("common", "ignore_failed_list")
 
     def download_only_missing_images(self) -> bool:
-        return self.conf.getboolean("common", "download_only_missing_images")
+        return self.getboolean_override("common", "download_only_missing_images")
 
     def mapping_table_validity(self) -> int:
         return self.conf.getint("common", "mapping_table_validity")
