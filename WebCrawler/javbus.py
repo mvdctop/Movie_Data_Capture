@@ -174,7 +174,7 @@ def main(number):
         return js
 
 if __name__ == "__main__" :
-    config.G_conf_override['debug_mode:switch'] = True
+    config.getInstance().set_override("debug_mode:switch=1")
     # print(main('ABP-888'))
     # print(main('ABP-960'))
     # print(main('ADV-R0624'))    # 404
