@@ -10,16 +10,7 @@ G_conf_override = {
     # index 0 save Config() first instance for quick access by using getInstance()
     0: None,
     # register override config items
-    "common:main_mode": None,
-    "common:link_mode": None,
-    "common:source_folder": None,
-    "common:auto_exit": None,
-    "common:nfo_skip_days": None,
-    "common:stop_counter": None,
-    "common:ignore_failed_list": None,
-    "common:rerun_delay": None,
-    "debug_mode:switch": None,
-    "face:aways_imagecut": None
+    # no need anymore
 }
 
 
@@ -102,32 +93,83 @@ class Config:
             #     sys.exit(3)
             #     #self.conf = self._default_config()
 
-    def getboolean_override(self, section, item, fallback=None) -> bool:
-        if G_conf_override[f"{section}:{item}"] is not None:
-            return bool(G_conf_override[f"{section}:{item}"])
-        if fallback is not None:
-            return self.conf.getboolean(section, item, fallback=fallback)
-        return self.conf.getboolean(section, item)
+    def set_override(self, option_cmd: str):
+        """
+        通用的参数覆盖选项 -C 配置覆盖串
+        配置覆盖串语法：小节名:键名=值[;[小节名:]键名=值][;[小节名:]键名+=值]  多个键用分号分隔 名称可省略部分尾部字符
+        或 小节名:键名+=值[;[小节名:]键名=值][;[小节名:]键名+=值]  在已有值的末尾追加内容，多个键的=和+=可以交叉出现
+        例子: face:aspect_ratio=2;aways_imagecut=1;priority:website=javdb
+        小节名必须出现在开头至少一次，分号后可只出现键名=值，不再出现小节名，如果后续全部键名都属于同一个小节
+        例如配置文件存在两个小节[proxy][priority]，那么pro可指代proxy，pri可指代priority
+        [face]  ;face小节下方有4个键名locations_model= uncensored_only= aways_imagecut= aspect_ratio=
+        l,lo,loc,loca,locat,locati...直到locations_model完整名称都可以用来指代locations_model=键名
+        u,un,unc...直到uncensored_only完整名称都可以用来指代uncensored_only=键名
+        aw,awa...直到aways_imagecut完整名称都可以用来指代aways_imagecut=键名
+        as,asp...aspect_ratio完整名称都可以用来指代aspect_ratio=键名
+        a则因为二义性，不是合法的省略键名
+        """
+        def err_exit(str):
+            print(str)
+            sys.exit(2)
 
-    def getint_override(self, section, item, fallback=None) -> int:
-        if G_conf_override[f"{section}:{item}"] is not None:
-            return int(G_conf_override[f"{section}:{item}"])
-        if fallback is not None:
-            return self.conf.getint(section, item, fallback=fallback)
-        return self.conf.getint(section, item)
-
-    def get_override(self, section, item) -> str:
-        return self.conf.get(section, item) if G_conf_override[f"{section}:{item}"] is None else str(
-            G_conf_override[f"{section}:{item}"])
+        sections = self.conf.sections()
+        sec_name = None
+        for cmd in option_cmd.split(';'):
+            syntax_err = True
+            rex = re.findall(r'^(.*?):(.*?)(=|\+=)(.*)$', cmd, re.U)
+            if len(rex) and len(rex[0]) == 4:
+                (sec, key, assign, val) = rex[0]
+                sec_lo = sec.lower().strip()
+                key_lo = key.lower().strip()
+                syntax_err = False
+            elif sec_name:  # 已经出现过一次小节名，属于同一个小节的后续键名可以省略小节名
+                rex = re.findall(r'^(.*?)(=|\+=)(.*)$', cmd, re.U)
+                if len(rex) and len(rex[0]) == 3:
+                    (key, assign, val) = rex[0]
+                    sec_lo = sec_name.lower()
+                    key_lo = key.lower().strip()
+                    syntax_err = False
+            if syntax_err:
+                err_exit(f"[-]Config override syntax incorrect. example: 'd:s=1' or 'debug_mode:switch=1'. cmd='{cmd}' all='{option_cmd}'")
+            if not len(sec_lo):
+                err_exit(f"[-]Config override Section name '{sec}' is empty! cmd='{cmd}'")
+            if not len(key_lo):
+                err_exit(f"[-]Config override Key name '{key}' is empty! cmd='{cmd}'")
+            if not len(val.strip()):
+                print(f"[!]Conig overide value '{val}' is empty! cmd='{cmd}'")
+            sec_name = None
+            for s in sections:
+                if not s.lower().startswith(sec_lo):
+                    continue
+                if sec_name:
+                    err_exit(f"[-]Conig overide Section short name '{sec_lo}' is not unique! dup1='{sec_name}' dup2='{s}' cmd='{cmd}'")
+                sec_name = s
+            if sec_name is None:
+                err_exit(f"[-]Conig overide Section name '{sec}' not found! cmd='{cmd}'")
+            key_name = None
+            keys = self.conf[sec_name]
+            for k in keys:
+                if not k.lower().startswith(key_lo):
+                    continue
+                if key_name:
+                    err_exit(f"[-]Conig overide Key short name '{key_lo}' is not unique! dup1='{key_name}' dup2='{k}' cmd='{cmd}'")
+                key_name = k
+            if key_name is None:
+                err_exit(f"[-]Conig overide Key name '{key}' not found! cmd='{cmd}'")
+            if assign == "+=":
+                val = keys[key_name] + val
+            if self.debug():
+                print(f"[!]Set config override [{sec_name}]{key_name}={val}  by cmd='{cmd}'")
+            self.conf.set(sec_name, key_name, val)
 
     def main_mode(self) -> int:
         try:
-            return self.getint_override("common", "main_mode")
+            return self.conf.getint("common", "main_mode")
         except ValueError:
             self._exit("common:main_mode")
 
     def source_folder(self) -> str:
-        return self.get_override("common", "source_folder")
+        return self.conf.get("common", "source_folder")
 
     def failed_folder(self) -> str:
         return self.conf.get("common", "failed_output_folder")
@@ -139,7 +181,7 @@ class Config:
         return self.conf.get("common", "actor_gender")
 
     def link_mode(self) -> int:
-        return self.getint_override("common", "link_mode")
+        return self.conf.getint("common", "link_mode")
 
     def scan_hardlink(self) -> bool:
         return self.conf.getboolean("common", "scan_hardlink", fallback=False)#未找到配置选项,默认不刮削
@@ -148,7 +190,7 @@ class Config:
         return self.conf.getboolean("common", "failed_move")
 
     def auto_exit(self) -> bool:
-        return self.getboolean_override("common", "auto_exit")
+        return self.conf.getboolean("common", "auto_exit")
 
     def translate_to_sc(self) -> bool:
         return self.conf.getboolean("common", "translate_to_sc")
@@ -160,13 +202,13 @@ class Config:
         return self.conf.getboolean("common", "del_empty_folder")
 
     def nfo_skip_days(self) -> int:
-        return self.getint_override("common", "nfo_skip_days", fallback=30)
+        return self.conf.getint("common", "nfo_skip_days", fallback=30)
 
     def stop_counter(self) -> int:
-        return self.getint_override("common", "stop_counter", fallback=0)
+        return self.conf.getint("common", "stop_counter", fallback=0)
 
     def ignore_failed_list(self) -> bool:
-        return self.getboolean_override("common", "ignore_failed_list")
+        return self.conf.getboolean("common", "ignore_failed_list")
 
     def download_only_missing_images(self) -> bool:
         return self.conf.getboolean("common", "download_only_missing_images")
@@ -175,21 +217,15 @@ class Config:
         return self.conf.getint("common", "mapping_table_validity")
 
     def rerun_delay(self) -> int:
-        value = self.get_override("common", "rerun_delay")
+        value = self.conf.get("common", "rerun_delay")
         if not (isinstance(value, str) and re.match(r'^[\dsmh]+$', value, re.I)):
             return 0   # not match '1h30m45s' or '30' or '1s2m1h4s5m'
         if value.isnumeric() and int(value) >= 0:
             return int(value)
         sec = 0
-        sv = re.findall(r'(\d+)s', value, re.I)
-        mv = re.findall(r'(\d+)m', value, re.I)
-        hv = re.findall(r'(\d+)h', value, re.I)
-        for v in sv:
-            sec += int(v)
-        for v in mv:
-            sec += int(v) * 60
-        for v in hv:
-            sec += int(v) * 3600
+        sec += sum(int(v)  for v in re.findall(r'(\d+)s', value, re.I))
+        sec += sum(int(v)  for v in re.findall(r'(\d+)m', value, re.I)) * 60
+        sec += sum(int(v)  for v in re.findall(r'(\d+)h', value, re.I)) * 3600
         return sec
 
     def is_translate(self) -> bool:
@@ -302,7 +338,7 @@ class Config:
         return self.conf.get("escape", "folders")
 
     def debug(self) -> bool:
-        return self.getboolean_override("debug_mode", "switch")
+        return self.conf.getboolean("debug_mode", "switch")
 
     def is_storyline(self) -> bool:
         try:
@@ -363,7 +399,7 @@ class Config:
         return self.conf.getboolean("face", "uncensored_only", fallback=True)
 
     def face_aways_imagecut(self) -> bool:
-        return self.getboolean_override("face", "aways_imagecut", fallback=False)
+        return self.conf.getboolean("face", "aways_imagecut", fallback=False)
 
     def face_aspect_ratio(self) -> float:
         return self.conf.getfloat("face", "aspect_ratio", fallback=2.12)
@@ -531,8 +567,7 @@ if __name__ == "__main__":
 
 
     config = Config()
-    mfilter = {'conf', 'proxy', '_exit', '_default_config', 'getboolean_override', 'getint_override', 'get_override',
-               'ini_path'}
+    mfilter = {'conf', 'proxy', '_exit', '_default_config', 'ini_path', 'set_override'}
     for _m in [m for m in dir(config) if not m.startswith('__') and m not in mfilter]:
         evprint(f'config.{_m}()')
     pfilter = {'proxies', 'SUPPORT_PROXY_TYPE'}
@@ -541,36 +576,13 @@ if __name__ == "__main__":
     for _p in [p for p in dir(getInstance().proxy()) if not p.startswith('__') and p not in pfilter]:
         evprint(f'getInstance().proxy().{_p}')
 
-    # Override Test
-    G_conf_override["common:nfo_skip_days"] = 4321
-    G_conf_override["common:stop_counter"] = 1234
-    assert config.nfo_skip_days() == 4321
-    assert getInstance().stop_counter() == 1234
-    # remove override
-    G_conf_override["common:stop_counter"] = None
-    G_conf_override["common:nfo_skip_days"] = None
-    assert config.nfo_skip_days() != 4321
-    assert config.stop_counter() != 1234
     # Create new instance
     conf2 = Config()
     assert getInstance() != conf2
     assert getInstance() == config
-    G_conf_override["common:main_mode"] = 9
-    G_conf_override["common:source_folder"] = "A:/b/c"
-    # Override effect to all instances
-    assert config.main_mode() == 9
-    assert conf2.main_mode() == 9
-    assert getInstance().main_mode() == 9
-    assert conf2.source_folder() == "A:/b/c"
-    print("### Override Test ###".center(36))
-    evprint('getInstance().main_mode()')
-    evprint('config.source_folder()')
-    G_conf_override["common:main_mode"] = None
-    evprint('conf2.main_mode()')
-    evprint('config.main_mode()')
-    # unregister key acess will raise except
-    try:
-        print(G_conf_override["common:actor_gender"])
-    except KeyError as ke:
-        print(f'Catched KeyError: {ke} is not a register key of G_conf_override dict.', file=sys.stderr)
+
+    conf2.set_override("d:s=1;face:asp=2;f:aw=0;pri:w=javdb;f:l=")
+    assert conf2.face_aspect_ratio() == 2
+    assert conf2.face_aways_imagecut() == False
+    assert conf2.sources() == "javdb"
     print(f"Load Config file '{conf2.ini_path}'.")

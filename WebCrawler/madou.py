@@ -165,10 +165,11 @@ def main(number):
 
 
 if __name__ == '__main__':
-    config.G_conf_override['debug_mode:switch'] = True
-    print(main('TM0002'))
-    print(main('MD0222'))
-    print(main('MD0140-2'))
-    print(main('MAD039'))
-    print(main('JDMY027'))
+    config.getInstance().set_override("debug_mode:switch=1")
+    print(main('MD0129'))
+    # print(main('TM0002'))
+    # print(main('MD0222'))
+    # print(main('MD0140-2'))
+    # print(main('MAD039'))
+    # print(main('JDMY027'))
 
