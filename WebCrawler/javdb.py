@@ -166,8 +166,8 @@ def getDirector(html):
     result1 = str(html.xpath('//strong[contains(text(),"導演")]/../span/text()')).strip(" ['']")
     result2 = str(html.xpath('//strong[contains(text(),"導演")]/../span/a/text()')).strip(" ['']")
     return str(result1 + result2).strip('+').replace("', '", '').replace('"', '')
-def getOutline(number, title):  #获取剧情介绍 多进程并发查询
-    return getStoryline(number,title)
+def getOutline(number, title, uncensored):  #获取剧情介绍 多进程并发查询
+    return getStoryline(number, title, 无码=uncensored)
 def getSeries(html):
     result1 = str(html.xpath('//strong[contains(text(),"系列")]/../span/text()')).strip(" ['']")
     result2 = str(html.xpath('//strong[contains(text(),"系列")]/../span/a/text()')).strip(" ['']")
@@ -287,7 +287,7 @@ def main(number):
             'actor': getActor(lx),
             'title': title,
             'studio': getStudio(detail_page, lx),
-            'outline': getOutline(number, title),
+            'outline': getOutline(number, title, getUncensored(lx)),
             'runtime': getRuntime(lx),
             'director': getDirector(lx),
             'release': getRelease(detail_page),

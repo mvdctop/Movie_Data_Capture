@@ -25,14 +25,15 @@ class noThread(object):
 
 
 # 获取剧情介绍 从列表中的站点同时查，取值优先级从前到后
-def getStoryline(number, title, sites: list=None):
+def getStoryline(number, title, sites: list=None, 无码=None):
     start_time = time.time()
     conf = config.getInstance()
     if not conf.is_storyline():
         return ''
     debug = conf.debug() or conf.storyline_show() == 2
     storyine_sites = conf.storyline_site().split(',') if sites is None else sites
-    if is_uncensored(number):
+    unc = 无码 if isinstance(无码, bool) else is_uncensored(number)
+    if unc:
         storyine_sites += conf.storyline_uncensored_site().split(',')
     else:
         storyine_sites += conf.storyline_censored_site().split(',')

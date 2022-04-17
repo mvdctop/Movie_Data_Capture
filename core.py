@@ -724,10 +724,8 @@ def core_main(movie_path, number_th, oCC):
         c_word = '-C'  # 中文字幕影片后缀
 
     # 判断是否无码
-    uncensored = 1 if is_uncensored(number) else 0
     unce = json_data.get('无码')
-    if type(unce) is bool:
-        uncensored = 1 if unce else 0
+    uncensored = int(unce) if isinstance(unce, bool) else int(is_uncensored(number))
 
     if '流出' in movie_path or 'uncensored' in movie_path.lower():
         liuchu = '流出'

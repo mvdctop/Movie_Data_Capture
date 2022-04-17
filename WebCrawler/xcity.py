@@ -128,7 +128,7 @@ def getOutline(html, number, title):
     a = set(storyline_site) & {'airav', 'avno1'}  # 只要中文的简介文字
     if len(a):
         site = [n for n in storyline_site if n in a]
-        g = getStoryline(number, title, site)
+        g = getStoryline(number, title, site, 无码=False)
         if len(g):
             return g
     try:

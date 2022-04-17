@@ -60,7 +60,7 @@ def get_year(lx: html.HtmlElement) -> str:
 
 def get_outline(lx: html.HtmlElement, number: str, title: str) -> str:
     o = lx.xpath("//div[@class='movie-info section']/p[@itemprop='description']/text()")[0].strip()
-    g = getStoryline(number, title)
+    g = getStoryline(number, title, 无码=True)
     if len(g):
         return g
     return o

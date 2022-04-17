@@ -60,10 +60,10 @@ def getCID(html):
     string = html.xpath("//a[contains(@class,'sample-box')][1]/@href")[0].replace('https://pics.dmm.co.jp/digital/video/','')
     result = re.sub('/.*?.jpg','',string)
     return result
-def getOutline(number, title):  #获取剧情介绍 多进程并发查询
+def getOutline(number, title, uncensored):  #获取剧情介绍 多进程并发查询
     if any(caller for caller in inspect.stack() if os.path.basename(caller.filename) == 'airav.py'):
         return ''   # 从airav.py过来的调用不计算outline直接返回，避免重复抓取数据拖慢处理速度
-    return getStoryline(number,title)
+    return getStoryline(number,title, 无码=uncensored)
 def getSeriseJa(html):
     x = html.xpath('//span[contains(text(),"シリーズ:")]/../a/text()')
     return str(x[0]) if len(x) else ''
@@ -98,7 +98,7 @@ def main_uncensored(number):
         'title': title,
         'studio': getStudioJa(lx),
         'year': getYear(lx),
-        'outline': getOutline(w_number, title),
+        'outline': getOutline(w_number, title, True),
         'runtime': getRuntime(lx),
         'director': getDirectorJa(lx),
         'actor': getActor(lx),
@@ -141,7 +141,7 @@ def main(number):
                 'title': title,
                 'studio': getStudio(lx),
                 'year': getYear(lx),
-                'outline': getOutline(number, title),
+                'outline': getOutline(number, title, getUncensored(lx)),
                 'runtime': getRuntime(lx),
                 'director': getDirector(lx),
                 'actor': getActor(lx),
