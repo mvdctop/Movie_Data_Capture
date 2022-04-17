@@ -77,7 +77,7 @@ def argparse_function(ver: str) -> typing.Tuple[str, str, str, str, bool, bool]:
     parser.add_argument("-D", "--download-images", dest='dnimg', action="store_true",
                         help="Override [common]download_only_missing_images=0 force invoke image downloading.")
     parser.add_argument("-C", "--config-override", dest='cfgcmd', default='', nargs='?',
-                        help="Common use config override. grammar: section:key=value[;section:key=value] eg. 'de:s=1' or 'debug_mode:switch=1' override[debug_mode]switch=1")
+                        help="Common use config override. grammar: section:key=value[;[section:]key=value] eg. 'de:s=1' or 'debug_mode:switch=1' override[debug_mode]switch=1")
     parser.add_argument("-z", "--zero-operation", dest='zero_op', action="store_true",
                         help="""Only show job list of files and numbers, and **NO** actual operation
 is performed. It may help you correct wrong numbers before real job.""")
@@ -116,7 +116,7 @@ is performed. It may help you correct wrong numbers before real job.""")
     if conf.main_mode() == 3:
         no_net_op = args.no_network_operation
         if no_net_op:
-            conf.set_override("common:stop_counter=0;common:rerun_delay=0s;face:aways_imagecut=1")
+            conf.set_override("common:stop_counter=0;rerun_delay=0s;face:aways_imagecut=1")
 
     return args.file, args.number, args.logdir, args.regexstr, args.zero_op, no_net_op
 
