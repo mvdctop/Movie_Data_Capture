@@ -365,25 +365,15 @@ class Config:
             return "3:58avgo"
 
     def storyline_show(self) -> int:
-        try:
-            v = self.conf.getint("storyline", "show_result")
-            return v if v in (0, 1, 2) else 2 if v > 2 else 0
-        except:
-            return 0
+        v = self.conf.getint("storyline", "show_result", fallback=0)
+        return v if v in (0, 1, 2) else 2 if v > 2 else 0
 
     def storyline_mode(self) -> int:
-        try:
-            v = self.conf.getint("storyline", "run_mode")
-            return v if v in (0, 1, 2) else 2 if v > 2 else 0
-        except:
-            return 1
+        return 1 if self.conf.getint("storyline", "run_mode", fallback=1) > 0 else 0
 
     def cc_convert_mode(self) -> int:
-        try:
-            v = self.conf.getint("cc_convert", "mode")
-            return v if v in (0, 1, 2) else 2 if v > 2 else 0
-        except:
-            return 1
+        v = self.conf.getint("cc_convert", "mode", fallback=1)
+        return v if v in (0, 1, 2) else 2 if v > 2 else 0
 
     def cc_convert_vars(self) -> str:
         return self.conf.get("cc_convert", "vars",
