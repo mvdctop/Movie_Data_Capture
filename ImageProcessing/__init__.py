@@ -1,3 +1,6 @@
+import sys
+sys.path.append('../')
+
 import logging
 import os
 import config
@@ -104,4 +107,5 @@ def face_center(filename, model):
         return (0, 0)
 
 if __name__ == '__main__':
-    cutImage(1,'H:\\test\\','12.jpg','test.jpg')
+    cutImage(1,'z:/t/','p.jpg','o.jpg')
+    #cutImage(1,'H:\\test\\','12.jpg','test.jpg')
