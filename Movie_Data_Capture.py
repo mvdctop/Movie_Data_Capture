@@ -304,7 +304,7 @@ def close_logfile(logdir: str):
 
 def signal_handler(*args):
     print('[!]Ctrl+C detected, Exit.')
-    sys.exit(9)
+    os._exit(9)
 
 
 def sigdebug_handler(*args):
@@ -426,7 +426,7 @@ def create_failed_folder(failed_folder: str):
             os.makedirs(failed_folder)
         except:
             print(f"[-]Fatal error! Can not make folder '{failed_folder}'")
-            sys.exit(0)
+            os._exit(0)
 
 
 def rm_empty_folder(path):
@@ -517,7 +517,7 @@ def main(args: tuple) -> Path:
     folder_path = ""
     if main_mode not in (1, 2, 3):
         print(f"[-]Main mode must be 1 or 2 or 3! You can run '{os.path.basename(sys.argv[0])} --help' for more help.")
-        sys.exit(4)
+        os._exit(4)
 
     signal.signal(signal.SIGINT, signal_handler)
     if sys.platform == 'win32':

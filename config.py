@@ -69,17 +69,17 @@ class Config:
             elif (Path(__file__).resolve().parent / 'config.ini').is_file():
                 res_path = Path(__file__).resolve().parent / 'config.ini'
             if res_path is None:
-                sys.exit(2)
+                os._exit(2)
             ins = input("Or, Do you want me create a config file for you? (Yes/No)[Y]:")
             if re.search('n', ins, re.I):
-                sys.exit(2)
+                os._exit(2)
             # 用户目录才确定具有写权限，因此选择 ~/mdc.ini 作为配置文件生成路径，而不是有可能并没有写权限的
             # 当前目录。目前版本也不再鼓励使用当前路径放置配置文件了，只是作为多配置文件的切换技巧保留。
             write_path = path_search_order[2]  # Path.home() / "mdc.ini"
             write_path.write_text(res_path.read_text(encoding='utf-8'), encoding='utf-8')
             print("Config file '{}' created.".format(write_path.resolve()))
             input("Press Enter key exit...")
-            sys.exit(0)
+            os._exit(0)
             # self.conf = self._default_config()
             # try:
             #     self.conf = configparser.ConfigParser()
@@ -90,7 +90,7 @@ class Config:
             # except Exception as e:
             #     print("[-]Config file not found! Use the default settings")
             #     print("[-]",e)
-            #     sys.exit(3)
+            #     os._exit(3)
             #     #self.conf = self._default_config()
 
     def set_override(self, option_cmd: str):
@@ -110,7 +110,7 @@ class Config:
         """
         def err_exit(str):
             print(str)
-            sys.exit(2)
+            os._exit(2)
 
         sections = self.conf.sections()
         sec_name = None

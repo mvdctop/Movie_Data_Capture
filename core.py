@@ -1,5 +1,6 @@
 import json
 import os.path
+import os
 import pathlib
 import re
 import shutil
@@ -104,7 +105,7 @@ def create_folder(json_data):  # 创建文件夹
                 os.makedirs(path)
             except:
                 print(f"[-]Fatal error! Can not make folder '{path}'")
-                sys.exit(0)
+                os._exit(0)
 
     return os.path.normpath(path)
 
@@ -124,7 +125,7 @@ def download_file_with_filename(url, filename, path, filepath):
                         os.makedirs(path)
                     except:
                         print(f"[-]Fatal error! Can not make folder '{path}'")
-                        sys.exit(0)
+                        os._exit(0)
                 proxies = configProxy.proxies()
                 headers = {
                     'User-Agent': G_USER_AGENT}
@@ -141,7 +142,7 @@ def download_file_with_filename(url, filename, path, filepath):
                         os.makedirs(path)
                     except:
                         print(f"[-]Fatal error! Can not make folder '{path}'")
-                        sys.exit(0)
+                        os._exit(0)
                 headers = {
                     'User-Agent': G_USER_AGENT}
                 r = requests.get(url, timeout=configProxy.timeout, headers=headers)
@@ -292,7 +293,7 @@ def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, f
                 os.makedirs(path)
             except:
                 print(f"[-]Fatal error! can not make folder '{path}'")
-                sys.exit(0)
+                os._exit(0)
 
         old_nfo = None
         try:

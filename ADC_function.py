@@ -467,7 +467,7 @@ def download_file_with_filename(url: str, filename: str, path: str) -> None:
                         os.makedirs(path)
                     except:
                         print(f"[-]Fatal error! Can not make folder '{path}'")
-                        sys.exit(0)
+                        os._exit(0)
                 proxies = configProxy.proxies()
                 headers = {
                     'User-Agent': G_USER_AGENT}
@@ -484,7 +484,7 @@ def download_file_with_filename(url: str, filename: str, path: str) -> None:
                         os.makedirs(path)
                     except:
                         print(f"[-]Fatal error! Can not make folder '{path}'")
-                        sys.exit(0)
+                        os._exit(0)
                 headers = {
                     'User-Agent': G_USER_AGENT}
                 r = requests.get(url, timeout=configProxy.timeout, headers=headers)
