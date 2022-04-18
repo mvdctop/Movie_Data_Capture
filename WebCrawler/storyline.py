@@ -5,7 +5,6 @@ import json
 import builtins
 from ADC_function import *
 from lxml.html import fromstring
-from multiprocessing import Pool
 from multiprocessing.dummy import Pool as ThreadPool
 from difflib import SequenceMatcher
 from unicodedata import category
@@ -13,7 +12,7 @@ from number_parser import is_uncensored
 
 G_registered_storyline_site = {"airavwiki", "airav", "avno1", "xcity", "amazon", "58avgo"}
 
-G_mode_txt = ('顺序执行','线程池','进程池')
+G_mode_txt = ('顺序执行','线程池')
 
 class noThread(object):
     def map(self, fn, param):
@@ -25,14 +24,15 @@ class noThread(object):
 
 
 # 获取剧情介绍 从列表中的站点同时查，取值优先级从前到后
-def getStoryline(number, title, sites: list=None):
+def getStoryline(number, title, sites: list=None, 无码=None):
     start_time = time.time()
     conf = config.getInstance()
     if not conf.is_storyline():
         return ''
     debug = conf.debug() or conf.storyline_show() == 2
     storyine_sites = conf.storyline_site().split(',') if sites is None else sites
-    if is_uncensored(number):
+    unc = 无码 if isinstance(无码, bool) else is_uncensored(number)
+    if unc:
         storyine_sites += conf.storyline_uncensored_site().split(',')
     else:
         storyine_sites += conf.storyline_censored_site().split(',')
@@ -49,9 +49,8 @@ def getStoryline(number, title, sites: list=None):
     cores = min(len(apply_sites), os.cpu_count())
     if cores == 0:
         return ''
-    run_mode = conf.storyline_mode()
-    assert run_mode in (0,1,2)
-    with ThreadPool(cores) if run_mode == 1 else Pool(cores) if run_mode == 2 else noThread() as pool:
+    run_mode = 1 if conf.storyline_mode() > 0 else 0
+    with ThreadPool(cores) if run_mode > 0 else noThread() as pool:
         results = pool.map(getStoryline_mp, mp_args)
     sel = ''
     if not debug and conf.storyline_show() == 0:
@@ -62,7 +61,7 @@ def getStoryline(number, title, sites: list=None):
                 if not len(sel):
                     sel = value
         return sel
-    # 以下debug结果输出会写入日志，进程池中的则不会，只在标准输出中显示
+    # 以下debug结果输出会写入日志
     s = f'[!]Storyline{G_mode_txt[run_mode]}模式运行{len(apply_sites)}个任务共耗时(含启动开销){time.time() - start_time:.3f}秒，结束于{time.strftime("%H:%M:%S")}'
     sel_site = ''
     for site, desc in zip(apply_sites, results):
@@ -100,8 +99,7 @@ def getStoryline_mp(args):
         storyline = getStoryline_58avgo(number, debug)
     if not debug:
         return storyline
-    # 进程池模式的子进程getStoryline_*()的print()不会写入日志中，线程池和顺序执行不受影响
-    print("[!]MP 进程[{}]运行{:.3f}秒，结束于{}返回结果: {}".format(
+    print("[!]MP 线程[{}]运行{:.3f}秒，结束于{}返回结果: {}".format(
             site,
             time.time() - start_time,
             time.strftime("%H:%M:%S"),
