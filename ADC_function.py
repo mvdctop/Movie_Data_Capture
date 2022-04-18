@@ -75,9 +75,10 @@ def get_html_requests_html(session, url, cookies: dict = None, ua: str = None, r
     支持会话的网页请求核心函数
     Usage:
         from requests_html import HTMLSession
-        session = HTMLSession()
+        session = HTMLSession() #New Session
         get_html_requests_html(session,"https://xxx.com/login")
-        get_html_requests_html(session,"https://xxx.com/xxx")
+        r = get_html_requests_html(session,"https://xxx.com/xxx")
+        print(r)
     """
     verify = config.getInstance().cacert_file()
     configProxy = config.getInstance().proxy()
