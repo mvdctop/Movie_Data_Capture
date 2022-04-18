@@ -24,6 +24,7 @@ from . import carib
 from . import fc2club
 from . import mv91
 from . import madou
+from . import gcolle
 
 
 def get_data_state(data: dict) -> bool:  # 元数据获取失败检测
@@ -62,7 +63,8 @@ def get_data_from_json(file_number, oCC):
         "carib": carib.main,
         "fc2club": fc2club.main,
         "mv91": mv91.main,
-        "madou": madou.main
+        "madou": madou.main,
+        "gcolle": gcolle.main,
     }
 
     conf = config.getInstance()
@@ -75,6 +77,8 @@ def get_data_from_json(file_number, oCC):
         if "carib" in sources and (re.match(r"^\d{6}-\d{3}", file_number)
         ):
             sources.insert(0, sources.pop(sources.index("carib")))
+        elif "gcolle" in sources and (re.search("\d{6}", file_number)):
+            sources.insert(0, sources.pop(sources.index("gcolle")))
         elif re.match(r"^\d{5,}", file_number) or "heyzo" in lo_file_number:
             if "javdb" in sources:
                 sources.insert(0, sources.pop(sources.index("javdb")))
