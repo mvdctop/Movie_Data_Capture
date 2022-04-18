@@ -36,43 +36,37 @@ CLI 版本
 #  申明
 当你查阅、下载了本项目源代码或二进制程序，即代表你接受了以下条款
 
-* 本软件仅供技术交流，学术交流使用
+* 本项目和项目成果仅供技术，学术交流和Python3性能测试使用
 * **请勿在墙内的社交平台上宣传此项目**
-* 本软件作者编写出该软件旨在学习 Python ，提高编程水平
-* 本软件不提供任何影片下载的线索
-* 用户在使用本软件前，请用户了解并遵守当地法律法规，如果本软件使用过程中存在违反当地法律法规的行为，请勿使用该软件
-* 用户在使用本软件时，若用户在当地产生一切违法行为由用户承担
-* 严禁用户将本软件使用于商业和个人其他意图
+* 本项目贡献者编写该项目旨在学习Python3 ，提高编程水平
+* 本项目不提供任何影片下载的线索
+* 用户在使用本项目和项目成果前，请用户了解并遵守当地法律法规，如果本项目及项目成果使用过程中存在违反当地法律法规的行为，请勿使用该项目及项目成果
+* 用户在使用本项目和项目成果时，若用户在当地产生一切违法行为由用户承担
+* 严禁用户将本项目和项目成果使用于商业和个人其他意图
 * 源代码和二进制程序请在下载后24小时内删除
-* 出售源码者的母亲会升天
-* 本项目发起者yoshiko2保留最终决定权和最终解释权
-* 若用户不同意上述条款任意一条，请勿使用本软件
+* 若用户不同意上述条款任意一条，请勿使用本项目和项目成果
 ---
 When you view and download the source code or binary program of this project, it means that you have accepted the following terms
 
-* This software is only for technical exchange and academic exchange
+* This project is only for technical exchange, academic exchange and Python3 performance test
 * **Please do not promote this project on popular social platforms**
-* The software author wrote this software to learn Python and improve programming
-* This software does not provide any clues for video download
-* Before using this software, please understand and abide by local laws and regulations. If there is any violation of local laws and regulations during the use of this software, * please do not use this software  
-* When the user uses this software, if the user has any illegal acts in the local area, the user shall bear
-* It is strictly forbidden for users to use this software for commercial and personal intentions
+* The project contributors wrote this project to learn Python and improve programming
+* This project does not provide any clues for video download
+* Before using this project results, please understand and abide by local laws and regulations. If there is any violation of local laws and regulations during the use of this project results, * please do not use this project results  
+* When the user uses this project results, if the user has any illegal acts in the local area, the user shall bear
+* It is strictly forbidden for users to use this project and project results for commercial and personal intentions
 * Please delete the source code and binary program within 24 hours after downloading
-* The mother of the source seller will die
-* The author of this software yoshiko2 reserves the right of final decision and final interpretation
-* If the user does not agree with any of the above terms, please do not use this software
+* If the user does not agree with any of the above terms, please do not use this project results and project
 ---
 本プロジェクトのソースコード、バイナリファイルをダウンロード、または表示するしたうえで、あなたは本規約に同意したものと見なします。
-* このソフトウェアは、開発技術学習することのみに使用できます。
+* このプロジェクトは、開発技術学習、Python3性能テストすることのみに使用できます。
 * **ソーシャルメディアで本プロジェクトの宣伝をご遠慮ください**
-* 作者はPythonの勉強と技術力の向上のために、このソフトウェアを作成しました
-* 本ソフトウェアは、あらゆる動画ダウンロード機能一切提供しません
-* 本ソフトウェアを使用する前に、現地の法律規範をよく理解する必要があります。あなたは、適用される現地の法令を順守する責任を負います
-* 本ソフトウェアを使用した結果生じた損害や法的責任につきまして作者は一切責任を負いません
-* 本ソフトウェアを商用、業務、その他の営利目的のために使用することは一切禁止します。
+* 貢献者はPythonの勉強と技術力の向上のために、このソフトウェアを作成しました
+* 本プロジェクトは、あらゆる動画ダウンロード機能一切提供しません
+* 本プロジェクトとプロジェクトの成果を使用する前に、現地の法律規範をよく理解する必要があります。あなたは、適用される現地の法令を順守する責任を負います
+* 本プロジェクトとプロジェクトの成果を使用した結果生じた損害や法的責任につきまして作者は一切責任を負いません
+* 本プロジェクトとプロジェクトの成果を商用、業務、その他の営利目的のために使用することは一切禁止します。
 * 本プロジェクトのソースコード、バイナリファイルをダウンロードした場合、24時間以内に削除してください
-* 元売り手の母親が天に召される
-* 最終解釈権は作者yoshiko2に属します
 * 本規約およびすべての適用法、規約および規則を遵守する場合にのみ本ソフトウェアを使用することができます
 
 
