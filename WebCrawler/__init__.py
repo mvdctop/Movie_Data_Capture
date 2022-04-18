@@ -134,7 +134,10 @@ def get_data_from_json(file_number, oCC):
         for source in sources:
             if conf.debug() == True:
                 print('[+]select', source)
-            json_data = json.loads(pool.apply_async(func_mapping[source], (file_number,)).get())
+            try:
+                json_data = json.loads(pool.apply_async(func_mapping[source], (file_number,)).get())
+            except:
+                json_data = pool.apply_async(func_mapping[source], (file_number,)).get()
             # if any service return a valid return, break
             if get_data_state(json_data):
                 print(f"[+]Find movie [{file_number}] metadata on website '{source}'")
@@ -146,7 +149,10 @@ def get_data_from_json(file_number, oCC):
             try:
                 if conf.debug() == True:
                     print('[+]select', source)
-                json_data = json.loads(func_mapping[source](file_number))
+                try:
+                    json_data = json.loads(func_mapping[source](file_number))
+                except:
+                    json_data = func_mapping[source](file_number)
                 # if any service return a valid return, break
                 if get_data_state(json_data):
                     print(f"[+]Find movie [{file_number}] metadata on website '{source}'")
