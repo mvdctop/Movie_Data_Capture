@@ -69,14 +69,18 @@ def cutImage(imagecut, path, fanart_path, poster_path, skip_facerec=False):
         imagecut = 1
     elif conf.download_only_missing_images() and not file_not_exist_or_empty(fullpath_poster):
         return
-    if imagecut == 1:  # 剪裁大封面
+    # imagecut为4时同时也是有码影片 也用人脸识别裁剪封面
+    if imagecut == 1 or imagecut == 4:  # 剪裁大封面
         try:
             img = Image.open(fullpath_fanart)
             width, height = img.size
             if width/height > 2/3:  # 如果宽度大于2
-                if skip_facerec:
+                if imagecut == 4:
+                    # 以人像为中心切取
+                    img2 = img.crop(face_crop_width(fullpath_fanart, width, height))
+                elif skip_facerec:
                     # 有码封面默认靠右切
-                    img2 = img.crop((width - int(height/3) * aspect_ratio, 0, width, height))
+                    img2 = img.crop((width - int(height / 3) * aspect_ratio, 0, width, height))
                 else:
                     # 以人像为中心切取
                     img2 = img.crop(face_crop_width(fullpath_fanart, width, height))
