@@ -10,3 +10,4 @@ certifi==2020.12.5
 MechanicalSoup==1.1.0
 opencc-python-reimplemented
 face_recognition
+requests_html
