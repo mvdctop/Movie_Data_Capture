@@ -4,57 +4,10 @@ import re
 from lxml import etree#need install
 import json
 import ADC_function
+from crawler import *
 # import sys
 # import io
 # sys.stdout = io.TextIOWrapper(sys.stdout.buffer, errors = 'replace', line_buffering = True)
-
-def getTitle_fc2com(htmlcode): #获取厂商
-    html = etree.fromstring(htmlcode,etree.HTMLParser())
-    result = html.xpath('//*[@id="top"]/div[1]/section[1]/div/section/div[2]/h3/text()')[0]
-    return result
-def getActor_fc2com(htmlcode):
-    try:
-        html = etree.fromstring(htmlcode, etree.HTMLParser())
-        result = html.xpath('//*[@id="top"]/div[1]/section[1]/div/section/div[2]/ul/li[3]/a/text()')[0]
-        return result
-    except:
-        return ''
-def getStudio_fc2com(htmlcode): #获取厂商
-    try:
-        html = etree.fromstring(htmlcode, etree.HTMLParser())
-        result = str(html.xpath('//*[@id="top"]/div[1]/section[1]/div/section/div[2]/ul/li[3]/a/text()')).strip(" ['']")
-        return result
-    except:
-        return ''
-def getNum_fc2com(htmlcode):     #获取番号
-    html = etree.fromstring(htmlcode, etree.HTMLParser())
-    result = str(html.xpath('/html/body/div[5]/div[1]/div[2]/p[1]/span[2]/text()')).strip(" ['']")
-    return result
-def getRelease_fc2com(htmlcode2): #
-    html=etree.fromstring(htmlcode2,etree.HTMLParser())
-    result = str(html.xpath('//*[@id="top"]/div[1]/section[1]/div/section/div[2]/div[2]/p/text()')).strip(" ['販売日 : ']").replace('/','-')
-    return result
-def getCover_fc2com(htmlcode2): #获取厂商 #
-    html = etree.fromstring(htmlcode2, etree.HTMLParser())
-    result = str(html.xpath('//*[@id="top"]/div[1]/section[1]/div/section/div[1]/span/img/@src')).strip(" ['']")
-    return 'http:' + result
-# def getOutline_fc2com(htmlcode2):     #获取番号 #
-#     xpath_html = etree.fromstring(htmlcode2, etree.HTMLParser())
-#     path = str(xpath_html.xpath('//*[@id="top"]/div[1]/section[4]/iframe/@src')).strip(" ['']")
-#     html = etree.fromstring(ADC_function.get_html('https://adult.contents.fc2.com/'+path), etree.HTMLParser())
-#     print('https://adult.contents.fc2.com'+path)
-#     print(ADC_function.get_html('https://adult.contents.fc2.com'+path,cookies={'wei6H':'1'}))
-#     result = str(html.xpath('/html/body/div/text()')).strip(" ['']").replace("\\n",'',10000).replace("'",'',10000).replace(', ,','').strip('  ').replace('。,',',')
-#     return result
-def getTag_fc2com(lx):
-    result = lx.xpath("//a[@class='tag tagTag']/text()")
-    return result
-def getYear_fc2com(release):
-    try:
-        result = re.search('\d{4}',release).group()
-        return result
-    except:
-        return ''
 
 def getExtrafanart(htmlcode):  # 获取剧照
     html_pather = re.compile(r'<ul class=\"items_article_SampleImagesArea\"[\s\S]*?</ul>')
@@ -79,27 +32,30 @@ def getTrailer(htmlcode, number):
         except:
             return ''
     else:
-        video_url = ''
+        return ''
 
 def main(number):
     try:
         number = number.replace('FC2-', '').replace('fc2-', '')
         htmlcode2 = ADC_function.get_html('https://adult.contents.fc2.com/article/' + number + '/', encoding='utf-8')
-        actor = getActor_fc2com(htmlcode2)
-        if not actor:
+        fc2_crawler = Crawler(htmlcode2)
+        actor = fc2_crawler.getString('//*[@id="top"]/div[1]/section[1]/div/section/div[2]/ul/li[3]/a/text()')
+        if actor == "":
             actor = '素人'
         lx = etree.fromstring(htmlcode2, etree.HTMLParser())
-        cover = str(lx.xpath("//div[@class='items_article_MainitemThumb']/span/img/@src")).strip(" ['']")
+        cover = fc2_crawler.getString("//div[@class='items_article_MainitemThumb']/span/img/@src")
         cover = ADC_function.urljoin('https://adult.contents.fc2.com', cover)
+        release = fc2_crawler.getString('//*[@id="top"]/div[1]/section[1]/div/section/div[2]/div[2]/p/text()').\
+            strip(" ['販売日 : ']").replace('/','-')
         dic = {
-            'title': lx.xpath('/html/head/title/text()')[0],
-            'studio': getStudio_fc2com(htmlcode2),
-            'year': getYear_fc2com(getRelease_fc2com(htmlcode2)),
+            'title': fc2_crawler.getString('/html/head/title/text()'),
+            'studio': fc2_crawler.getString('//*[@id="top"]/div[1]/section[1]/div/section/div[2]/ul/li[3]/a/text()'),
+            'year': re.findall('\d{4}',release)[0],
             'outline': '',  # getOutline_fc2com(htmlcode2),
             'runtime': str(lx.xpath("//p[@class='items_article_info']/text()")[0]),
-            'director': getStudio_fc2com(htmlcode2),
+            'director': fc2_crawler.getString('//*[@id="top"]/div[1]/section[1]/div/section/div[2]/ul/li[3]/a/text()'),
             'actor': actor,
-            'release': getRelease_fc2com(htmlcode2),
+            'release': release,
             'number': 'FC2-' + number,
             'label': '',
             'cover': cover,
@@ -107,7 +63,7 @@ def main(number):
             'extrafanart': getExtrafanart(htmlcode2),
             "trailer": getTrailer(htmlcode2, number),
             'imagecut': 0,
-            'tag': getTag_fc2com(lx),
+            'tag': fc2_crawler.getStrings("//a[@class='tag tagTag']/text()"),
             'actor_photo': '',
             'website': 'https://adult.contents.fc2.com/article/' + number + '/',
             'source': 'https://adult.contents.fc2.com/article/' + number + '/',
@@ -121,7 +77,4 @@ def main(number):
     return js
 
 if __name__ == '__main__':
-    print(main('FC2-1787685'))
-    print(main('FC2-2086710'))
     print(main('FC2-2182382'))
-
