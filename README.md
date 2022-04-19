@@ -44,6 +44,7 @@ CLI 版本
 * 用户在使用本项目和项目成果时，若用户在当地产生一切违法行为由用户承担
 * 严禁用户将本项目和项目成果使用于商业和个人其他意图
 * 源代码和二进制程序请在下载后24小时内删除
+* 用户使用本项目及项目成果所造成的一切后果由用户自行承担，贡献者概不负责
 * 若用户不同意上述条款任意一条，请勿使用本项目和项目成果
 ---
 When you view and download the source code or binary program of this project, it means that you have accepted the following terms
@@ -56,6 +57,7 @@ When you view and download the source code or binary program of this project, it
 * When the user uses this project results, if the user has any illegal acts in the local area, the user shall bear
 * It is strictly forbidden for users to use this project and project results for commercial and personal intentions
 * Please delete the source code and binary program within 24 hours after downloading
+* All consequences caused by the user's use of this project and project results shall be borne by the user, and the contributors shall not be responsible
 * If the user does not agree with any of the above terms, please do not use this project results and project
 ---
 本プロジェクトのソースコード、バイナリファイルをダウンロード、または表示するしたうえで、あなたは本規約に同意したものと見なします。
@@ -67,6 +69,7 @@ When you view and download the source code or binary program of this project, it
 * 本プロジェクトとプロジェクトの成果を使用した結果生じた損害や法的責任につきまして作者は一切責任を負いません
 * 本プロジェクトとプロジェクトの成果を商用、業務、その他の営利目的のために使用することは一切禁止します。
 * 本プロジェクトのソースコード、バイナリファイルをダウンロードした場合、24時間以内に削除してください
+* ユーザーによるこのプロジェクトの使用およびプロジェクトの結果によって引き起こされるすべての結果は、ユーザーが負担するものとし、寄稿者は責任を負わないものとします。
 * 本規約およびすべての適用法、規約および規則を遵守する場合にのみ本ソフトウェアを使用することができます
 
 
