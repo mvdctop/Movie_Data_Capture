@@ -1,36 +1,10 @@
 import sys
 sys.path.append('../')
 
+from crawler import *
 from ADC_function import *
 from lxml import etree
 from requests_html import HTMLSession
-
-class Crawler:
-    def __init__(self,htmlcode):
-        self.html = etree.HTML(htmlcode)
-
-    def getString(self,_xpath):
-        if _xpath == "":
-            return ""
-        result = self.html.xpath(_xpath)
-        try:
-            return result[0]
-        except:
-            return ""
-
-    def getStrings(self,_xpath):
-        result = self.html.xpath(_xpath)
-        try:
-            return result
-        except:
-            return ""
-
-    def getOutline(self,_xpath):
-        result = self.html.xpath(_xpath)
-        try:
-            return "\n".join(result)
-        except:
-            return ""
 
 def main(number):
     config_file = config.getInstance()
