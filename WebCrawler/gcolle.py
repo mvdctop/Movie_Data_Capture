@@ -1,7 +1,7 @@
 import sys
 sys.path.append('../')
 
-from crawler import *
+from WebCrawler.crawler import *
 from ADC_function import *
 from lxml import etree
 from requests_html import HTMLSession
