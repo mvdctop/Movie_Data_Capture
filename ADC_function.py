@@ -70,52 +70,6 @@ def get_html(url, cookies: dict = None, ua: str = None, return_type: str = None,
         print('[-]Connect Failed! Please check your Proxy or Network!')
     raise Exception('Connect Failed')
 
-def get_html_requests_html(session, url, cookies: dict = None, ua: str = None, return_type: str = None, encoding: str = None):
-    """
-    支持会话的网页请求核心函数
-    Usage:
-        from requests_html import HTMLSession
-        session = HTMLSession() #New Session
-        get_html_requests_html(session,"https://xxx.com/login")
-        r = get_html_requests_html(session,"https://xxx.com/xxx")
-        print(r)
-    """
-    verify = config.getInstance().cacert_file()
-    configProxy = config.getInstance().proxy()
-    errors = ""
-
-    headers = {"User-Agent": ua or G_USER_AGENT}  # noqa
-
-    for i in range(configProxy.retry):
-        try:
-            if configProxy.enable:
-                proxies = configProxy.proxies()
-                result = session.get(str(url), headers=headers, timeout=configProxy.timeout, proxies=proxies,
-                                      verify=verify,
-                                      cookies=cookies)
-            else:
-                result = session.get(str(url), headers=headers, timeout=configProxy.timeout, cookies=cookies)
-
-            if return_type == "object":
-                return result
-            elif return_type == "content":
-                return result.content
-            else:
-                result.encoding = encoding or result.apparent_encoding
-                return result.text
-        except Exception as e:
-            print("[-]Connect retry {}/{}".format(i + 1, configProxy.retry))
-            errors = str(e)
-    if "getaddrinfo failed" in errors:
-        print("[-]Connect Failed! Please Check your proxy config")
-        debug = config.getInstance().debug()
-        if debug:
-            print("[-]" + errors)
-    else:
-        print("[-]" + errors)
-        print('[-]Connect Failed! Please check your Proxy or Network!')
-    raise Exception('Connect Failed')
-
 def post_html(url: str, query: dict, headers: dict = None) -> requests.Response:
     configProxy = config.getInstance().proxy()
     errors = ""

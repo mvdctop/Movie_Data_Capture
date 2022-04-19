@@ -8,14 +8,15 @@ from requests_html import HTMLSession
 
 def main(number):
     config_file = config.getInstance()
-    browser = HTMLSession()
 
     number = number.upper().replace('GCOLLE-','')
+    session = get_html_session()
 
-    htmlcode = get_html_requests_html(browser,'https://gcolle.net/product_info.php/products_id/' + number)
+    htmlcode = get_html_session('https://gcolle.net/product_info.php/products_id/' + number)
+    htmlcode = session.get('https://gcolle.net/product_info.php/products_id/' + number).text
     html = etree.HTML(htmlcode)
     # R18 countinue
-    htmlcode = get_html_requests_html(browser,html.xpath('//*[@id="main_content"]/table[1]/tbody/tr/td[2]/table/tbody/tr/td/h4/a[2]/@href')[0])
+    htmlcode = session.get(html.xpath('//*[@id="main_content"]/table[1]/tbody/tr/td[2]/table/tbody/tr/td/h4/a[2]/@href')[0]).text
     gcolle_crawler = Crawler(htmlcode)
 
     number_html = gcolle_crawler.getString('//td[contains(text(),"商品番号")]/../td[2]/text()')
