@@ -5,7 +5,7 @@ from lxml import etree
 import json
 from ADC_function import *
 from WebCrawler.storyline import getStoryline
-from crawler import *
+from WebCrawler.crawler import *
 # import io
 # sys.stdout = io.TextIOWrapper(sys.stdout.buffer, errors = 'replace', line_buffering = True)
 

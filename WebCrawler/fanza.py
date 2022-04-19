@@ -9,7 +9,7 @@ from urllib.parse import urlencode
 from lxml import etree
 
 from ADC_function import *
-from crawler import *
+from WebCrawler.crawler import *
 # import sys
 # import io
 # sys.stdout = io.TextIOWrapper(sys.stdout.buffer, errors = 'replace', line_buffering = True)
