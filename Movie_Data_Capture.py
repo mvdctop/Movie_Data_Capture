@@ -568,7 +568,7 @@ def main(args: tuple) -> Path:
         """
 
         """
-        return ('https://raw.githubusercontent.com/yoshiko2/Movie_Data_Capture/master/MappingTable/' + f,
+        return ('https://raw.githubusercon111tent.com/yoshiko2/Movie_Data_Capture/master/MappingTable/' + f,
                 Path.home() / '.local' / 'share' / 'mdc' / f)
 
     map_tab = (fmd('mapping_actor.xml'), fmd('mapping_info.xml'), fmd('c_number.json'))
@@ -577,15 +577,21 @@ def main(args: tuple) -> Path:
             if file_modification_days(str(v)) >= conf.mapping_table_validity():
                 print("[+]Mapping Table Out of date! Remove", str(v))
                 os.remove(str(v))
-    res = parallel_download_files(((k, v) for k, v in map_tab if not v.exists()))
-    for i, fp in enumerate(res, start=1):
-        if fp and len(fp):
-            print(f"[+] [{i}/{len(res)}] Mapping Table Downloaded to {fp}")
-        else:
-            print(f"[-] [{i}/{len(res)}] Mapping Table Download failed")
-            print("[-] --- AUTO EXIT AFTER 30s !!! --- ")
-            time.sleep(30)
-            os._exit(-1)
+    try:
+        res = parallel_download_files(((k, v) for k, v in map_tab if not v.exists()))
+        for i, fp in enumerate(res, start=1):
+            if fp and len(fp):
+                print(f"[+] [{i}/{len(res)}] Mapping Table Downloaded to {fp}")
+            else:
+                print(f"[-] [{i}/{len(res)}] Mapping Table Download failed")
+    except Exception as e:
+        print("[!] ==================== ERROR ====================")
+        print("[!] " + "Mapping Table Download FAILED".center(47))
+        print("[!] " + "无法连接github".center(47))
+        print("[!] " + "请过几小时再试试".center(47))
+        print("[-] " + "------ AUTO EXIT AFTER 30s !!! ------ ".center(47))
+        time.sleep(30)
+        os._exit(-1)
 
     # create OpenCC converter
     ccm = conf.cc_convert_mode()
