@@ -568,7 +568,7 @@ def main(args: tuple) -> Path:
         """
 
         """
-        return ('https://raw.githubusercon111tent.com/yoshiko2/Movie_Data_Capture/master/MappingTable/' + f,
+        return ('https://raw.githubusercontent.com/yoshiko2/Movie_Data_Capture/master/MappingTable/' + f,
                 Path.home() / '.local' / 'share' / 'mdc' / f)
 
     map_tab = (fmd('mapping_actor.xml'), fmd('mapping_info.xml'), fmd('c_number.json'))
