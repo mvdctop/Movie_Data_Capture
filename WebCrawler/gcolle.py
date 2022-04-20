@@ -4,7 +4,6 @@ sys.path.append('../')
 from WebCrawler.crawler import *
 from ADC_function import *
 from lxml import etree
-from requests_html import HTMLSession
 
 def main(number):
     config_file = config.getInstance()
@@ -12,7 +11,6 @@ def main(number):
     number = number.upper().replace('GCOLLE-','')
     session = get_html_session()
 
-    htmlcode = get_html_session('https://gcolle.net/product_info.php/products_id/' + number)
     htmlcode = session.get('https://gcolle.net/product_info.php/products_id/' + number).text
     html = etree.HTML(htmlcode)
     # R18 countinue
@@ -66,9 +64,10 @@ def main(number):
     return dic
 
 if __name__ == '__main__':
-    main('840724')
-    main('840386')
-    main('838671')
-    main('814179')
-    main('834255')
-    main('814179')
+    from pprint import pprint
+    pprint(main('840724'))
+    pprint(main('840386'))
+    pprint(main('838671'))
+    pprint(main('814179'))
+    pprint(main('834255'))
+    pprint(main('814179'))
