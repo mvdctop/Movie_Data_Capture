@@ -42,7 +42,7 @@ def main(number):
             extrafanart[i] = 'https:' + extrafanart[i]
 
         dic = {
-            "title":      gcolle_crawler.getString('//*[@id="cart_quantity"]/table/tr[1]/td/h1/text()'),
+            "title":      gcolle_crawler.getString('//*[@id="cart_quantity"]/table/tr[1]/td/h1/text()').strip(),
             "studio":     gcolle_crawler.getString('//td[contains(text(),"アップロード会員名")]/b/text()'),
             "year":       re.findall('\d{4}',gcolle_crawler.getString('//td[contains(text(),"商品登録日")]/../td[2]/time/@datetime'))[0],
             "outline":    gcolle_crawler.getOutline('//*[@id="cart_quantity"]/table/tr[3]/td/p/text()'),
