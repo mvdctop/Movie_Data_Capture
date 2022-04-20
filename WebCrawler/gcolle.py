@@ -5,20 +5,32 @@ from WebCrawler.crawler import *
 from ADC_function import *
 from lxml import etree
 
+
 def main(number):
+    save_cookies = False
+    cookie_filename = 'gcolle.json'
     try:
+        gcolle_cooikes, cookies_filepath = load_cookies(cookie_filename)
+        session = get_html_session(cookies=gcolle_cooikes)
         number = number.upper().replace('GCOLLE-','')
-        session = get_html_session()
 
         htmlcode = session.get('https://gcolle.net/product_info.php/products_id/' + number).text
-        html = etree.HTML(htmlcode)
-        # R18 countinue
-        htmlcode = session.get(html.xpath('//*[@id="main_content"]/table[1]/tbody/tr/td[2]/table/tbody/tr/td/h4/a[2]/@href')[0]).text
         gcolle_crawler = Crawler(htmlcode)
+        r18_continue = gcolle_crawler.getString('//*[@id="main_content"]/table[1]/tbody/tr/td[2]/table/tbody/tr/td/h4/a[2]/@href')
+        if r18_continue and r18_continue.startswith('http'):
+            htmlcode = session.get(r18_continue).text
+            gcolle_crawler = Crawler(htmlcode)
+            save_cookies = True
+            cookies_filepath and len(cookies_filepath) and Path(cookies_filepath).is_file() and Path(cookies_filepath).unlink(missing_ok=True)
 
         number_html = gcolle_crawler.getString('//td[contains(text(),"商品番号")]/../td[2]/text()')
         if number != number_html:
             raise Exception('[-]gcolle.py: number not match')
+
+        if save_cookies:
+            cookies_save = Path.home() / f".local/share/mdc/{cookie_filename}"
+            cookies_save.parent.mkdir(parents=True, exist_ok=True)
+            cookies_save.write_text(json.dumps(session.cookies.get_dict(), sort_keys=True, indent=4), encoding='utf-8')
 
         # get extrafanart url
         if len(gcolle_crawler.getStrings('//*[@id="cart_quantity"]/table/tr[3]/td/div/img/@src')) == 0:
