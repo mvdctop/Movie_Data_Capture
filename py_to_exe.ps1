@@ -9,7 +9,7 @@ mkdir build
 mkdir __pycache__
 
 pyinstaller --onefile Movie_Data_Capture.py `
-    --hidden-import "ImageProcessing.hog" `
+    --hidden-import "ImageProcessing.cnn" `
     --add-data "$FACE_RECOGNITION_MODELS;face_recognition_models" `
     --add-data "$CLOUDSCRAPER_PATH;cloudscraper" `
     --add-data "$OPENCC_PATH;opencc" `
