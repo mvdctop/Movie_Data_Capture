@@ -614,6 +614,40 @@ def paste_file_to_folder_mode2(filepath, path, multi_part, number, part, leak_wo
         return
 
 
+def linkImage(path, number, part, leak_word, c_word, hack_word, ext):
+    """
+    首先尝试为图片建立符合Jellyfin封面图文件名规则的硬连接以节省磁盘空间
+    如果目标目录无法建立硬链接则将图片复制一份成为常规文件
+    常规文件日期已经存在时，若修改日期比源文件更旧，则将被新的覆盖，否则忽略
+    """
+    if not all(len(v) for v in (path, number, part, ext)):
+        return
+    covers = ("-fanart", "-poster", "-thumb")
+    normal_prefix = f"{number}{leak_word}{c_word}{hack_word}"
+    multi_prefix = f"{number}{part}{leak_word}{c_word}{hack_word}"
+    normal_pathes = (Path(path) / f"{normal_prefix}{c}{ext}" for c in covers)
+    multi_pathes = (Path(path) / f"{multi_prefix}{c}{ext}" for c in covers)
+    for normal_path, multi_path in zip(normal_pathes, multi_pathes):
+        if not normal_path.is_file():
+            continue
+        mkLink = False
+        if not multi_path.exists():
+            mkLink = True
+        elif multi_path.is_file():
+            if multi_path.stat().st_nlink > 1:
+                continue
+            elif normal_path.stat().st_mtime <= multi_path.stat().st_mtime:
+                continue
+            mkLink = True
+            multi_path.unlink(missing_ok=True)
+        if not mkLink:
+            continue
+        try:
+            os.link(str(normal_path), str(multi_path), follow_symlinks=False)
+        except:
+            shutil.copyfile(str(normal_path), str(multi_path))
+
+
 def debug_print(data: json):
     try:
         print("[+] ------- DEBUG INFO -------")
@@ -791,6 +825,10 @@ def core_main(movie_path, number_th, oCC):
         if conf.is_watermark():
             add_mark(os.path.join(path,poster_path), os.path.join(path,thumb_path), cn_sub, leak, uncensored, hack)
 
+        # 兼容Jellyfin封面图文件名规则
+        if multi_part and conf.jellyfin_multi_part_fanart():
+            linkImage(path, number_th, part, leak_word, c_word, hack_word, ext)
+
         # 移动电影
         paste_file_to_folder(movie_path, path, multi_part, number, part, leak_word, c_word, hack_word)
 
@@ -833,6 +871,10 @@ def core_main(movie_path, number_th, oCC):
         # 添加水印
         if conf.is_watermark():
             add_mark(os.path.join(path,poster_path), os.path.join(path,thumb_path), cn_sub, leak, uncensored, hack)
+
+        # 兼容Jellyfin封面图文件名规则
+        if multi_part and conf.jellyfin_multi_part_fanart():
+            linkImage(path, number_th, part, leak_word, c_word, hack_word, ext)
 
         # 最后输出.nfo元数据文件，以完成.nfo文件创建作为任务成功标志
         print_files(path, leak_word, c_word, json_data.get('naming_rule'), part, cn_sub, json_data, movie_path,
