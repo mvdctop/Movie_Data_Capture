@@ -129,7 +129,8 @@ def is_uncensored(number):
     ):
         return True
     if G_cache_uncensored_conf.is_empty():
-        G_cache_uncensored_conf.set(config.getInstance().get_uncensored().split(','))
+        if G_cache_uncensored_conf.set(config.getInstance().get_uncensored().split(',')) == None:
+            return False
     return G_cache_uncensored_conf.check(number)
 
 
