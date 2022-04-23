@@ -77,8 +77,6 @@ def get_data_from_json(file_number, oCC):
         if "carib" in sources and (re.match(r"^\d{6}-\d{3}", file_number)
         ):
             sources.insert(0, sources.pop(sources.index("carib")))
-        elif "gcolle" in sources and (re.search("\d{6}", file_number)):
-            sources.insert(0, sources.pop(sources.index("gcolle")))
         elif re.match(r"^\d{5,}", file_number) or "heyzo" in lo_file_number:
             if "javdb" in sources:
                 sources.insert(0, sources.pop(sources.index("javdb")))
@@ -95,6 +93,8 @@ def get_data_from_json(file_number, oCC):
                 sources.insert(0, sources.pop(sources.index("fc2")))
             if "fc2club" in sources:
                 sources.insert(0, sources.pop(sources.index("fc2club")))
+        elif "gcolle" in sources and (re.search("\d{6}", file_number)):
+            sources.insert(0, sources.pop(sources.index("gcolle")))
         elif "dlsite" in sources and (
                 "rj" in lo_file_number or "vj" in lo_file_number
         ):
