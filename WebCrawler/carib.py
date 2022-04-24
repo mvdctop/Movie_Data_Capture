@@ -36,12 +36,13 @@ def main(number: str) -> json:
             'extrafanart': get_extrafanart(lx),
             'label': get_series(lx),
             'imagecut': 1,
-#            'actor_photo': get_actor_photo(lx, session),
             'website': f'{G_SITE}/moviepages/{number}/index.html',
             'source': 'carib.py',
             'series': get_series(lx),
             '无码': True
         }
+        if config.getInstance().download_actor_photo_for_kodi():
+            dic['actor_photo'] = get_actor_photo(lx, session)
         js = json.dumps(dic, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ':'), )
         return js
 

@@ -8,16 +8,14 @@ from WebCrawler.storyline import getStoryline
 import inspect
 
 def getActorPhoto(html):
-    actors = html.xpath('//div[@class="star-name"]/a')
-    d={}
+    actors = html.xpath('//div[@class="star-name"]/../a/img')
+    d = {}
     for i in actors:
-        url=i.attrib['href']
-        t=i.attrib['title']
-        html = etree.fromstring(get_html(url), etree.HTMLParser())
-        p=urljoin("https://www.javbus.com",
-                  str(html.xpath('//*[@id="waterfall"]/div[1]/div/div[1]/img/@src')).strip(" ['']"))
-        p2={t:p}
-        d.update(p2)
+        p = i.attrib['src']
+        if "nowprinting.gif" in p:
+            continue
+        t = i.attrib['title']
+        d[t] = urljoin("https://www.javbus.com", p)
     return d
 def getTitle(html):  #获取标题
     title = str(html.xpath('/html/head/title/text()')[0])
@@ -109,7 +107,7 @@ def main_uncensored(number):
         'extrafanart': getExtrafanart(htmlcode),
         'label': getSeriseJa(lx),
         'imagecut': 0,
-#        'actor_photo': '',
+        'actor_photo': getActorPhoto(lx),
         'website': 'https://www.javbus.red/' + w_number,
         'source': 'javbus.py',
         'series': getSeriseJa(lx),
@@ -152,7 +150,7 @@ def main(number):
                 'tag': getTag(lx),
                 'extrafanart': getExtrafanart(htmlcode),
                 'label': getSerise(lx),
-#                'actor_photo': getActorPhoto(lx),
+                'actor_photo': getActorPhoto(lx),
                 'website': 'https://www.javbus.com/' + number,
                 'source': 'javbus.py',
                 'series': getSerise(lx),
@@ -174,14 +172,16 @@ def main(number):
         return js
 
 if __name__ == "__main__" :
+    config.getInstance().set_override("storyline:switch=0")
+    config.getInstance().set_override("actor_photo:download_for_kodi=1")
     config.getInstance().set_override("debug_mode:switch=1")
-    # print(main('ABP-888'))
-    # print(main('ABP-960'))
-    # print(main('ADV-R0624'))    # 404
-    # print(main('MMNT-010'))
-    # print(main('ipx-292'))
-    # print(main('CEMD-011'))
-    # print(main('CJOD-278'))
+    print(main('ABP-888'))
+    print(main('ABP-960'))
+    print(main('ADV-R0624'))    # 404
+    print(main('MMNT-010'))
+    print(main('ipx-292'))
+    print(main('CEMD-011'))
+    print(main('CJOD-278'))
     print(main('BrazzersExxtra.21.02.01'))
     print(main('100221_001'))
     print(main('AVSW-061'))
