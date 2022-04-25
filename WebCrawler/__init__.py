@@ -283,8 +283,8 @@ def get_data_from_json(file_number, oCC):
         def convert_list(mapping_data,language,vars):
             total = []
             for i in vars:
-                if len(mapping_data.xpath('a[contains(@keyword, $name)]/@' + language, name=i)) != 0:
-                    i = mapping_data.xpath('a[contains(@keyword, $name)]/@' + language, name=i)[0]
+                if len(mapping_data.xpath('a[contains(@keyword, $name)]/@' + language, name=f",{i},")) != 0:
+                    i = mapping_data.xpath('a[contains(@keyword, $name)]/@' + language, name=f",{i},")[0]
                 total.append(i)
             return total
         def convert(mapping_data,language,vars):
