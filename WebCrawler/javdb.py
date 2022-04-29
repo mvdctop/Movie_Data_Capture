@@ -260,8 +260,8 @@ def main(number):
 
         # etree.fromstring开销很大，最好只用一次，而它的xpath很快，比bs4 find/select快，可以多用
         lx = etree.fromstring(detail_page, etree.HTMLParser())
-        # no cut image by default
-        imagecut = 3
+        # 页面改版默认裁切
+        imagecut = 1
         # If gray image exists ,then replace with normal cover
         if re.search(r'[a-zA-Z]+\.\d{2}\.\d{2}\.\d{2}', number):
             cover_small = getCover_small(html)
