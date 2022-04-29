@@ -18,6 +18,7 @@ from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 from cloudscraper import create_scraper
 from concurrent.futures import ThreadPoolExecutor
+from unicodedata import category
 
 
 def getXpathSingle(htmlcode, xpath):
@@ -26,7 +27,7 @@ def getXpathSingle(htmlcode, xpath):
     return result1
 
 
-G_USER_AGENT = r'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36'
+G_USER_AGENT = r'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.75 Safari/537.36'
 
 
 def get_html(url, cookies: dict = None, ua: str = None, return_type: str = None, encoding: str = None):
@@ -68,7 +69,6 @@ def get_html(url, cookies: dict = None, ua: str = None, return_type: str = None,
         print("[-]" + errors)
         print('[-]Connect Failed! Please check your Proxy or Network!')
     raise Exception('Connect Failed')
-
 
 def post_html(url: str, query: dict, headers: dict = None) -> requests.Response:
     configProxy = config.getInstance().proxy()
@@ -381,7 +381,7 @@ def load_cookies(cookie_json_filename: str):
                 break
         if not cookies_filename:
             return None, None
-        return json.load(open(cookies_filename)), cookies_filename
+        return json.loads(Path(cookies_filename).read_text(encoding='utf-8')), cookies_filename
     except:
         return None, None
 
@@ -466,7 +466,7 @@ def download_file_with_filename(url: str, filename: str, path: str) -> None:
                         os.makedirs(path)
                     except:
                         print(f"[-]Fatal error! Can not make folder '{path}'")
-                        sys.exit(0)
+                        os._exit(0)
                 proxies = configProxy.proxies()
                 headers = {
                     'User-Agent': G_USER_AGENT}
@@ -483,7 +483,7 @@ def download_file_with_filename(url: str, filename: str, path: str) -> None:
                         os.makedirs(path)
                     except:
                         print(f"[-]Fatal error! Can not make folder '{path}'")
-                        sys.exit(0)
+                        os._exit(0)
                 headers = {
                     'User-Agent': G_USER_AGENT}
                 r = requests.get(url, timeout=configProxy.timeout, headers=headers)
@@ -519,13 +519,12 @@ def download_one_file(args) -> str:
     wrapped for map function
     """
 
-    def _inner(url: str, save_path: Path):
-        filebytes = get_html(url, return_type='content')
-        if isinstance(filebytes, bytes) and len(filebytes):
-            if len(filebytes) == save_path.open('wb').write(filebytes):
+    (url, save_path) = args
+    filebytes = get_html(url, return_type='content')
+    if isinstance(filebytes, bytes) and len(filebytes):
+        with save_path.open('wb') as fpbyte:
+            if len(filebytes) == fpbyte.write(filebytes):
                 return str(save_path)
-
-    return _inner(*args)
 
 
 def parallel_download_files(dn_list: typing.Iterable[typing.Sequence], parallel: int = 0):
@@ -567,6 +566,7 @@ def delete_all_elements_in_list(string: str, lists: typing.Iterable[str]):
             new_lists.append(i)
     return new_lists
 
+
 def delete_all_elements_in_str(string_delete: str, string: str):
     """
     delete same string in given list
@@ -575,3 +575,8 @@ def delete_all_elements_in_str(string_delete: str, string: str):
         if i == string_delete:
             string = string.replace(i,"")
     return string
+
+
+# print format空格填充对齐内容包含中文时的空格计算
+def cnspace(v: str, n: int) -> int:
+    return n - [category(c) for c in v].count('Lo')

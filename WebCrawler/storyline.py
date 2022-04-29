@@ -5,7 +5,6 @@ import json
 import builtins
 from ADC_function import *
 from lxml.html import fromstring
-from multiprocessing import Pool
 from multiprocessing.dummy import Pool as ThreadPool
 from difflib import SequenceMatcher
 from unicodedata import category
@@ -13,7 +12,7 @@ from number_parser import is_uncensored
 
 G_registered_storyline_site = {"airavwiki", "airav", "avno1", "xcity", "amazon", "58avgo"}
 
-G_mode_txt = ('顺序执行','线程池','进程池')
+G_mode_txt = ('顺序执行','线程池')
 
 class noThread(object):
     def map(self, fn, param):
@@ -25,14 +24,15 @@ class noThread(object):
 
 
 # 获取剧情介绍 从列表中的站点同时查，取值优先级从前到后
-def getStoryline(number, title, sites: list=None):
+def getStoryline(number, title, sites: list=None, 无码=None):
     start_time = time.time()
     conf = config.getInstance()
     if not conf.is_storyline():
         return ''
     debug = conf.debug() or conf.storyline_show() == 2
     storyine_sites = conf.storyline_site().split(',') if sites is None else sites
-    if is_uncensored(number):
+    unc = 无码 if isinstance(无码, bool) else is_uncensored(number)
+    if unc:
         storyine_sites += conf.storyline_uncensored_site().split(',')
     else:
         storyine_sites += conf.storyline_censored_site().split(',')
@@ -49,9 +49,8 @@ def getStoryline(number, title, sites: list=None):
     cores = min(len(apply_sites), os.cpu_count())
     if cores == 0:
         return ''
-    run_mode = conf.storyline_mode()
-    assert run_mode in (0,1,2)
-    with ThreadPool(cores) if run_mode == 1 else Pool(cores) if run_mode == 2 else noThread() as pool:
+    run_mode = 1 if conf.storyline_mode() > 0 else 0
+    with ThreadPool(cores) if run_mode > 0 else noThread() as pool:
         results = pool.map(getStoryline_mp, mp_args)
     sel = ''
     if not debug and conf.storyline_show() == 0:
@@ -62,7 +61,7 @@ def getStoryline(number, title, sites: list=None):
                 if not len(sel):
                     sel = value
         return sel
-    # 以下debug结果输出会写入日志，进程池中的则不会，只在标准输出中显示
+    # 以下debug结果输出会写入日志
     s = f'[!]Storyline{G_mode_txt[run_mode]}模式运行{len(apply_sites)}个任务共耗时(含启动开销){time.time() - start_time:.3f}秒，结束于{time.strftime("%H:%M:%S")}'
     sel_site = ''
     for site, desc in zip(apply_sites, results):
@@ -80,34 +79,33 @@ def getStoryline(number, title, sites: list=None):
 
 
 def getStoryline_mp(args):
-    def _inner(site, number, title, debug):
-        start_time = time.time()
-        storyline = None
-        if not isinstance(site, str):
-            return storyline
-        elif site == "airavwiki":
-            storyline = getStoryline_airavwiki(number, debug)
-        elif site == "airav":
-            storyline = getStoryline_airav(number, debug)
-        elif site == "avno1":
-            storyline = getStoryline_avno1(number, debug)
-        elif site == "xcity":
-            storyline = getStoryline_xcity(number, debug)
-        elif site == "amazon":
-            storyline = getStoryline_amazon(title, number, debug)
-        elif site == "58avgo":
-            storyline = getStoryline_58avgo(number, debug)
-        if not debug:
-            return storyline
-        # 进程池模式的子进程getStoryline_*()的print()不会写入日志中，线程池和顺序执行不受影响
-        print("[!]MP 进程[{}]运行{:.3f}秒，结束于{}返回结果: {}".format(
-                site,
-                time.time() - start_time,
-                time.strftime("%H:%M:%S"),
-                storyline if isinstance(storyline, str) and len(storyline) else '[空]')
-        )
+    (site, number, title, debug) = args
+    start_time = time.time()
+    storyline = None
+    if not isinstance(site, str):
         return storyline
-    return _inner(*args)
+    elif site == "airavwiki":
+        storyline = getStoryline_airavwiki(number, debug)
+        #storyline = getStoryline_airavwiki_super(number, debug)
+    elif site == "airav":
+        storyline = getStoryline_airav(number, debug)
+    elif site == "avno1":
+        storyline = getStoryline_avno1(number, debug)
+    elif site == "xcity":
+        storyline = getStoryline_xcity(number, debug)
+    elif site == "amazon":
+        storyline = getStoryline_amazon(title, number, debug)
+    elif site == "58avgo":
+        storyline = getStoryline_58avgo(number, debug)
+    if not debug:
+        return storyline
+    print("[!]MP 线程[{}]运行{:.3f}秒，结束于{}返回结果: {}".format(
+            site,
+            time.time() - start_time,
+            time.strftime("%H:%M:%S"),
+            storyline if isinstance(storyline, str) and len(storyline) else '[空]')
+    )
+    return storyline
 
 
 def getStoryline_airav(number, debug):
@@ -308,8 +306,8 @@ def getStoryline_amazon(q_title, number, debug):
             res = session.get(urljoin(res.url, lks[0]))
             cookie = None
             lx = fromstring(res.text)
-        titles = lx.xpath("//span[contains(@class,'a-color-base a-text-normal')]/text()")
-        urls = lx.xpath("//span[contains(@class,'a-color-base a-text-normal')]/../@href")
+        titles = lx.xpath("//span[contains(@class,'a-size-base-plus a-color-base a-text-normal')]/text()")
+        urls = lx.xpath("//span[contains(@class,'a-size-base-plus a-color-base a-text-normal')]/../@href")
         if not len(urls) or len(urls) != len(titles):
             raise ValueError("titles not found")
         idx = amazon_select_one(titles, q_title, number, debug)
@@ -325,8 +323,9 @@ def getStoryline_amazon(q_title, number, debug):
             res = session.get(urljoin(res.url, lks[0]))
             cookie = None
             lx = fromstring(res.text)
-        div = lx.xpath('//*[@id="productDescription"]')[0]
-        ama_t = ' '.join([e.text.strip() for e in div if not re.search('Comment|h3', str(e.tag), re.I) and isinstance(e.text, str)])
+        p1 = lx.xpath('//*[@id="productDescription"]/p[1]/span/text()')
+        p2 = lx.xpath('//*[@id="productDescription"]/p[2]/span/text()')
+        ama_t = ' '.join(p1) + ' '.join(p2)
         ama_t = re.sub(r'審査番号:\d+', '', ama_t).strip()
 
         if cookie is None:
@@ -406,10 +405,10 @@ def amazon_select_one(a_titles, q_title, number, debug):
     # debug 模式下记录识别准确率日志
     if ratio < 0.9:
         # 相似度[0.5, 0.9)的淘汰结果单独记录日志
-        (Path.home() / '.avlogs/ratio0.5.txt').open('a', encoding='utf-8').write(
-            f' [{number}]  Ratio:{ratio}\n{a_titles[sel]}\n{q_title}\n{save_t_}\n{que_t}\n')
+        with (Path.home() / '.mlogs/ratio0.5.txt').open('a', encoding='utf-8') as hrt:
+            hrt.write(f' [{number}]  Ratio:{ratio}\n{a_titles[sel]}\n{q_title}\n{save_t_}\n{que_t}\n')
         return -1
     # 被采信的结果日志
-    (Path.home() / '.avlogs/ratio.txt').open('a', encoding='utf-8').write(
-        f' [{number}]  Ratio:{ratio}\n{a_titles[sel]}\n{q_title}\n{save_t_}\n{que_t}\n')
+    with (Path.home() / '.mlogs/ratio.txt').open('a', encoding='utf-8') as hrt:
+        hrt.write(f' [{number}]  Ratio:{ratio}\n{a_titles[sel]}\n{q_title}\n{save_t_}\n{que_t}\n')
     return sel

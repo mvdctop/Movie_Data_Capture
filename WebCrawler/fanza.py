@@ -9,130 +9,33 @@ from urllib.parse import urlencode
 from lxml import etree
 
 from ADC_function import *
-
+from WebCrawler.crawler import *
 # import sys
 # import io
 # sys.stdout = io.TextIOWrapper(sys.stdout.buffer, errors = 'replace', line_buffering = True)
 
+class fanzaCrawler(Crawler):
+    def getFanzaString(self,string):
+        result1 = str(self.html.xpath("//td[contains(text(),'"+string+"')]/following-sibling::td/a/text()")).strip(" ['']")
+        result2 = str(self.html.xpath("//td[contains(text(),'"+string+"')]/following-sibling::td/text()")).strip(" ['']")
+        return result1+result2
 
-def getTitle(text):
-    html = etree.fromstring(text, etree.HTMLParser())
-    result = html.xpath('//*[starts-with(@id, "title")]/text()')[0]
-    return result
-
-
-def getActor(text):
-    # //*[@id="center_column"]/div[2]/div[1]/div/table/tbody/tr[1]/td/text()
-    html = etree.fromstring(text, etree.HTMLParser())
-    result = (
-        str(
-            html.xpath(
-                "//td[contains(text(),'出演者')]/following-sibling::td/span/a/text()"
-            )
-        )
-        .strip(" ['']")
-        .replace("', '", ",")
-    )
-    return result
+    def getFanzaStrings(self, string):
+        result1 = self.html.xpath("//td[contains(text(),'" + string + "')]/following-sibling::td/a/text()")
+        if len(result1) > 0:
+            return result1
+        result2 = self.html.xpath("//td[contains(text(),'" + string + "')]/following-sibling::td/text()")
+        return result2
 
 
-def getStudio(text):
-    html = etree.fromstring(text, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
-    try:
-        result = html.xpath(
-            "//td[contains(text(),'メーカー')]/following-sibling::td/a/text()"
-        )[0]
-    except:
-        result = html.xpath(
-            "//td[contains(text(),'メーカー')]/following-sibling::td/text()"
-        )[0]
-    return result
+def getRelease(fanza_Crawler):
+    result = fanza_Crawler.getFanzaString('発売日：')
+    if result == '----':
+        result = fanza_Crawler.getFanzaString('配信開始日：')
+    return result.replace("/", "-").strip('\\n')
 
 
-def getRuntime(text):
-    html = etree.fromstring(text, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
-    result = html.xpath("//td[contains(text(),'収録時間')]/following-sibling::td/text()")[0]
-    return re.search(r"\d+", str(result)).group()
-
-
-def getLabel(text):
-    html = etree.fromstring(text, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
-    try:
-        result = html.xpath(
-            "//td[contains(text(),'レーベル：')]/following-sibling::td/a/text()"
-        )[0]
-    except:
-        result = html.xpath(
-            "//td[contains(text(),'レーベル：')]/following-sibling::td/text()"
-        )[0]
-    return result
-
-
-def getNum(text):
-    html = etree.fromstring(text, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
-    try:
-        result = html.xpath(
-            "//td[contains(text(),'品番：')]/following-sibling::td/a/text()"
-        )[0]
-    except:
-        result = html.xpath(
-            "//td[contains(text(),'品番：')]/following-sibling::td/text()"
-        )[0]
-    return result
-
-
-def getYear(getRelease):
-    try:
-        result = str(re.search(r"\d{4}", getRelease).group())
-        return result
-    except:
-        return getRelease
-
-
-def getRelease(text):
-    html = etree.fromstring(text, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
-    try:
-        result = html.xpath(
-            "//td[contains(text(),'発売日：')]/following-sibling::td/a/text()"
-        )[0].lstrip("\n")
-    except:
-        try:
-            result = html.xpath(
-                "//td[contains(text(),'発売日：')]/following-sibling::td/text()"
-            )[0].lstrip("\n")
-        except:
-            result = "----"
-    if result == "----":
-        try:
-            result = html.xpath(
-                "//td[contains(text(),'配信開始日：')]/following-sibling::td/a/text()"
-            )[0].lstrip("\n")
-        except:
-            try:
-                result = html.xpath(
-                    "//td[contains(text(),'配信開始日：')]/following-sibling::td/text()"
-                )[0].lstrip("\n")
-            except:
-                pass
-    return result.replace("/", "-")
-
-
-def getTag(text):
-    html = etree.fromstring(text, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
-    try:
-        result = html.xpath(
-            "//td[contains(text(),'ジャンル：')]/following-sibling::td/a/text()"
-        )
-        return result
-    except:
-        result = html.xpath(
-            "//td[contains(text(),'ジャンル：')]/following-sibling::td/text()"
-        )
-        return result
-
-
-def getCover(text, number):
-    html = etree.fromstring(text, etree.HTMLParser())
+def getCover(html, number):
     cover_number = number
     try:
         result = html.xpath('//*[@id="' + cover_number + '"]/@href')[0]
@@ -151,29 +54,11 @@ def getCover(text, number):
     return result
 
 
-def getDirector(text):
-    html = etree.fromstring(text, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
+def getOutline(html):
     try:
-        result = html.xpath(
-            "//td[contains(text(),'監督：')]/following-sibling::td/a/text()"
-        )[0]
-    except:
-        result = html.xpath(
-            "//td[contains(text(),'監督：')]/following-sibling::td/text()"
-        )[0]
-    return result
-
-
-def getOutline(text):
-    html = etree.fromstring(text, etree.HTMLParser())
-    try:
-        result = str(html.xpath("//div[@class='mg-b20 lh4']/text()")[0]).replace(
-            "\n", ""
-        )
+        result = str(html.xpath("//div[@class='mg-b20 lh4']/text()")[0]).replace("\n", "")
         if result == "":
-            result = str(html.xpath("//div[@class='mg-b20 lh4']//p/text()")[0]).replace(
-                "\n", ""
-            )
+            result = str(html.xpath("//div[@class='mg-b20 lh4']//p/text()")[0]).replace("\n", "")
     except:
         # (TODO) handle more edge case
         # print(html)
@@ -181,23 +66,8 @@ def getOutline(text):
     return result
 
 
-def getSeries(text):
-    try:
-        html = etree.fromstring(text, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
-        try:
-            result = html.xpath(
-                "//td[contains(text(),'シリーズ：')]/following-sibling::td/a/text()"
-            )[0]
-        except:
-            result = html.xpath(
-                "//td[contains(text(),'シリーズ：')]/following-sibling::td/text()"
-            )[0]
-        return result
-    except:
-        return ""
-
 def getExtrafanart(htmlcode):  # 获取剧照
-    html_pather = re.compile(r'<div id=\"sample-image-block\"[\s\S]*?<br></div>\n</div>')
+    html_pather = re.compile(r'<div id=\"sample-image-block\"[\s\S]*?<br></div></div>')
     html = html_pather.search(htmlcode)
     if html:
         html = html.group()
@@ -232,6 +102,7 @@ def main(number):
         "https://www.dmm.co.jp/rental/-/detail/=/cid=",
     ]
     chosen_url = ""
+    fanza_Crawler = ''
 
     for url in fanza_urls:
         chosen_url = url + fanza_search_number
@@ -240,6 +111,7 @@ def main(number):
                 urlencode({"rurl": chosen_url})
             )
         )
+        fanza_Crawler = fanzaCrawler(htmlcode)
         if "404 Not Found" not in htmlcode:
             break
     if "404 Not Found" in htmlcode:
@@ -249,28 +121,34 @@ def main(number):
         # for example, the url will be cid=test012
         # but the hinban on the page is test00012
         # so get the hinban first, and then pass it to following functions
-        fanza_hinban = getNum(htmlcode)
+        fanza_hinban = fanza_Crawler.getFanzaString('品番：')
+        out_num = fanza_hinban
+        number_lo = number.lower()
+        html = etree.fromstring(htmlcode, etree.HTMLParser())
+        if (re.sub('-|_', '', number_lo) == fanza_hinban or
+            number_lo.replace('-', '00') == fanza_hinban or
+            number_lo.replace('-', '') + 'so' == fanza_hinban
+        ):
+            out_num = number
         data = {
-            "title": getTitle(htmlcode).strip(),
-            "studio": getStudio(htmlcode),
-            "outline": getOutline(htmlcode),
-            "runtime": getRuntime(htmlcode),
-            "director": getDirector(htmlcode) if "anime" not in chosen_url else "",
-            "actor": getActor(htmlcode) if "anime" not in chosen_url else "",
-            "release": getRelease(htmlcode),
-            "number": fanza_hinban,
-            "cover": getCover(htmlcode, fanza_hinban),
+            "title": fanza_Crawler.getString('//*[starts-with(@id, "title")]/text()').strip(),
+            "studio": fanza_Crawler.getFanzaString('メーカー'),
+            "outline": getOutline(html),
+            "runtime": str(re.search(r'\d+',fanza_Crawler.getString("//td[contains(text(),'収録時間')]/following-sibling::td/text()")).group()).strip(" ['']"),
+            "director": fanza_Crawler.getFanzaString('監督：') if "anime" not in chosen_url else "",
+            "actor": fanza_Crawler.getString("//td[contains(text(),'出演者')]/following-sibling::td/span/a/text()").replace("', '", ",") if "anime" not in chosen_url else "",
+            "release": getRelease(fanza_Crawler),
+            "number": out_num,
+            "cover": getCover(html, fanza_hinban),
             "imagecut": 1,
-            "tag": getTag(htmlcode),
+            "tag": fanza_Crawler.getFanzaStrings('ジャンル：'),
             "extrafanart": getExtrafanart(htmlcode),
-            "label": getLabel(htmlcode),
-            "year": getYear(
-                getRelease(htmlcode)
-            ),  # str(re.search('\d{4}',getRelease(a)).group()),
+            "label": fanza_Crawler.getFanzaString('レーベル'),
+            "year": re.findall('\d{4}',getRelease(fanza_Crawler))[0],  # str(re.search('\d{4}',getRelease(a)).group()),
             "actor_photo": "",
             "website": chosen_url,
             "source": "fanza.py",
-            "series": getSeries(htmlcode),
+            "series": fanza_Crawler.getFanzaString('シリーズ：'),
         }
     except:
         data = {
@@ -314,4 +192,6 @@ def main_htmlcode(number):
 if __name__ == "__main__":
     # print(main("DV-1562"))
     # print(main("96fad1217"))
-    print(main("h_173ghmt68"))
+    print(main("pred00251"))
+    print(main("MIAA-391"))
+    print(main("OBA-326"))

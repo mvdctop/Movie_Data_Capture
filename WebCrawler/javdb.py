@@ -166,12 +166,23 @@ def getDirector(html):
     result1 = str(html.xpath('//strong[contains(text(),"導演")]/../span/text()')).strip(" ['']")
     result2 = str(html.xpath('//strong[contains(text(),"導演")]/../span/a/text()')).strip(" ['']")
     return str(result1 + result2).strip('+').replace("', '", '').replace('"', '')
-def getOutline(number, title):  #获取剧情介绍 多进程并发查询
-    return getStoryline(number,title)
+def getOutline(number, title, uncensored):  #获取剧情介绍 多进程并发查询
+    return getStoryline(number, title, 无码=uncensored)
 def getSeries(html):
     result1 = str(html.xpath('//strong[contains(text(),"系列")]/../span/text()')).strip(" ['']")
     result2 = str(html.xpath('//strong[contains(text(),"系列")]/../span/a/text()')).strip(" ['']")
     return str(result1 + result2).strip('+').replace("', '", '').replace('"', '')
+def getUserRating(html):
+    try:
+        result = str(html.xpath('//span[@class="score-stars"]/../text()')[0])
+        v = re.findall(r'(\d+|\d+\.\d+)分, 由(\d+)人評價', result)
+        return float(v[0][0]), int(v[0][1])
+    except:
+        return
+def getUncensored(html):
+    x = html.xpath('//strong[contains(text(),"類別")]/../span/a[contains(@href,"/tags/uncensored?")'
+                ' or contains(@href,"/tags/western?")]')
+    return bool(x)
 
 def main(number):
     # javdb更新后同一时间只能登录一个数字站，最新登录站会踢出旧的登录，因此按找到的第一个javdb*.json文件选择站点，
@@ -276,7 +287,7 @@ def main(number):
             'actor': getActor(lx),
             'title': title,
             'studio': getStudio(detail_page, lx),
-            'outline': getOutline(number, title),
+            'outline': getOutline(number, title, getUncensored(lx)),
             'runtime': getRuntime(lx),
             'director': getDirector(lx),
             'release': getRelease(detail_page),
@@ -293,8 +304,12 @@ def main(number):
             'website': urljoin('https://javdb.com', correct_url),
             'source': 'javdb.py',
             'series': getSeries(lx),
-
+            '无码': getUncensored(lx)
         }
+        userrating = getUserRating(lx)
+        if isinstance(userrating, tuple) and len(userrating) == 2:
+            dic['用户评分'] = userrating[0]
+            dic['评分人数'] = userrating[1]
         if not dic['actor'] and re.match(r'FC2-[\d]+', number, re.A):
             dic['actor'].append('素人')
             if not dic['series']:
@@ -313,18 +328,19 @@ def main(number):
 # main('DV-1562')
 # input("[+][+]Press enter key exit, you can check the error messge before you exit.\n[+][+]按回车键结束，你可以在结束之前查看和错误信息。")
 if __name__ == "__main__":
-    config.G_conf_override['debug_mode:switch'] = True
+    config.getInstance().set_override("debug_mode:switch=1")
     # print(main('blacked.20.05.30'))
     # print(main('AGAV-042'))
     # print(main('BANK-022'))
-    # print(main('070116-197'))
+    print(main('070116-197'))
     # print(main('093021_539'))  # 没有剧照 片商pacopacomama
     #print(main('FC2-2278260'))
     # print(main('FC2-735670'))
     # print(main('FC2-1174949')) # not found
     #print(main('MVSD-439'))
     # print(main('EHM0001')) # not found
-    print(main('FC2-2314275'))
+    #print(main('FC2-2314275'))
     # print(main('EBOD-646'))
     # print(main('LOVE-262'))
-    #print(main('ABP-890'))
+    print(main('ABP-890'))
+    print(main('blacked.14.12.08'))

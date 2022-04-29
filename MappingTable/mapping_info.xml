@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <!-- 说明：可使用文本编辑器打开本文件后自行编辑。
 keyword：用于匹配标签/导演/系列/制作/发行的关键词，每个名字前后都需要用逗号隔开。当其中包含刮削得到的关键词时，可以输出对应语言的词。
 zh_cn/zh_tw/jp：指对应语言输出的词，按设置的对应语言输出。当输出词为“删除”时表示：遇到该关键词时，在对应内容中删除该关键词-->
@@ -575,7 +575,7 @@ zh_cn/zh_tw/jp：指对应语言输出的词，按设置的对应语言输出。
   <a zh_cn="一本道" zh_tw="一本道" jp="一本道" keyword=",一本道,"/>
   <a zh_cn="加勒比" zh_tw="加勒比" jp="加勒比" keyword=",加勒比,カリビアンコム,"/>
   <a zh_cn="东京热" zh_tw="東京熱" jp="TOKYO-HOT" keyword=",东京热,東京熱,東熱,TOKYO-HOT,"/>
-  <a zh_cn="SOD" zh_tw="SOD" jp="SOD" keyword=",SOD,SODクリエイト,サディスティックヴィレッジ,"/>
+  <a zh_cn="SOD" zh_tw="SOD" jp="SOD" keyword=",SOD,SODクリエイト,"/>
   <a zh_cn="PRESTIGE" zh_tw="PRESTIGE" jp="PRESTIGE" keyword=",PRESTIGE,プレステージ,"/>
   <a zh_cn="MOODYZ" zh_tw="MOODYZ" jp="MOODYZ" keyword=",MOODYZ,ムーディーズ,"/>
   <a zh_cn="ROCKET" zh_tw="ROCKET" jp="ROCKET" keyword=",ROCKET,"/>
@@ -600,28 +600,5 @@ zh_cn/zh_tw/jp：指对应语言输出的词，按设置的对应语言输出。
   <a zh_cn="WANZ" zh_tw="WANZ" jp="WANZ" keyword=",WANZ,ワンズファクトリー,"/>
   <a zh_cn="BeFree" zh_tw="BeFree" jp="BeFree" keyword=",BeFree,"/>
   <a zh_cn="MAX-A" zh_tw="MAX-A" jp="MAX-A" keyword=",MAX-A,マックスエー,"/>
-  <!-- 2021-11-8 Update -->
-  <a zh_cn="Energy" zh_tw="Energy" jp="アイエナジー" keyword=",アイエナジー,"/>
-  <a zh_cn="Idea Pocket" zh_tw="Idea Pocket" jp="アイデアポケット" keyword=",アイデアポケット,"/>
-  <a zh_cn="AKNR" zh_tw="AKNR" jp="アキノリ" keyword=",アキノリ,"/>
-  <a zh_cn="Attackers" zh_tw="Attackers" jp="アタッカーズ" keyword=",アタッカーズ,"/>
-  <a zh_cn="Alice Japan" zh_tw="Alice Japan" jp="アリスJAPAN" keyword=",アリスJAPAN,"/>
-  <a zh_cn="Aurora Project Annex" zh_tw="Aurora Project Annex" jp="オーロラプロジェクト・アネックス" keyword=",オーロラプロジェクト・アネックス,"/>
-  <a zh_cn="Crystal 映像" zh_tw="Crystal 映像" jp="クリスタル映像" keyword=",クリスタル映像,"/>
-  <a zh_cn="Glory Quest" zh_tw="Glory Quest" jp="グローリークエスト" keyword=",グローリークエスト,"/>
-  <a zh_cn="DAS！" zh_tw="DAS！" jp="ダスッ！" keyword=",ダスッ！,"/>
-  <a zh_cn="DEEP’s" zh_tw="DEEP’s" jp="ディープス" keyword=",ディープス,"/>
-  <a zh_cn="Dogma" zh_tw="Dogma" jp="ドグマ" keyword=",ドグマ,"/>
-  <a zh_cn="宇宙企画" zh_tw="宇宙企画" jp="メディアステーション" keyword=",メディアステーション,"/>
-  <a zh_cn="WANZ FACTORY" zh_tw="WANZ FACTORY" jp="ワンズファクトリー" keyword=",ワンズファクトリー,"/>
-  <a zh_cn="V＆R PRODUCE" zh_tw="V＆R PRODUCE" jp="V＆Rプロダクツ" keyword=",V＆Rプロダクツ,V＆RPRODUCE,"/>
-  <a zh_cn="Real Works" zh_tw="Real Works" jp="レアルワークス" keyword=",レアルワークス,"/>
-  <a zh_cn="MAX-A" zh_tw="MAX-A" jp="マックスエー" keyword=",マックスエー,"/>
-  <a zh_cn="PETERS MAX" zh_tw="PETERS MAX" jp="ピーターズMAX" keyword=",ピーターズMAX,"/>
-  <a zh_cn="NATURAL HIGH" zh_tw="NATURAL HIGH" jp="ナチュラルハイ" keyword=",ナチュラルハイ,"/>
-  <a zh_cn="MAXING" zh_tw="MAXING" jp="マキシング" keyword=",マキシング,"/>
-  <a zh_cn="M’s Video Group" zh_tw="M’s Video Group" jp="エムズビデオグループ" keyword=",エムズビデオグループ,"/>
-  <a zh_cn="Minimum" zh_tw="Minimum" jp="ミニマム" keyword=",ミニマム,"/>
-  <a zh_cn="WAAP Entertainment" zh_tw="WAAP Entertainment" jp="ワープエンタテインメント" keyword=",ワープエンタテインメント,"/>
-  <a zh_cn="pacopacomama" zh_tw="pacopacomama" jp="パコパコママ" keyword=",pacopacomama,パコパコママ,"/>
+
 </info>

@@ -24,6 +24,7 @@ from . import carib
 from . import fc2club
 from . import mv91
 from . import madou
+from . import gcolle
 
 
 def get_data_state(data: dict) -> bool:  # 元数据获取失败检测
@@ -62,7 +63,8 @@ def get_data_from_json(file_number, oCC):
         "carib": carib.main,
         "fc2club": fc2club.main,
         "mv91": mv91.main,
-        "madou": madou.main
+        "madou": madou.main,
+        "gcolle": gcolle.main,
     }
 
     conf = config.getInstance()
@@ -91,6 +93,8 @@ def get_data_from_json(file_number, oCC):
                 sources.insert(0, sources.pop(sources.index("fc2")))
             if "fc2club" in sources:
                 sources.insert(0, sources.pop(sources.index("fc2club")))
+        elif "gcolle" in sources and (re.search("\d{6}", file_number)):
+            sources.insert(0, sources.pop(sources.index("gcolle")))
         elif "dlsite" in sources and (
                 "rj" in lo_file_number or "vj" in lo_file_number
         ):
@@ -100,6 +104,12 @@ def get_data_from_json(file_number, oCC):
                 sources.insert(0, sources.pop(sources.index("javdb")))
             if "xcity" in sources:
                 sources.insert(0, sources.pop(sources.index("xcity")))
+            if "madou" in sources:
+                sources.insert(0, sources.pop(sources.index("madou")))
+        elif "madou" in sources and (
+                re.match(r"^[a-z0-9]{3,}-[0-9]{1,}$", lo_file_number)
+        ):
+            sources.insert(0, sources.pop(sources.index("madou")))
 
     # check sources in func_mapping
     todel = []
@@ -124,7 +134,10 @@ def get_data_from_json(file_number, oCC):
         for source in sources:
             if conf.debug() == True:
                 print('[+]select', source)
-            json_data = json.loads(pool.apply_async(func_mapping[source], (file_number,)).get())
+            try:
+                json_data = json.loads(pool.apply_async(func_mapping[source], (file_number,)).get())
+            except:
+                json_data = pool.apply_async(func_mapping[source], (file_number,)).get()
             # if any service return a valid return, break
             if get_data_state(json_data):
                 print(f"[+]Find movie [{file_number}] metadata on website '{source}'")
@@ -136,7 +149,10 @@ def get_data_from_json(file_number, oCC):
             try:
                 if conf.debug() == True:
                     print('[+]select', source)
-                json_data = json.loads(func_mapping[source](file_number))
+                try:
+                    json_data = json.loads(func_mapping[source](file_number))
+                except:
+                    json_data = func_mapping[source](file_number)
                 # if any service return a valid return, break
                 if get_data_state(json_data):
                     print(f"[+]Find movie [{file_number}] metadata on website '{source}'")
@@ -242,8 +258,8 @@ def get_data_from_json(file_number, oCC):
             if json_data[translate_value] == "":
                 continue
             if translate_value == "title":
-                title_dict = json.load(
-                    open(str(Path.home() / '.local' / 'share' / 'mdc' / 'c_number.json'), 'r', encoding="utf-8"))
+                title_dict = json.loads(
+                    (Path.home() / '.local' / 'share' / 'mdc' / 'c_number.json').read_text(encoding="utf-8"))
                 try:
                     json_data[translate_value] = title_dict[number]
                     continue

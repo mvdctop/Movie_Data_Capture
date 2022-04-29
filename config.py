@@ -3,19 +3,14 @@ import re
 import sys
 import configparser
 import time
+import typing
 from pathlib import Path
 
 G_conf_override = {
     # index 0 save Config() first instance for quick access by using getInstance()
     0: None,
     # register override config items
-    "common:main_mode": None,
-    "common:source_folder": None,
-    "common:auto_exit": None,
-    "common:nfo_skip_days": None,
-    "common:stop_counter": None,
-    "common:ignore_failed_list": None,
-    "debug_mode:switch": None
+    # no need anymore
 }
 
 
@@ -74,17 +69,17 @@ class Config:
             elif (Path(__file__).resolve().parent / 'config.ini').is_file():
                 res_path = Path(__file__).resolve().parent / 'config.ini'
             if res_path is None:
-                sys.exit(2)
+                os._exit(2)
             ins = input("Or, Do you want me create a config file for you? (Yes/No)[Y]:")
             if re.search('n', ins, re.I):
-                sys.exit(2)
+                os._exit(2)
             # 用户目录才确定具有写权限，因此选择 ~/mdc.ini 作为配置文件生成路径，而不是有可能并没有写权限的
             # 当前目录。目前版本也不再鼓励使用当前路径放置配置文件了，只是作为多配置文件的切换技巧保留。
             write_path = path_search_order[2]  # Path.home() / "mdc.ini"
             write_path.write_text(res_path.read_text(encoding='utf-8'), encoding='utf-8')
             print("Config file '{}' created.".format(write_path.resolve()))
             input("Press Enter key exit...")
-            sys.exit(0)
+            os._exit(0)
             # self.conf = self._default_config()
             # try:
             #     self.conf = configparser.ConfigParser()
@@ -95,29 +90,86 @@ class Config:
             # except Exception as e:
             #     print("[-]Config file not found! Use the default settings")
             #     print("[-]",e)
-            #     sys.exit(3)
+            #     os._exit(3)
             #     #self.conf = self._default_config()
 
-    def getboolean_override(self, section, item) -> bool:
-        return self.conf.getboolean(section, item) if G_conf_override[f"{section}:{item}"] is None else bool(
-            G_conf_override[f"{section}:{item}"])
+    def set_override(self, option_cmd: str):
+        """
+        通用的参数覆盖选项 -C 配置覆盖串
+        配置覆盖串语法：小节名:键名=值[;[小节名:]键名=值][;[小节名:]键名+=值]  多个键用分号分隔 名称可省略部分尾部字符
+        或 小节名:键名+=值[;[小节名:]键名=值][;[小节名:]键名+=值]  在已有值的末尾追加内容，多个键的=和+=可以交叉出现
+        例子: face:aspect_ratio=2;aways_imagecut=1;priority:website=javdb
+        小节名必须出现在开头至少一次，分号后可只出现键名=值，不再出现小节名，如果后续全部键名都属于同一个小节
+        例如配置文件存在两个小节[proxy][priority]，那么pro可指代proxy，pri可指代priority
+        [face]  ;face小节下方有4个键名locations_model= uncensored_only= aways_imagecut= aspect_ratio=
+        l,lo,loc,loca,locat,locati...直到locations_model完整名称都可以用来指代locations_model=键名
+        u,un,unc...直到uncensored_only完整名称都可以用来指代uncensored_only=键名
+        aw,awa...直到aways_imagecut完整名称都可以用来指代aways_imagecut=键名
+        as,asp...aspect_ratio完整名称都可以用来指代aspect_ratio=键名
+        a则因为二义性，不是合法的省略键名
+        """
+        def err_exit(str):
+            print(str)
+            os._exit(2)
 
-    def getint_override(self, section, item) -> int:
-        return self.conf.getint(section, item) if G_conf_override[f"{section}:{item}"] is None else int(
-            G_conf_override[f"{section}:{item}"])
-
-    def get_override(self, section, item) -> str:
-        return self.conf.get(section, item) if G_conf_override[f"{section}:{item}"] is None else str(
-            G_conf_override[f"{section}:{item}"])
+        sections = self.conf.sections()
+        sec_name = None
+        for cmd in option_cmd.split(';'):
+            syntax_err = True
+            rex = re.findall(r'^(.*?):(.*?)(=|\+=)(.*)$', cmd, re.U)
+            if len(rex) and len(rex[0]) == 4:
+                (sec, key, assign, val) = rex[0]
+                sec_lo = sec.lower().strip()
+                key_lo = key.lower().strip()
+                syntax_err = False
+            elif sec_name:  # 已经出现过一次小节名，属于同一个小节的后续键名可以省略小节名
+                rex = re.findall(r'^(.*?)(=|\+=)(.*)$', cmd, re.U)
+                if len(rex) and len(rex[0]) == 3:
+                    (key, assign, val) = rex[0]
+                    sec_lo = sec_name.lower()
+                    key_lo = key.lower().strip()
+                    syntax_err = False
+            if syntax_err:
+                err_exit(f"[-]Config override syntax incorrect. example: 'd:s=1' or 'debug_mode:switch=1'. cmd='{cmd}' all='{option_cmd}'")
+            if not len(sec_lo):
+                err_exit(f"[-]Config override Section name '{sec}' is empty! cmd='{cmd}'")
+            if not len(key_lo):
+                err_exit(f"[-]Config override Key name '{key}' is empty! cmd='{cmd}'")
+            if not len(val.strip()):
+                print(f"[!]Conig overide value '{val}' is empty! cmd='{cmd}'")
+            sec_name = None
+            for s in sections:
+                if not s.lower().startswith(sec_lo):
+                    continue
+                if sec_name:
+                    err_exit(f"[-]Conig overide Section short name '{sec_lo}' is not unique! dup1='{sec_name}' dup2='{s}' cmd='{cmd}'")
+                sec_name = s
+            if sec_name is None:
+                err_exit(f"[-]Conig overide Section name '{sec}' not found! cmd='{cmd}'")
+            key_name = None
+            keys = self.conf[sec_name]
+            for k in keys:
+                if not k.lower().startswith(key_lo):
+                    continue
+                if key_name:
+                    err_exit(f"[-]Conig overide Key short name '{key_lo}' is not unique! dup1='{key_name}' dup2='{k}' cmd='{cmd}'")
+                key_name = k
+            if key_name is None:
+                err_exit(f"[-]Conig overide Key name '{key}' not found! cmd='{cmd}'")
+            if assign == "+=":
+                val = keys[key_name] + val
+            if self.debug():
+                print(f"[!]Set config override [{sec_name}]{key_name}={val}  by cmd='{cmd}'")
+            self.conf.set(sec_name, key_name, val)
 
     def main_mode(self) -> int:
         try:
-            return self.getint_override("common", "main_mode")
+            return self.conf.getint("common", "main_mode")
         except ValueError:
             self._exit("common:main_mode")
 
     def source_folder(self) -> str:
-        return self.get_override("common", "source_folder")
+        return self.conf.get("common", "source_folder")
 
     def failed_folder(self) -> str:
         return self.conf.get("common", "failed_output_folder")
@@ -128,14 +180,17 @@ class Config:
     def actor_gender(self) -> str:
         return self.conf.get("common", "actor_gender")
 
-    def soft_link(self) -> bool:
-        return self.conf.getboolean("common", "soft_link")
+    def link_mode(self) -> int:
+        return self.conf.getint("common", "link_mode")
+
+    def scan_hardlink(self) -> bool:
+        return self.conf.getboolean("common", "scan_hardlink", fallback=False)#未找到配置选项,默认不刮削
 
     def failed_move(self) -> bool:
         return self.conf.getboolean("common", "failed_move")
 
     def auto_exit(self) -> bool:
-        return self.getboolean_override("common", "auto_exit")
+        return self.conf.getboolean("common", "auto_exit")
 
     def translate_to_sc(self) -> bool:
         return self.conf.getboolean("common", "translate_to_sc")
@@ -147,25 +202,31 @@ class Config:
         return self.conf.getboolean("common", "del_empty_folder")
 
     def nfo_skip_days(self) -> int:
-        try:
-            return self.getint_override("common", "nfo_skip_days")
-        except:
-            return 30
+        return self.conf.getint("common", "nfo_skip_days", fallback=30)
 
     def stop_counter(self) -> int:
-        try:
-            return self.getint_override("common", "stop_counter")
-        except:
-            return 0
+        return self.conf.getint("common", "stop_counter", fallback=0)
 
     def ignore_failed_list(self) -> bool:
-        return self.getboolean_override("common", "ignore_failed_list")
+        return self.conf.getboolean("common", "ignore_failed_list")
 
     def download_only_missing_images(self) -> bool:
         return self.conf.getboolean("common", "download_only_missing_images")
 
     def mapping_table_validity(self) -> int:
         return self.conf.getint("common", "mapping_table_validity")
+
+    def rerun_delay(self) -> int:
+        value = self.conf.get("common", "rerun_delay")
+        if not (isinstance(value, str) and re.match(r'^[\dsmh]+$', value, re.I)):
+            return 0   # not match '1h30m45s' or '30' or '1s2m1h4s5m'
+        if value.isnumeric() and int(value) >= 0:
+            return int(value)
+        sec = 0
+        sec += sum(int(v)  for v in re.findall(r'(\d+)s', value, re.I))
+        sec += sum(int(v)  for v in re.findall(r'(\d+)m', value, re.I)) * 60
+        sec += sum(int(v)  for v in re.findall(r'(\d+)h', value, re.I)) * 3600
+        return sec
 
     def is_translate(self) -> bool:
         return self.conf.getboolean("translate", "switch")
@@ -243,8 +304,8 @@ class Config:
     def media_type(self) -> str:
         return self.conf.get('media', 'media_type')
 
-    def sub_rule(self):
-        return self.conf.get('media', 'sub_type').split(',')
+    def sub_rule(self) -> typing.Set[str]:
+        return set(self.conf.get('media', 'sub_type').lower().split(','))
 
     def naming_rule(self) -> str:
         return self.conf.get("Name_Rule", "naming_rule")
@@ -277,7 +338,7 @@ class Config:
         return self.conf.get("escape", "folders")
 
     def debug(self) -> bool:
-        return self.getboolean_override("debug_mode", "switch")
+        return self.conf.getboolean("debug_mode", "switch")
 
     def is_storyline(self) -> bool:
         try:
@@ -304,43 +365,34 @@ class Config:
             return "3:58avgo"
 
     def storyline_show(self) -> int:
-        try:
-            v = self.conf.getint("storyline", "show_result")
-            return v if v in (0, 1, 2) else 2 if v > 2 else 0
-        except:
-            return 0
+        v = self.conf.getint("storyline", "show_result", fallback=0)
+        return v if v in (0, 1, 2) else 2 if v > 2 else 0
 
     def storyline_mode(self) -> int:
-        try:
-            v = self.conf.getint("storyline", "run_mode")
-            return v if v in (0, 1, 2) else 2 if v > 2 else 0
-        except:
-            return 1
+        return 1 if self.conf.getint("storyline", "run_mode", fallback=1) > 0 else 0
 
     def cc_convert_mode(self) -> int:
-        try:
-            v = self.conf.getint("cc_convert", "mode")
-            return v if v in (0, 1, 2) else 2 if v > 2 else 0
-        except:
-            return 1
+        v = self.conf.getint("cc_convert", "mode", fallback=1)
+        return v if v in (0, 1, 2) else 2 if v > 2 else 0
 
     def cc_convert_vars(self) -> str:
-        try:
-            return self.conf.get("cc_convert", "vars")
-        except:
-            return "actor,director,label,outline,series,studio,tag,title"
+        return self.conf.get("cc_convert", "vars",
+            fallback="actor,director,label,outline,series,studio,tag,title")
 
     def javdb_sites(self) -> str:
-        try:
-            return self.conf.get("javdb", "sites")
-        except:
-            return "33,34"
+        return self.conf.get("javdb", "sites", fallback="38,39")
 
     def face_locations_model(self) -> str:
-        try:
-            return self.conf.get("face", "locations_model")
-        except:
-            return "hog"
+        return self.conf.get("face", "locations_model", fallback="hog")
+
+    def face_uncensored_only(self) -> bool:
+        return self.conf.getboolean("face", "uncensored_only", fallback=True)
+
+    def face_aways_imagecut(self) -> bool:
+        return self.conf.getboolean("face", "aways_imagecut", fallback=False)
+
+    def face_aspect_ratio(self) -> float:
+        return self.conf.getfloat("face", "aspect_ratio", fallback=2.12)
 
     @staticmethod
     def _exit(sec: str) -> None:
@@ -358,7 +410,8 @@ class Config:
         conf.set(sec1, "source_folder", "./")
         conf.set(sec1, "failed_output_folder", "failed")
         conf.set(sec1, "success_output_folder", "JAV_output")
-        conf.set(sec1, "soft_link", "0")
+        conf.set(sec1, "link_mode", "0")
+        conf.set(sec1, "scan_hardlink", "0")
         conf.set(sec1, "failed_move", "1")
         conf.set(sec1, "auto_exit", "0")
         conf.set(sec1, "translate_to_sc", "1")
@@ -370,6 +423,7 @@ class Config:
         conf.set(sec1, "ignore_failed_list", 0)
         conf.set(sec1, "download_only_missing_images", 1)
         conf.set(sec1, "mapping_table_validity", 7)
+        conf.set(sec1, "rerun_delay", 0)
 
         sec2 = "proxy"
         conf.add_section(sec2)
@@ -423,9 +477,9 @@ class Config:
         sec11 = "media"
         conf.add_section(sec11)
         conf.set(sec11, "media_type",
-                 ".mp4,.avi,.rmvb,.wmv,.mov,.mkv,.flv,.ts,.webm,.MP4,.AVI,.RMVB,.WMV,.MOV,.MKV,.FLV,.TS,.WEBM,iso,ISO")
+                 ".mp4,.avi,.rmvb,.wmv,.mov,.mkv,.flv,.ts,.webm,iso")
         conf.set(sec11, "sub_type",
-                 ".smi,.srt,.idx,.sub,.sup,.psb,.ssa,.ass,.txt,.usf,.xss,.ssf,.rt,.lrc,.sbv,.vtt,.ttml")
+                 ".smi,.srt,.idx,.sub,.sup,.psb,.ssa,.ass,.usf,.xss,.ssf,.rt,.lrc,.sbv,.vtt,.ttml")
 
         sec12 = "watermark"
         conf.add_section(sec12)
@@ -503,8 +557,7 @@ if __name__ == "__main__":
 
 
     config = Config()
-    mfilter = {'conf', 'proxy', '_exit', '_default_config', 'getboolean_override', 'getint_override', 'get_override',
-               'ini_path'}
+    mfilter = {'conf', 'proxy', '_exit', '_default_config', 'ini_path', 'set_override'}
     for _m in [m for m in dir(config) if not m.startswith('__') and m not in mfilter]:
         evprint(f'config.{_m}()')
     pfilter = {'proxies', 'SUPPORT_PROXY_TYPE'}
@@ -513,36 +566,13 @@ if __name__ == "__main__":
     for _p in [p for p in dir(getInstance().proxy()) if not p.startswith('__') and p not in pfilter]:
         evprint(f'getInstance().proxy().{_p}')
 
-    # Override Test
-    G_conf_override["common:nfo_skip_days"] = 4321
-    G_conf_override["common:stop_counter"] = 1234
-    assert config.nfo_skip_days() == 4321
-    assert getInstance().stop_counter() == 1234
-    # remove override
-    G_conf_override["common:stop_counter"] = None
-    G_conf_override["common:nfo_skip_days"] = None
-    assert config.nfo_skip_days() != 4321
-    assert config.stop_counter() != 1234
     # Create new instance
     conf2 = Config()
     assert getInstance() != conf2
     assert getInstance() == config
-    G_conf_override["common:main_mode"] = 9
-    G_conf_override["common:source_folder"] = "A:/b/c"
-    # Override effect to all instances
-    assert config.main_mode() == 9
-    assert conf2.main_mode() == 9
-    assert getInstance().main_mode() == 9
-    assert conf2.source_folder() == "A:/b/c"
-    print("### Override Test ###".center(36))
-    evprint('getInstance().main_mode()')
-    evprint('config.source_folder()')
-    G_conf_override["common:main_mode"] = None
-    evprint('conf2.main_mode()')
-    evprint('config.main_mode()')
-    # unregister key acess will raise except
-    try:
-        print(G_conf_override["common:actor_gender"])
-    except KeyError as ke:
-        print(f'Catched KeyError: {ke} is not a register key of G_conf_override dict.', file=sys.stderr)
+
+    conf2.set_override("d:s=1;face:asp=2;f:aw=0;pri:w=javdb;f:l=")
+    assert conf2.face_aspect_ratio() == 2
+    assert conf2.face_aways_imagecut() == False
+    assert conf2.sources() == "javdb"
     print(f"Load Config file '{conf2.ini_path}'.")

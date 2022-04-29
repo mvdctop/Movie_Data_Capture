@@ -56,9 +56,9 @@ def parse_info(soup: BeautifulSoup) -> dict:
             "label": get_label(data_dic),
             "studio": get_studio(data_dic),
             "tag": get_tag(data_dic),
-            "number": get_number(data_dic),
+            "number": get_number(data_dic).upper(),
             "release": get_release(data_dic),
-            "runtime": get_runtime(data_dic),
+            "runtime": get_runtime(data_dic).replace(" minutes", ""),
             "series": get_series(data_dic),
         }
     else:

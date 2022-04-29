@@ -60,10 +60,10 @@ def getCID(html):
     string = html.xpath("//a[contains(@class,'sample-box')][1]/@href")[0].replace('https://pics.dmm.co.jp/digital/video/','')
     result = re.sub('/.*?.jpg','',string)
     return result
-def getOutline(number, title):  #获取剧情介绍 多进程并发查询
+def getOutline(number, title, uncensored):  #获取剧情介绍 多进程并发查询
     if any(caller for caller in inspect.stack() if os.path.basename(caller.filename) == 'airav.py'):
         return ''   # 从airav.py过来的调用不计算outline直接返回，避免重复抓取数据拖慢处理速度
-    return getStoryline(number,title)
+    return getStoryline(number,title, 无码=uncensored)
 def getSeriseJa(html):
     x = html.xpath('//span[contains(text(),"シリーズ:")]/../a/text()')
     return str(x[0]) if len(x) else ''
@@ -83,9 +83,13 @@ def getExtrafanart(htmlcode):  # 获取剧照
         if extrafanart_imgs:
             return [urljoin('https://www.javbus.com',img) for img in extrafanart_imgs]
     return ''
+def getUncensored(html):
+    x = html.xpath('//*[@id="navbar"]/ul[1]/li[@class="active"]/a[contains(@href,"uncensored")]')
+    return bool(x)
 
 def main_uncensored(number):
-    htmlcode = get_html('https://www.javbus.com/ja/' + number)
+    w_number = number.replace('.', '-')
+    htmlcode = get_html('https://www.javbus.red/' + w_number)
     if "<title>404 Page Not Found" in htmlcode:
         raise Exception('404 page not found')
     lx = etree.fromstring(htmlcode, etree.HTMLParser())
@@ -94,7 +98,7 @@ def main_uncensored(number):
         'title': title,
         'studio': getStudioJa(lx),
         'year': getYear(lx),
-        'outline': getOutline(number, title),
+        'outline': getOutline(w_number, title, True),
         'runtime': getRuntime(lx),
         'director': getDirectorJa(lx),
         'actor': getActor(lx),
@@ -106,9 +110,10 @@ def main_uncensored(number):
         'label': getSeriseJa(lx),
         'imagecut': 0,
 #        'actor_photo': '',
-        'website': 'https://www.javbus.com/ja/' + number,
+        'website': 'https://www.javbus.red/' + w_number,
         'source': 'javbus.py',
         'series': getSeriseJa(lx),
+        '无码': True
     }
     js = json.dumps(dic, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ':'), )  # .encode('UTF-8')
     return js
@@ -136,7 +141,7 @@ def main(number):
                 'title': title,
                 'studio': getStudio(lx),
                 'year': getYear(lx),
-                'outline': getOutline(number, title),
+                'outline': getOutline(number, title, getUncensored(lx)),
                 'runtime': getRuntime(lx),
                 'director': getDirector(lx),
                 'actor': getActor(lx),
@@ -151,6 +156,7 @@ def main(number):
                 'website': 'https://www.javbus.com/' + number,
                 'source': 'javbus.py',
                 'series': getSerise(lx),
+                '无码': getUncensored(lx)
             }
             js = json.dumps(dic, ensure_ascii=False, sort_keys=True, indent=4,separators=(',', ':'), )  # .encode('UTF-8')
             return js
@@ -168,13 +174,14 @@ def main(number):
         return js
 
 if __name__ == "__main__" :
-    config.G_conf_override['debug_mode:switch'] = True
-    print(main('ABP-888'))
-    print(main('ABP-960'))
-    print(main('ADV-R0624'))    # 404
-    print(main('MMNT-010'))
-    print(main('ipx-292'))
-    print(main('CEMD-011'))
-    print(main('CJOD-278'))
+    config.getInstance().set_override("debug_mode:switch=1")
+    # print(main('ABP-888'))
+    # print(main('ABP-960'))
+    # print(main('ADV-R0624'))    # 404
+    # print(main('MMNT-010'))
+    # print(main('ipx-292'))
+    # print(main('CEMD-011'))
+    # print(main('CJOD-278'))
+    print(main('BrazzersExxtra.21.02.01'))
     print(main('100221_001'))
     print(main('AVSW-061'))
