@@ -191,7 +191,7 @@ def main(number):
     debug = config.getInstance().debug()
     for i in javdb_sites:
         javdb_sites[javdb_sites.index(i)] = "javdb" + i
-    #javdb_sites.append("javdb")
+    javdb_sites.append("javdb")
     try:
         # if re.search(r'[a-zA-Z]+\.\d{2}\.\d{2}\.\d{2}', number).group():
         #     pass
