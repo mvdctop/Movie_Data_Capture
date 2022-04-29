@@ -242,12 +242,12 @@ def main(number):
         # javdb sometime returns multiple results,
         # and the first elememt maybe not the one we are looking for
         # iterate all candidates and find the match one
-        urls = html.xpath('//*[@id="videos"]/div/div/a/@href')
+        urls = html.xpath('//div[@class="item"]/a[@class="box"]/@href')
         # 记录一下欧美的ids  ['Blacked','Blacked']
         if re.search(r'[a-zA-Z]+\.\d{2}\.\d{2}\.\d{2}', number):
             correct_url = urls[0]
         else:
-            ids = html.xpath('//*[@id="videos"]/div/div/a/div[contains(@class, "uid")]/text()')
+            ids = html.xpath('//div[@class="item"]/a[@class="box"]/div[@class="video-title"]/strong/text()')
             try:
                 correct_url = urls[ids.index(number)]
             except:
@@ -265,21 +265,7 @@ def main(number):
 
         # etree.fromstring开销很大，最好只用一次，而它的xpath很快，比bs4 find/select快，可以多用
         lx = etree.fromstring(detail_page, etree.HTMLParser())
-        # no cut image by default
-        imagecut = 3
-        # If gray image exists ,then replace with normal cover
-        if re.search(r'[a-zA-Z]+\.\d{2}\.\d{2}\.\d{2}', number):
-            cover_small = getCover_small(html)
-        else:
-            try:
-                cover_small = getCover_small(html, index=ids.index(number))
-            except:
-                # if input number is "STAR438" not "STAR-438", use first search result.
-                cover_small = getCover_small(html)
-        if 'placeholder' in cover_small:
-            # replace wit normal cover and cut it
-            imagecut = 1
-            cover_small = getCover(lx)
+        imagecut = 1
         dp_number = getNum(lx)
         if dp_number.upper() != number.upper():
             raise ValueError("number not eq"+dp_number)
@@ -298,7 +284,6 @@ def main(number):
             'release': getRelease(detail_page),
             'number': number,
             'cover': getCover(lx),
-            'cover_small': cover_small,
             'trailer': getTrailer(detail_page),
             'extrafanart': getExtrafanart(lx),
             'imagecut': imagecut,
