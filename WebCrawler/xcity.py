@@ -23,19 +23,16 @@ def getActor(browser):
 
 def getActorPhoto(browser):
     htmla = browser.page.select('#avodDetails > div > div.frame > div.content > div > ul.profileCL > li.credit-links > a')
-    t = {}
-    for i in htmla:
-        p = {i.text.strip(): i['href']}
-        t.update(p)
+    t = {i.text.strip(): i['href'] for i in htmla}
     o = {}
     for k, v in t.items():
         r = browser.open_relative(v)
-        if r.ok:
-            pic = browser.page.select_one('#avidolDetails > div > div.frame > div > p > img')
-            p = {k: urljoin(browser.url, pic['src'])}
-        else:
-            p = {k, ''}
-        o.update(p)
+        if not r.ok:
+            continue
+        pic = browser.page.select_one('#avidolDetails > div > div.frame > div > p > img')
+        if 'noimage.gif' in pic['src']:
+            continue
+        o[k] = urljoin(browser.url, pic['src'])
     return o
 
 
@@ -205,11 +202,12 @@ def main(number):
             'tag': getTag(lx),
             'label': getLabel(lx),
             'year': getYear(getRelease(lx)),  # str(re.search('\d{4}',getRelease(a)).group()),
-#            'actor_photo': getActorPhoto(browser),
             'website': url,
             'source': 'xcity.py',
             'series': getSeries(lx),
         }
+        if config.getInstance().download_actor_photo_for_kodi():
+            dic['actor_photo'] = getActorPhoto(browser)
     except Exception as e:
         if config.getInstance().debug():
             print(e)
@@ -219,6 +217,9 @@ def main(number):
     return js
 
 if __name__ == '__main__':
+    config.getInstance().set_override("storyline:switch=0")
+    config.getInstance().set_override("actor_photo:download_for_kodi=1")
+    config.getInstance().set_override("debug_mode:switch=1")
     print(main('RCTD-288'))
-    #print(main('VNDS-2624'))
-    #print(main('ABP-345'))
+    print(main('VNDS-2624'))
+    print(main('ABP-345'))

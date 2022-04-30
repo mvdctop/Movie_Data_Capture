@@ -30,13 +30,9 @@ def getActor(html):
     return r
 
 def getaphoto(url, session):
-    html_page = session.get(url).text if session is not None else get_html(url)
-    img_prether = re.compile(r'<span class\=\"avatar\" style\=\"background\-image\: url\((.*?)\)')
-    img_url = img_prether.findall(html_page)
-    if img_url:
-        return img_url[0]
-    else:
-        return ''
+    html_page = session.get(url).text
+    img_url = re.findall(r'<span class\=\"avatar\" style\=\"background\-image\: url\((.*?)\)', html_page)
+    return img_url[0] if img_url else ''
 
 def getActorPhoto(html, javdb_site, session):
     actorall = html.xpath('//strong[contains(text(),"演員:")]/../span/a[starts-with(@href,"/actors/")]')
@@ -44,9 +40,18 @@ def getActorPhoto(html, javdb_site, session):
         return {}
     a = getActor(html)
     actor_photo = {}
+    if not session:
+        session = get_html_session()
     for i in actorall:
-        if i.text in a:
-            actor_photo[i.text] = getaphoto(urljoin(f'https://{javdb_site}.com', i.attrib['href']), session)
+        x = re.findall(r'/actors/(.*)', i.attrib['href'], re.A)
+        if not len(x) or not len(x[0]) or i.text not in a:
+            continue
+        actor_id = x[0]
+        pic_url = f"https://c1.jdbstatic.com/avatars/{actor_id[:2].lower()}/{actor_id}.jpg"
+        if not session.head(pic_url).ok:
+            pic_url = getaphoto(urljoin(f'https://{javdb_site}.com', i.attrib['href']), session)
+        if len(pic_url):
+            actor_photo[i.text] = pic_url
     return actor_photo
 
 def getStudio(a, html):
@@ -237,12 +242,12 @@ def main(number):
         # javdb sometime returns multiple results,
         # and the first elememt maybe not the one we are looking for
         # iterate all candidates and find the match one
-        urls = html.xpath('//*[@id="videos"]/div/div/a/@href')
+        urls = html.xpath('//div[@class="item"]/a[@class="box"]/@href')
         # 记录一下欧美的ids  ['Blacked','Blacked']
         if re.search(r'[a-zA-Z]+\.\d{2}\.\d{2}\.\d{2}', number):
             correct_url = urls[0]
         else:
-            ids = html.xpath('//*[@id="videos"]/div/div/a/div[contains(@class, "uid")]/text()')
+            ids = html.xpath('//div[@class="item"]/a[@class="box"]/div[@class="video-title"]/strong/text()')
             try:
                 correct_url = urls[ids.index(number)]
             except:
@@ -260,21 +265,7 @@ def main(number):
 
         # etree.fromstring开销很大，最好只用一次，而它的xpath很快，比bs4 find/select快，可以多用
         lx = etree.fromstring(detail_page, etree.HTMLParser())
-        # no cut image by default
-        imagecut = 3
-        # If gray image exists ,then replace with normal cover
-        if re.search(r'[a-zA-Z]+\.\d{2}\.\d{2}\.\d{2}', number):
-            cover_small = getCover_small(html)
-        else:
-            try:
-                cover_small = getCover_small(html, index=ids.index(number))
-            except:
-                # if input number is "STAR438" not "STAR-438", use first search result.
-                cover_small = getCover_small(html)
-        if 'placeholder' in cover_small:
-            # replace wit normal cover and cut it
-            imagecut = 1
-            cover_small = getCover(lx)
+        imagecut = 1
         dp_number = getNum(lx)
         if dp_number.upper() != number.upper():
             raise ValueError("number not eq"+dp_number)
@@ -293,14 +284,12 @@ def main(number):
             'release': getRelease(detail_page),
             'number': number,
             'cover': getCover(lx),
-            'cover_small': cover_small,
             'trailer': getTrailer(detail_page),
             'extrafanart': getExtrafanart(lx),
             'imagecut': imagecut,
             'tag': getTag(lx),
             'label': getLabel(lx),
             'year': getYear(detail_page),  # str(re.search('\d{4}',getRelease(a)).group()),
-#            'actor_photo': getActorPhoto(lx, javdb_site,  session),
             'website': urljoin('https://javdb.com', correct_url),
             'source': 'javdb.py',
             'series': getSeries(lx),
@@ -316,6 +305,8 @@ def main(number):
                 dic['series'] = dic['studio']
             if not dic['label']:
                 dic['label'] = dic['studio']
+        if config.getInstance().download_actor_photo_for_kodi():
+            dic['actor_photo'] = getActorPhoto(lx, javdb_site,  session)
 
 
     except Exception as e:
@@ -328,19 +319,21 @@ def main(number):
 # main('DV-1562')
 # input("[+][+]Press enter key exit, you can check the error messge before you exit.\n[+][+]按回车键结束，你可以在结束之前查看和错误信息。")
 if __name__ == "__main__":
+    config.getInstance().set_override("storyline:switch=0")
+    config.getInstance().set_override("actor_photo:download_for_kodi=1")
     config.getInstance().set_override("debug_mode:switch=1")
     # print(main('blacked.20.05.30'))
-    # print(main('AGAV-042'))
-    # print(main('BANK-022'))
+    print(main('AGAV-042'))
+    print(main('BANK-022'))
     print(main('070116-197'))
-    # print(main('093021_539'))  # 没有剧照 片商pacopacomama
+    print(main('093021_539'))  # 没有剧照 片商pacopacomama
     #print(main('FC2-2278260'))
     # print(main('FC2-735670'))
     # print(main('FC2-1174949')) # not found
-    #print(main('MVSD-439'))
+    print(main('MVSD-439'))
     # print(main('EHM0001')) # not found
     #print(main('FC2-2314275'))
-    # print(main('EBOD-646'))
-    # print(main('LOVE-262'))
+    print(main('EBOD-646'))
+    print(main('LOVE-262'))
     print(main('ABP-890'))
     print(main('blacked.14.12.08'))

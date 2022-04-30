@@ -394,6 +394,12 @@ class Config:
     def face_aspect_ratio(self) -> float:
         return self.conf.getfloat("face", "aspect_ratio", fallback=2.12)
 
+    def jellyfin_multi_part_fanart(self) -> bool:
+        return self.conf.getboolean("jellyfin", "multi_part_fanart", fallback=False)
+
+    def download_actor_photo_for_kodi(self) -> bool:
+        return self.conf.getboolean("actor_photo", "download_for_kodi", fallback=False)
+
     @staticmethod
     def _exit(sec: str) -> None:
         print("[-] Read config error! Please check the {} section in config.ini", sec)

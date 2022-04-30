@@ -76,8 +76,8 @@ def argparse_function(ver: str) -> typing.Tuple[str, str, str, str, bool, bool]:
                         help="Override [priority]website= in config.")
     parser.add_argument("-D", "--download-images", dest='dnimg', action="store_true",
                         help="Override [common]download_only_missing_images=0 force invoke image downloading.")
-    parser.add_argument("-C", "--config-override", dest='cfgcmd', default='', nargs='?',
-                        help="Common use config override. grammar: section:key=value[;[section:]key=value] eg. 'de:s=1' or 'debug_mode:switch=1' override[debug_mode]switch=1")
+    parser.add_argument("-C", "--config-override", dest='cfgcmd', action='append', nargs=1,
+                        help="Common use config override. Grammar: section:key=value[;[section:]key=value] eg. 'de:s=1' or 'debug_mode:switch=1' override[debug_mode]switch=1 Note:this parameters can be used multiple times")
     parser.add_argument("-z", "--zero-operation", dest='zero_op', action="store_true",
                         help="""Only show job list of files and numbers, and **NO** actual operation
 is performed. It may help you correct wrong numbers before real job.""")
@@ -109,8 +109,9 @@ is performed. It may help you correct wrong numbers before real job.""")
     if isinstance(args.dnimg, bool) and args.dnimg:
         conf.set_override("common:download_only_missing_images=0")
     set_bool_or_none("debug_mode:switch", args.debug)
-    if isinstance(args.cfgcmd, str) and len(args.cfgcmd.strip()):
-        conf.set_override(args.cfgcmd.strip())
+    if isinstance(args.cfgcmd, list):
+        for cmd in args.cfgcmd:
+            conf.set_override(cmd[0])
 
     no_net_op = False
     if conf.main_mode() == 3:
