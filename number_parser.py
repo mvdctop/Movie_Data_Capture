@@ -121,7 +121,7 @@ G_cache_uncensored_conf = Cache_uncensored_conf()
 
 
 # ========================================================================是否为无码
-def is_uncensored(number):
+def is_uncensored(number) -> bool:
     if re.match(
             r'[\d-]{4,}|\d{6}_\d{2,3}|(cz|gedo|k|n|red-|se)\d{2,4}|heyzo.+|xxx-av-.+|heydouga-.+|x-art\.\d{2}\.\d{2}\.\d{2}',
             number,
@@ -129,9 +129,8 @@ def is_uncensored(number):
     ):
         return True
     if G_cache_uncensored_conf.is_empty():
-        if G_cache_uncensored_conf.set(config.getInstance().get_uncensored().split(',')) == None:
-            return False
-    return G_cache_uncensored_conf.check(number)
+        G_cache_uncensored_conf.set(config.getInstance().get_uncensored().split(','))
+    return bool(G_cache_uncensored_conf.check(number))
 
 
 if __name__ == "__main__":

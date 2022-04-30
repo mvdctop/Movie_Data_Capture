@@ -3,6 +3,7 @@ sys.path.append('../')
 import re
 from lxml import etree#need install
 import json
+import config
 import ADC_function
 from WebCrawler.crawler import *
 # import sys
@@ -77,4 +78,7 @@ def main(number):
     return js
 
 if __name__ == '__main__':
-    print(main('FC2-2182382'))
+    config.getInstance().set_override("debug_mode:switch=1")
+    #print(main('FC2-2182382'))
+    #print(main('FC2-607854'))
+    print(main('FC2-2787433'))

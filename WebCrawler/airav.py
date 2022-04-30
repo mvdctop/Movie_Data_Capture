@@ -202,8 +202,7 @@ def main(number):
             'tag': getTag(htmlcode),
             # 使用javbus
             'label': getSerise(javbus_json),
-            # 妈的，airav不提供作者图片
-#            'actor_photo': getActorPhoto(javbus_json),
+            'actor_photo': getActorPhoto(javbus_json),
             'website': 'https://www.airav.wiki/video/' + number,
             'source': 'airav.py',
             # 使用javbus
@@ -224,6 +223,8 @@ def main(number):
 
 
 if __name__ == '__main__':
+    config.getInstance().set_override("actor_photo:download_for_kodi=1")
+    config.getInstance().set_override("debug_mode:switch=1")
     print(main('ADV-R0624'))  # javbus页面返回404, airav有数据
     print(main('ADN-188'))    # 一人
     print(main('CJOD-278'))   # 多人 javbus演员名称采用日语假名，airav采用日文汉字
