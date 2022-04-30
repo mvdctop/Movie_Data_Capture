@@ -110,3 +110,5 @@ venv.bak/
 JAV_output/**/*
 failed/*
 .vscode/launch.json
+
+.idea

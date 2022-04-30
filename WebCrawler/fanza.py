@@ -67,7 +67,7 @@ def getOutline(html):
 
 
 def getExtrafanart(htmlcode):  # 获取剧照
-    html_pather = re.compile(r'<div id=\"sample-image-block\"[\s\S]*?<br></div></div>')
+    html_pather = re.compile(r'<div id=\"sample-image-block\"[\s\S]*?<br></div>\n</div>')
     html = html_pather.search(htmlcode)
     if html:
         html = html.group()

@@ -124,7 +124,7 @@ def getCover_small(html, index=0):
     # javdb sometime returns multiple results
     # DO NOT just get the firt one, get the one with correct index number
     try:
-        result = html.xpath("//div[@class='item-image fix-scale-cover']/img/@src")[index]
+        result = html.xpath("//*[@class='movie-list h cols-4']/div/a/div[contains(@class, 'cover')]/img/@src")[index]
         if not 'https' in result:
             result = 'https:' + result
         return result
@@ -242,12 +242,12 @@ def main(number):
         # javdb sometime returns multiple results,
         # and the first elememt maybe not the one we are looking for
         # iterate all candidates and find the match one
-        urls = html.xpath('//div[@class="item"]/a[@class="box"]/@href')
+        urls = html.xpath('//*[@class="movie-list h cols-4"]/div/a/@href')
         # 记录一下欧美的ids  ['Blacked','Blacked']
         if re.search(r'[a-zA-Z]+\.\d{2}\.\d{2}\.\d{2}', number):
             correct_url = urls[0]
         else:
-            ids = html.xpath('//div[@class="item"]/a[@class="box"]/div[@class="video-title"]/strong/text()')
+            ids = html.xpath('//*[@class="movie-list h cols-4"]/div/a/div[contains(@class, "video-title")]/strong/text()')
             try:
                 correct_url = urls[ids.index(number)]
             except:
