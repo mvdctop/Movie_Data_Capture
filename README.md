@@ -16,7 +16,7 @@
 the project plays the role of classification and metadata (metadata) grabbing, using metadata information to classify, only for local movie classification and organization.
 
 # Documents
-* [Official WIKI](https://github.com/yoshiko2/Movie_Data_Capture/wiki)
+* [Official WIKI](https://github.com/yoshiko2/Movie_Data_Capture/wiki/English)
 * [VergilGao's Docker Edition](https://github.com/VergilGao/docker-mdc)
 
 # Download
