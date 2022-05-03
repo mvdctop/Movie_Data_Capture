@@ -36,11 +36,13 @@ When you view and download the source code or binary program of this project, it
 * If you do not agree to any of the above terms, please do not use the project and project results
 
 # Sponsor 
-I am a college student and currently have high living and tuition costs and I want to reduce my family's dependence
+I am a college student and currently have high living and tuition costs and I want to reduce my financial dependence on my family
 
-If the program helps you, you can sponsor by.
+If the program helps you, you can sponsor by:
 
 ## Crypto
 * USDT TRC-20: `TCVvFxeMuHFaECVMiHrxWD9b5QGX8DVQNV`
+
+For new functions and new feature requirements, all can be customized for a fee by communicating in the above way. And you can give me work to do.
 
 Thanks!
