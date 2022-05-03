@@ -22,7 +22,7 @@ the project plays the role of classification and metadata (metadata) grabbing, u
 # Download
 * [Releases](https://github.com/yoshiko2/Movie_Data_Capture/releases/latest)
 
-# Contribtors
+# Contributors
 [![](https://opencollective.com/movie_data_capture/contributors.svg?width=890)](https://github.com/yoshiko2/movie_data_Capture/graphs/contributors)
 
 #  NOTICE
@@ -36,6 +36,10 @@ When you view and download the source code or binary program of this project, it
 * If you do not agree to any of the above terms, please do not use the project and project results
 
 # Sponsor 
-I am a college student with high living expenses, and if the program helps you a lot, you can sponsor by:
+I am a college student and currently have high living and tuition costs and I want to reduce my family's dependence
+
+If the program helps you, you can sponsor by.
 ## Crypto
 USDT TRC-20: `TCVvFxeMuHFaECVMiHrxWD9b5QGX8DVQNV`
+
+Thanks!
