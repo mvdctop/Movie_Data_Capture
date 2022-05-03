@@ -40,7 +40,6 @@ I am a college student and currently have high living and tuition costs and I wa
 
 If the program helps you, you can sponsor by.
 
-* [Paypal](https://www.paypal.com/paypalme/yoshiko2)
 ## Crypto
 * USDT TRC-20: `TCVvFxeMuHFaECVMiHrxWD9b5QGX8DVQNV`
 
