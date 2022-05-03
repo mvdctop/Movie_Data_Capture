@@ -36,6 +36,6 @@ When you view and download the source code or binary program of this project, it
 * If you do not agree to any of the above terms, please do not use the project and project results
 
 # Sponsor 
-I am a college student with high living expenses, and if the program helps you, you can sponsor by:
+I am a college student with high living expenses, and if the program helps you a lot, you can sponsor by:
 ## Crypto
 USDT TRC-20: `TCVvFxeMuHFaECVMiHrxWD9b5QGX8DVQNV`
