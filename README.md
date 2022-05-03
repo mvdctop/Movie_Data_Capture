@@ -39,7 +39,9 @@ When you view and download the source code or binary program of this project, it
 I am a college student and currently have high living and tuition costs and I want to reduce my family's dependence
 
 If the program helps you, you can sponsor by.
+
+* [Paypal](https://www.paypal.com/paypalme/yoshiko2)
 ## Crypto
-USDT TRC-20: `TCVvFxeMuHFaECVMiHrxWD9b5QGX8DVQNV`
+* USDT TRC-20: `TCVvFxeMuHFaECVMiHrxWD9b5QGX8DVQNV`
 
 Thanks!
