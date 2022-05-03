@@ -12,12 +12,6 @@ CLI 版本
 ![](https://img.shields.io/github/license/yoshiko2/docker-mdc.svg?style=flat)
 ![](https://img.shields.io/github/release/yoshiko2/docker-mdc.svg?style=flat)
 ![](https://img.shields.io/badge/Python-3.7-yellow.svg?style=flat&logo=python)<br>
-[GUI 版本](https://github.com/moyy996/AVDC)  
-![](https://img.shields.io/badge/build-passing-brightgreen.svg?style=flat)
-![](https://img.shields.io/github/license/moyy996/avdc.svg?style=flat)
-![](https://img.shields.io/github/release/moyy996/avdc.svg?style=flat)
-![](https://img.shields.io/badge/Python-3.6-yellow.svg?style=flat&logo=python)
-![](https://img.shields.io/badge/Pyqt-5-blue.svg?style=flat)<br>
 
 
 **本地電影元數據 抓取工具 | 刮削器**，配合本地影片管理軟件 Emby, Jellyfin, Kodi 等管理本地影片，該軟件起到分類與元數據（metadata）抓取作用，利用元數據信息來分類，僅供本地影片分類整理使用。

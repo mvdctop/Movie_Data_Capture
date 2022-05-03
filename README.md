@@ -1,6 +1,6 @@
 <h1 align="center">Movie Data Capture - CLI</h1>
 
-[简体中文](https://github.com/yoshiko2/Movie_Data_Capture/blob/master/readme_zh.md)
+[简体中文](https://github.com/yoshiko2/Movie_Data_Capture/blob/master/readme_zh.md) | [繁體中文](https://github.com/yoshiko2/Movie_Data_Capture/blob/master/readme_tc.md)
 
 ![](https://img.shields.io/badge/build-passing-brightgreen.svg?style=flat)
 ![](https://img.shields.io/github/license/yoshiko2/Movie_data_capture.svg?style=flat)
@@ -11,12 +11,6 @@
 ![](https://img.shields.io/github/license/yoshiko2/docker-mdc.svg?style=flat)
 ![](https://img.shields.io/github/release/yoshiko2/docker-mdc.svg?style=flat)
 ![](https://img.shields.io/badge/Python-3.7-yellow.svg?style=flat&logo=python)<br>
-![](https://img.shields.io/badge/build-passing-brightgreen.svg?style=flat)
-![](https://img.shields.io/github/license/moyy996/avdc.svg?style=flat)
-![](https://img.shields.io/github/release/moyy996/avdc.svg?style=flat)
-![](https://img.shields.io/badge/Python-3.6-yellow.svg?style=flat&logo=python)
-![](https://img.shields.io/badge/Pyqt-5-blue.svg?style=flat)<br>
-
 
 **Movie Metadata Scraper**, with local movie management software Emby, Jellyfin, Kodi, etc. to manage local movies, 
 the project plays the role of classification and metadata (metadata) grabbing, using metadata information to classify, only for local movie classification and organization.
