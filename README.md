@@ -15,6 +15,8 @@
 **Movie Metadata Scraper**, with local JAV management software Emby, Jellyfin, Kodi, etc. to manage local movies, 
 the project plays the role of classification and metadata (metadata) grabbing, using metadata information to classify, only for local movie classification and organization.
 
+**You must be over 18 years old, or leave the page immediately**
+
 # Documents
 * [Official WIKI](https://github.com/yoshiko2/Movie_Data_Capture/wiki/English)
 * [VergilGao's Docker Edition](https://github.com/VergilGao/docker-mdc)
