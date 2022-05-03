@@ -12,7 +12,7 @@
 ![](https://img.shields.io/github/release/yoshiko2/docker-mdc.svg?style=flat)
 ![](https://img.shields.io/badge/Python-3.7-yellow.svg?style=flat&logo=python)<br>
 
-**Movie Metadata Scraper**, with local movie management software Emby, Jellyfin, Kodi, etc. to manage local movies, 
+**Movie Metadata Scraper**, with local JAV management software Emby, Jellyfin, Kodi, etc. to manage local movies, 
 the project plays the role of classification and metadata (metadata) grabbing, using metadata information to classify, only for local movie classification and organization.
 
 # Documents
