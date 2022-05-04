@@ -44,6 +44,7 @@ If the program helps you, you can sponsor by:
 
 ## Crypto
 * USDT TRC-20: `TCVvFxeMuHFaECVMiHrxWD9b5QGX8DVQNV`
+* BTC: `3MyXrRyKbCG6mrB3KiWoYnifsPWNCiprwe`
 
 For new functions and new feature requirements, all can be customized for a fee by communicating in the above way. And you can give me work to do.
 
