@@ -451,7 +451,7 @@ def create_data_and_move(movie_path: str, zero_op: bool, no_net_op: bool, oCC):
     movie_path = os.path.abspath(movie_path)
 
     if debug is True:
-        print(f"[!] [{n_number}] As Number making data for '{movie_path}'")
+        print(f"[!] [{n_number}] As Number Processing for '{movie_path}'")
         if zero_op:
             return
         if n_number:
@@ -465,7 +465,7 @@ def create_data_and_move(movie_path: str, zero_op: bool, no_net_op: bool, oCC):
         print("[*]======================================================")
     else:
         try:
-            print(f"[!] [{n_number}] As Number making data for '{movie_path}'")
+            print(f"[!] [{n_number}] As Number Processing for '{movie_path}'")
             if zero_op:
                 return
             if n_number:
@@ -490,7 +490,7 @@ def create_data_and_move_with_custom_number(file_path: str, custom_number, oCC):
     conf = config.getInstance()
     file_name = os.path.basename(file_path)
     try:
-        print("[!] [{1}] As Number making data for '{0}'".format(file_path, custom_number))
+        print("[!] [{1}] As Number Processing for '{0}'".format(file_path, custom_number))
         if custom_number:
             core_main(file_path, custom_number, oCC)
         else:
