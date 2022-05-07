@@ -60,7 +60,7 @@ def get_info(json_data):  # 返回json里的数据
     outline = json_data.get('outline')
     runtime = json_data.get('runtime')
     director = json_data.get('director')
-    actor_photo = json_data.get('actor_photo')
+    actor_photo = json_data.get('actor_photo', {})
     release = json_data.get('release')
     number = json_data.get('number')
     cover = json_data.get('cover')
