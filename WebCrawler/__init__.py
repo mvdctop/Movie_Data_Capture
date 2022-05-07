@@ -25,6 +25,7 @@ from . import fc2club
 from . import mv91
 from . import madou
 from . import gcolle
+from . import getchu
 
 
 def get_data_state(data: dict) -> bool:  # 元数据获取失败检测
@@ -65,6 +66,7 @@ def get_data_from_json(file_number, oCC):
         "mv91": mv91.main,
         "madou": madou.main,
         "gcolle": gcolle.main,
+        "getchu": getchu.main,
     }
 
     conf = config.getInstance()
