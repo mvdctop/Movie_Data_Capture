@@ -42,13 +42,17 @@ def getActorPhoto(html, javdb_site, session):
     actor_photo = {}
     if not session:
         session = get_html_session()
+    img_site = config.getInstance().javdb_img_site()
     for i in actorall:
         x = re.findall(r'/actors/(.*)', i.attrib['href'], re.A)
         if not len(x) or not len(x[0]) or i.text not in a:
             continue
         actor_id = x[0]
-        pic_url = f"https://c1.jdbstatic.com/avatars/{actor_id[:2].lower()}/{actor_id}.jpg"
-        if not session.head(pic_url).ok:
+        pic_url = f"https://{img_site}/avatars/{actor_id[:2].lower()}/{actor_id}.jpg"
+        try:
+            if not session.head(pic_url).ok:
+                raise
+        except:
             pic_url = getaphoto(urljoin(f'https://{javdb_site}.com', i.attrib['href']), session)
         if len(pic_url):
             actor_photo[i.text] = pic_url
@@ -192,8 +196,9 @@ def getUncensored(html):
 def main(number):
     # javdb更新后同一时间只能登录一个数字站，最新登录站会踢出旧的登录，因此按找到的第一个javdb*.json文件选择站点，
     # 如果无.json文件或者超过有效期，则随机选择一个站点。
-    javdb_sites = config.getInstance().javdb_sites().split(',')
-    debug = config.getInstance().debug()
+    conf = config.getInstance()
+    javdb_sites = conf.javdb_sites().split(',')
+    debug = conf.debug()
     for i in javdb_sites:
         javdb_sites[javdb_sites.index(i)] = "javdb" + i
     javdb_sites.append("javdb")
@@ -242,12 +247,12 @@ def main(number):
         # javdb sometime returns multiple results,
         # and the first elememt maybe not the one we are looking for
         # iterate all candidates and find the match one
-        urls = html.xpath('//*[contains(@class,"movie-list")]/div/a/@href')
+        urls = html.xpath(conf.javdb_urls_xpath())
         # 记录一下欧美的ids  ['Blacked','Blacked']
         if re.search(r'[a-zA-Z]+\.\d{2}\.\d{2}\.\d{2}', number):
             correct_url = urls[0]
         else:
-            ids = html.xpath('//*[contains(@class,"movie-list")]/div/a/div[contains(@class, "video-title")]/strong/text()')
+            ids = html.xpath(conf.javdb_ids_xpath())
             try:
                 correct_url = urls[ids.index(number)]
             except:
@@ -305,7 +310,7 @@ def main(number):
                 dic['series'] = dic['studio']
             if not dic['label']:
                 dic['label'] = dic['studio']
-        if config.getInstance().download_actor_photo_for_kodi():
+        if conf.download_actor_photo_for_kodi():
             dic['actor_photo'] = getActorPhoto(lx, javdb_site,  session)
 
 

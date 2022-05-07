@@ -382,6 +382,15 @@ class Config:
     def javdb_sites(self) -> str:
         return self.conf.get("javdb", "sites", fallback="38,39,40")
 
+    def javdb_urls_xpath(self) -> str:
+        return self.conf.get("javdb", "urls_xpath", fallback='//div[@class="item"]/a[@class="box"]/@href')
+
+    def javdb_ids_xpath(self) -> str:
+        return self.conf.get("javdb", "ids_xpath", fallback='//div[@class="item"]/a[@class="box"]/div[@class="video-title"]/strong/text()')
+
+    def javdb_img_site(self) -> str:
+        return self.conf.get("javdb", "img_site", fallback='jdbimgs.com')
+
     def face_locations_model(self) -> str:
         return self.conf.get("face", "locations_model", fallback="hog")
 
