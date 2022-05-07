@@ -2,7 +2,6 @@ import sys
 sys.path.append('../')
 from bs4 import BeautifulSoup  # need install
 from lxml import etree  # need install
-from pyquery import PyQuery as pq  # need install
 from ADC_function import *
 import json
 import re

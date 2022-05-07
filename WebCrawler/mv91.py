@@ -1,7 +1,6 @@
 import sys
 sys.path.append('../')
 import re
-from pyquery import PyQuery as pq#need install
 from lxml import etree#need install
 from bs4 import BeautifulSoup#need install
 import json
@@ -78,7 +77,7 @@ def getOutline(html):  #获取概述
         return result.strip()
     except:
         return ''
-  
+
 
 def getSerise(htmlcode):   #获取系列 已修改
     return ''
@@ -112,11 +111,11 @@ def main(number):
             'year': getYear(html),
             # 简介
             'outline': getOutline(html),
-            # 
+            #
             'runtime': getRuntime(html),
-            # 导演 
+            # 导演
             'director': getDirector(html),
-            # 演员 
+            # 演员
             'actor': getActor(html),
             # 发售日
             'release': getRelease(html),
@@ -127,9 +126,9 @@ def main(number):
             # 剧照获取
             'extrafanart': getExtrafanart(html),
             'imagecut': 1,
-            # 
+            #
             'tag': getTag(html),
-            # 
+            #
             'label': getSerise(html),
             # 作者图片
             'website': url,

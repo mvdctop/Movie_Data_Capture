@@ -10,7 +10,7 @@ RUN apt-get update \
     && mv AV_Data_Capture-master /jav \
     && cd /jav \
     && ( pip install --no-cache-dir -r requirements.txt || true ) \
-    && pip install --no-cache-dir requests pyquery lxml Beautifulsoup4 pillow \
+    && pip install --no-cache-dir requests lxml Beautifulsoup4 pillow \
     && apt-get purge -y wget
 
 WORKDIR /jav
