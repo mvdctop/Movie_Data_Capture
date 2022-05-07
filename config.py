@@ -380,7 +380,7 @@ class Config:
             fallback="actor,director,label,outline,series,studio,tag,title")
 
     def javdb_sites(self) -> str:
-        return self.conf.get("javdb", "sites", fallback="38,39")
+        return self.conf.get("javdb", "sites", fallback="38,39,40")
 
     def face_locations_model(self) -> str:
         return self.conf.get("face", "locations_model", fallback="hog")
@@ -399,6 +399,9 @@ class Config:
 
     def download_actor_photo_for_kodi(self) -> bool:
         return self.conf.getboolean("actor_photo", "download_for_kodi", fallback=False)
+
+    def actor_photo_gfriends_path(self) -> str:
+        return self.conf.get("actor_photo", "gfriends_path", fallback="")
 
     @staticmethod
     def _exit(sec: str) -> None:

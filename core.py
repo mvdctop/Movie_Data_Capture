@@ -189,6 +189,100 @@ def trailer_download(trailer, leak_word, c_word, hack_word, number, path, filepa
     print('[+]Video Downloaded!', path + '/' + number + leak_word + c_word + hack_word + '-trailer.mp4')
 
 
+class ActorCache:
+    def is_empty(self) -> bool:
+        return not bool(hasattr(self, "cache"))
+
+    def init(self):
+        if hasattr(self, "cache") and isinstance(self.cache, dict):
+            return
+        self.cache = dict()
+
+    def set(self, actor_name, pic_fullpath):
+        if not self.is_empty() and all(len(str(v)) for v in (actor_name, pic_fullpath)):
+            self.cache[actor_name] = str(pic_fullpath)
+
+    def get(self, actor_name):
+        if not self.is_empty():
+            return self.cache.get(actor_name, '')
+        return ''
+
+
+G_actor_cache = ActorCache()
+
+class GFriends:
+    def lib_exists(self) -> bool:
+        if not hasattr(self, "is_init"):
+            self.is_init = True
+            gf = config.getInstance().actor_photo_gfriends_path()
+            gfpath = Path(gf) if len(gf) else None
+            if not(gfpath and gfpath.is_dir()):
+                return False
+            filetree_path = gfpath / "Filetree.json"
+            if not filetree_path.is_file():
+                return False
+            filetree = json.loads(filetree_path.read_text(encoding='utf-8'))
+            if not(filetree is not None and len(filetree.get("Content", []))):
+                return False
+            self.content = filetree["Content"]
+            self.path = gfpath
+        return all(hasattr(self, v) for v in ("content", "path"))
+
+    def get(self, actor_name) -> str:
+        if not self.lib_exists():
+            return ''
+        actor_jpg_name = actor_name + '.jpg'
+        for studio in self.content:
+            if actor_jpg_name in self.content[studio]:
+                actor_photo_path = self.path / "Content" / studio / self.content[studio][actor_jpg_name]
+                return str(actor_photo_path)
+        return ''
+
+
+G_gfriends = GFriends()
+
+
+def cached_link_actor_photo(actor_name, actor_photo, pic_fullpath) -> bool:
+    debug = config.getInstance().debug()
+    if G_actor_cache.is_empty():
+        G_actor_cache.init()
+    pic_fullpath.parent.mkdir(parents=True, exist_ok=True)
+    if pic_fullpath.is_file():
+        pic_fullpath.unlink(missing_ok=True)
+    actor_cached_path = G_actor_cache.get(actor_name)
+    if len(actor_cached_path) and Path(actor_cached_path).is_file():
+        try:
+            os.link(actor_cached_path, str(pic_fullpath), follow_symlinks=False)
+        except:
+            shutil.copyfile(actor_cached_path, str(pic_fullpath))
+        target_ok = pic_fullpath.is_file()
+        if target_ok and debug:
+            print(f'[+]Cached link or copy actor photo {str(pic_fullpath)}')
+        return target_ok
+    try:
+        os.link(actor_photo, str(pic_fullpath), follow_symlinks=False)
+    except:
+        shutil.copyfile(actor_photo, str(pic_fullpath))
+    target_ok = pic_fullpath.is_file()
+    if target_ok:
+        G_actor_cache.set(actor_name, pic_fullpath)
+        if debug:
+            print(f'[+]Link or copy actor photo {str(pic_fullpath)}')
+    return target_ok
+
+
+def copy_from_local_gfriends(actor_name, pic_fullpath) -> bool:
+    if not G_gfriends.lib_exists():
+        return False
+    actor_photo = G_gfriends.get(actor_name)
+    if not(isinstance(actor_photo, str) and os.path.isfile(actor_photo)):
+        return False
+    try:
+        return cached_link_actor_photo(actor_name, actor_photo, pic_fullpath)
+    except:
+        return False
+
+
 def actor_photo_download(actors, save_dir, number):
     if not isinstance(actors, dict) or not len(actors) or not len(save_dir):
         return
@@ -198,6 +292,7 @@ def actor_photo_download(actors, save_dir, number):
     conf = config.getInstance()
     actors_dir = save_dir / '.actors'
     download_only_missing_images = conf.download_only_missing_images()
+    local_cnt = 0
     dn_list = []
     for actor_name, url in actors.items():
         res = re.match(r'^http.*(\.\w+)$', url, re.A)
@@ -207,7 +302,12 @@ def actor_photo_download(actors, save_dir, number):
         pic_fullpath = actors_dir /  f'{actor_name}{ext}'
         if download_only_missing_images and not file_not_exist_or_empty(pic_fullpath):
             continue
-        dn_list.append((url, pic_fullpath))
+        # 本地gfriends库优先，没有的才从远程下载
+        if not copy_from_local_gfriends(actor_name, pic_fullpath):
+            dn_list.append((url, pic_fullpath))
+            local_cnt += 1
+    if local_cnt:
+        print(f"[+]Successfully link or copy {local_cnt} actor photo from local gfriends git repository")
     if not len(dn_list):
         return
     parallel = min(len(dn_list), conf.extrafanart_thread_pool_download())
@@ -749,6 +849,18 @@ def core_main_no_net_op(movie_path, number):
             nfo_xml = etree.parse(full_nfo)
             nfo_fanart_path = nfo_xml.xpath('//fanart/text()')[0]
             ext = Path(nfo_fanart_path).suffix
+            if conf.download_actor_photo_for_kodi():
+                actors_fullpath = full_nfo.with_name('.actors')
+                actors_name = nfo_xml.xpath('//actor/name/text()')
+                local_cnt = 0
+                for actor_name in actors_name:
+                    pic_fullpath = actors_fullpath / f'{actor_name}.jpg'
+                    if conf.download_only_missing_images() and not file_not_exist_or_empty(pic_fullpath):
+                        continue
+                    if copy_from_local_gfriends(actor_name, pic_fullpath):
+                        local_cnt += 1
+                if local_cnt:
+                    print(f"[+]Successfully link or copy {local_cnt} actor photo from local gfriends git repository")
         except:
             return
     else:
