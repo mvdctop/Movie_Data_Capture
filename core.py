@@ -305,6 +305,7 @@ def actor_photo_download(actors, save_dir, number):
         # 本地gfriends库优先，没有的才从远程下载
         if not copy_from_local_gfriends(actor_name, pic_fullpath):
             dn_list.append((url, pic_fullpath))
+        else:
             local_cnt += 1
     if local_cnt:
         print(f"[+]Successfully link or copy {local_cnt} actor photo from local gfriends git repository")
