@@ -2,6 +2,7 @@
 
 [中文|Chinese](https://github.com/yoshiko2/Movie_Data_Capture/blob/master/README_ZH.md)
 
+---
 ![](https://img.shields.io/badge/build-passing-brightgreen.svg?style=flat)
 ![](https://img.shields.io/github/license/yoshiko2/Movie_data_capture.svg?style=flat)
 ![](https://img.shields.io/github/release/yoshiko2/Movie_data_capture.svg?style=flat)
