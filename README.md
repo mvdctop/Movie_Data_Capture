@@ -1,6 +1,6 @@
 <h1 align="center">Movie Data Capture - CLI</h1>
 
-[简体中文](https://github.com/yoshiko2/Movie_Data_Capture/blob/master/README_SC.md) | [繁體中文](https://github.com/yoshiko2/Movie_Data_Capture/blob/master/README_TC.md)
+[中文|Chinese](https://github.com/yoshiko2/Movie_Data_Capture/blob/master/README_ZH.md)
 
 ![](https://img.shields.io/badge/build-passing-brightgreen.svg?style=flat)
 ![](https://img.shields.io/github/license/yoshiko2/Movie_data_capture.svg?style=flat)
