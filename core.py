@@ -5,6 +5,7 @@ import pathlib
 import re
 import shutil
 import sys
+import zipfile
 
 
 from PIL import Image
@@ -397,11 +398,25 @@ def extrafanart_download_threadpool(url_list, save_dir, number):
         print(f'[!]Extrafanart download ThreadPool mode runtime {time.perf_counter() - tm_start:.3f}s')
 
 
-def image_ext(url):
-    try:
-        return os.path.splitext(url)[-1]
-    except:
-        return ".jpg"
+def unzip_local_gallery(path):
+    conf = config.getInstance()
+    if not conf.extrafanart_unzip_gallery():
+        return
+    extrafanart = conf.get_extrafanart()
+    if not len(extrafanart):
+        return
+    targetdir = Path(path)
+    gfolder = targetdir / extrafanart
+    gfolder.mkdir(parents=True, exist_ok=True)
+    uzcnt = 0
+    for z in targetdir.glob('*.zip'):
+        if not re.match('gallery.*\.zip', z.name, re.I):
+            continue
+        with zipfile.ZipFile(str(z),"r") as zobj:
+            zobj.extractall(str(gfolder))
+            uzcnt += len(zobj.namelist())
+    if uzcnt:
+        print(f"[+]Unzipped {uzcnt} gallery photos to folder '{extrafanart}'")
 
 
 # 封面是否下载成功，否则移动到failed
@@ -686,19 +701,29 @@ def paste_file_to_folder(filepath, path, multi_part, number, part, leak_word, c_
                 os.symlink(str(filepath_obj.resolve()), targetpath)
 
         sub_res = config.getInstance().sub_rule()
-        for subfile in filepath_obj.parent.glob('**/*'):
-            if subfile.is_file() and subfile.suffix.lower() in sub_res:
-                if multi_part and part.lower() not in subfile.name.lower():
+        for onefile in filepath_obj.parent.glob('**/*'):
+            if not onefile.is_file():
+                continue
+            if onefile.suffix.lower() in sub_res:
+                if multi_part and part.lower() not in onefile.name.lower():
                     continue
-                if filepath_obj.stem.split('.')[0].lower() != subfile.stem.split('.')[0].lower():
+                if filepath_obj.stem.split('.')[0].lower() != onefile.stem.split('.')[0].lower():
                     continue
-                sub_targetpath = Path(path) / f"{number}{leak_word}{c_word}{hack_word}{''.join(subfile.suffixes)}"
+                sub_targetpath = Path(path) / f"{number}{leak_word}{c_word}{hack_word}{''.join(onefile.suffixes)}"
                 if link_mode not in (1, 2):
-                    shutil.move(str(subfile), str(sub_targetpath))
+                    shutil.move(str(onefile), str(sub_targetpath))
                     print(f"[+]Sub Moved!        {sub_targetpath.name}")
                 else:
-                    shutil.copyfile(str(subfile), str(sub_targetpath))
+                    shutil.copyfile(str(onefile), str(sub_targetpath))
                     print(f"[+]Sub Copied!       {sub_targetpath.name}")
+            elif re.match(r'gallery.*\.zip', onefile.name, re.I): # 下载目录中存在剧照压缩包
+                gallery_targetpath = Path(path) / onefile.name
+                if link_mode not in (1, 2):
+                    shutil.move(str(onefile), str(gallery_targetpath))
+                    print(f"[+]Gallery Moved!    {onefile.name}")
+                else:
+                    shutil.copyfile(str(onefile), str(gallery_targetpath))
+                    print(f"[+]Gallery Copied!   {onefile.name}")
         return
 
     except FileExistsError as fee:
@@ -739,17 +764,27 @@ def paste_file_to_folder_mode2(filepath, path, multi_part, number, part, leak_wo
                 os.symlink(str(filepath_obj.resolve()), targetpath)
 
         sub_res = config.getInstance().sub_rule()
-        for subfile in filepath_obj.parent.glob('**/*'):
-            if subfile.is_file() and subfile.suffix.lower() in sub_res:
-                if multi_part and part.lower() not in subfile.name.lower():
+        for onefile in filepath_obj.parent.glob('**/*'):
+            if not onefile.is_file():
+                continue
+            if onefile.suffix.lower() in sub_res:
+                if multi_part and part.lower() not in onefile.name.lower():
                     continue
-                sub_targetpath = Path(path) / f"{number}{leak_word}{c_word}{hack_word}{''.join(subfile.suffixes)}"
+                sub_targetpath = Path(path) / f"{number}{leak_word}{c_word}{hack_word}{''.join(onefile.suffixes)}"
                 if link_mode not in (1, 2):
-                    shutil.move(str(subfile), str(sub_targetpath))
+                    shutil.move(str(onefile), str(sub_targetpath))
                     print(f"[+]Sub Moved!        {sub_targetpath.name}")
                 else:
-                    shutil.copyfile(str(subfile), str(sub_targetpath))
+                    shutil.copyfile(str(onefile), str(sub_targetpath))
                     print(f"[+]Sub Copied!       {sub_targetpath.name}")
+            elif re.match(r'gallery.*\.zip', onefile.name, re.I): # 下载目录中存在剧照压缩包
+                gallery_targetpath = Path(path) / onefile.name
+                if link_mode not in (1, 2):
+                    shutil.move(str(onefile), str(gallery_targetpath))
+                    print(f"[+]Gallery Moved!    {onefile.name}")
+                else:
+                    shutil.copyfile(str(onefile), str(gallery_targetpath))
+                    print(f"[+]Gallery Copied!   {onefile.name}")
         return
     except FileExistsError as fee:
         print(f'[-]FileExistsError: {fee}')
@@ -887,6 +922,9 @@ def core_main_no_net_op(movie_path, number):
     if multi and conf.jellyfin_multi_part_fanart():
         linkImage(path, number, part, leak_word, c_word, hack_word, ext)
 
+    if conf.is_extrafanart():
+        unzip_local_gallery(path)
+
 
 def core_main(movie_path, number_th, oCC):
     conf = config.getInstance()
@@ -952,7 +990,7 @@ def core_main(movie_path, number_th, oCC):
 
 
     cover = json_data.get('cover')
-    ext = image_ext(cover)
+    ext = Path(cover).suffix
     fanart_path =  f"{number}{leak_word}{c_word}{hack_word}-fanart{ext}"
     poster_path = f"{number}{leak_word}{c_word}{hack_word}-poster{ext}"
     thumb_path =  f"{number}{leak_word}{c_word}{hack_word}-thumb{ext}"
@@ -1002,6 +1040,10 @@ def core_main(movie_path, number_th, oCC):
 
         # 移动电影
         paste_file_to_folder(movie_path, path, multi_part, number, part, leak_word, c_word, hack_word)
+
+        # 解压剧照压缩包
+        if conf.is_extrafanart() and (not multi_part or part.lower() == '-cd1'):
+            unzip_local_gallery(path)  # 这里有个小问题，如果影片只存在CD2不存在CD1，则不会解压缩，上面的-cd1条件也一样
 
         # 最后输出.nfo元数据文件，以完成.nfo文件创建作为任务成功标志
         print_files(path, leak_word, c_word,  json_data.get('naming_rule'), part, cn_sub, json_data, movie_path, tag,  json_data.get('actor_list'), liuchu, uncensored, hack_word
@@ -1053,6 +1095,10 @@ def core_main(movie_path, number_th, oCC):
         # 兼容Jellyfin封面图文件名规则
         if multi_part and conf.jellyfin_multi_part_fanart():
             linkImage(path, number_th, part, leak_word, c_word, hack_word, ext)
+
+        # 解压剧照压缩包
+        if conf.is_extrafanart() and (not multi_part or part.lower() == '-cd1'):
+            unzip_local_gallery(path)
 
         # 最后输出.nfo元数据文件，以完成.nfo文件创建作为任务成功标志
         print_files(path, leak_word, c_word, json_data.get('naming_rule'), part, cn_sub, json_data, movie_path,

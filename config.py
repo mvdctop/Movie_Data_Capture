@@ -247,6 +247,9 @@ class Config:
         except:
             return 5
 
+    def extrafanart_unzip_gallery(self) -> bool:
+        return self.conf.getboolean("extrafanart", "unzip_gallery", fallback=True)
+
     def watermark_type(self) -> int:
         return int(self.conf.get("watermark", "water"))
 
