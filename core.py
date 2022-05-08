@@ -247,10 +247,12 @@ def cached_link_actor_photo(actor_name, actor_photo, pic_fullpath) -> bool:
     if G_actor_cache.is_empty():
         G_actor_cache.init()
     pic_fullpath.parent.mkdir(parents=True, exist_ok=True)
-    if pic_fullpath.is_file():
-        pic_fullpath.unlink(missing_ok=True)
     actor_cached_path = G_actor_cache.get(actor_name)
     if len(actor_cached_path) and Path(actor_cached_path).is_file():
+        if pic_fullpath.is_file():
+            if pic_fullpath.samefile(actor_cached_path):
+                return True # 处理完-CD1再处理-CD2的情况，来源与目标相同，不用复制，即便download_only_missing_images=0
+            pic_fullpath.unlink(missing_ok=True)
         try:
             os.link(actor_cached_path, str(pic_fullpath), follow_symlinks=False)
         except:
@@ -259,6 +261,8 @@ def cached_link_actor_photo(actor_name, actor_photo, pic_fullpath) -> bool:
         if target_ok and debug:
             print(f'[+]Cached link or copy actor photo {str(pic_fullpath)}')
         return target_ok
+    # 不判断is_file()直接尝试unlink()，这样可以清理一些坏的软链接，因为坏软链接的is_file()会返回假值。故意创建同名目录的情况copyfile()则会向外层抛异常。
+    pic_fullpath.unlink(missing_ok=True)
     try:
         os.link(actor_photo, str(pic_fullpath), follow_symlinks=False)
     except:
