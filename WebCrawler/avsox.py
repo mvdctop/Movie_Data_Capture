@@ -1,8 +1,5 @@
 import sys
 sys.path.append('..')
-import re
-from lxml import etree
-import json
 from ADC_function import *
 from WebCrawler.storyline import getStoryline
 from WebCrawler.crawler import *

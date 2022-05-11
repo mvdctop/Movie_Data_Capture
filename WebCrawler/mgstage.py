@@ -1,14 +1,8 @@
 import sys
 sys.path.append('../')
-import re
-from lxml import etree
-import json
 from bs4 import BeautifulSoup
 from ADC_function import *
 from WebCrawler.crawler import *
-# import sys
-# import io
-# sys.stdout = io.TextIOWrapper(sys.stdout.buffer, errors = 'replace', line_buffering = True)
 
 class MgsCrawler(Crawler):
     def getMgsString(self, _xpath):

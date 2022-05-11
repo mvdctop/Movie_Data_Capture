@@ -3,8 +3,6 @@ sys.path.append('../')
 
 from WebCrawler.crawler import *
 from ADC_function import *
-from lxml import etree
-
 
 def main(number):
     save_cookies = False

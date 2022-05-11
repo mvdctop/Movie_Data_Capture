@@ -1,12 +1,7 @@
 import sys
 sys.path.append('../')
-import re
-from lxml import etree
-import json
 from ADC_function import *
 from WebCrawler.storyline import getStoryline
-# import io
-# sys.stdout = io.TextIOWrapper(sys.stdout.buffer, errors = 'replace', line_buffering = True)
 
 def getTitle(html):
     browser_title = str(html.xpath("/html/head/title/text()")[0])
@@ -55,10 +50,6 @@ def getActorPhoto(html, javdb_site, session):
     return actor_photo
 
 def getStudio(a, html):
-    # html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
-    # result1 = str(html.xpath('//strong[contains(text(),"片商")]/../span/text()')).strip(" ['']")
-    # result2 = str(html.xpath('//strong[contains(text(),"片商")]/../span/a/text()')).strip(" ['']")
-    # return str(result1 + result2).strip('+').replace("', '", '').replace('"', '')
     patherr = re.compile(r'<strong>片商\:</strong>[\s\S]*?<a href=\".*?>(.*?)</a></span>')
     pianshang = patherr.findall(a)
     if pianshang:
@@ -85,11 +76,6 @@ def getNum(html):
     result2 = str(html.xpath('//strong[contains(text(),"番號")]/../span/a/text()')).strip(" ['']")
     return str(result2 + result1).strip('+')
 def getYear(getRelease):
-    # try:
-    #     result = str(re.search('\d{4}', getRelease).group())
-    #     return result
-    # except:
-    #     return getRelease
     patherr = re.compile(r'<strong>日期\:</strong>\s*?.*?<span class="value">(.*?)\-.*?</span>')
     dates = patherr.findall(getRelease)
     if dates:
@@ -99,10 +85,6 @@ def getYear(getRelease):
     return result
 
 def getRelease(a):
-    # html = etree.fromstring(a, etree.HTMLParser())  # //table/tr[1]/td[1]/text()
-    # result1 = str(html.xpath('//strong[contains(text(),"時間")]/../span/text()')).strip(" ['']")
-    # result2 = str(html.xpath('//strong[contains(text(),"時間")]/../span/a/text()')).strip(" ['']")
-    # return str(result1 + result2).strip('+')
     patherr = re.compile(r'<strong>日期\:</strong>\s*?.*?<span class="value">(.*?)</span>')
     dates = patherr.findall(a)
     if dates:

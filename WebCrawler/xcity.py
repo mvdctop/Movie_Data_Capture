@@ -1,12 +1,7 @@
 import sys
 sys.path.append('../')
-import re
-from lxml import etree
-import json
 from ADC_function import *
 from WebCrawler.storyline import getStoryline
-# import io
-# sys.stdout = io.TextIOWrapper(sys.stdout.buffer, errors = 'replace', line_buffering = True)
 
 def getTitle(html):
     result = html.xpath('//*[@id="program_detail_title"]/text()')[0]

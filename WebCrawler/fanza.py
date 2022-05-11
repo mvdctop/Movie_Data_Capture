@@ -2,17 +2,10 @@
 # -*- coding: utf-8 -*-
 import sys
 sys.path.append('../')
-import json
-import re
 from urllib.parse import urlencode
-
-from lxml import etree
 
 from ADC_function import *
 from WebCrawler.crawler import *
-# import sys
-# import io
-# sys.stdout = io.TextIOWrapper(sys.stdout.buffer, errors = 'replace', line_buffering = True)
 
 class fanzaCrawler(Crawler):
     def getFanzaString(self,string):

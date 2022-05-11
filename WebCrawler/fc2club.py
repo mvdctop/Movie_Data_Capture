@@ -1,12 +1,8 @@
 import sys
 sys.path.append('../')
-import re
 from lxml import etree#need install
 import json
 import ADC_function
-# import sys
-# import io
-# sys.stdout = io.TextIOWrapper(sys.stdout.buffer, errors = 'replace', line_buffering = True)
 
 def getTitle_fc2com(htmlcode): #获取标题
     html = etree.fromstring(htmlcode,etree.HTMLParser())
@@ -44,14 +40,6 @@ def getCover_fc2com(htmlcode2): #获取img #
     imgUrl = imgUrl.replace('../','https://fc2club.net/')
     print(imgUrl)
     return imgUrl
-# def getOutline_fc2com(htmlcode2):     #获取番号 #
-#     xpath_html = etree.fromstring(htmlcode2, etree.HTMLParser())
-#     path = str(xpath_html.xpath('//*[@id="top"]/div[1]/section[4]/iframe/@src')).strip(" ['']")
-#     html = etree.fromstring(ADC_function.get_html('https://adult.contents.fc2.com/'+path), etree.HTMLParser())
-#     print('https://adult.contents.fc2.com'+path)
-#     print(ADC_function.get_html('https://adult.contents.fc2.com'+path,cookies={'wei6H':'1'}))
-#     result = str(html.xpath('/html/body/div/text()')).strip(" ['']").replace("\\n",'',10000).replace("'",'',10000).replace(', ,','').strip('  ').replace('。,',',')
-#     return result
 def getTag_fc2com(htmlcode):     #获取tag
     html = etree.fromstring(htmlcode,etree.HTMLParser())
     a = html.xpath('//*[@class="show-top-grids"]/div[1]/h5[4]/a')

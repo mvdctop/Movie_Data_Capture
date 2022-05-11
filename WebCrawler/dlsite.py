@@ -4,20 +4,6 @@ import json
 import sys
 sys.path.append('../')
 from ADC_function import *
-# import sys
-# import io
-# sys.stdout = io.TextIOWrapper(sys.stdout.buffer, errors = 'replace', line_buffering = True)
-#print(get_html('https://www.dlsite.com/maniax/work/=/product_id/VJ013152.html'))
-#title /html/head/title/text()
-#studio //th[contains(text(),"ブランド名")]/../td/span[1]/a/text()
-#release //th[contains(text(),"販売日")]/../td/a/text()
-#story //th[contains(text(),"シナリオ")]/../td/a/text()
-#senyo //th[contains(text(),"声優")]/../td/a/text()
-#tag //th[contains(text(),"ジャンル")]/../td/div/a/text()
-#jianjie //*[@id="main_inner"]/div[3]/text()
-#photo //*[@id="work_left"]/div/div/div[2]/div/div[1]/div[1]/ul/li/img/@src
-
-#https://www.dlsite.com/maniax/work/=/product_id/VJ013152.html
 
 def getTitle(html):
     result = str(html.xpath('/html/head/title/text()')[0])

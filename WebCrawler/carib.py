@@ -1,8 +1,6 @@
 import sys
 sys.path.append('../')
-import json
 from lxml import html
-import re
 from ADC_function import *
 from WebCrawler.storyline import getStoryline
 

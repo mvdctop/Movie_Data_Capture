@@ -1,7 +1,5 @@
 import sys
 sys.path.append('../')
-import re
-import json
 import builtins
 from ADC_function import *
 from lxml.html import fromstring

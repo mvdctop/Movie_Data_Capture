@@ -1,14 +1,10 @@
 import sys
 sys.path.append('../')
 import re
-from lxml import etree#need install
 import json
 import config
 import ADC_function
 from WebCrawler.crawler import *
-# import sys
-# import io
-# sys.stdout = io.TextIOWrapper(sys.stdout.buffer, errors = 'replace', line_buffering = True)
 
 def getExtrafanart(htmlcode):  # 获取剧照
     html_pather = re.compile(r'<ul class=\"items_article_SampleImagesArea\"[\s\S]*?</ul>')
