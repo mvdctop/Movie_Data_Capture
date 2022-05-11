@@ -1,6 +1,5 @@
-<h1 align="center">Movie Data Capture - CLI</h1>
+<h1 align="center">Movie Data Capture</h1>
 
-CLI 版本  
 ![](https://img.shields.io/badge/build-passing-brightgreen.svg?style=flat)
 ![](https://img.shields.io/github/license/yoshiko2/Movie_data_capture.svg?style=flat)
 ![](https://img.shields.io/github/release/yoshiko2/Movie_data_capture.svg?style=flat)
@@ -18,15 +17,8 @@ CLI 版本
 * [官方教程WIKI](https://github.com/yoshiko2/Movie_Data_Capture/wiki)
 * [VergilGao's Docker部署](https://github.com/VergilGao/docker-mdc)
 
-# 下载
-* [Releases](https://github.com/yoshiko2/Movie_Data_Capture/releases/latest)
-
-# 贡献者
-[![](https://opencollective.com/movie_data_capture/contributors.svg?width=890)](https://github.com/yoshiko2/movie_data_Capture/graphs/contributors)
-
-#  申明
+# 申明
 当你查阅、下载了本项目源代码或二进制程序，即代表你接受了以下条款
-
 * 本项目和项目成果仅供技术，学术交流和Python3性能测试使用
 * 本项目贡献者编写该项目旨在学习Python3 ，提高编程水平
 * 本项目不提供任何影片下载的线索
@@ -34,3 +26,9 @@ CLI 版本
 * 法律后果及使用后果由使用者承担
 * [GPL LICENSE](https://github.com/yoshiko2/Movie_Data_Capture/blob/master/LICENSE)
 * 若用户不同意上述条款任意一条，请勿使用本项目和项目成果
+
+# 下载
+* [Releases](https://github.com/yoshiko2/Movie_Data_Capture/releases/latest)
+
+# 贡献者
+[![](https://opencollective.com/movie_data_capture/contributors.svg?width=890)](https://github.com/yoshiko2/movie_data_Capture/graphs/contributors)
