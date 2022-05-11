@@ -3,9 +3,9 @@ lxml
 beautifulsoup4
 pillow
 cloudscraper
-pysocks==1.7.1
-urllib3==1.24.3
-certifi==2020.12.5
-MechanicalSoup==1.1.0
+pysocks
+urllib3
+certifi
+MechanicalSoup
 opencc-python-reimplemented
 face_recognition
