@@ -517,6 +517,21 @@ class Config:
         conf.add_section(sec16)
         conf.set(sec15, "sites", "33,34")
 
+        sec17 = "face"
+        conf.add_section(sec17)
+        conf.set(sec17, "locations_model", "hog")
+        conf.set(sec17, "uncensored_only", "1")
+        conf.set(sec17, "aways_imagecut", "0")
+        conf.set(sec17, "aspect_ratio", "2.12")
+
+        sec18 = "jellyfin"
+        conf.add_section(sec18)
+        conf.set(sec18, "multi_part_fanart", "0")
+
+        sec19 = "actor_photo"
+        conf.add_section(sec19)
+        conf.set(sec19, "download_for_kodi", "0")
+
         return conf
 
 
