@@ -3,12 +3,12 @@
 ![](https://img.shields.io/badge/build-passing-brightgreen.svg?style=flat)
 ![](https://img.shields.io/github/license/yoshiko2/Movie_data_capture.svg?style=flat)
 ![](https://img.shields.io/github/release/yoshiko2/Movie_data_capture.svg?style=flat)
-![](https://img.shields.io/badge/Python-3.7-yellow.svg?style=flat&logo=python)<br>
+![](https://img.shields.io/badge/Python-3.8-yellow.svg?style=flat&logo=python)<br>
 [Docker Edition](https://github.com/VergilGao/docker-mdc)  
 ![](https://img.shields.io/badge/build-passing-brightgreen.svg?style=flat)
-![](https://img.shields.io/github/license/yoshiko2/docker-mdc.svg?style=flat)
-![](https://img.shields.io/github/release/yoshiko2/docker-mdc.svg?style=flat)
-![](https://img.shields.io/badge/Python-3.7-yellow.svg?style=flat&logo=python)<br>
+![](https://img.shields.io/github/license/VergilGao/docker-mdc.svg?style=flat)
+![](https://img.shields.io/github/release/VergilGao/docker-mdc.svg?style=flat)
+![](https://img.shields.io/badge/Python-3.8-yellow.svg?style=flat&logo=python)<br>
 
 **Movie Metadata Scraper**, with local JAV management software Emby, Jellyfin, Kodi, etc. to manage local movies, 
 the project plays the role of classification and metadata (metadata) grabbing, using metadata information to classify, only for local movie classification and organization.
