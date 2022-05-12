@@ -86,7 +86,7 @@ def main_uncensored(number):
     w_number = number.replace('.', '-')
     htmlcode = get_html('https://www.javbus.red/' + w_number)
     if "<title>404 Page Not Found" in htmlcode:
-        raise Exception('404 page not found')
+        return {"title": ""}
     lx = etree.fromstring(htmlcode, etree.HTMLParser())
     title = getTitle(lx)
     dic = {
@@ -129,7 +129,7 @@ def main(number):
             except:
                 htmlcode = get_html('https://www.javbus.com/' + number)
             if "<title>404 Page Not Found" in htmlcode:
-                raise Exception('404 page not found')
+                return {"title": ""}
             lx = etree.fromstring(htmlcode,etree.HTMLParser())
             title = getTitle(lx)
             dic = {
@@ -172,7 +172,7 @@ if __name__ == "__main__" :
     config.getInstance().set_override("storyline:switch=0")
     config.getInstance().set_override("actor_photo:download_for_kodi=1")
     config.getInstance().set_override("debug_mode:switch=1")
-    print(main('ABP-888'))
+    print(main('STAR-438'))
     print(main('ABP-960'))
     print(main('ADV-R0624'))    # 404
     print(main('MMNT-010'))
