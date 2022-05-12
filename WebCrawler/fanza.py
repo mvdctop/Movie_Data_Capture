@@ -23,7 +23,7 @@ class fanzaCrawler(Crawler):
 
 def getRelease(fanza_Crawler):
     result = fanza_Crawler.getFanzaString('発売日：')
-    if result == '----':
+    if result == '' or result == '----':
         result = fanza_Crawler.getFanzaString('配信開始日：')
     return result.replace("/", "-").strip('\\n')
 
