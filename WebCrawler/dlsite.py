@@ -133,7 +133,7 @@ def main(number):
             'number': number,
             'cover': 'https:' + getCover(html),
             'cover_small': '',
-            'imagecut': 1,
+            'imagecut': 4,
             'tag': getTag(html),
             'label': getLabel(html),
             'year': getYear(getRelease(html)),  # str(re.search('\d{4}',getRelease(a)).group()),
