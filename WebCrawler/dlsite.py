@@ -26,7 +26,7 @@ def getActorPhoto(actor): #//*[@id="star_qdt"]/li/a/img
 def getStudio(html):
     try:
         try:
-            result = html.xpath('//th[contains(text(),"系列名")]/../td/span[1]/a/text()')[0]
+            result = html.xpath('//th[contains(text(),"商标名")]/../td/span[1]/a/text()')[0]
         except:
             result = html.xpath('//th[contains(text(),"社团名")]/../td/span[1]/a/text()')[0]
     except:
@@ -101,14 +101,29 @@ def getSeries(html):
     except:
         result = ''
     return result
+#
+def getExtrafanart(html):
+    try:
+        result = []
+        for i in html.xpath('//*[@id="work_left"]/div/div/div[1]/div/@data-src'):
+            result.append("https:" + i)
+    except:
+        result = ''
+    return result
 def main(number):
     try:
-        number = number.upper()
-        htmlcode = get_html('https://www.dlsite.com/maniax/work/=/product_id/' + number + '.html/?locale=zh_CN',
-                            cookies={'locale': 'zh-cn'})
-        html = etree.fromstring(htmlcode, etree.HTMLParser())
+        if "RJ" in number or "VJ" in number:
+            number = number.upper()
+            htmlcode = get_html('https://www.dlsite.com/maniax/work/=/product_id/' + number + '.html/?locale=zh_CN',cookies={'locale': 'zh-cn'})
+            html = etree.fromstring(htmlcode, etree.HTMLParser())
+        else:
+            htmlcode = get_html(f'https://www.dlsite.com/maniax/fsr/=/language/jp/sex_category/male/keyword/{number}/order/trend/work_type_category/movie',cookies={'locale': 'zh-cn'})
+            html = etree.HTML(htmlcode)
+            a = html.xpath('//*[@id="search_result_img_box"]/li[1]/dl/dd[2]/div[2]/a/@href')[0]
+            html = etree.HTML(get_html(a,cookies={'locale': 'zh-cn'}))
+            number = str(re.findall("\wJ\w+",a)).strip(" [']")
         dic = {
-            'actor': getActor(html),
+            'actor': getStudio(html),
             'title': getTitle(html),
             'studio': getStudio(html),
             'outline': getOutline(html),
@@ -118,7 +133,7 @@ def main(number):
             'number': number,
             'cover': 'https:' + getCover(html),
             'cover_small': '',
-            'imagecut': 0,
+            'imagecut': 1,
             'tag': getTag(html),
             'label': getLabel(html),
             'year': getYear(getRelease(html)),  # str(re.search('\d{4}',getRelease(a)).group()),
@@ -126,6 +141,8 @@ def main(number):
             'website': 'https://www.dlsite.com/maniax/work/=/product_id/' + number + '.html',
             'source': 'dlsite.py',
             'series': getSeries(html),
+            'extrafanart':getExtrafanart(html),
+            'allow_number_change':True,
         }
         js = json.dumps(dic, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ':'), )  # .encode('UTF-8')
         return js
@@ -144,5 +161,5 @@ def main(number):
 # input("[+][+]Press enter key exit, you can check the error messge before you exit.\n[+][+]按回车键结束，你可以在结束之前查看和错误信息。")
 if __name__ == "__main__":
     config.getInstance().set_override("debug_mode:switch=1")
-    print(main('VJ013178'))
+    print(main('牝教師4～穢された教壇～ 「生意気ドジっ娘女教師・美結～高飛車ハメ堕ち2濁金」'))
     print(main('RJ329607'))

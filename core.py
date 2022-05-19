@@ -698,14 +698,14 @@ def debug_print(data: json):
         print("[+] ------- DEBUG INFO -------")
         for i, v in data.items():
             if i == 'outline':
-                print('[+]  -', "%-14s" % i, ':', len(v), 'characters')
+                print('[+]  -', "%-19s" % i, ':', len(v), 'characters')
                 continue
             if i == 'actor_photo' or i == 'year':
                 continue
             if i == 'extrafanart':
-                print('[+]  -', "%-14s" % i, ':', len(v), 'links')
+                print('[+]  -', "%-19s" % i, ':', len(v), 'links')
                 continue
-            print(f'[+]  - {i:<{cnspace(i,14)}} : {v}')
+            print(f'[+]  - {i:<{cnspace(i,19)}} : {v}')
 
         print("[+] ------- DEBUG INFO -------")
     except:

@@ -18,6 +18,8 @@ def get_number(debug: bool, file_path: str) -> str:
     'snis-829'
     >>> get_number(False, "/Users/Guest/AV_Data_Capture/snis-829-C.mp4")
     'snis-829'
+    >>> get_number(False, "/Users/Guest/AV_Data_Capture/[脸肿字幕组][PoRO]牝教師4～穢された教壇～ 「生意気ドジっ娘女教師・美結～高飛車ハメ堕ち2濁金」[720p][x264_aac].mp4")
+    '牝教師4～穢された教壇～ 「生意気ドジっ娘女教師・美結～高飛車ハメ堕ち2濁金」'
     >>> get_number(False, "C:¥Users¥Guest¥snis-829.mp4")
     'snis-829'
     >>> get_number(False, "C:¥Users¥Guest¥snis-829-C.mp4")
@@ -40,6 +42,11 @@ def get_number(debug: bool, file_path: str) -> str:
     try:
         file_number = get_number_by_dict(filepath)
         if file_number:
+            return file_number
+        elif '字幕组' in filepath or 'SUB' in filepath.upper():
+            filepath = G_spat.sub("", filepath)
+            filepath = re.sub("\[.*?\]","",filepath)
+            file_number = str(re.findall(r'(.+?)\.', filepath)).strip(" [']")
             return file_number
         elif '-' in filepath or '_' in filepath:  # 普通提取番号 主要处理包含减号-和_的番号
             filepath = G_spat.sub("", filepath)
