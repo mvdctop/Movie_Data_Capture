@@ -368,7 +368,6 @@ def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, f
                 for key in actor_list:
                     print("  <actor>", file=code)
                     print("    <name>" + key + "</name>", file=code)
-                    print("    <role>Protagonist</role>", file=code)
                     try:
                         print("    <thumb>" + actor_photo.get(str(key)) + "</thumb>", file=code)
                     except:
