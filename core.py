@@ -730,7 +730,7 @@ def core_main_no_net_op(movie_path, number):
         part = re.findall('[-_]CD\d+', movie_path, re.IGNORECASE)[0].upper()
         multi = True
     if re.search(r'[-_]C(\.\w+$|-\w+)|\d+ch(\.\w+$|-\w+)', movie_path,
-            re.I) or '中文' in movie_path or '字幕' in movie_path:
+            re.I) or '中文' in movie_path or '字幕' in movie_path or ".chs" in movie_path or '.cht' in movie_path:
         cn_sub = '1'
         c_word = '-C'  # 中文字幕影片后缀
     uncensored = 1 if is_uncensored(number) else 0
