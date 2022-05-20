@@ -1,6 +1,7 @@
 import argparse
 import json
 import os
+import random
 import re
 import sys
 import time
@@ -636,6 +637,8 @@ def main(args: tuple) -> Path:
             if count >= stop_count:
                 print("[!]Stop counter triggered!")
                 break
+            sleep_seconds = random.randint(conf.sleep(), conf.sleep() + 2)
+            time.sleep(sleep_seconds)
 
     if conf.del_empty_folder() and not zero_op:
         rm_empty_folder(conf.success_folder())
