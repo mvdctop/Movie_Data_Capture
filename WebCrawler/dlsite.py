@@ -115,26 +115,30 @@ def main(number):
     try:
         if "RJ" in number or "VJ" in number:
             number = number.upper()
-            htmlcode = get_html('https://www.dlsite.com/maniax/work/=/product_id/' + number + '.html/?locale=zh_CN',cookies={'locale': 'zh-cn'})
+            htmlcode = get_html('https://www.dlsite.com/maniax/work/=/product_id/' + number + '.html/?locale=zh_CN', cookies={'locale': 'zh-cn'})
             html = etree.fromstring(htmlcode, etree.HTMLParser())
         else:
-            htmlcode = get_html(f'https://www.dlsite.com/maniax/fsr/=/language/jp/sex_category/male/keyword/{number}/order/trend/work_type_category/movie',cookies={'locale': 'zh-cn'})
+            htmlcode = get_html(f'https://www.dlsite.com/maniax/fsr/=/language/jp/sex_category/male/keyword/{number}/order/trend/work_type_category/movie', cookies={'locale': 'zh-cn'})
             html = etree.HTML(htmlcode)
             search_result = html.xpath('//*[@id="search_result_img_box"]/li[1]/dl/dd[2]/div[2]/a/@href')
             if len(search_result) == 0:
-                number = number.replace("THE ANIMATION", "").replace("he Animation", "").replace("t", "").replace("T", "")
-                htmlcode = get_html(
-                    f'https://www.dlsite.com/maniax/fsr/=/language/jp/sex_category/male/keyword/{number}/order/trend/work_type_category/movie',
-                    cookies={'locale': 'zh-cn'})
-                html = etree.HTML(htmlcode)
+                number = number.replace("THE ANIMATION", "").replace("he Animation", "").replace("t", "").replace("T","")
+                html = etree.HTML(get_html(
+                    f'https://www.dlsite.com/maniax/fsr/=/language/jp/sex_category/male/keyword/{number}/order/trend/work_type_category/movie', cookies={'locale': 'zh-cn'}))
                 search_result = html.xpath('//*[@id="search_result_img_box"]/li[1]/dl/dd[2]/div[2]/a/@href')
                 if len(search_result) == 0:
-                    number = number.replace('上巻','').replace('下巻','').replace('前編','').replace('後編','')
-                    htmlcode = get_html(
-                        f'https://www.dlsite.com/maniax/fsr/=/language/jp/sex_category/male/keyword/{number}/order/trend/work_type_category/movie',
-                        cookies={'locale': 'zh-cn'})
-                    html = etree.HTML(htmlcode)
+                    if "～" in number:
+                        number = number.replace("～","〜")
+                    elif "〜" in number:
+                        number = number.replace("〜","～")
+                    html = etree.HTML(get_html(
+                        f'https://www.dlsite.com/maniax/fsr/=/language/jp/sex_category/male/keyword/{number}/order/trend/work_type_category/movie', cookies={'locale': 'zh-cn'}))
                     search_result = html.xpath('//*[@id="search_result_img_box"]/li[1]/dl/dd[2]/div[2]/a/@href')
+                    if len(search_result) == 0:
+                        number = number.replace('上巻', '').replace('下巻', '').replace('前編', '').replace('後編', '')
+                        html = etree.HTML(get_html(
+                            f'https://www.dlsite.com/maniax/fsr/=/language/jp/sex_category/male/keyword/{number}/order/trend/work_type_category/movie', cookies={'locale': 'zh-cn'}))
+                        search_result = html.xpath('//*[@id="search_result_img_box"]/li[1]/dl/dd[2]/div[2]/a/@href')
             a = search_result[0]
             html = etree.HTML(get_html(a,cookies={'locale': 'zh-cn'}))
             number = str(re.findall("\wJ\w+",a)).strip(" [']")
