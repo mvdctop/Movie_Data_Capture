@@ -72,7 +72,7 @@ def getStoryline(number, title, sites: list=None, 无码=None):
     for site, desc in zip(apply_sites, results):
         sl = len(desc) if isinstance(desc, str) else 0
         s += f'，[选中{site}字数:{sl}]' if site == sel_site else f'，{site}字数:{sl}' if sl else f'，{site}:空'
-    print(s)
+    # print(s)
     return sel
 
 

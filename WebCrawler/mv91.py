@@ -96,7 +96,8 @@ def main(number):
             url = host + str(search(number))
             htmlcode = get_html(url)
         except:
-            print(number)
+            # print(number)
+            pass
         html = etree.fromstring(htmlcode, etree.HTMLParser())
         dic = {
             # 标题

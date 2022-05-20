@@ -142,7 +142,7 @@ def search(keyword): #搜索，返回结果
         try:
             json_data = json.loads(search_result)
         except json.decoder.JSONDecodeError:
-            print("[-]Json decoder error!")
+            # print("[-]Json decoder error!")
             return []
 
         result_offset = int(json_data["offset"])
@@ -168,7 +168,8 @@ def main(number):
             javbus_json = json.loads(javbus.main(number))
 
         except:
-            print(number)
+            # print(number)
+            pass
 
         dic = {
             # 标题可使用airav

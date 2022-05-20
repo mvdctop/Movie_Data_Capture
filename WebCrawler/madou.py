@@ -103,7 +103,8 @@ def main(number):
             url = "https://madou.club/" + number + ".html"
             htmlcode = get_html(url)
         except:
-            print(number)
+            # print(number)
+            pass
 
         html = etree.fromstring(htmlcode, etree.HTMLParser())
         url = getUrl(html)
