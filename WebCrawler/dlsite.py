@@ -122,12 +122,19 @@ def main(number):
             html = etree.HTML(htmlcode)
             search_result = html.xpath('//*[@id="search_result_img_box"]/li[1]/dl/dd[2]/div[2]/a/@href')
             if len(search_result) == 0:
-                number = number.replace("THE ANIMATION", "").replace("THE ANIMATION", "").replace('上巻','').replace('下巻','').replace('前編','').replace('後編','')
+                number = number.replace("THE ANIMATION", "").replace("he Animation", "").replace("t", "").replace("T", "")
                 htmlcode = get_html(
                     f'https://www.dlsite.com/maniax/fsr/=/language/jp/sex_category/male/keyword/{number}/order/trend/work_type_category/movie',
                     cookies={'locale': 'zh-cn'})
                 html = etree.HTML(htmlcode)
                 search_result = html.xpath('//*[@id="search_result_img_box"]/li[1]/dl/dd[2]/div[2]/a/@href')
+                if len(search_result) == 0:
+                    number = number.replace('上巻','').replace('下巻','').replace('前編','').replace('後編','')
+                    htmlcode = get_html(
+                        f'https://www.dlsite.com/maniax/fsr/=/language/jp/sex_category/male/keyword/{number}/order/trend/work_type_category/movie',
+                        cookies={'locale': 'zh-cn'})
+                    html = etree.HTML(htmlcode)
+                    search_result = html.xpath('//*[@id="search_result_img_box"]/li[1]/dl/dd[2]/div[2]/a/@href')
             a = search_result[0]
             html = etree.HTML(get_html(a,cookies={'locale': 'zh-cn'}))
             number = str(re.findall("\wJ\w+",a)).strip(" [']")
