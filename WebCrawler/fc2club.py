@@ -7,13 +7,11 @@ import ADC_function
 def getTitle_fc2com(htmlcode): #获取标题
     html = etree.fromstring(htmlcode,etree.HTMLParser())
     result = str(html.xpath('//*[@class="show-top-grids"]/div[1]/h3/text()')).strip(" ['']")
-    print(result)
     return result
 def getActor_fc2com(htmlcode):
     try:
         html = etree.fromstring(htmlcode, etree.HTMLParser())
         result = str(html.xpath('//*[@class="show-top-grids"]/div[1]/h5[5]/a/text()')).strip(" ['']")
-        print(result)
         return result
     except:
         return ''
@@ -21,7 +19,6 @@ def getStudio_fc2com(htmlcode): #获取厂商
     try:
         html = etree.fromstring(htmlcode, etree.HTMLParser())
         result = str(html.xpath('//*[@class="show-top-grids"]/div[1]/h5[3]/a[1]/text()')).strip(" ['']")
-        print(result)
         return result
     except:
         return ''
@@ -38,7 +35,6 @@ def getCover_fc2com(htmlcode2): #获取img #
     html = etree.fromstring(htmlcode2, etree.HTMLParser())
     imgUrl = str(html.xpath('//*[@class="slides"]/li[1]/img/@src')).strip(" ['']")
     imgUrl = imgUrl.replace('../','https://fc2club.net/')
-    print(imgUrl)
     return imgUrl
 def getTag_fc2com(htmlcode):     #获取tag
     html = etree.fromstring(htmlcode,etree.HTMLParser())
@@ -63,9 +59,7 @@ def main(number):
     try:
         number = number.replace('FC2-', '').replace('fc2-', '')
         webUrl = 'https://fc2club.net/html/FC2-' + number + '.html'
-        #print(webUrl)
         htmlcode2 = ADC_function.get_html(webUrl)
-        #print(htmlcode2)
         actor = getActor_fc2com(htmlcode2)
         if getActor_fc2com(htmlcode2) == '':
             actor = 'FC2系列'
