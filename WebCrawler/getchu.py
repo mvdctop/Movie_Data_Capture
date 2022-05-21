@@ -29,6 +29,7 @@ def main(number):
             "actor_photo": "",
             "website": "https://dl.getchu.com/i/" + number,
             "source": "getchu.py",
+            "allow_number_change": True,
         }
         extrafanart = []
         for i in dic['extrafanart']:
@@ -36,7 +37,7 @@ def main(number):
             extrafanart.append(i)
         dic['extrafanart'] = extrafanart
     else:
-        number = number #quote(number,encoding="GBK")
+        display_number = number #quote(number,encoding="GBK")
         url = f'http://www.getchu.com/php/search.phtml?genre=anime_dvd&search_keyword={number}&check_key_dtl=1&submit='
         htmlcode = get_html(url,cookies={'getchu_adalt_flag':'getchu.com'})
         getchu = Crawler(htmlcode)
@@ -66,7 +67,7 @@ def main(number):
             "outline": getchu.getStrings("//div[contains(text(),'商品紹介')]/following-sibling::div/text()"),
             "extrafanart": getchu.getStrings("//div[contains(text(),'サンプル画像')]/following-sibling::div/a/@href"),
             "series": getchu.getString("//td[contains(text(),'ジャンル：')]/following-sibling::td/text()").strip(),
-            "number": number,
+            "number": display_number,
             "imagecut": 0,
             "year": str(re.findall('\d{4}', str(getchu.getString(
                 "//td[contains(text(),'発売日：')]/following-sibling::td/a/text()").replace("/","-")))).strip(" ['']"),
@@ -74,6 +75,7 @@ def main(number):
             "website": url2,
             "headers":{'referer': url2},
             "source": "getchu.py",
+            "allow_number_change": True,
         }
         extrafanart = []
         for i in dic['extrafanart']:
