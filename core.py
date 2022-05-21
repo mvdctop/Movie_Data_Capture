@@ -71,11 +71,11 @@ def get_info(json_data):  # 返回json里的数据
     return title, studio, year, outline, runtime, director, actor_photo, release, number, cover, trailer, website, series, label
 
 
-def small_cover_check(path, filename, cover_small, movie_path):
+def small_cover_check(path, filename, cover_small, movie_path, json_data=None):
     full_filepath = Path(path) / filename
     if config.getInstance().download_only_missing_images() and not file_not_exist_or_empty(str(full_filepath)):
         return
-    download_file_with_filename(cover_small, filename, path, movie_path)
+    download_file_with_filename(cover_small, filename, path, movie_path, json_data)
     print('[+]Image Downloaded! ' + full_filepath.name)
 
 
@@ -113,7 +113,7 @@ def create_folder(json_data):  # 创建文件夹
 # =====================资源下载部分===========================
 
 # path = examle:photo , video.in the Project Folder!
-def download_file_with_filename(url, filename, path, filepath):
+def download_file_with_filename(url, filename, path, filepath, json_headers=None):
     conf = config.getInstance()
     configProxy = conf.proxy()
 
@@ -127,8 +127,9 @@ def download_file_with_filename(url, filename, path, filepath):
                         print(f"[-]Fatal error! Can not make folder '{path}'")
                         os._exit(0)
                 proxies = configProxy.proxies()
-                headers = {
-                    'User-Agent': G_USER_AGENT}
+                headers = {'User-Agent': G_USER_AGENT}
+                if json_headers != None:
+                    headers.update(json_headers)
                 r = requests.get(url, headers=headers, timeout=configProxy.timeout, proxies=proxies)
                 if r == '':
                     print('[-]Movie Download Data not found!')
@@ -143,8 +144,9 @@ def download_file_with_filename(url, filename, path, filepath):
                     except:
                         print(f"[-]Fatal error! Can not make folder '{path}'")
                         os._exit(0)
-                headers = {
-                    'User-Agent': G_USER_AGENT}
+                headers = {'User-Agent': G_USER_AGENT}
+                if json_headers != None:
+                    headers.update(json_headers)
                 r = requests.get(url, timeout=configProxy.timeout, headers=headers)
                 if r == '':
                     print('[-]Movie Download Data not found!')
@@ -226,13 +228,13 @@ def actor_photo_download(actors, save_dir, number):
 
 
 # 剧照下载成功，否则移动到failed
-def extrafanart_download(data, path, number, filepath):
+def extrafanart_download(data, path, number, filepath, json_data=None):
     if config.getInstance().extrafanart_thread_pool_download():
-        return extrafanart_download_threadpool(data, path, number)
-    extrafanart_download_one_by_one(data, path, filepath)
+        return extrafanart_download_threadpool(data, path, number, json_data)
+    extrafanart_download_one_by_one(data, path, filepath, json_data)
 
 
-def extrafanart_download_one_by_one(data, path, filepath):
+def extrafanart_download_one_by_one(data, path, filepath, json_data=None):
     tm_start = time.perf_counter()
     j = 1
     conf = config.getInstance()
@@ -244,13 +246,13 @@ def extrafanart_download_one_by_one(data, path, filepath):
         jpg_fullpath = os.path.join(path, jpg_filename)
         if download_only_missing_images and not file_not_exist_or_empty(jpg_fullpath):
             continue
-        if download_file_with_filename(url, jpg_filename, path, filepath) == 'failed':
+        if download_file_with_filename(url, jpg_filename, path, filepath, json_data) == 'failed':
             moveFailedFolder(filepath)
             return
         for i in range(configProxy.retry):
             if file_not_exist_or_empty(jpg_fullpath):
                 print('[!]Image Download Failed! Trying again. [{}/3]', i + 1)
-                download_file_with_filename(url, jpg_filename, path, filepath)
+                download_file_with_filename(url, jpg_filename, path, filepath, json_data)
                 continue
             else:
                 break
@@ -262,7 +264,7 @@ def extrafanart_download_one_by_one(data, path, filepath):
         print(f'[!]Extrafanart download one by one mode runtime {time.perf_counter() - tm_start:.3f}s')
 
 
-def extrafanart_download_threadpool(url_list, save_dir, number):
+def extrafanart_download_threadpool(url_list, save_dir, number,json_data=None):
     tm_start = time.perf_counter()
     conf = config.getInstance()
     extrafanart_dir = Path(save_dir) / conf.get_extrafanart()
@@ -278,7 +280,7 @@ def extrafanart_download_threadpool(url_list, save_dir, number):
     parallel = min(len(dn_list), conf.extrafanart_thread_pool_download())
     if parallel > 100:
         print('[!]Warrning: Parallel download thread too large may cause website ban IP!')
-    result = parallel_download_files(dn_list, parallel)
+    result = parallel_download_files(dn_list, parallel, json_data)
     failed = 0
     for i, r in enumerate(result, start=1):
         if not r:
@@ -300,19 +302,27 @@ def image_ext(url):
 
 
 # 封面是否下载成功，否则移动到failed
-def image_download(cover, fanart_path, thumb_path, path, filepath):
+def image_download(cover, fanart_path, thumb_path, path, filepath, json_data):
     full_filepath = os.path.join(path, fanart_path)
     if config.getInstance().download_only_missing_images() and not file_not_exist_or_empty(full_filepath):
         return
-    if download_file_with_filename(cover, fanart_path, path, filepath) == 'failed':
-        moveFailedFolder(filepath)
-        return
+    if "headers" in json_data:
+        if download_file_with_filename(cover, fanart_path, path, filepath, json_data['headers']) == 'failed':
+            moveFailedFolder(filepath)
+            return
+    else:
+        if download_file_with_filename(cover, fanart_path, path, filepath) == 'failed':
+            moveFailedFolder(filepath)
+            return
 
     configProxy = config.getInstance().proxy()
     for i in range(configProxy.retry):
         if file_not_exist_or_empty(full_filepath):
             print('[!]Image Download Failed! Trying again. [{}/3]', i + 1)
-            download_file_with_filename(cover, fanart_path, path, filepath)
+            if "headers" in json_data:
+                download_file_with_filename(cover, fanart_path, path, filepath, json_data['headers'])
+            else:
+                download_file_with_filename(cover, fanart_path, path, filepath)
             continue
         else:
             break
@@ -853,10 +863,10 @@ def core_main(movie_path, number_th, oCC):
 
         # 检查小封面, 如果image cut为3，则下载小封面
         if imagecut == 3:
-            small_cover_check(path, poster_path, json_data.get('cover_small'), movie_path)
+            small_cover_check(path, poster_path, json_data.get('cover_small'), movie_path, json_data)
 
         # creatFolder会返回番号路径
-        image_download( cover, fanart_path,thumb_path, path, movie_path)
+        image_download( cover, fanart_path,thumb_path, path, movie_path, json_data)
 
         if not multi_part or part.lower() == '-cd1':
             try:
@@ -866,7 +876,7 @@ def core_main(movie_path, number_th, oCC):
 
                 # 下载剧照 data, path, filepath
                 if conf.is_extrafanart() and json_data.get('extrafanart'):
-                    extrafanart_download(json_data.get('extrafanart'), path, number, movie_path)
+                    extrafanart_download(json_data.get('extrafanart'), path, number, movie_path, json_data)
 
                 # 下载演员头像 KODI .actors 目录位置
                 if conf.download_actor_photo_for_kodi():
@@ -907,7 +917,7 @@ def core_main(movie_path, number_th, oCC):
 
         # 检查小封面, 如果image cut为3，则下载小封面
         if imagecut == 3:
-            small_cover_check(path, poster_path, json_data.get('cover_small'), movie_path)
+            small_cover_check(path, poster_path, json_data.get('cover_small'), movie_path, json_data)
 
         # creatFolder会返回番号路径
         image_download( cover, fanart_path, thumb_path, path, movie_path)
@@ -920,7 +930,7 @@ def core_main(movie_path, number_th, oCC):
 
                 # 下载剧照 data, path, filepath
                 if conf.is_extrafanart() and json_data.get('extrafanart'):
-                    extrafanart_download(json_data.get('extrafanart'), path, number, movie_path)
+                    extrafanart_download(json_data.get('extrafanart'), path, number, movie_path, json_data)
 
                 # 下载演员头像 KODI .actors 目录位置
                 if conf.download_actor_photo_for_kodi():

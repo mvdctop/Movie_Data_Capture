@@ -29,7 +29,7 @@ def getXpathSingle(htmlcode, xpath):
 
 G_USER_AGENT = r'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.133 Safari/537.36'
 
-def get_html(url, cookies: dict = None, ua: str = None, return_type: str = None, encoding: str = None):
+def get_html(url, cookies: dict = None, ua: str = None, return_type: str = None, encoding: str = None, json_headers = None):
     """
     网页请求核心函数
     """
@@ -38,6 +38,8 @@ def get_html(url, cookies: dict = None, ua: str = None, return_type: str = None,
     errors = ""
 
     headers = {"User-Agent": ua or G_USER_AGENT}  # noqa
+    if json_headers != None:
+        headers.update(json_headers)
 
     for i in range(configProxy.retry):
         try:
@@ -518,15 +520,15 @@ def download_one_file(args) -> str:
     wrapped for map function
     """
 
-    (url, save_path) = args
-    filebytes = get_html(url, return_type='content')
+    (url, save_path, json_data) = args
+    filebytes = get_html(url, return_type='content', json_headers=json_data['headers'])
     if isinstance(filebytes, bytes) and len(filebytes):
         with save_path.open('wb') as fpbyte:
             if len(filebytes) == fpbyte.write(filebytes):
                 return str(save_path)
 
 
-def parallel_download_files(dn_list: typing.Iterable[typing.Sequence], parallel: int = 0):
+def parallel_download_files(dn_list: typing.Iterable[typing.Sequence], parallel: int = 0, json_data=None):
     """
     download files in parallel 多线程下载文件
 
@@ -545,7 +547,7 @@ def parallel_download_files(dn_list: typing.Iterable[typing.Sequence], parallel:
                 and fullpath and isinstance(fullpath, (str, Path)) and len(str(fullpath)):
             fullpath = Path(fullpath)
             fullpath.parent.mkdir(parents=True, exist_ok=True)
-            mp_args.append((url, fullpath))
+            mp_args.append((url, fullpath, json_data))
     if not len(mp_args):
         return []
     if not isinstance(parallel, int) or parallel not in range(1, 200):
