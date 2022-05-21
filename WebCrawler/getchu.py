@@ -3,6 +3,7 @@ sys.path.append('../')
 from ADC_function import *
 from WebCrawler.crawler import *
 import re
+from urllib.parse import quote
 
 def main(number):
     if "item" in number:
@@ -39,7 +40,13 @@ def main(number):
         url = f'http://www.getchu.com/php/search.phtml?genre=anime_dvd&search_keyword={number}&check_key_dtl=1&submit='
         htmlcode = get_html(url,cookies={'getchu_adalt_flag':'getchu.com'})
         getchu = Crawler(htmlcode)
-        url2 = getchu.getString('/html/body/div/table/tr/td/form/div/form/ul/li/div/div/div/table/tr[1]/td/a[1]/@href')
+        url2 = getchu.getString('//*[@id="detail_block"]/div/table/tr[1]/td/a[1]/@href')
+        if len(url2) == 0:
+            number = quote(number,encoding="euc_jp")
+            url = f'http://www.getchu.com/php/search.phtml?genre=anime_dvd&search_keyword={number}&check_key_dtl=1&submit='
+            htmlcode = get_html(url, cookies={'getchu_adalt_flag': 'getchu.com'})
+            getchu = Crawler(htmlcode)
+            url2 = getchu.getString('//*[@id="detail_block"]/div/table/tr[1]/td/a[1]/@href')
         if "id=" in url2:
             url2 = url2.replace('../', 'http://www.getchu.com/')
             htmlcode = get_html(url2,cookies={'getchu_adalt_flag':'getchu.com'})
@@ -85,6 +92,6 @@ def main(number):
     return result
 
 if __name__ == '__main__':
-    test = ['黒獣2 THE ANIMATION','item4039026']
+    test = ['シコやかなるときもハメるときも 前編','家属～母と姉妹の嬌声～ 無防備な美義母・乙葉～めくれ上がるネグリジェ～','item4039026']
     for i in test:
         print(main(i))
