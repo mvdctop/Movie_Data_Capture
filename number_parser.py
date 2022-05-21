@@ -43,7 +43,7 @@ def get_number(debug: bool, file_path: str) -> str:
         file_number = get_number_by_dict(filepath)
         if file_number:
             return file_number
-        elif '字幕组' in filepath or 'SUB' in filepath.upper():
+        elif '字幕组' in filepath or 'SUB' in filepath.upper() or re.match(r'[\u30a0-\u30ff]+', filepath):
             filepath = G_spat.sub("", filepath)
             filepath = re.sub("\[.*?\]","",filepath)
             filepath = filepath.replace(".chs", "").replace(".cht", "")
