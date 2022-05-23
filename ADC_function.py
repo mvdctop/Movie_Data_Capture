@@ -147,7 +147,7 @@ def get_html_session(url: str = None, cookies: dict = None, ua: str = None, retu
             return result.text
     except requests.exceptions.ProxyError:
         print("[-]get_html_session() Proxy error! Please check your Proxy")
-    except requests.exceptions.RequestException as e:
+    except requests.exceptions.RequestException:
         pass
     except Exception as e:
         print(f"[-]get_html_session() failed. {e}")
