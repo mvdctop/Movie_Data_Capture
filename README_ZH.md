@@ -3,12 +3,12 @@
 ![](https://img.shields.io/badge/build-passing-brightgreen.svg?style=flat)
 ![](https://img.shields.io/github/license/yoshiko2/Movie_data_capture.svg?style=flat)
 ![](https://img.shields.io/github/release/yoshiko2/Movie_data_capture.svg?style=flat)
-![](https://img.shields.io/badge/Python-3.8-yellow.svg?style=flat&logo=python)<br>
+![](https://img.shields.io/badge/Python-3.9-yellow.svg?style=flat&logo=python)<br>
 [Docker 版本](https://github.com/yoshiko2/docker-mdc)  
 ![](https://img.shields.io/badge/build-passing-brightgreen.svg?style=flat)
 ![](https://img.shields.io/github/license/VergilGao/docker-mdc.svg?style=flat)
 ![](https://img.shields.io/github/release/VergilGao/docker-mdc.svg?style=flat)
-![](https://img.shields.io/badge/Python-3.8-yellow.svg?style=flat&logo=python)<br>
+![](https://img.shields.io/badge/Python-3.9-yellow.svg?style=flat&logo=python)<br>
 
 **本地电影元数据 抓取工具 | 刮削器**，配合本地影片管理软件 Emby, Jellyfin, Kodi 等管理本地影片，该软件起到分类与元数据（metadata）抓取作用，利用元数据信息来分类，仅供本地影片分类整理使用。  
 ### 请勿在墙内的社交平台上宣传此项目
