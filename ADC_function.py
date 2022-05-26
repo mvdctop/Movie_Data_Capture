@@ -523,7 +523,10 @@ def download_one_file(args) -> str:
     """
 
     (url, save_path, json_data) = args
-    filebytes = get_html(url, return_type='content', json_headers=json_data['headers'])
+    if json_data != None:
+        filebytes = get_html(url, return_type='content', json_headers=json_data['headers'])
+    else:
+        filebytes = get_html(url, return_type='content')
     if isinstance(filebytes, bytes) and len(filebytes):
         with save_path.open('wb') as fpbyte:
             if len(filebytes) == fpbyte.write(filebytes):
