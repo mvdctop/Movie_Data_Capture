@@ -71,11 +71,14 @@ def get_info(json_data):  # 返回json里的数据
     return title, studio, year, outline, runtime, director, actor_photo, release, number, cover, trailer, website, series, label
 
 
-def small_cover_check(path, filename, cover_small, movie_path, json_data=None):
+def small_cover_check(path, filename, cover_small, movie_path, json_headers=None):
     full_filepath = Path(path) / filename
     if config.getInstance().download_only_missing_images() and not file_not_exist_or_empty(str(full_filepath)):
         return
-    download_file_with_filename(cover_small, filename, path, movie_path, json_data)
+    if json_headers != None:
+        download_file_with_filename(cover_small, filename, path, movie_path, json_headers['headers'])
+    else:
+        download_file_with_filename(cover_small, filename, path, movie_path)
     print('[+]Image Downloaded! ' + full_filepath.name)
 
 
@@ -119,57 +122,36 @@ def download_file_with_filename(url, filename, path, filepath, json_headers=None
 
     for i in range(configProxy.retry):
         try:
-            if configProxy.enable:
-                if not os.path.exists(path):
-                    try:
-                        os.makedirs(path)
-                    except:
-                        print(f"[-]Fatal error! Can not make folder '{path}'")
-                        os._exit(0)
+            if not os.path.exists(path):
+                try:
+                    os.makedirs(path)
+                except:
+                    print(f"[-]Fatal error! Can not make folder '{path}'")
+                    os._exit(0)
+            headers = {'User-Agent': G_USER_AGENT}
+            if not json_headers == None:
+                if 'headers' in json_headers:
+                    headers.update(json_headers)
+            if configProxy:
                 proxies = configProxy.proxies()
-                headers = {'User-Agent': G_USER_AGENT}
-                if json_headers != None:
-                    headers.update(json_headers)
                 r = requests.get(url, headers=headers, timeout=configProxy.timeout, proxies=proxies)
-                if r == '':
-                    print('[-]Movie Download Data not found!')
-                    return
-                with open(os.path.join(path, filename), "wb") as code:
-                    code.write(r.content)
-                return
             else:
-                if not os.path.exists(path):
-                    try:
-                        os.makedirs(path)
-                    except:
-                        print(f"[-]Fatal error! Can not make folder '{path}'")
-                        os._exit(0)
-                headers = {'User-Agent': G_USER_AGENT}
-                if json_headers != None:
-                    headers.update(json_headers)
-                r = requests.get(url, timeout=configProxy.timeout, headers=headers)
-                if r == '':
-                    print('[-]Movie Download Data not found!')
-                    return
-                with open(os.path.join(path, filename), "wb") as code:
-                    code.write(r.content)
+                r = requests.get(url, headers=headers, timeout=configProxy.timeout)
+            if r == '':
+                print('[-]Movie Download Data not found!')
                 return
-        except requests.exceptions.RequestException:
-            i += 1
-            print('[-]Image Download :  Connect retry ' + str(i) + '/' + str(configProxy.retry))
-        except requests.exceptions.ConnectionError:
-            i += 1
-            print('[-]Image Download :  Connect retry ' + str(i) + '/' + str(configProxy.retry))
+            with open(os.path.join(path, filename), "wb") as code:
+                code.write(r.content)
+            return
         except requests.exceptions.ProxyError:
             i += 1
-            print('[-]Image Download :  Connect retry ' + str(i) + '/' + str(configProxy.retry))
-        except requests.exceptions.ConnectTimeout:
-            i += 1
-            print('[-]Image Download :  Connect retry ' + str(i) + '/' + str(configProxy.retry))
-        except IOError:
-            print(f"[-]Create Directory '{path}' failed!")
-            moveFailedFolder(filepath)
-            return
+            print('[-]Image Download : Proxy error ' + str(i) + '/' + str(configProxy.retry))
+        # except IOError:
+        #     print(f"[-]Create Directory '{path}' failed!")
+        #     moveFailedFolder(filepath)
+        #     return
+        except Exception as e:
+            print('[-]Image Download :Error',e)
     print('[-]Connect Failed! Please check your Proxy or Network!')
     moveFailedFolder(filepath)
     return
@@ -302,12 +284,12 @@ def image_ext(url):
 
 
 # 封面是否下载成功，否则移动到failed
-def image_download(cover, fanart_path, thumb_path, path, filepath, json_data):
+def image_download(cover, fanart_path, thumb_path, path, filepath, json_headers=None):
     full_filepath = os.path.join(path, fanart_path)
     if config.getInstance().download_only_missing_images() and not file_not_exist_or_empty(full_filepath):
         return
-    if "headers" in json_data:
-        if download_file_with_filename(cover, fanart_path, path, filepath, json_data['headers']) == 'failed':
+    if json_headers != None:
+        if download_file_with_filename(cover, fanart_path, path, filepath, json_headers['headers']) == 'failed':
             moveFailedFolder(filepath)
             return
     else:
@@ -319,8 +301,8 @@ def image_download(cover, fanart_path, thumb_path, path, filepath, json_data):
     for i in range(configProxy.retry):
         if file_not_exist_or_empty(full_filepath):
             print('[!]Image Download Failed! Trying again. [{}/3]', i + 1)
-            if "headers" in json_data:
-                download_file_with_filename(cover, fanart_path, path, filepath, json_data['headers'])
+            if json_headers != None:
+                download_file_with_filename(cover, fanart_path, path, filepath, json_headers['headers'])
             else:
                 download_file_with_filename(cover, fanart_path, path, filepath)
             continue
@@ -863,10 +845,16 @@ def core_main(movie_path, number_th, oCC):
 
         # 检查小封面, 如果image cut为3，则下载小封面
         if imagecut == 3:
-            small_cover_check(path, poster_path, json_data.get('cover_small'), movie_path, json_data)
+            if 'headers' in json_data:
+                small_cover_check(path, poster_path, json_data.get('cover_small'), movie_path, json_data['headers'])
+            else:
+                small_cover_check(path, poster_path, json_data.get('cover_small'), movie_path)
 
         # creatFolder会返回番号路径
-        image_download( cover, fanart_path,thumb_path, path, movie_path, json_data)
+        if 'headers' in json_data:
+            image_download(cover, fanart_path, thumb_path, path, movie_path, json_data['headers'])
+        else:
+            image_download(cover, fanart_path, thumb_path, path, movie_path)
 
         if not multi_part or part.lower() == '-cd1':
             try:
@@ -917,10 +905,16 @@ def core_main(movie_path, number_th, oCC):
 
         # 检查小封面, 如果image cut为3，则下载小封面
         if imagecut == 3:
-            small_cover_check(path, poster_path, json_data.get('cover_small'), movie_path, json_data)
+            if 'headers' in json_data:
+                small_cover_check(path, poster_path, json_data.get('cover_small'), movie_path, json_data['headers'])
+            else:
+                small_cover_check(path, poster_path, json_data.get('cover_small'), movie_path)
 
         # creatFolder会返回番号路径
-        image_download( cover, fanart_path, thumb_path, path, movie_path)
+        if 'headers' in json_data:
+            image_download(cover, fanart_path, thumb_path, path, movie_path, json_data['headers'])
+        else:
+            image_download(cover, fanart_path, thumb_path, path, movie_path)
 
         if not multi_part or part.lower() == '-cd1':
             try:

@@ -522,9 +522,9 @@ def download_one_file(args) -> str:
     wrapped for map function
     """
 
-    (url, save_path, json_data) = args
-    if json_data != None:
-        filebytes = get_html(url, return_type='content', json_headers=json_data['headers'])
+    (url, save_path, json_headers) = args
+    if json_headers != None:
+        filebytes = get_html(url, return_type='content', json_headers=json_headers['headers'])
     else:
         filebytes = get_html(url, return_type='content')
     if isinstance(filebytes, bytes) and len(filebytes):
@@ -533,7 +533,7 @@ def download_one_file(args) -> str:
                 return str(save_path)
 
 
-def parallel_download_files(dn_list: typing.Iterable[typing.Sequence], parallel: int = 0, json_data=None):
+def parallel_download_files(dn_list: typing.Iterable[typing.Sequence], parallel: int = 0, json_headers=None):
     """
     download files in parallel 多线程下载文件
 
@@ -552,7 +552,7 @@ def parallel_download_files(dn_list: typing.Iterable[typing.Sequence], parallel:
                 and fullpath and isinstance(fullpath, (str, Path)) and len(str(fullpath)):
             fullpath = Path(fullpath)
             fullpath.parent.mkdir(parents=True, exist_ok=True)
-            mp_args.append((url, fullpath, json_data))
+            mp_args.append((url, fullpath, json_headers))
     if not len(mp_args):
         return []
     if not isinstance(parallel, int) or parallel not in range(1, 200):
