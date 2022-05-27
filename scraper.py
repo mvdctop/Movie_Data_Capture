@@ -17,7 +17,7 @@ def get_data_from_json(file_number, oCC):
 
     conf = config.getInstance()
     # default fetch order list, from the beginning to the end
-    sources = conf.sources().split(',')
+    sources = conf.sources()
 
     # TODO 准备参数
     # - 清理 ADC_function, webcrawler
