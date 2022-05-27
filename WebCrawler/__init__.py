@@ -157,7 +157,7 @@ def get_data_from_json(file_number, oCC):
                     print(f"[+]Find movie [{file_number}] metadata on website '{source}'")
                     break
             except:
-                break
+                continue
 
     # Return if data not found in all sources
     if not json_data:
