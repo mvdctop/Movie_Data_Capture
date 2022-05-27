@@ -1,10 +1,10 @@
 import json
 import re
 from multiprocessing.pool import ThreadPool
+import secrets
 
 import ADC_function
 import config
-from ADC_function import translate
 from lxml import etree
 from pathlib import Path
 
@@ -162,17 +162,35 @@ def get_data_from_json(file_number, oCC):
     #             break
 
     # TODO 准备参数
-    # 1. javdb 的额外参数，cookies及sites区分
-    # 2. storyline sites参数
-    # 3. getchu仍在变更，未添加
-    # 4. 清理 ADC_function, webcrawler
-    # 5. ......
+    # - 清理 ADC_function, webcrawler
     proxies = None
     configProxy = conf.proxy()
     if configProxy.enable:
         proxies = configProxy.proxies()
+    
+    javdb_sites = conf.javdb_sites().split(',')
+    for i in javdb_sites:
+        javdb_sites[javdb_sites.index(i)] = "javdb" + i
+    javdb_sites.append("javdb")
+    # 不加载过期的cookie，javdb登录界面显示为7天免登录，故假定cookie有效期为7天
+    has_json = False
+    for cj in javdb_sites:
+        javdb_site = cj
+        cookie_json = javdb_site + '.json'
+        cookies_dict, cookies_filepath = ADC_function.load_cookies(cookie_json)
+        if isinstance(cookies_dict, dict) and isinstance(cookies_filepath, str):
+            cdays = ADC_function.file_modification_days(cookies_filepath)
+            if cdays < 7:
+                javdb_cookies = cookies_dict
+                has_json = True
+                break
+            elif cdays != 9999:
+                print(f'[!]Cookies file {cookies_filepath} was updated {cdays} days ago, it will not be used for HTTP requests.')
+    if not has_json:
+        javdb_site = secrets.choice(javdb_sites)
+        javdb_cookies = None
 
-    json_data = search(file_number, sources, proxies=proxies)
+    json_data = search(file_number, sources, proxies=proxies, dbsites=javdb_site, dbcookies=javdb_cookies, morestoryline=conf.is_storyline())
     # Return if data not found in all sources
     if not json_data:
         print('[-]Movie Number not found!')
