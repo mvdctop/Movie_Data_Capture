@@ -846,13 +846,13 @@ def core_main(movie_path, number_th, oCC):
         # 检查小封面, 如果image cut为3，则下载小封面
         if imagecut == 3:
             if 'headers' in json_data:
-                small_cover_check(path, poster_path, json_data.get('cover_small'), movie_path, json_data['headers'])
+                small_cover_check(path, poster_path, json_data.get('cover_small'), movie_path, json_data)
             else:
                 small_cover_check(path, poster_path, json_data.get('cover_small'), movie_path)
 
         # creatFolder会返回番号路径
         if 'headers' in json_data:
-            image_download(cover, fanart_path, thumb_path, path, movie_path, json_data['headers'])
+            image_download(cover, fanart_path, thumb_path, path, movie_path, json_data)
         else:
             image_download(cover, fanart_path, thumb_path, path, movie_path)
 
@@ -864,7 +864,10 @@ def core_main(movie_path, number_th, oCC):
 
                 # 下载剧照 data, path, filepath
                 if conf.is_extrafanart() and json_data.get('extrafanart'):
-                    extrafanart_download(json_data.get('extrafanart'), path, number, movie_path, json_data)
+                    if 'headers' in json_data:
+                        extrafanart_download(json_data.get('extrafanart'), path, number, movie_path, json_data)
+                    else:
+                        extrafanart_download(json_data.get('extrafanart'), path, number, movie_path)
 
                 # 下载演员头像 KODI .actors 目录位置
                 if conf.download_actor_photo_for_kodi():
@@ -906,13 +909,13 @@ def core_main(movie_path, number_th, oCC):
         # 检查小封面, 如果image cut为3，则下载小封面
         if imagecut == 3:
             if 'headers' in json_data:
-                small_cover_check(path, poster_path, json_data.get('cover_small'), movie_path, json_data['headers'])
+                small_cover_check(path, poster_path, json_data.get('cover_small'), movie_path, json_data)
             else:
                 small_cover_check(path, poster_path, json_data.get('cover_small'), movie_path)
 
         # creatFolder会返回番号路径
         if 'headers' in json_data:
-            image_download(cover, fanart_path, thumb_path, path, movie_path, json_data['headers'])
+            image_download(cover, fanart_path, thumb_path, path, movie_path, json_data)
         else:
             image_download(cover, fanart_path, thumb_path, path, movie_path)
 
@@ -924,7 +927,10 @@ def core_main(movie_path, number_th, oCC):
 
                 # 下载剧照 data, path, filepath
                 if conf.is_extrafanart() and json_data.get('extrafanart'):
-                    extrafanart_download(json_data.get('extrafanart'), path, number, movie_path, json_data)
+                    if 'headers' in json_data:
+                        extrafanart_download(json_data.get('extrafanart'), path, number, movie_path, json_data)
+                    else:
+                        extrafanart_download(json_data.get('extrafanart'), path, number, movie_path)
 
                 # 下载演员头像 KODI .actors 目录位置
                 if conf.download_actor_photo_for_kodi():
