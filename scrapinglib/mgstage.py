@@ -23,10 +23,8 @@ class Mgstage(Parser):
     expr_tags2 = '//th[contains(text(),"ジャンル：")]/../td/text()'
     expr_series = '//th[contains(text(),"シリーズ")]/../td/a/text()'
 
-    def search(self, number, core: None):
+    def search(self, number):
         self.number = number.upper()
-        self.updateCore(core)
-
         self.cookies = {'adc':'1'}
         self.detailurl = 'https://www.mgstage.com/product/product_detail/'+str(self.number)+'/'
         self.htmlcode = self.getHtml(self.detailurl)

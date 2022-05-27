@@ -8,6 +8,7 @@ from scrapinglib.carib import Carib
 from scrapinglib.dlsite import Dlsite
 from scrapinglib.fanza import Fanza
 from scrapinglib.gcolle import Gcolle
+from scrapinglib.getchu import Getchu
 from scrapinglib.jav321 import Jav321
 from scrapinglib.javdb import Javdb
 from scrapinglib.mv91 import Mv91
@@ -19,13 +20,15 @@ from .xcity import Xcity
 from .avsox import Avsox
 
 
-def search(number, souces=None, proxies=None, dbcookies=None):
-    """ 
+def search(number, souces=None, proxies=None, verify=None, dbcookies=None, dbsite=None, morestoryline=True):
+    """
     TODO  支持更多网站 douban, imdb,tmdb anidb等
     type 区分 r18 与 normal
     """
     sc = Scraping()
-    return sc.search(number, souces, proxies=proxies, dbcookies=dbcookies)
+    return sc.search(number, souces, proxies=proxies, verify=verify,
+                     dbcookies=dbcookies, dbsite=dbsite,
+                     morestoryline=morestoryline)
 
 
 class Scraping():
@@ -54,30 +57,39 @@ class Scraping():
 
     full_sources = ['avsox', 'javbus', 'xcity', 'mgstage', 'madou', 'fc2', 
                     'dlsite', 'jav321', 'fanza', 'airav', 'carib', 'mv91',
-                    'gcolle', 'javdb']
+                    'gcolle', 'javdb', 'getchu']
     func_mapping = {
-        'avsox': Avsox().search,
-        'javbus': Javbus().search,
-        'xcity': Xcity().search,
-        'mgstage': Mgstage().search,
-        'madou': Madou().search,
-        'fc2': Fc2().search,
-        'dlsite': Dlsite().search,
-        'jav321': Jav321().search,
-        'fanza': Fanza().search,
-        'airav': Airav().search,
-        'carib': Carib().search,
-        'mv91': Mv91().search,
-        'gcolle': Gcolle().search,
-        'javdb': Javdb().search,
+        'avsox': Avsox().scrape,
+        'javbus': Javbus().scrape,
+        'xcity': Xcity().scrape,
+        'mgstage': Mgstage().scrape,
+        'madou': Madou().scrape,
+        'fc2': Fc2().scrape,
+        'dlsite': Dlsite().scrape,
+        'jav321': Jav321().scrape,
+        'fanza': Fanza().scrape,
+        'airav': Airav().scrape,
+        'carib': Carib().scrape,
+        'mv91': Mv91().scrape,
+        'gcolle': Gcolle().scrape,
+        'javdb': Javdb().scrape,
+        'getchu': Getchu().scrape,
     }
 
     proxies = None
+    verify = None
     dbcookies = None
+    dbsite = None
+    # 使用storyline方法进一步获取故事情节
+    morestoryline = True
 
-    def search(self, number, sources=None, proxies=None, dbcookies=None):
+    def search(self, number, sources=None, proxies=None, verify=None,
+               dbcookies=None, dbsite=None, morestoryline=True):
         self.proxies = proxies
+        self.verify = verify
         self.dbcookies = dbcookies
+        self.dbsite = dbsite
+        self.morestoryline = morestoryline
 
         sources = self.checkSources(sources, number)
         json_data = {}

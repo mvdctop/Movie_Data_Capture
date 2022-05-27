@@ -59,8 +59,10 @@ class Xcity(Parser):
             return ''
 
     def getOutline(self, htmltree):
-        from .storyline import getStoryline
-        return getStoryline(self.number, uncensored=False)
+        if self.morestoryline:
+            from .storyline import getStoryline
+            return getStoryline(self.number, uncensored=False)
+        return ''
 
     def getActors(self, htmltree):
         htmla = self.browser.page.select('#avodDetails > div > div.frame > div.content > div > ul.profileCL > li.credit-links > a')
@@ -111,10 +113,8 @@ class Xcity(Parser):
             raise ValueError("xcity.py: detail page not found")
         return str(browser.page), browser
 
-    def search(self, number, core: None):
+    def search(self, number):
         self.number = number
-        self.updateCore(core)
-
         self.detail_page, self.browser = self.open_by_browser(number)
         self.detailurl = self.browser.url
         lx = etree.fromstring(self.detail_page, etree.HTMLParser())

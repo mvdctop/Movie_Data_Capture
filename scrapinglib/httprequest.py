@@ -9,7 +9,7 @@ from cloudscraper import create_scraper
 G_USER_AGENT = r'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.133 Safari/537.36'
 G_DEFAULT_TIMEOUT = 10
 
-def get(url: str, cookies = None, ua: str = None, return_type: str = None, encoding: str = None,
+def get(url: str, cookies=None, ua: str = None, extra_headers=None, return_type: str = None, encoding: str = None,
         retry: int = 3, timeout: int = G_DEFAULT_TIMEOUT, proxies=None, verify=None):
     """
     网页请求核心函数
@@ -18,7 +18,8 @@ def get(url: str, cookies = None, ua: str = None, return_type: str = None, encod
     """
     errors = ""
     headers = {"User-Agent": ua or G_USER_AGENT}
-
+    if extra_headers != None:
+        headers.update(extra_headers)
     for i in range(retry):
         try:
             result = requests.get(url, headers=headers, timeout=timeout, proxies=proxies,

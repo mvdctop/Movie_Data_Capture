@@ -14,10 +14,8 @@ class Fanza(Parser):
     expr_outline2 = "//div[@class='mg-b20 lh4']//p/text()"
     expr_runtime = "//td[contains(text(),'収録時間')]/following-sibling::td/text()"
 
-    def search(self, number, core: None):
+    def search(self, number):
         self.number = number
-        self.updateCore(core)
-
         # fanza allow letter + number + underscore, normalize the input here
         # @note: I only find the usage of underscore as h_test123456789
         fanza_search_number = number

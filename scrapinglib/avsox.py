@@ -57,8 +57,10 @@ class Avsox(Parser):
         return [i.strip() for i in tags[2:]] if len(tags) > 2 else []
 
     def getOutline(self, htmltree):
-        from .storyline import getStoryline
-        return getStoryline(self.number)
+        if self.morestoryline:
+            from .storyline import getStoryline
+            return getStoryline(self.number)
+        return ''
 
     def getActors(self, htmltree):
         a = super().getActors(htmltree)

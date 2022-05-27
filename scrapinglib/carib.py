@@ -20,10 +20,8 @@ class Carib(Parser):
     expr_series = "//span[@class='spec-title'][contains(text(),'シリーズ')]/../span[@class='spec-content']/a/text()"
     expr_outline = "//div[@class='movie-info section']/p[@itemprop='description']/text()"
 
-    def search(self, number, core: None):
+    def search(self, number):
         self.number = number
-        self.updateCore(core)
-
         self.detailurl = f'https://www.caribbeancom.com/moviepages/{number}/index.html'
         htmlcode = self.getHtml(self.detailurl)
         if htmlcode == 404 or 'class="movie-info section"' not in htmlcode:

@@ -11,10 +11,13 @@ class Parser:
     source = 'base'
     imagecut = 1
     uncensored = False
+    allow_number_change = False
     # update
     proxies = None
-    cookies = None
     verify = None
+    extraheader = None
+    cookies = None
+    morestoryline = False
 
     number = ''
     detailurl = ''
@@ -47,12 +50,15 @@ class Parser:
     def __init__(self) -> None:
         pass
 
-    def search(self, number, core: None):
-        """ 搜索番号
+    def scrape(self, number, core: None):
+        """ 刮削番号
         """
-        self.number = number
         self.updateCore(core)
+        result = self.search(number)
+        return result
 
+    def search(self, number):
+        self.number = number
         self.detailurl = self.queryNumberUrl(number)
         htmltree = self.getHtmlTree(self.detailurl)
         result = self.dictformat(htmltree)
@@ -66,6 +72,10 @@ class Parser:
         """
         if core.proxies:
             self.proxies = core.proxies
+        if core.verify:
+            self.verify = core.verify
+        if core.morestoryline:
+            self.morestoryline = True
 
     def queryNumberUrl(self, number):
         """ 根据番号查询详细信息url
@@ -78,7 +88,7 @@ class Parser:
     def getHtml(self, url, type = None):
         """ 访问网页
         """
-        resp = httprequest.get(url, cookies=self.cookies, proxies=self.proxies, verify=self.verify, return_type=type)
+        resp = httprequest.get(url, cookies=self.cookies, proxies=self.proxies, extra_headers=self.extraheader, verify=self.verify, return_type=type)
         if '<title>404 Page Not Found' in resp \
             or '<title>未找到页面' in resp \
             or '404 Not Found' in resp \

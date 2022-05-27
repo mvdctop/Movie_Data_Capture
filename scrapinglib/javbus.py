@@ -29,10 +29,8 @@ class Javbus(Parser):
     expr_tags = '/html/head/meta[@name="keywords"]/@content'
     expr_uncensored = '//*[@id="navbar"]/ul[1]/li[@class="active"]/a[contains(@href,"uncensored")]'
 
-    def search(self, number, core: None):
-        
+    def search(self, number):
         self.number = number
-        self.updateCore(core)
         try:    
             url = "https://www." + secrets.choice([
                 'buscdn.fun', 'busdmm.fun', 'busfan.fun', 'busjav.fun',
@@ -139,7 +137,9 @@ class Javbus(Parser):
         return ''
 
     def getOutline(self, htmltree):
-        if any(caller for caller in inspect.stack() if os.path.basename(caller.filename) == 'airav.py'):
-            return ''   # 从airav.py过来的调用不计算outline直接返回，避免重复抓取数据拖慢处理速度
-        from .storyline import getStoryline
-        return getStoryline(self.number , uncensored = self.uncensored)
+        if self.morestoryline:
+            if any(caller for caller in inspect.stack() if os.path.basename(caller.filename) == 'airav.py'):
+                return ''   # 从airav.py过来的调用不计算outline直接返回，避免重复抓取数据拖慢处理速度
+            from .storyline import getStoryline
+            return getStoryline(self.number , uncensored = self.uncensored)
+        return ''

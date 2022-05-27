@@ -18,13 +18,11 @@ class Airav(Parser):
     expr_actor = '//ul[@class="videoAvstarList"]/li/a[starts-with(@href,"/idol/")]/text()'
     expr_cover = '//img[contains(@src,"/storage/big_pic/")]/@src'
 
-    def search(self, number, core: None):
+    def search(self, number):
         self.number = number
-        self.updateCore(core)
-
         self.detailurl = 'https://cn.airav.wiki/video/' + number
         engine = Javbus()
-        javbusinfo = engine.search(number, core)
+        javbusinfo = engine.search(number, self)
         if javbusinfo == 404:
             self.javbus = {"title": ""}
         else:

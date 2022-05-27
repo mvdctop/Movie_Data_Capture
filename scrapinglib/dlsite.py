@@ -8,6 +8,7 @@ from .parser import Parser
 class Dlsite(Parser):
     source = 'dlsite'
     imagecut = 4
+    allow_number_change = True
 
     expr_title = '/html/head/title/text()'
     expr_actor = '//th[contains(text(),"声优")]/../td/a/text()'
@@ -26,10 +27,8 @@ class Dlsite(Parser):
     expr_label2 = '//th[contains(text(),"社团名")]/../td/span[1]/a/text()'
     expr_extrafanart = '//*[@id="work_left"]/div/div/div[1]/div/@data-src'
 
-    def search(self, number, core: None):
-        self.updateCore(core)
+    def search(self, number):
         self.cookies = {'locale': 'zh-cn'}
-
         if "RJ" in number or "VJ" in number:
             self.number = number.upper()
             self.detailurl = 'https://www.dlsite.com/maniax/work/=/product_id/' + self.number + '.html/?locale=zh_CN'

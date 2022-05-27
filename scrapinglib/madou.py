@@ -15,10 +15,8 @@ class Madou(Parser):
     expr_studio = '//a[@rel="category tag"]/text()'
     expr_tags = '/html/head/meta[@name="keywords"]/@content'
 
-    def search(self, number, core: None):
+    def search(self, number):
         self.number = number.lower().strip()
-        self.updateCore(core)
-
         self.detailurl = "https://madou.club/" + number + ".html"
         self.htmlcode = self.getHtml(self.detailurl)
         if self.htmlcode == 404:

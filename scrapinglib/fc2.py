@@ -20,10 +20,8 @@ class Fc2(Parser):
     expr_cover = "//div[@class='items_article_MainitemThumb']/span/img/@src"
     expr_tags = "//a[@class='tag tagTag']/text()"
 
-    def search(self, number, core: None):
+    def search(self, number):
         self.number = number.replace('FC2-', '').replace('fc2-', '')
-        self.updateCore(core)
-
         self.detailurl = 'https://adult.contents.fc2.com/article/' + self.number + '/'
         self.htmlcode = self.getHtml(self.detailurl)
         if self.htmlcode == 404:
