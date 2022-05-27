@@ -1,47 +1,11 @@
 import json
-import re
-from multiprocessing.pool import ThreadPool
 import secrets
-
-import ADC_function
 import config
 from lxml import etree
 from pathlib import Path
 
+from ADC_function import delete_all_elements_in_list, delete_all_elements_in_str, file_modification_days, load_cookies, translate
 from scrapinglib.api import search
-
-# =========website========
-# from . import airav
-# from . import avsox
-# from . import fanza
-# from . import fc2
-# from . import jav321
-# from . import javbus
-# from . import javdb
-# from . import mgstage
-# from . import xcity
-# # from . import javlib
-# from . import dlsite
-# from . import carib
-# from . import fc2club
-# from . import mv91
-# from . import madou
-# from . import gcolle
-# from . import getchu
-
-
-# def get_data_state(data: dict) -> bool:  # 元数据获取失败检测
-#     if "title" not in data or "number" not in data:
-#         return False
-
-#     if data["title"] is None or data["title"] == "" or data["title"] == "null":
-#         return False
-
-#     if data["number"] is None or data["number"] == "" or data["number"] == "null":
-#         return False
-
-#     return True
-
 
 def get_data_from_json(file_number, oCC):
     """
@@ -51,115 +15,9 @@ def get_data_from_json(file_number, oCC):
     actor_mapping_data = etree.parse(str(Path.home() / '.local' / 'share' / 'mdc' / 'mapping_actor.xml'))
     info_mapping_data = etree.parse(str(Path.home() / '.local' / 'share' / 'mdc' / 'mapping_info.xml'))
 
-    # func_mapping = {
-    #     "airav": airav.main,
-    #     "avsox": avsox.main,
-    #     "fc2": fc2.main,
-    #     "fanza": fanza.main,
-    #     "javdb": javdb.main,
-    #     "javbus": javbus.main,
-    #     "mgstage": mgstage.main,
-    #     "jav321": jav321.main,
-    #     "xcity": xcity.main,
-    #     # "javlib": javlib.main,
-    #     "dlsite": dlsite.main,
-    #     "carib": carib.main,
-    #     "fc2club": fc2club.main,
-    #     "mv91": mv91.main,
-    #     "madou": madou.main,
-    #     "gcolle": gcolle.main,
-    #     "getchu": getchu.main,
-    # }
-
     conf = config.getInstance()
     # default fetch order list, from the beginning to the end
     sources = conf.sources().split(',')
-    # def insert(sources,source):
-    #     if source in sources:
-    #         sources.insert(0, sources.pop(sources.index(source)))
-    #     return sources
-
-    # if len(sources) <= len(func_mapping):
-    #     # if the input file name matches certain rules,
-    #     # move some web service to the beginning of the list
-    #     lo_file_number = file_number.lower()
-    #     if "carib" in sources and (re.search(r"^\d{6}-\d{3}", file_number)
-    #     ):
-    #         sources = insert(sources,"carib")
-    #     elif "item" in file_number or "GETCHU" in file_number.upper():
-    #         sources = insert(sources,"getchu")
-    #     elif "rj" in lo_file_number or "vj" in lo_file_number or re.search(r"[\u3040-\u309F\u30A0-\u30FF]+", file_number):
-    #         sources = insert(sources, "getchu")
-    #         sources = insert(sources, "dlsite")
-    #     elif re.search(r"^\d{5,}", file_number) or "heyzo" in lo_file_number:
-    #         if "avsox" in sources:
-    #             sources = insert(sources,"avsox")
-    #     elif "mgstage" in sources and \
-    #             (re.search(r"\d+\D+", file_number) or "siro" in lo_file_number):
-    #         sources = insert(sources,"mgstage")
-    #     elif "fc2" in lo_file_number:
-    #         if "fc2" in sources:
-    #             sources = insert(sources,"fc2")
-    #     elif "gcolle" in sources and (re.search("\d{6}", file_number)):
-    #         sources = insert(sources,"gcolle")
-    #     elif re.search(r"^[a-z0-9]{3,}$", lo_file_number):
-    #         if "xcity" in sources:
-    #             sources = insert(sources,"xcity")
-    #         if "madou" in sources:
-    #             sources = insert(sources,"madou")
-    #     elif "madou" in sources and (
-    #             re.search(r"^[a-z0-9]{3,}-[0-9]{1,}$", lo_file_number)
-    #     ):
-    #         sources = insert(sources,"madou")
-
-    # # check sources in func_mapping
-    # todel = []
-    # for s in sources:
-    #     if not s in func_mapping:
-    #         print('[!] Source Not Exist : ' + s)
-    #         todel.append(s)
-    # for d in todel:
-    #     print('[!] Remove Source : ' + s)
-    #     sources.remove(d)
-
-    # json_data = {}
-
-    # if conf.multi_threading():
-    #     pool = ThreadPool(processes=len(conf.sources().split(',')))
-
-    #     # Set the priority of multi-thread crawling and join the multi-thread queue
-    #     for source in sources:
-    #         pool.apply_async(func_mapping[source], (file_number,))
-
-    #     # Get multi-threaded crawling response
-    #     for source in sources:
-    #         if conf.debug() == True:
-    #             print('[+]select', source)
-    #         try:
-    #             json_data = json.loads(pool.apply_async(func_mapping[source], (file_number,)).get())
-    #         except:
-    #             json_data = pool.apply_async(func_mapping[source], (file_number,)).get()
-    #         # if any service return a valid return, break
-    #         if get_data_state(json_data):
-    #             print(f"[+]Find movie [{file_number}] metadata on website '{source}'")
-    #             break
-    #     pool.close()
-    #     pool.terminate()
-    # else:
-    #     for source in sources:
-    #         try:
-    #             if conf.debug() == True:
-    #                 print('[+]select', source)
-    #             try:
-    #                 json_data = json.loads(func_mapping[source](file_number))
-    #             except:
-    #                 json_data = func_mapping[source](file_number)
-    #             # if any service return a valid return, break
-    #             if get_data_state(json_data):
-    #                 print(f"[+]Find movie [{file_number}] metadata on website '{source}'")
-    #                 break
-    #         except:
-    #             break
 
     # TODO 准备参数
     # - 清理 ADC_function, webcrawler
@@ -177,9 +35,9 @@ def get_data_from_json(file_number, oCC):
     for cj in javdb_sites:
         javdb_site = cj
         cookie_json = javdb_site + '.json'
-        cookies_dict, cookies_filepath = ADC_function.load_cookies(cookie_json)
+        cookies_dict, cookies_filepath = load_cookies(cookie_json)
         if isinstance(cookies_dict, dict) and isinstance(cookies_filepath, str):
-            cdays = ADC_function.file_modification_days(cookies_filepath)
+            cdays = file_modification_days(cookies_filepath)
             if cdays < 7:
                 javdb_cookies = cookies_dict
                 has_json = True
@@ -190,7 +48,12 @@ def get_data_from_json(file_number, oCC):
         javdb_site = secrets.choice(javdb_sites)
         javdb_cookies = None
 
-    json_data = search(file_number, sources, proxies=proxies, dbsites=javdb_site, dbcookies=javdb_cookies, morestoryline=conf.is_storyline())
+    cacert =None
+    if conf.cacert_file():
+        cacert = conf.cacert_file()
+    json_data = search(file_number, sources, proxies=proxies, verify=cacert,
+                        dbsite=javdb_site, dbcookies=javdb_cookies,
+                        morestoryline=conf.is_storyline())
     # Return if data not found in all sources
     if not json_data:
         print('[-]Movie Number not found!')
@@ -348,26 +211,26 @@ def get_data_from_json(file_number, oCC):
                 try:
                     if ccm == 1:
                         json_data[cc] = convert_list(info_mapping_data, "zh_cn", json_data[cc])
-                        json_data[cc] = ADC_function.delete_all_elements_in_list("删除", json_data[cc])
+                        json_data[cc] = delete_all_elements_in_list("删除", json_data[cc])
                     elif ccm == 2:
                         json_data[cc] = convert_list(info_mapping_data, "zh_tw", json_data[cc])
-                        json_data[cc] = ADC_function.delete_all_elements_in_list("删除", json_data[cc])
+                        json_data[cc] = delete_all_elements_in_list("删除", json_data[cc])
                     elif ccm == 3:
                         json_data[cc] = convert_list(info_mapping_data, "jp", json_data[cc])
-                        json_data[cc] = ADC_function.delete_all_elements_in_list("删除", json_data[cc])
+                        json_data[cc] = delete_all_elements_in_list("删除", json_data[cc])
                 except:
                     json_data[cc] = [oCC.convert(t) for t in json_data[cc]]
             else:
                 try:
                     if ccm == 1:
                         json_data[cc] = convert(info_mapping_data, "zh_cn", json_data[cc])
-                        json_data[cc] = ADC_function.delete_all_elements_in_str("删除", json_data[cc])
+                        json_data[cc] = delete_all_elements_in_str("删除", json_data[cc])
                     elif ccm == 2:
                         json_data[cc] = convert(info_mapping_data, "zh_tw", json_data[cc])
-                        json_data[cc] = ADC_function.delete_all_elements_in_str("删除", json_data[cc])
+                        json_data[cc] = delete_all_elements_in_str("删除", json_data[cc])
                     elif ccm == 3:
                         json_data[cc] = convert(info_mapping_data, "jp", json_data[cc])
-                        json_data[cc] = ADC_function.delete_all_elements_in_str("删除", json_data[cc])
+                        json_data[cc] = delete_all_elements_in_str("删除", json_data[cc])
                 except IndexError:
                     json_data[cc] = oCC.convert(json_data[cc])
                 except:
