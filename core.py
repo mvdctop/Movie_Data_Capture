@@ -118,7 +118,7 @@ def create_folder(json_data):  # 创建文件夹
 # path = examle:photo , video.in the Project Folder!
 def download_file_with_filename(url, filename, path, filepath, json_headers=None):
     conf = config.getInstance()
-    configProxy = conf.proxy('switch')
+    configProxy = conf.proxy()
 
     for i in range(configProxy.retry):
         try:
