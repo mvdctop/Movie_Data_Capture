@@ -118,7 +118,7 @@ def create_folder(json_data):  # 创建文件夹
 # path = examle:photo , video.in the Project Folder!
 def download_file_with_filename(url, filename, path, filepath, json_headers=None):
     conf = config.getInstance()
-    configProxy = conf.proxy()
+    configProxy = conf.proxy('switch')
 
     for i in range(configProxy.retry):
         try:
@@ -128,20 +128,12 @@ def download_file_with_filename(url, filename, path, filepath, json_headers=None
                 except:
                     print(f"[-]Fatal error! Can not make folder '{path}'")
                     os._exit(0)
-            headers = {'User-Agent': G_USER_AGENT}
-            if not json_headers == None:
-                if 'headers' in json_headers:
-                    headers.update(json_headers)
-            if configProxy:
-                proxies = configProxy.proxies()
-                r = requests.get(url, headers=headers, timeout=configProxy.timeout, proxies=proxies)
-            else:
-                r = requests.get(url, headers=headers, timeout=configProxy.timeout)
+            r = get_html(url=url,return_type='content',json_headers=json_headers)
             if r == '':
                 print('[-]Movie Download Data not found!')
                 return
             with open(os.path.join(path, filename), "wb") as code:
-                code.write(r.content)
+                code.write(r)
             return
         except requests.exceptions.ProxyError:
             i += 1
