@@ -132,7 +132,7 @@ def download_file_with_filename(url, filename, path, filepath, json_headers=None
             if not json_headers == None:
                 if 'headers' in json_headers:
                     headers.update(json_headers)
-            if configProxy:
+            if configProxy.enable:
                 proxies = configProxy.proxies()
                 r = requests.get(url, headers=headers, timeout=configProxy.timeout, proxies=proxies)
             else:
