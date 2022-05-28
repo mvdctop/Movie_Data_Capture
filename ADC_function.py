@@ -470,15 +470,12 @@ def download_file_with_filename(url: str, filename: str, path: str) -> None:
                     except:
                         print(f"[-]Fatal error! Can not make folder '{path}'")
                         os._exit(0)
-                proxies = configProxy.proxies()
-                headers = {
-                    'User-Agent': G_USER_AGENT}
-                r = requests.get(url, headers=headers, timeout=configProxy.timeout, proxies=proxies)
+                r = get_html(url=url, return_type='content')
                 if r == '':
                     print('[-]Movie Download Data not found!')
                     return
                 with open(os.path.join(path, filename), "wb") as code:
-                    code.write(r.content)
+                    code.write(r)
                 return
             else:
                 if not os.path.exists(path):
@@ -487,14 +484,12 @@ def download_file_with_filename(url: str, filename: str, path: str) -> None:
                     except:
                         print(f"[-]Fatal error! Can not make folder '{path}'")
                         os._exit(0)
-                headers = {
-                    'User-Agent': G_USER_AGENT}
-                r = requests.get(url, timeout=configProxy.timeout, headers=headers)
+                r = get_html(url=url, return_type='content')
                 if r == '':
                     print('[-]Movie Download Data not found!')
                     return
                 with open(os.path.join(path, filename), "wb") as code:
-                    code.write(r.content)
+                    code.write(r)
                 return
         except requests.exceptions.RequestException:
             i += 1
