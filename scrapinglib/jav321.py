@@ -2,9 +2,7 @@
 
 import re
 from lxml import etree
-
-from scrapinglib import httprequest
-
+from . import httprequest
 from .parser import Parser
 
 

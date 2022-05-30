@@ -3,15 +3,15 @@
 import re
 import json
 
-from scrapinglib.airav import Airav
-from scrapinglib.carib import Carib
-from scrapinglib.dlsite import Dlsite
-from scrapinglib.fanza import Fanza
-from scrapinglib.gcolle import Gcolle
-from scrapinglib.getchu import Getchu
-from scrapinglib.jav321 import Jav321
-from scrapinglib.javdb import Javdb
-from scrapinglib.mv91 import Mv91
+from .airav import Airav
+from .carib import Carib
+from .dlsite import Dlsite
+from .fanza import Fanza
+from .gcolle import Gcolle
+from .getchu import Getchu
+from .jav321 import Jav321
+from .javdb import Javdb
+from .mv91 import Mv91
 from .fc2 import Fc2
 from .madou import Madou
 from .mgstage import Mgstage
@@ -19,28 +19,30 @@ from .javbus import Javbus
 from .xcity import Xcity
 from .avsox import Avsox
 
+from .tmdb import Tmdb
 
-def search(number, souces=None, proxies=None, verify=None, dbcookies=None, dbsite=None, morestoryline=True):
-    """
-    TODO  支持更多网站 douban, imdb,tmdb anidb等
-    type 区分 r18 与 normal
+
+def search(number, sources: str=None, proxies=None, verify=None, type='adult',
+            dbcookies=None, dbsite=None, morestoryline=False):
+    """ 根据``番号/电影``名搜索信息
+
+    :param number: number/name  depends on type
+    :param sources: sources string with `,` like ``avsox,javbus``
+    :param type: ``adult``, ``general``
     """
     sc = Scraping()
-    return sc.search(number, souces, proxies=proxies, verify=verify,
-                     dbcookies=dbcookies, dbsite=dbsite,
-                     morestoryline=morestoryline)
-
+    return sc.search(number, sources, proxies=proxies, verify=verify, type=type,
+                     dbcookies=dbcookies, dbsite=dbsite, morestoryline=morestoryline)
 
 class Scraping():
     """
 
-    只需要获得内容,不经修改
+    只爬取内容,不经修改
 
     如果需要翻译等,再针对此方法封装一层
-    不做 naming rule 处理,放到封装层,保持内部简介
+    也不做 naming rule 处理
 
     可以指定刮削库,可查询当前支持的刮削库
-    可查询演员多个艺名
 
     参数:
         number
@@ -78,19 +80,33 @@ class Scraping():
 
     proxies = None
     verify = None
+
     dbcookies = None
     dbsite = None
     # 使用storyline方法进一步获取故事情节
-    morestoryline = True
+    morestoryline = False
 
-    def search(self, number, sources=None, proxies=None, verify=None,
-               dbcookies=None, dbsite=None, morestoryline=True):
+    def search(self, number, sources=None, proxies=None, verify=None, type='adult',
+               dbcookies=None, dbsite=None, morestoryline=False):
         self.proxies = proxies
         self.verify = verify
         self.dbcookies = dbcookies
         self.dbsite = dbsite
         self.morestoryline = morestoryline
+        if type == 'adult':
+            return self.searchAdult(number, sources)
+        else:
+            return self.searchGeneral(number, sources)
 
+    def searchGeneral(self, number, sources):
+        """ 查询电影电视剧
+        imdb,tmdb
+        """
+        data = Tmdb().scrape(number, self)
+        json_data = json.loads(data)
+        return json_data
+
+    def searchAdult(self, number, sources):
         sources = self.checkSources(sources, number)
         json_data = {}
         for source in sources:
@@ -110,7 +126,7 @@ class Scraping():
                     print(f"[+]Find movie [{number}] metadata on website '{source}'")
                     break
             except:
-                break
+                continue
 
         # Return if data not found in all sources
         if not json_data:
@@ -122,9 +138,9 @@ class Scraping():
 
     def checkSources(self, c_sources, file_number):
         if not c_sources:
-            c_sources = self.full_sources
-
-        sources = c_sources.split(',')
+            sources = self.full_sources
+        else:
+            sources = c_sources.split(',')
         def insert(sources,source):
             if source in sources:
                 sources.insert(0, sources.pop(sources.index(source)))
@@ -134,33 +150,32 @@ class Scraping():
             # if the input file name matches certain rules,
             # move some web service to the beginning of the list
             lo_file_number = file_number.lower()
-            if "carib" in sources and (re.match(r"^\d{6}-\d{3}", file_number)
+            if "carib" in sources and (re.search(r"^\d{6}-\d{3}", file_number)
             ):
                 sources = insert(sources,"carib")
-            elif "item" in file_number:
+            elif "item" in file_number or "GETCHU" in file_number.upper():
                 sources = insert(sources,"getchu")
-            elif re.match(r"^\d{5,}", file_number) or "heyzo" in lo_file_number:
+            elif "rj" in lo_file_number or "vj" in lo_file_number or re.search(r"[\u3040-\u309F\u30A0-\u30FF]+", file_number):
+                sources = insert(sources, "getchu")
+                sources = insert(sources, "dlsite")
+            elif re.search(r"^\d{5,}", file_number) or "heyzo" in lo_file_number:
                 if "avsox" in sources:
                     sources = insert(sources,"avsox")
             elif "mgstage" in sources and \
-                    (re.match(r"\d+\D+", file_number) or "siro" in lo_file_number):
+                    (re.search(r"\d+\D+", file_number) or "siro" in lo_file_number):
                 sources = insert(sources,"mgstage")
             elif "fc2" in lo_file_number:
                 if "fc2" in sources:
                     sources = insert(sources,"fc2")
             elif "gcolle" in sources and (re.search("\d{6}", file_number)):
                 sources = insert(sources,"gcolle")
-            elif "dlsite" in sources and (
-                    "rj" in lo_file_number or "vj" in lo_file_number
-            ):
-                sources = insert(sources,"dlsite")
-            elif re.match(r"^[a-z0-9]{3,}$", lo_file_number):
+            elif re.search(r"^[a-z0-9]{3,}$", lo_file_number):
                 if "xcity" in sources:
                     sources = insert(sources,"xcity")
                 if "madou" in sources:
                     sources = insert(sources,"madou")
             elif "madou" in sources and (
-                    re.match(r"^[a-z0-9]{3,}-[0-9]{1,}$", lo_file_number)
+                    re.search(r"^[a-z0-9]{3,}-[0-9]{1,}$", lo_file_number)
             ):
                 sources = insert(sources,"madou")
 
