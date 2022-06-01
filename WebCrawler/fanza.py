@@ -123,13 +123,21 @@ def main(number):
             number_lo.replace('-', '') + 'so' == fanza_hinban
         ):
             out_num = number
+
+        director = fanza_Crawler.getFanzaString('監督：')
+        if "anime" in chosen_url:
+            director = ""
+        actor = fanza_Crawler.getStrings("//td[contains(text(),'出演者')]/following-sibling::td/span/a/text()")
+        if "anime" in chosen_url:
+            actor = ""
+
         data = {
             "title": fanza_Crawler.getString('//*[starts-with(@id, "title")]/text()').strip(),
             "studio": fanza_Crawler.getFanzaString('メーカー'),
             "outline": getOutline(html),
             "runtime": str(re.search(r'\d+',fanza_Crawler.getString("//td[contains(text(),'収録時間')]/following-sibling::td/text()")).group()).strip(" ['']"),
-            "director": fanza_Crawler.getFanzaString('監督：') if "anime" not in chosen_url else "",
-            "actor": fanza_Crawler.getString("//td[contains(text(),'出演者')]/following-sibling::td/span/a/text()").replace("', '", ",") if "anime" not in chosen_url else "",
+            "director": director,
+            "actor": actor,
             "release": getRelease(fanza_Crawler),
             "number": out_num,
             "cover": getCover(html, fanza_hinban),
@@ -143,7 +151,7 @@ def main(number):
             "source": "fanza.py",
             "series": fanza_Crawler.getFanzaString('シリーズ：'),
         }
-    except:
+    except Exception as e:
         data = {
             "title": "",
         }
@@ -185,6 +193,6 @@ def main_htmlcode(number):
 if __name__ == "__main__":
     # print(main("DV-1562"))
     # print(main("96fad1217"))
-    print(main("pred00251"))
+    print(main("AES-002"))
     print(main("MIAA-391"))
     print(main("OBA-326"))
