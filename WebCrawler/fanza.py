@@ -130,6 +130,13 @@ def main(number):
         actor = fanza_Crawler.getStrings("//td[contains(text(),'出演者')]/following-sibling::td/span/a/text()")
         if "anime" in chosen_url:
             actor = ""
+        # 	----
+        series = fanza_Crawler.getFanzaString('シリーズ：')
+        if series == "----":
+            series = ""
+        label = fanza_Crawler.getFanzaString('レーベル')
+        if label == "----":
+            label = ""
 
         data = {
             "title": fanza_Crawler.getString('//*[starts-with(@id, "title")]/text()').strip(),
@@ -144,12 +151,12 @@ def main(number):
             "imagecut": 1,
             "tag": fanza_Crawler.getFanzaStrings('ジャンル：'),
             "extrafanart": getExtrafanart(htmlcode),
-            "label": fanza_Crawler.getFanzaString('レーベル'),
+            "label": label,
             "year": re.findall('\d{4}',getRelease(fanza_Crawler))[0],  # str(re.search('\d{4}',getRelease(a)).group()),
             "actor_photo": "",
             "website": chosen_url,
             "source": "fanza.py",
-            "series": fanza_Crawler.getFanzaString('シリーズ：'),
+            "series": series,
         }
     except Exception as e:
         data = {
