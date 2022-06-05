@@ -374,7 +374,7 @@ def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, f
             try:
                 for i in tag:
                     print("  <tag>" + i + "</tag>", file=code)
-                print("  <tag>" + series + "</tag>", file=code)
+                # print("  <tag>" + series + "</tag>", file=code)
             except:
                 aaaaa = ''
             if cn_sub == '1':
@@ -388,7 +388,7 @@ def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, f
             try:
                 for i in tag:
                     print("  <genre>" + i + "</genre>", file=code)
-                print("  <genre>" + series + "</genre>", file=code)
+                # print("  <genre>" + series + "</genre>", file=code)
             except:
                 aaaaaaaa = ''
             print("  <num>" + number + "</num>", file=code)
