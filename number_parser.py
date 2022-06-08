@@ -117,12 +117,12 @@ G_TAKE_NUM_RULES = {
     'xxx-av': lambda x: ''.join(['xxx-av-', re.findall(r'xxx-av[^\d]*(\d{3,5})[^\d]*', x, re.I)[0]]),
     'heydouga': lambda x: 'heydouga-' + '-'.join(re.findall(r'(\d{4})[\-_](\d{3,4})[^\d]*', x, re.I)[0]),
     'heyzo': lambda x: 'HEYZO-' + re.findall(r'heyzo[^\d]*(\d{4})', x, re.I)[0],
-    'md[a-z]{0,2}-\d{2,}': md,
-    'mmz-\d{2,}':mmz,
-    'msd-\d{2,}':msd,
-    'mky-[a-z]{2,2}-\d{2,}':mky,
-    'yk-\d{2,3}': yk,
-    'pm[a-z]?-?\d{2,}':pm
+    r'\bmd[a-z]{0,2}-\d{2,}': md,
+    r'\bmmz-\d{2,}':mmz,
+    r'\bmsd-\d{2,}':msd,
+    r'\bmky-[a-z]{2,2}-\d{2,}':mky,
+    r'\byk-\d{2,3}': yk,
+    r'\bpm[a-z]?-?\d{2,}':pm
 }
 
 
