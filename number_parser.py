@@ -210,7 +210,7 @@ if __name__ == "__main__":
         "rctd-461-C-cD4.mp4",  # cD1 Cd1 cd1 CD1 最终生成.nfo时统一为大写CD1
         "MD-123.ts",
         "MDSR-0001-ep2.ts",
-        "2953-麻豆传媒 MKY-NS-001护理长的盲目暴露-张芸熙.mp4"
+        "MKY-NS-001.mp4"
     )
 
 
