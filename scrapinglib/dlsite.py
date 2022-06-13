@@ -66,6 +66,8 @@ class Dlsite(Parser):
         result = super().getTitle(htmltree)
         result = result[:result.rfind(' | DLsite')]
         result = result[:result.rfind(' [')]
+        if 'OFF】' in result:
+            result = result[result.find('】')+1:]
         result = result.replace('【HD版】', '')
         return result
 

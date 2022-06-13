@@ -36,25 +36,6 @@ def search(number, sources: str=None, proxies=None, verify=None, type='adult',
 
 class Scraping():
     """
-
-    只爬取内容,不经修改
-
-    如果需要翻译等,再针对此方法封装一层
-    也不做 naming rule 处理
-
-    可以指定刮削库,可查询当前支持的刮削库
-
-    参数:
-        number
-        cookies
-        proxy
-        sources
-        TODO multi threading (加速是否会触发反爬？)
-
-        [x] translate
-        [x] naming rule
-        [x] convert: actress name/tags
-
     """
 
     adult_full_sources = ['avsox', 'javbus', 'xcity', 'mgstage', 'madou', 'fc2', 
