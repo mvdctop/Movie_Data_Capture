@@ -78,9 +78,9 @@ class Javbus(Parser):
 
     def getStudio(self, htmltree):
         if self.uncensored:
-            return self.getTreeIndex(htmltree, self.expr_studio2)
+            return self.getTreeElement(htmltree, self.expr_studio2)
         else:
-            return self.getTreeIndex(htmltree, self.expr_studio)
+            return self.getTreeElement(htmltree, self.expr_studio)
 
     def getCover(self, htmltree):
         return urljoin("https://www.javbus.com", super().getCover(htmltree)) 
@@ -111,15 +111,15 @@ class Javbus(Parser):
 
     def getDirector(self, htmltree):
         if self.uncensored:
-            return self.getTreeIndex(htmltree, self.expr_directorJa)
+            return self.getTreeElement(htmltree, self.expr_directorJa)
         else:
-            return self.getTreeIndex(htmltree, self.expr_director)
+            return self.getTreeElement(htmltree, self.expr_director)
 
     def getSeries(self, htmltree):
         if self.uncensored:
-            return self.getTreeIndex(htmltree, self.expr_series2)
+            return self.getTreeElement(htmltree, self.expr_series2)
         else:
-            return self.getTreeIndex(htmltree, self.expr_series)
+            return self.getTreeElement(htmltree, self.expr_series)
 
     def getTags(self, htmltree):
         tags = super().getTags(htmltree).split(',')

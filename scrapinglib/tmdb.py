@@ -31,10 +31,10 @@ class Tmdb(Parser):
         return movieUrl
 
     def getTitle(self, htmltree):
-        return self.getTreeIndex(htmltree, self.expr_title).get('content')
+        return self.getTreeElement(htmltree, self.expr_title).get('content')
 
     def getCover(self, htmltree):
-        return "https://www.themoviedb.org" + self.getTreeIndex(htmltree, self.expr_cover).get('content')
+        return "https://www.themoviedb.org" + self.getTreeElement(htmltree, self.expr_cover).get('content')
 
     def getOutline(self, htmltree):
-        return self.getTreeIndex(htmltree, self.expr_outline).get('content')
+        return self.getTreeElement(htmltree, self.expr_outline).get('content')

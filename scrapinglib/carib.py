@@ -48,11 +48,11 @@ class Carib(Parser):
         return f'https://www.caribbeancom.com/moviepages/{self.number}/images/l_l.jpg'
 
     def getTags(self, htmltree):
-        return self.getAll(htmltree, self.expr_tags)
+        return self.getTreeAll(htmltree, self.expr_tags)
 
     def getExtrafanart(self, htmltree):
         r = []
-        genres = self.getAll(htmltree, self.expr_extrafanart)
+        genres = self.getTreeAll(htmltree, self.expr_extrafanart)
         for g in genres:
             jpg = str(g)
             if '/member/' in jpg:

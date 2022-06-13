@@ -68,9 +68,9 @@ class Fanza(Parser):
 
     def getOutline(self, htmltree):
         try:
-            result = self.getTreeIndex(htmltree, self.expr_outline).replace("\n", "")
+            result = self.getTreeElement(htmltree, self.expr_outline).replace("\n", "")
             if result == '':
-                result = self.getTreeIndex(htmltree, self.expr_outline2).replace("\n", "")
+                result = self.getTreeElement(htmltree, self.expr_outline2).replace("\n", "")
             return result
         except:
             return ''
@@ -98,13 +98,13 @@ class Fanza(Parser):
         # return super().getCover(htmltree)
         cover_number = self.fanza_hinban
         try:
-            result = self.getTreeIndex(htmltree, '//*[@id="' + cover_number + '"]/@href')
+            result = self.getTreeElement(htmltree, '//*[@id="' + cover_number + '"]/@href')
         except:
             # sometimes fanza modify _ to \u0005f for image id
             if "_" in cover_number:
                 cover_number = cover_number.replace("_", r"\u005f")
             try:
-                result = self.getTreeIndex(htmltree, '//*[@id="' + cover_number + '"]/@href')
+                result = self.getTreeElement(htmltree, '//*[@id="' + cover_number + '"]/@href')
             except:
                 # (TODO) handle more edge case
                 # print(html)

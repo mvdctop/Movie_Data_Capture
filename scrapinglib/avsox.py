@@ -23,19 +23,19 @@ class Avsox(Parser):
 
     def queryNumberUrl(self, number):
         qurySiteTree = self.getHtmlTree('https://tellme.pw/avsox')
-        site = self.getTreeIndex(qurySiteTree, '//div[@class="container"]/div/a/@href')
+        site = self.getTreeElement(qurySiteTree, '//div[@class="container"]/div/a/@href')
         self.searchtree = self.getHtmlTree(site + '/cn/search/' + number)
-        result1 = self.getTreeIndex(self.searchtree, '//*[@id="waterfall"]/div/a/@href')
+        result1 = self.getTreeElement(self.searchtree, '//*[@id="waterfall"]/div/a/@href')
         if result1 == '' or result1 == 'null' or result1 == 'None':
             self.searchtree = self.getHtmlTree(site + '/cn/search/' + number.replace('-', '_'))
-            result1 = self.getTreeIndex(self.searchtree, '//*[@id="waterfall"]/div/a/@href')
+            result1 = self.getTreeElement(self.searchtree, '//*[@id="waterfall"]/div/a/@href')
             if result1 == '' or result1 == 'null' or result1 == 'None':
                 self.searchtree = self.getHtmlTree(site + '/cn/search/' + number.replace('_', ''))
-                result1 = self.getTreeIndex(self.searchtree, '//*[@id="waterfall"]/div/a/@href')
+                result1 = self.getTreeElement(self.searchtree, '//*[@id="waterfall"]/div/a/@href')
         return "https:" + result1
 
     def getNum(self, htmltree):
-        new_number = self.getTreeIndex(htmltree, self.expr_number)
+        new_number = self.getTreeElement(htmltree, self.expr_number)
         if new_number.upper() != self.number.upper():
             raise ValueError('number not found in ' + self.source)
         self.number = new_number
@@ -50,7 +50,7 @@ class Avsox(Parser):
     def getSmallCover(self, htmltree):
         """ 使用搜索页面的预览小图
         """
-        return self.getTreeIndex(self.searchtree, self.expr_smallcover)
+        return self.getTreeElement(self.searchtree, self.expr_smallcover)
 
     def getTags(self, htmltree):
         tags = super().getTags(htmltree).split(',')

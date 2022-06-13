@@ -69,7 +69,7 @@ class Airav(Parser):
         return str(re.findall('\d{4}', release)).strip(" ['']")
 
     def getOutline(self, htmltree):
-        return self.getAll(htmltree, self.expr_outline).replace('\n','').strip()
+        return self.getTreeAll(htmltree, self.expr_outline).replace('\n','').strip()
 
     def getRuntime(self, htmltree):
         result = self.javbus.get('runtime')

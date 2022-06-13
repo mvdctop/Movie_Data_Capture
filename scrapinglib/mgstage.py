@@ -49,8 +49,8 @@ class Mgstage(Parser):
         return super().getCover(self.htmlcodetree)
 
     def getTags(self, htmltree):
-        result1 = str(self.getAll(htmltree, self.expr_tags)).strip(" ['']").strip('\\n    ').strip('\\n')
-        result2 = str(self.getAll(htmltree, self.expr_tags2)).strip(" ['']").strip('\\n    ').strip('\\n')
+        result1 = str(self.getTreeAll(htmltree, self.expr_tags)).strip(" ['']").strip('\\n    ').strip('\\n')
+        result2 = str(self.getTreeAll(htmltree, self.expr_tags2)).strip(" ['']").strip('\\n    ').strip('\\n')
         result = str(result1 + result2).strip('+').replace("', '\\n",",").replace("', '","").replace('"','').replace(',,','').split(',')
         return result
 
@@ -65,7 +65,7 @@ class Mgstage(Parser):
                 return extrafanart_imgs
         return ''
 
-    def getTreeIndex(self, tree, expr, index=0):
+    def getTreeElement(self, tree, expr, index=0):
         if expr == '':
             return ''
         if tree == self.detailtree:

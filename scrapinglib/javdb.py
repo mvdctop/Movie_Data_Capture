@@ -86,12 +86,12 @@ class Javdb(Parser):
         # javdb sometime returns multiple results,
         # and the first elememt maybe not the one we are looking for
         # iterate all candidates and find the match one
-        urls = self.getAll(self.querytree, '//*[contains(@class,"movie-list")]/div/a/@href')
+        urls = self.getTreeAll(self.querytree, '//*[contains(@class,"movie-list")]/div/a/@href')
         # 记录一下欧美的ids  ['Blacked','Blacked']
         if re.search(r'[a-zA-Z]+\.\d{2}\.\d{2}\.\d{2}', number):
             correct_url = urls[0]
         else:
-            ids = self.getAll(self.querytree, '//*[contains(@class,"movie-list")]/div/a/div[contains(@class, "video-title")]/strong/text()')
+            ids = self.getTreeAll(self.querytree, '//*[contains(@class,"movie-list")]/div/a/div[contains(@class, "video-title")]/strong/text()')
             try:
                 self.queryid = ids.index(number)
                 correct_url = urls[self.queryid]
@@ -105,8 +105,8 @@ class Javdb(Parser):
     def getNum(self, htmltree):
         if self.noauth:
             return self.number
-        result1 = str(self.getAll(htmltree, self.expr_number)).strip(" ['']")
-        result2 = str(self.getAll(htmltree, self.expr_number2)).strip(" ['']")
+        result1 = str(self.getTreeAll(htmltree, self.expr_number)).strip(" ['']")
+        result2 = str(self.getTreeAll(htmltree, self.expr_number2)).strip(" ['']")
         dp_number = str(result2 + result1).strip('+')
         # NOTE 检测匹配与更新 self.number
         if dp_number.upper() != self.number.upper():
@@ -116,50 +116,50 @@ class Javdb(Parser):
 
     def getTitle(self, htmltree):
         if self.noauth:
-            return self.getTreeIndex(htmltree, self.expr_title_no, self.queryid)
+            return self.getTreeElement(htmltree, self.expr_title_no, self.queryid)
         browser_title = super().getTitle(htmltree)
         title = browser_title[:browser_title.find(' | JavDB')].strip()
         return title.replace(self.number, '').strip()
 
     def getCover(self, htmltree):
         if self.noauth:
-            return self.getTreeIndex(htmltree, self.expr_cover_no, self.queryid)
+            return self.getTreeElement(htmltree, self.expr_cover_no, self.queryid)
         return super().getCover(htmltree)
 
     def getRelease(self, htmltree):
         if self.noauth:
-            return self.getTreeIndex(htmltree, self.expr_release_no, self.queryid).strip()
+            return self.getTreeElement(htmltree, self.expr_release_no, self.queryid).strip()
         return super().getRelease(htmltree)
 
     def getRuntime(self, htmltree):
-        result1 = str(self.getAll(htmltree, self.expr_runtime)).strip(" ['']")
-        result2 = str(self.getAll(htmltree, self.expr_runtime2)).strip(" ['']")
+        result1 = str(self.getTreeAll(htmltree, self.expr_runtime)).strip(" ['']")
+        result2 = str(self.getTreeAll(htmltree, self.expr_runtime2)).strip(" ['']")
         return str(result1 + result2).strip('+').rstrip('mi')
 
     def getDirector(self, htmltree):
-        result1 = str(self.getAll(htmltree, self.expr_director)).strip(" ['']")
-        result2 = str(self.getAll(htmltree, self.expr_director2)).strip(" ['']")
+        result1 = str(self.getTreeAll(htmltree, self.expr_director)).strip(" ['']")
+        result2 = str(self.getTreeAll(htmltree, self.expr_director2)).strip(" ['']")
         return str(result1 + result2).strip('+').replace("', '", '').replace('"', '')
     
     def getSeries(self, htmltree):
-        result1 = str(self.getAll(htmltree, self.expr_series)).strip(" ['']")
-        result2 = str(self.getAll(htmltree, self.expr_series2)).strip(" ['']")
+        result1 = str(self.getTreeAll(htmltree, self.expr_series)).strip(" ['']")
+        result2 = str(self.getTreeAll(htmltree, self.expr_series2)).strip(" ['']")
         result = str(result1 + result2).strip('+').replace("', '", '').replace('"', '')
         if not result and self.fixstudio:
             result = self.getStudio(htmltree)
         return result
 
     def getLabel(self, htmltree):
-        result1 = str(self.getAll(htmltree, self.expr_label)).strip(" ['']")
-        result2 = str(self.getAll(htmltree, self.expr_label2)).strip(" ['']")
+        result1 = str(self.getTreeAll(htmltree, self.expr_label)).strip(" ['']")
+        result2 = str(self.getTreeAll(htmltree, self.expr_label2)).strip(" ['']")
         result = str(result1 + result2).strip('+').replace("', '", '').replace('"', '')
         if not result and self.fixstudio:
             result = self.getStudio(htmltree)
         return result
 
     def getActors(self, htmltree):
-        actors = self.getAll(htmltree, self.expr_actor)
-        genders = self.getAll(htmltree, self.expr_actor2)
+        actors = self.getTreeAll(htmltree, self.expr_actor)
+        genders = self.getTreeAll(htmltree, self.expr_actor2)
         r = []
         idx = 0
         # NOTE only female, we dont care others
@@ -184,11 +184,11 @@ class Javdb(Parser):
 
     def getStudio(self, htmltree):
         try:
-            return self.getAll(htmltree, self.expr_studio).strip(" ['']")
+            return self.getTreeAll(htmltree, self.expr_studio).strip(" ['']")
         except:
             pass
         try:
-            return self.getAll(htmltree, self.expr_studio2).strip(" ['']")
+            return self.getTreeAll(htmltree, self.expr_studio2).strip(" ['']")
         except:
             return ''
 
@@ -207,17 +207,17 @@ class Javdb(Parser):
     
     def getTags(self, htmltree):
         try:
-            return self.getAll(htmltree, self.expr_tags)
+            return self.getTreeAll(htmltree, self.expr_tags)
         except:
             pass
         try:
-            return self.getAll(htmltree, self.expr_tags2)
+            return self.getTreeAll(htmltree, self.expr_tags2)
         except:
             return ''
 
     def getUserRating(self, htmltree):
         try:
-            result = str(self.getTreeIndex(htmltree, self.expr_userrating))
+            result = str(self.getTreeElement(htmltree, self.expr_userrating))
             v = re.findall(r'(\d+|\d+\.\d+)分, 由(\d+)人評價', result)
             return float(v[0][0])
         except:
@@ -225,7 +225,7 @@ class Javdb(Parser):
 
     def getUserVotes(self, htmltree):
         try:
-            result = str(self.getTreeIndex(htmltree, self.expr_uservotes))
+            result = str(self.getTreeElement(htmltree, self.expr_uservotes))
             v = re.findall(r'(\d+|\d+\.\d+)分, 由(\d+)人評價', result)
             return int(v[0][1])
         except:
@@ -237,7 +237,7 @@ class Javdb(Parser):
         return img_url[0] if img_url else ''
 
     def getActorPhoto(self, htmltree):
-        actorall = self.getAll(htmltree, self.expr_actorphoto)
+        actorall = self.getTreeAll(htmltree, self.expr_actorphoto)
         if not actorall:
             return {}
         actors = self.getActors(htmltree)

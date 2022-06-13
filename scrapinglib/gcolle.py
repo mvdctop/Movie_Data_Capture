@@ -32,7 +32,7 @@ class Gcolle(Parser):
         htmlcode = session.get('https://gcolle.net/product_info.php/products_id/' + number).text
         htmltree = etree.HTML(htmlcode)
 
-        r18url = self.getTreeIndex(htmltree, self.expr_r18)
+        r18url = self.getTreeElement(htmltree, self.expr_r18)
         if r18url and r18url.startswith('http'):
             htmlcode = session.get(r18url).text
             htmltree = etree.HTML(htmlcode)
@@ -46,7 +46,7 @@ class Gcolle(Parser):
         return "GCOLLE-" + str(num)
 
     def getOutline(self, htmltree):
-        result = self.getAll(htmltree, self.expr_outline)
+        result = self.getTreeAll(htmltree, self.expr_outline)
         try:
             return "\n".join(result)
         except:
@@ -59,12 +59,12 @@ class Gcolle(Parser):
         return "https:" + super().getCover(htmltree)
 
     def getTags(self, htmltree):
-        return self.getAll(htmltree, self.expr_tags)
+        return self.getTreeAll(htmltree, self.expr_tags)
 
     def getExtrafanart(self, htmltree):
-        extrafanart = self.getAll(htmltree, self.expr_extrafanart)
+        extrafanart = self.getTreeAll(htmltree, self.expr_extrafanart)
         if len(extrafanart) == 0:
-            extrafanart = self.getAll(htmltree, self.expr_extrafanart2)
+            extrafanart = self.getTreeAll(htmltree, self.expr_extrafanart2)
         # Add "https:" in each extrafanart url
         for i in range(len(extrafanart)):
             extrafanart[i] = 'https:' + extrafanart[i]

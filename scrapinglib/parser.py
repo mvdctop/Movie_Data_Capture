@@ -144,18 +144,18 @@ class Parser:
     def getNum(self, htmltree):
         """ 增加 strip 过滤
         """
-        return self.getTreeIndex(htmltree, self.expr_number)
+        return self.getTreeElement(htmltree, self.expr_number)
 
     def getTitle(self, htmltree):
-        return self.getTreeIndex(htmltree, self.expr_title).strip()
+        return self.getTreeElement(htmltree, self.expr_title).strip()
 
     def getStudio(self, htmltree):
         try:
-            return self.getTreeIndex(htmltree, self.expr_studio).strip(" ['']")
+            return self.getTreeElement(htmltree, self.expr_studio).strip(" ['']")
         except:
             pass
         try:
-            return self.getTreeIndex(htmltree, self.expr_studio2).strip(" ['']")
+            return self.getTreeElement(htmltree, self.expr_studio2).strip(" ['']")
         except:
             return ''
 
@@ -170,90 +170,90 @@ class Parser:
 
     def getRuntime(self, htmltree):
         try:
-            return self.getTreeIndex(htmltree, self.expr_runtime).strip("\n\t ['']").rstrip('mi')
+            return self.getTreeElement(htmltree, self.expr_runtime).strip("\n\t ['']").rstrip('mi')
         except:
             pass
         try:
-            return self.getTreeIndex(htmltree, self.expr_runtime2).strip("\n\t ['']").rstrip('mi')
+            return self.getTreeElement(htmltree, self.expr_runtime2).strip("\n\t ['']").rstrip('mi')
         except:
             return ''
 
     def getRelease(self, htmltree):
-        return self.getTreeIndex(htmltree, self.expr_release).strip().replace('/','-')
+        return self.getTreeElement(htmltree, self.expr_release).strip().replace('/','-')
 
     def getOutline(self, htmltree):
-        return self.getTreeIndex(htmltree, self.expr_outline).strip().replace("\n","")
+        return self.getTreeElement(htmltree, self.expr_outline).strip().replace("\n","")
 
     def getDirector(self, htmltree):
-        return self.getTreeIndex(htmltree, self.expr_director)
+        return self.getTreeElement(htmltree, self.expr_director)
 
     def getActors(self, htmltree):
-        return self.getAll(htmltree, self.expr_actor)
+        return self.getTreeAll(htmltree, self.expr_actor)
 
     def getTags(self, htmltree):
-        return self.getTreeIndex(htmltree, self.expr_tags)
+        return self.getTreeElement(htmltree, self.expr_tags)
 
     def getLabel(self, htmltree):
         try:
-            return self.getTreeIndex(htmltree, self.expr_label).strip(" ['']")
+            return self.getTreeElement(htmltree, self.expr_label).strip(" ['']")
         except:
             pass
         try:
-            return self.getTreeIndex(htmltree, self.expr_label2).strip(" ['']")
+            return self.getTreeElement(htmltree, self.expr_label2).strip(" ['']")
         except:
             return ''
 
     def getSeries(self, htmltree):
         try:
-            return self.getTreeIndex(htmltree, self.expr_series).strip(" ['']")
+            return self.getTreeElement(htmltree, self.expr_series).strip(" ['']")
         except:
             pass
         try:
-            return self.getTreeIndex(htmltree, self.expr_series2).strip(" ['']")
+            return self.getTreeElement(htmltree, self.expr_series2).strip(" ['']")
         except:
             return ''
 
     def getCover(self, htmltree):
         try:
-            return self.getTreeIndex(htmltree, self.expr_cover).strip(" ['']")
+            return self.getTreeElement(htmltree, self.expr_cover).strip(" ['']")
         except:
             pass
         try:
-            return self.getTreeIndex(htmltree, self.expr_cover2).strip(" ['']")
+            return self.getTreeElement(htmltree, self.expr_cover2).strip(" ['']")
         except:
             return ''
 
     def getSmallCover(self, htmltree):
-        return self.getTreeIndex(htmltree, self.expr_smallcover)
+        return self.getTreeElement(htmltree, self.expr_smallcover)
 
     def getExtrafanart(self, htmltree):
-        return self.getAll(htmltree, self.expr_extrafanart)
+        return self.getTreeAll(htmltree, self.expr_extrafanart)
 
     def getTrailer(self, htmltree):
-        return self.getTreeIndex(htmltree, self.expr_trailer)
+        return self.getTreeElement(htmltree, self.expr_trailer)
 
     def getActorPhoto(self, htmltree):
-        return self.getAll(htmltree, self.expr_actorphoto)
+        return self.getTreeAll(htmltree, self.expr_actorphoto)
 
     def getUncensored(self, htmlree):
         if self.expr_uncensored:
-            u = self.getAll(htmlree, self.expr_uncensored)
+            u = self.getTreeAll(htmlree, self.expr_uncensored)
             return bool(u)
         else:
             return self.uncensored
 
     def getUserRating(self, htmltree):
-        return self.getAll(htmltree, self.expr_userrating)
+        return self.getTreeAll(htmltree, self.expr_userrating)
 
     def getUserVotes(self, htmltree):
-        return self.getAll(htmltree, self.expr_uservotes)
+        return self.getTreeAll(htmltree, self.expr_uservotes)
 
-    def getTreeIndex(self, tree: html.HtmlElement, expr, index=0):
+    def getTreeElement(self, tree: html.HtmlElement, expr, index=0):
         """ 根据表达式从`xmltree`中获取匹配值,默认 index 为 0
         """
         return getTreeElement(tree, expr, index)
 
-    def getAll(self, tree: html.HtmlElement, expr):
+    def getTreeAll(self, tree: html.HtmlElement, expr):
         """ 根据表达式从`xmltree`中获取全部匹配值
         """
         return getTreeAll(tree, expr)

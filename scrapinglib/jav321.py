@@ -74,10 +74,10 @@ class Jav321(Parser):
         return self.parseElement(super().getActors(htmltree))
 
     def getLabel(self, htmltree):
-        return self.parseElement(self.getAll(htmltree, self.expr_label))
+        return self.parseElement(self.getTreeAll(htmltree, self.expr_label))
 
     def getTags(self, htmltree):
-        return self.parseElement(self.getAll(htmltree, self.expr_tags))
+        return self.parseElement(self.getTreeAll(htmltree, self.expr_tags))
     
     def getStudio(self, htmltree):
-        return self.parseElement(self.getAll(htmltree, self.expr_studio))
+        return self.parseElement(self.getTreeAll(htmltree, self.expr_studio))

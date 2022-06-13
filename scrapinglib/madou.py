@@ -22,7 +22,7 @@ class Madou(Parser):
         if self.htmlcode == 404:
             return 404
         htmltree = etree.fromstring(self.htmlcode, etree.HTMLParser())
-        self.detailurl = self.getTreeIndex(htmltree, self.expr_url)
+        self.detailurl = self.getTreeElement(htmltree, self.expr_url)
 
         result = self.dictformat(htmltree)
         return result

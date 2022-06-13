@@ -53,7 +53,7 @@ class wwwGetchu(Parser):
         retry = 2
         for i in range(retry):
             queryTree = self.getHtmlTree(queryUrl)
-            detailurl = self.getTreeIndex(queryTree, '//*[@id="detail_block"]/div/table/tr[1]/td/a[1]/@href')
+            detailurl = self.getTreeElement(queryTree, '//*[@id="detail_block"]/div/table/tr[1]/td/a[1]/@href')
             if detailurl:
                 break
         if detailurl == "":
@@ -70,11 +70,11 @@ class wwwGetchu(Parser):
         return super().getDirector(htmltree)
 
     def getTags(self, htmltree):
-        return self.getAll(htmltree, self.expr_tags)
+        return self.getTreeAll(htmltree, self.expr_tags)
     
     def getOutline(self, htmltree):
         outline = ''
-        _list = self.getAll(htmltree, self.expr_outline)
+        _list = self.getTreeAll(htmltree, self.expr_outline)
         for i in _list:
             outline = outline + i.strip()
         return outline
@@ -116,7 +116,7 @@ class dlGetchu(wwwGetchu):
         else:
             queryUrl = self.GETCHU_DL_SEARCH_URL.replace("_WORD_", number)
             queryTree = self.getHtmlTree(queryUrl)
-            detailurl = self.getTreeIndex(queryTree, '/html/body/div[1]/table/tr/td/table[4]/tr/td[2]/table/tr[2]/td/table/tr/td/table/tr/td[2]/div/a[1]/@href')
+            detailurl = self.getTreeElement(queryTree, '/html/body/div[1]/table/tr/td/table[4]/tr/td[2]/table/tr[2]/td/table/tr/td/table/tr/td[2]/div/a[1]/@href')
             if detailurl == "":
                 return None
             self.number = re.findall('\d+', detailurl)[0]
