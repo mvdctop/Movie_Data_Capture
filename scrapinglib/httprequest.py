@@ -23,8 +23,7 @@ def get(url: str, cookies=None, ua: str = None, extra_headers=None, return_type:
     for i in range(retry):
         try:
             result = requests.get(url, headers=headers, timeout=timeout, proxies=proxies,
-                                  verify=verify,
-                                  cookies=cookies)
+                                  verify=verify, cookies=cookies)
             if return_type == "object":
                 return result
             elif return_type == "content":
@@ -44,8 +43,8 @@ def get(url: str, cookies=None, ua: str = None, extra_headers=None, return_type:
     raise Exception('Connect Failed')
 
 
-def post(url: str, data: dict, cookies = None, ua: str = None, return_type: str = None, encoding: str = None,
-        retry: int = 3, timeout: int = G_DEFAULT_TIMEOUT, proxies=None, verify=None):
+def post(url: str, data: dict, files=None, cookies=None, ua: str = None, return_type: str = None, encoding: str = None,
+         retry: int = 3, timeout: int = G_DEFAULT_TIMEOUT, proxies=None, verify=None):
     """
     是否使用代理应由上层处理
     """
@@ -54,9 +53,8 @@ def post(url: str, data: dict, cookies = None, ua: str = None, return_type: str 
 
     for i in range(retry):
         try:
-            result = requests.post(url, data=data, headers=headers, timeout=timeout, proxies=proxies,
-                                  verify=verify,
-                                  cookies=cookies)
+            result = requests.post(url, data=data, files=files, headers=headers, timeout=timeout, proxies=proxies,
+                                   verify=verify, cookies=cookies)
             if return_type == "object":
                 return result
             elif return_type == "content":

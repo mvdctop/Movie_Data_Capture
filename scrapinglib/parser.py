@@ -3,12 +3,14 @@
 import json
 import re
 from lxml import etree, html
-from . import httprequest
 
+from . import httprequest
+from .utils import getTreeElement, getTreeAll
 
 class Parser:
 
     source = 'base'
+    # poster: `0` 复制 `1` 裁剪 
     imagecut = 1
     uncensored = False
     allow_number_change = False
@@ -249,21 +251,9 @@ class Parser:
     def getTreeIndex(self, tree: html.HtmlElement, expr, index=0):
         """ 根据表达式从`xmltree`中获取匹配值,默认 index 为 0
         """
-        if expr == '':
-            return ''
-        result = tree.xpath(expr)
-        try:
-            return result[index]
-        except:
-            return ''
+        return getTreeElement(tree, expr, index)
 
     def getAll(self, tree: html.HtmlElement, expr):
         """ 根据表达式从`xmltree`中获取全部匹配值
         """
-        if expr == '':
-            return ''
-        result = tree.xpath(expr)
-        try:
-            return result
-        except:
-            return ''
+        return getTreeAll(tree, expr)

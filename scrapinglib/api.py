@@ -57,10 +57,10 @@ class Scraping():
 
     """
 
-    full_sources = ['avsox', 'javbus', 'xcity', 'mgstage', 'madou', 'fc2', 
+    adult_full_sources = ['avsox', 'javbus', 'xcity', 'mgstage', 'madou', 'fc2', 
                     'dlsite', 'jav321', 'fanza', 'airav', 'carib', 'mv91',
                     'gcolle', 'javdb', 'getchu']
-    func_mapping = {
+    adult_func_mapping = {
         'avsox': Avsox().scrape,
         'javbus': Javbus().scrape,
         'xcity': Xcity().scrape,
@@ -76,6 +76,11 @@ class Scraping():
         'gcolle': Gcolle().scrape,
         'javdb': Javdb().scrape,
         'getchu': Getchu().scrape,
+    }
+
+    general_full_sources = ['tmdb']
+    general_func_mapping = {
+        'tmdb': Tmdb().scrape,
     }
 
     proxies = None
@@ -98,22 +103,45 @@ class Scraping():
         else:
             return self.searchGeneral(number, sources)
 
-    def searchGeneral(self, number, sources):
+    def searchGeneral(self, name, sources):
         """ 查询电影电视剧
         imdb,tmdb
         """
-        data = Tmdb().scrape(number, self)
-        json_data = json.loads(data)
-        return json_data
-
-    def searchAdult(self, number, sources):
-        sources = self.checkSources(sources, number)
+        sources = self.checkGeneralSources(sources, name)
         json_data = {}
         for source in sources:
             try:
                 print('[+]select', source)
                 try:
-                    data = self.func_mapping[source](number, self)
+                    data = self.general_func_mapping[source](name, self)
+                    if data == 404:
+                        continue
+                    json_data = json.loads(data)
+                except Exception as e:
+                    print('[!] 出错啦')
+                    print(e)
+                # if any service return a valid return, break
+                if self.get_data_state(json_data):
+                    print(f"[+]Find movie [{name}] metadata on website '{source}'")
+                    break
+            except:
+                continue
+
+        # Return if data not found in all sources
+        if not json_data:
+            print(f'[-]Movie Number [{name}] not found!')
+            return None
+
+        return json_data
+
+    def searchAdult(self, number, sources):
+        sources = self.checkAdultSources(sources, number)
+        json_data = {}
+        for source in sources:
+            try:
+                print('[+]select', source)
+                try:
+                    data = self.adult_func_mapping[source](number, self)
                     if data == 404:
                         continue
                     json_data = json.loads(data)
@@ -135,10 +163,26 @@ class Scraping():
 
         return json_data
 
-
-    def checkSources(self, c_sources, file_number):
+    def checkGeneralSources(self, c_sources, name):
         if not c_sources:
-            sources = self.full_sources
+            sources = self.general_full_sources
+        else:
+            sources = c_sources.split(',')
+
+        # check sources in func_mapping
+        todel = []
+        for s in sources:
+            if not s in self.general_func_mapping:
+                print('[!] Source Not Exist : ' + s)
+                todel.append(s)
+        for d in todel:
+            print('[!] Remove Source : ' + s)
+            sources.remove(d)
+        return sources
+
+    def checkAdultSources(self, c_sources, file_number):
+        if not c_sources:
+            sources = self.adult_full_sources
         else:
             sources = c_sources.split(',')
         def insert(sources,source):
@@ -146,7 +190,7 @@ class Scraping():
                 sources.insert(0, sources.pop(sources.index(source)))
             return sources
 
-        if len(sources) <= len(self.func_mapping):
+        if len(sources) <= len(self.adult_func_mapping):
             # if the input file name matches certain rules,
             # move some web service to the beginning of the list
             lo_file_number = file_number.lower()
@@ -182,7 +226,7 @@ class Scraping():
         # check sources in func_mapping
         todel = []
         for s in sources:
-            if not s in self.func_mapping:
+            if not s in self.adult_func_mapping:
                 print('[!] Source Not Exist : ' + s)
                 todel.append(s)
         for d in todel:

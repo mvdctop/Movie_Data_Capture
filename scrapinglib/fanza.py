@@ -10,6 +10,7 @@ class Fanza(Parser):
     source = 'fanza'
 
     expr_title = '//*[starts-with(@id, "title")]/text()'
+    expr_actor = "//td[contains(text(),'出演者')]/following-sibling::td/span/a/text()"
     expr_outline = "//div[@class='mg-b20 lh4']/text()"
     expr_outline2 = "//div[@class='mg-b20 lh4']//p/text()"
     expr_runtime = "//td[contains(text(),'収録時間')]/following-sibling::td/text()"
@@ -132,10 +133,16 @@ class Fanza(Parser):
         return ''
     
     def getLabel(self, htmltree):
-        return self.getFanzaStrings('レーベル')
+        ret = self.getFanzaStrings('レーベル')
+        if ret == "----":
+            return ''
+        return ret
 
     def getSeries(self, htmltree):
-        return self.getFanzaStrings('シリーズ：')
+        ret = self.getFanzaStrings('シリーズ：')
+        if ret == "----":
+            return ''
+        return ret
 
     def getFanzaString(self, expr):
         result1 = str(self.htmltree.xpath("//td[contains(text(),'"+expr+"')]/following-sibling::td/a/text()")).strip(" ['']")

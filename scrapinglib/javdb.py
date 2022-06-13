@@ -4,7 +4,6 @@
 import re
 from urllib.parse import urljoin
 from lxml import etree
-from requests import session
 from .httprequest import get_html_session
 from .parser import Parser
 
@@ -13,22 +12,26 @@ class Javdb(Parser):
     source = 'javdb'
 
     fixstudio = False
+    noauth = False
 
     expr_number = '//strong[contains(text(),"番號")]/../span/text()'
     expr_number2 = '//strong[contains(text(),"番號")]/../span/a/text()'
     expr_title = "/html/head/title/text()"
+    expr_title_no = '//*[contains(@class,"movie-list")]/div/a/div[contains(@class, "video-title")]/text()'
     expr_runtime = '//strong[contains(text(),"時長")]/../span/text()'
     expr_runtime2 = '//strong[contains(text(),"時長")]/../span/a/text()'
     expr_uncensored = '//strong[contains(text(),"類別")]/../span/a[contains(@href,"/tags/uncensored?") or contains(@href,"/tags/western?")]'
     expr_actor = '//span[@class="value"]/a[contains(@href,"/actors/")]/text()'
     expr_actor2 = '//span[@class="value"]/a[contains(@href,"/actors/")]/../strong/@class'
     expr_release = '//strong[contains(text(),"日期")]/../span/text()'
+    expr_release_no = '//*[contains(@class,"movie-list")]/div/a/div[contains(@class, "meta")]/text()'
     expr_studio = '//strong[contains(text(),"片商")]/../span/a/text()'
     expr_studio2 = '//strong[contains(text(),"賣家:")]/../span/a/text()'
     expr_director = '//strong[contains(text(),"導演")]/../span/text()'
     expr_director2 = '//strong[contains(text(),"導演")]/../span/a/text()'
     expr_cover = "//div[contains(@class, 'column-video-cover')]/a/img/@src"
     expr_cover2 = "//div[contains(@class, 'column-video-cover')]/img/@src"
+    expr_cover_no = '//*[contains(@class,"movie-list")]/div/a/div[contains(@class, "cover")]/img/@src'
     expr_extrafanart = "//article[@class='message video-panel']/div[@class='message-body']/div[@class='tile-images preview-images']/a[contains(@href,'/samples/')]/@href"
     expr_tags = '//strong[contains(text(),"類別")]/../span/a/text()'
     expr_tags2 = '//strong[contains(text(),"類別")]/../span/text()'
@@ -57,14 +60,18 @@ class Javdb(Parser):
         else:
             self.dbsite = 'javdb'
 
-    def search(self, number):
+    def search(self, number: str):
         self.number = number
         self.session = get_html_session(cookies=self.cookies, proxies=self.proxies, verify=self.verify)
         self.detailurl = self.queryNumberUrl(number)
-
         self.deatilpage = self.session.get(self.detailurl).text
-        htmltree = etree.fromstring(self.deatilpage, etree.HTMLParser())
-        result = self.dictformat(htmltree)
+        if '此內容需要登入才能查看或操作' in self.deatilpage or '需要VIP權限才能訪問此內容' in self.deatilpage:
+            self.noauth = True
+            self.imagecut = 0
+            result = self.dictformat(self.querytree)
+        else:
+            htmltree = etree.fromstring(self.deatilpage, etree.HTMLParser())
+            result = self.dictformat(htmltree)
         return result
 
     def queryNumberUrl(self, number):
@@ -75,18 +82,19 @@ class Javdb(Parser):
             print(e)
             raise Exception(f'[!] {self.number}: page not fond in javdb')
 
-        htmltree = etree.fromstring(resp.text, etree.HTMLParser()) 
+        self.querytree = etree.fromstring(resp.text, etree.HTMLParser()) 
         # javdb sometime returns multiple results,
         # and the first elememt maybe not the one we are looking for
         # iterate all candidates and find the match one
-        urls = self.getAll(htmltree, '//*[contains(@class,"movie-list")]/div/a/@href')
+        urls = self.getAll(self.querytree, '//*[contains(@class,"movie-list")]/div/a/@href')
         # 记录一下欧美的ids  ['Blacked','Blacked']
         if re.search(r'[a-zA-Z]+\.\d{2}\.\d{2}\.\d{2}', number):
             correct_url = urls[0]
         else:
-            ids = self.getAll(htmltree, '//*[contains(@class,"movie-list")]/div/a/div[contains(@class, "video-title")]/strong/text()')
+            ids = self.getAll(self.querytree, '//*[contains(@class,"movie-list")]/div/a/div[contains(@class, "video-title")]/strong/text()')
             try:
-                correct_url = urls[ids.index(number)]
+                self.queryid = ids.index(number)
+                correct_url = urls[self.queryid]
             except:
                 # 为避免获得错误番号，只要精确对应的结果
                 if ids[0].upper() != number:
@@ -95,6 +103,8 @@ class Javdb(Parser):
         return urljoin(resp.url, correct_url)
 
     def getNum(self, htmltree):
+        if self.noauth:
+            return self.number
         result1 = str(self.getAll(htmltree, self.expr_number)).strip(" ['']")
         result2 = str(self.getAll(htmltree, self.expr_number2)).strip(" ['']")
         dp_number = str(result2 + result1).strip('+')
@@ -105,9 +115,21 @@ class Javdb(Parser):
         return self.number
 
     def getTitle(self, htmltree):
+        if self.noauth:
+            return self.getTreeIndex(htmltree, self.expr_title_no, self.queryid)
         browser_title = super().getTitle(htmltree)
         title = browser_title[:browser_title.find(' | JavDB')].strip()
         return title.replace(self.number, '').strip()
+
+    def getCover(self, htmltree):
+        if self.noauth:
+            return self.getTreeIndex(htmltree, self.expr_cover_no, self.queryid)
+        return super().getCover(htmltree)
+
+    def getRelease(self, htmltree):
+        if self.noauth:
+            return self.getTreeIndex(htmltree, self.expr_release_no, self.queryid).strip()
+        return super().getRelease(htmltree)
 
     def getRuntime(self, htmltree):
         result1 = str(self.getAll(htmltree, self.expr_runtime)).strip(" ['']")
