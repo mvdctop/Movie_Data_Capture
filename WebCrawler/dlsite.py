@@ -9,6 +9,8 @@ def getTitle(html):
     result = str(html.xpath('/html/head/title/text()')[0])
     result = result[:result.rfind(' | DLsite')]
     result = result[:result.rfind(' [')]
+    if operator.contains(result, 'OFF】'):
+        result = result[result.find('OFF】'):]
     result = result.replace('【HD版】', '')
     return result
 def getActor(html):  # //*[@id="center_column"]/div[2]/div[1]/div/table/tbody/tr[1]/td/text()
@@ -177,8 +179,9 @@ def main(number):
         )
         return js
 
-# main('DV-1562')
-# input("[+][+]Press enter key exit, you can check the error messge before you exit.\n[+][+]按回车键结束，你可以在结束之前查看和错误信息。")
+#main('RJ061178')
+#input("[+][+]Press enter key exit, you can check the error messge before you exit.\n[+][+]按回车键结束，你可以在结束之前查看和错误信息。")
+
 if __name__ == "__main__":
     config.getInstance().set_override("debug_mode:switch=1")
     print(main('牝教師4～穢された教壇～ 「生意気ドジっ娘女教師・美結～高飛車ハメ堕ち2濁金」'))
