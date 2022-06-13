@@ -2,6 +2,7 @@ import re
 from lxml import etree
 import json
 import sys
+import operator
 sys.path.append('../')
 from ADC_function import *
 
@@ -10,7 +11,7 @@ def getTitle(html):
     result = result[:result.rfind(' | DLsite')]
     result = result[:result.rfind(' [')]
     if operator.contains(result, 'OFF】'):
-        result = result[result.find('OFF】'):]
+        result = result[result.find('】')+1:]
     result = result.replace('【HD版】', '')
     return result
 def getActor(html):  # //*[@id="center_column"]/div[2]/div[1]/div/table/tbody/tr[1]/td/text()
