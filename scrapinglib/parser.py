@@ -135,11 +135,17 @@ class Parser:
                 'userrating': self.getUserRating(htmltree),
                 'uservotes': self.getUserVotes(htmltree)
             }
+            dic = self.extradict(dic)
         except Exception as e:
             print(e)
             dic = {"title": ""}
         js = json.dumps(dic, ensure_ascii=False, sort_keys=True, indent=4, separators=(',', ':'), )
         return js
+
+    def extradict(self, dic:dict):
+        """ 额外修改dict
+        """
+        return dic
 
     def getNum(self, htmltree):
         """ 增加 strip 过滤
