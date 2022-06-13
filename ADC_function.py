@@ -470,15 +470,12 @@ def download_file_with_filename(url: str, filename: str, path: str) -> None:
                     except:
                         print(f"[-]Fatal error! Can not make folder '{path}'")
                         os._exit(0)
-                proxies = configProxy.proxies()
-                headers = {
-                    'User-Agent': G_USER_AGENT}
-                r = requests.get(url, headers=headers, timeout=configProxy.timeout, proxies=proxies)
+                r = get_html(url=url, return_type='content')
                 if r == '':
                     print('[-]Movie Download Data not found!')
                     return
                 with open(os.path.join(path, filename), "wb") as code:
-                    code.write(r.content)
+                    code.write(r)
                 return
             else:
                 if not os.path.exists(path):
@@ -487,14 +484,12 @@ def download_file_with_filename(url: str, filename: str, path: str) -> None:
                     except:
                         print(f"[-]Fatal error! Can not make folder '{path}'")
                         os._exit(0)
-                headers = {
-                    'User-Agent': G_USER_AGENT}
-                r = requests.get(url, timeout=configProxy.timeout, headers=headers)
+                r = get_html(url=url, return_type='content')
                 if r == '':
                     print('[-]Movie Download Data not found!')
                     return
                 with open(os.path.join(path, filename), "wb") as code:
-                    code.write(r.content)
+                    code.write(r)
                 return
         except requests.exceptions.RequestException:
             i += 1
@@ -522,15 +517,18 @@ def download_one_file(args) -> str:
     wrapped for map function
     """
 
-    (url, save_path, json_data) = args
-    filebytes = get_html(url, return_type='content', json_headers=json_data['headers'])
+    (url, save_path, json_headers) = args
+    if json_headers != None:
+        filebytes = get_html(url, return_type='content', json_headers=json_headers['headers'])
+    else:
+        filebytes = get_html(url, return_type='content')
     if isinstance(filebytes, bytes) and len(filebytes):
         with save_path.open('wb') as fpbyte:
             if len(filebytes) == fpbyte.write(filebytes):
                 return str(save_path)
 
 
-def parallel_download_files(dn_list: typing.Iterable[typing.Sequence], parallel: int = 0, json_data=None):
+def parallel_download_files(dn_list: typing.Iterable[typing.Sequence], parallel: int = 0, json_headers=None):
     """
     download files in parallel 多线程下载文件
 
@@ -549,7 +547,7 @@ def parallel_download_files(dn_list: typing.Iterable[typing.Sequence], parallel:
                 and fullpath and isinstance(fullpath, (str, Path)) and len(str(fullpath)):
             fullpath = Path(fullpath)
             fullpath.parent.mkdir(parents=True, exist_ok=True)
-            mp_args.append((url, fullpath, json_data))
+            mp_args.append((url, fullpath, json_headers))
     if not len(mp_args):
         return []
     if not isinstance(parallel, int) or parallel not in range(1, 200):
