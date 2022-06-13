@@ -3,7 +3,6 @@
 import json
 import re
 from lxml import etree
-from bs4 import BeautifulSoup
 from .parser import Parser
 from .javbus import Javbus
 
@@ -17,12 +16,14 @@ class Airav(Parser):
     expr_outline = "string(//div[@class='d-flex videoDataBlock']/div[@class='synopsis']/p)"
     expr_actor = '//ul[@class="videoAvstarList"]/li/a[starts-with(@href,"/idol/")]/text()'
     expr_cover = '//img[contains(@src,"/storage/big_pic/")]/@src'
+    expr_tags = '//div[@class="tagBtnMargin"]/a/text()'
+    expr_extrafanart = '//div[@class="mobileImgThumbnail"]/a/@href'
 
     def search(self, number):
         self.number = number
         self.detailurl = 'https://cn.airav.wiki/video/' + number
         engine = Javbus()
-        javbusinfo = engine.search(number, self)
+        javbusinfo = engine.scrape(number, self)
         if javbusinfo == 404:
             self.javbus = {"title": ""}
         else:
@@ -103,26 +104,8 @@ class Airav(Parser):
             return result
         return super().getCover(htmltree)
 
-    def getExtrafanart(self, htmltree):
-        html_pather = re.compile(r'<div class=\"mobileImgThumbnail\">[\s\S]*?</div></div></div></div>')
-        html = html_pather.search(self.htmlcode)
-        if html:
-            html = html.group()
-            extrafanart_pather = re.compile(r'<img.*?src=\"(.*?)\"')
-            extrafanart_imgs = extrafanart_pather.findall(html)
-            if extrafanart_imgs:
-                return extrafanart_imgs
-        return ''
-
     def getTags(self, htmltree):
-        tag = []
-        soup = BeautifulSoup(self.htmlcode, 'lxml')
-        x = soup.find_all(attrs={'class': 'tagBtnMargin'})
-        a = x[0].find_all('a')
-
-        for i in a:
-            tag.append(i.get_text())
-        return tag
+        return self.getTreeAll(htmltree, self.expr_tags)
 
     def getSeries(self, htmltree):
         result = self.javbus.get('series')

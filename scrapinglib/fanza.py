@@ -11,10 +11,11 @@ class Fanza(Parser):
 
     expr_title = '//*[starts-with(@id, "title")]/text()'
     expr_actor = "//td[contains(text(),'出演者')]/following-sibling::td/span/a/text()"
-    expr_cover = './/head/meta[@property="og:image"]'
+    expr_cover = '//head/meta[@property="og:image"]'
     expr_extrafanart = '//a[@name="sample-image"]/img/@src'
     expr_outline = "//div[@class='mg-b20 lh4']/text()"
     expr_outline2 = "//div[@class='mg-b20 lh4']//p/text()"
+    expr_outline_og = '//head/meta[@property="og:description"]'
     expr_runtime = "//td[contains(text(),'収録時間')]/following-sibling::td/text()"
 
     def search(self, number):
@@ -73,6 +74,8 @@ class Fanza(Parser):
             result = self.getTreeElement(htmltree, self.expr_outline).replace("\n", "")
             if result == '':
                 result = self.getTreeElement(htmltree, self.expr_outline2).replace("\n", "")
+            if "※ 配信方法によって収録内容が異なる場合があります。" == result:
+                result = self.getTreeElement(htmltree, self.expr_outline_og).get('content')
             return result
         except:
             return ''

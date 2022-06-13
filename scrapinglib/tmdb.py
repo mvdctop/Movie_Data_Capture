@@ -13,10 +13,10 @@ class Tmdb(Parser):
     imagecut = 0
     apikey = None
 
-    expr_title = './/head/meta[@property="og:title"]'
+    expr_title = '//head/meta[@property="og:title"]'
     expr_release = '//div/span[@class="release"]/text()'
-    expr_cover = './/head/meta[@property="og:image"]'
-    expr_outline = './/head/meta[@property="og:description"]'
+    expr_cover = '//head/meta[@property="og:image"]'
+    expr_outline = '//head/meta[@property="og:description"]'
 
     # def search(self, number):
     #     self.detailurl = self.queryNumberUrl(number)
