@@ -14,7 +14,8 @@ from datetime import datetime
 from lxml import etree
 
 from ADC_function import *
-from WebCrawler import get_data_from_json
+# from WebCrawler import get_data_from_json
+from scraper import get_data_from_json
 from number_parser import is_uncensored
 from ImageProcessing import cutImage
 

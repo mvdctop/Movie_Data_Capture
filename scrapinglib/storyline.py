@@ -1,16 +1,29 @@
-import sys
-sys.path.append('../')
+# -*- coding: utf-8 -*-
+"""
+此部分暂未修改
+
+"""
+
+
+import os
+import re
+import time
+import secrets
 import builtins
-from ADC_function import *
+from urllib.parse import urljoin
 from lxml.html import fromstring
 from multiprocessing.dummy import Pool as ThreadPool
-from difflib import SequenceMatcher
-from unicodedata import category
-from number_parser import is_uncensored
+from .httprequest  import get_html_by_browser, get_html_by_form, get_html_by_scraper, get_html_session
 
-G_registered_storyline_site = {"airavwiki", "airav", "avno1", "xcity", "amazon", "58avgo"}
+# 舍弃 Amazon 源
+G_registered_storyline_site = {"airavwiki", "airav", "avno1", "xcity", "58avgo"}
 
 G_mode_txt = ('顺序执行','线程池')
+def is_japanese(raw: str) -> bool:
+    """
+    日语简单检测
+    """
+    return bool(re.search(r'[\u3040-\u309F\u30A0-\u30FF\uFF66-\uFF9F]', raw, re.UNICODE))
 
 class noThread(object):
     def map(self, fn, param):
@@ -22,18 +35,14 @@ class noThread(object):
 
 
 # 获取剧情介绍 从列表中的站点同时查，取值优先级从前到后
-def getStoryline(number, title, sites: list=None, 无码=None):
+def getStoryline(number, title = None, sites: list=None, uncensored=None):
     start_time = time.time()
-    conf = config.getInstance()
-    if not conf.is_storyline():
-        return ''
-    debug = conf.debug() or conf.storyline_show() == 2
-    storyine_sites = conf.storyline_site().split(',') if sites is None else sites
-    unc = 无码 if isinstance(无码, bool) else is_uncensored(number)
-    if unc:
-        storyine_sites += conf.storyline_uncensored_site().split(',')
+    debug = False
+    storyine_sites = "1:avno1,4:airavwiki".split(',')
+    if uncensored:
+        storyine_sites += "3:58avgo".split(',')
     else:
-        storyine_sites += conf.storyline_censored_site().split(',')
+        storyine_sites += "2:airav,5:xcity".split(',')
     r_dup = set()
     sort_sites = []
     for s in storyine_sites:
@@ -47,18 +56,11 @@ def getStoryline(number, title, sites: list=None, 无码=None):
     cores = min(len(apply_sites), os.cpu_count())
     if cores == 0:
         return ''
-    run_mode = 1 if conf.storyline_mode() > 0 else 0
+    run_mode = 1
     with ThreadPool(cores) if run_mode > 0 else noThread() as pool:
         results = pool.map(getStoryline_mp, mp_args)
     sel = ''
-    if not debug and conf.storyline_show() == 0:
-        for value in results:
-            if isinstance(value, str) and len(value):
-                if not is_japanese(value):
-                    return value
-                if not len(sel):
-                    sel = value
-        return sel
+
     # 以下debug结果输出会写入日志
     s = f'[!]Storyline{G_mode_txt[run_mode]}模式运行{len(apply_sites)}个任务共耗时(含启动开销){time.time() - start_time:.3f}秒，结束于{time.strftime("%H:%M:%S")}'
     sel_site = ''
@@ -72,7 +74,7 @@ def getStoryline(number, title, sites: list=None, 无码=None):
     for site, desc in zip(apply_sites, results):
         sl = len(desc) if isinstance(desc, str) else 0
         s += f'，[选中{site}字数:{sl}]' if site == sel_site else f'，{site}字数:{sl}' if sl else f'，{site}:空'
-    # print(s)
+    print(s)
     return sel
 
 
@@ -91,8 +93,8 @@ def getStoryline_mp(args):
         storyline = getStoryline_avno1(number, debug)
     elif site == "xcity":
         storyline = getStoryline_xcity(number, debug)
-    elif site == "amazon":
-        storyline = getStoryline_amazon(title, number, debug)
+    # elif site == "amazon":
+    #     storyline = getStoryline_amazon(title, number, debug)
     elif site == "58avgo":
         storyline = getStoryline_58avgo(number, debug)
     if not debug:
@@ -287,126 +289,3 @@ def getStoryline_xcity(number, debug):  #获取剧情介绍 从xcity取得
             print(f"[-]MP getOutline_xcity Error: {e}, number [{number}].")
         pass
     return ''
-
-
-def getStoryline_amazon(q_title, number, debug):
-    if not isinstance(q_title, str) or not len(q_title):
-        return None
-    try:
-        cookie, cookies_filepath = load_cookies('amazon.json')
-        url = "https://www.amazon.co.jp/s?k=" + q_title
-        res, session = get_html_session(url, cookies=cookie, return_type='session')
-        if not res:
-            raise ValueError("get_html_session() failed")
-        lx = fromstring(res.text)
-        lks = lx.xpath('//a[contains(@href, "/black-curtain/save-eligibility/black-curtain")]/@href')
-        if len(lks) and lks[0].startswith('/'):
-            res = session.get(urljoin(res.url, lks[0]))
-            cookie = None
-            lx = fromstring(res.text)
-        titles = lx.xpath("//span[contains(@class,'a-size-base-plus a-color-base a-text-normal')]/text()")
-        urls = lx.xpath("//span[contains(@class,'a-size-base-plus a-color-base a-text-normal')]/../@href")
-        if not len(urls) or len(urls) != len(titles):
-            raise ValueError("titles not found")
-        idx = amazon_select_one(titles, q_title, number, debug)
-        if not isinstance(idx, int) or idx < 0:
-            raise ValueError("title and number not found")
-        furl = urljoin(res.url, urls[idx])
-        res = session.get(furl)
-        if not res.ok:
-            raise ValueError("browser.open_relative()) failed.")
-        lx = fromstring(res.text)
-        lks = lx.xpath('//a[contains(@href, "/black-curtain/save-eligibility/black-curtain")]/@href')
-        if len(lks) and lks[0].startswith('/'):
-            res = session.get(urljoin(res.url, lks[0]))
-            cookie = None
-            lx = fromstring(res.text)
-        p1 = lx.xpath('//*[@id="productDescription"]/p[1]/span/text()')
-        p2 = lx.xpath('//*[@id="productDescription"]/p[2]/span/text()')
-        ama_t = ' '.join(p1) + ' '.join(p2)
-        ama_t = re.sub(r'審査番号:\d+', '', ama_t).strip()
-
-        if cookie is None:
-            # 删除无效cookies，无论是用户创建还是自动创建，以避免持续故障
-            cookies_filepath and len(cookies_filepath) and Path(cookies_filepath).is_file() and Path(cookies_filepath).unlink(missing_ok=True)
-            # 自动创建的cookies文件放在搜索路径表的末端，最低优先级。有amazon.co.jp帐号的用户可以从浏览器导出cookie放在靠前搜索路径
-            ama_save = Path.home() / ".local/share/mdc/amazon.json"
-            ama_save.parent.mkdir(parents=True, exist_ok=True)
-            ama_save.write_text(json.dumps(session.cookies.get_dict(), sort_keys=True, indent=4), encoding='utf-8')
-
-        return ama_t
-
-    except Exception as e:
-        if debug:
-            print(f'[-]MP getOutline_amazon Error: {e}, number [{number}], title: {q_title}')
-        pass
-    return None
-
-# 查货架中DVD和蓝光商品中标题相似度高的
-def amazon_select_one(a_titles, q_title, number, debug):
-    sel = -1
-    ratio = 0
-    que_t = ''.join(c for c in q_title if not re.match(r'(P|S|Z).*', category(c), re.A))
-    for tloc, title in enumerate(a_titles):
-        if re.search(number, title, re.I): # 基本不带番号，但也有极个别有的，找到番号相同的直接通过
-            return tloc
-        if not re.search('DVD|Blu-ray', title, re.I):
-            continue
-        ama_t = str(re.sub('DVD|Blu-ray', "", title, re.I))
-        ama_t = ''.join(c for c in ama_t if not re.match(r'(P|S|Z).*', category(c), re.A))
-        findlen = 0
-        lastpos = -1
-        for cloc, char in reversed(tuple(enumerate(ama_t))):
-            pos = que_t.rfind(char)
-            if lastpos >= 0:
-                pos_near = que_t[:lastpos].rfind(char)
-                if pos_near < 0:
-                    findlen = 0
-                    lastpos = -1
-                    ama_t = ama_t[:cloc+1]
-                else:
-                    pos = pos_near
-            if pos < 0:
-                if category(char) == 'Nd':
-                    return -1
-                if re.match(r'[\u4e00|\u4e8c|\u4e09|\u56db|\u4e94|\u516d|\u4e03|\u516b|\u4e5d|\u5341]', char, re.U):
-                    return -1
-                ama_t = ama_t[:cloc]
-                findlen = 0
-                lastpos = -1
-                continue
-            if findlen > 0 and len(que_t) > 1 and lastpos == pos+1:
-                findlen += 1
-                lastpos = pos
-                if findlen >= 4:
-                    break
-                continue
-            findlen = 1
-            lastpos = pos
-        if findlen==0:
-            return -1
-        r = SequenceMatcher(None, ama_t, que_t).ratio()
-        if r > ratio:
-            sel = tloc
-            ratio = r
-            save_t_ = ama_t
-            if ratio > 0.999:
-                break
-
-    if ratio < 0.5:
-        return -1
-
-    if not debug:
-         # 目前采信相似度高于0.9的结果
-        return sel if ratio >= 0.9 else -1
-
-    # debug 模式下记录识别准确率日志
-    if ratio < 0.9:
-        # 相似度[0.5, 0.9)的淘汰结果单独记录日志
-        with (Path.home() / '.mlogs/ratio0.5.txt').open('a', encoding='utf-8') as hrt:
-            hrt.write(f' [{number}]  Ratio:{ratio}\n{a_titles[sel]}\n{q_title}\n{save_t_}\n{que_t}\n')
-        return -1
-    # 被采信的结果日志
-    with (Path.home() / '.mlogs/ratio.txt').open('a', encoding='utf-8') as hrt:
-        hrt.write(f' [{number}]  Ratio:{ratio}\n{a_titles[sel]}\n{q_title}\n{save_t_}\n{que_t}\n')
-    return sel
