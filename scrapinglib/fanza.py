@@ -106,13 +106,13 @@ class Fanza(Parser):
         return self.getFanzaStrings('ジャンル：')
 
     def getLabel(self, htmltree):
-        ret = self.getFanzaStrings('レーベル')
+        ret = self.getFanzaString('レーベル')
         if ret == "----":
             return ''
         return ret
 
     def getSeries(self, htmltree):
-        ret = self.getFanzaStrings('シリーズ：')
+        ret = self.getFanzaString('シリーズ：')
         if ret == "----":
             return ''
         return ret

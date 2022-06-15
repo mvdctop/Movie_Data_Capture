@@ -61,9 +61,6 @@ class Mv91(Parser):
     def getStudio(self, htmltree):
         return '91制片厂'
 
-    def getTags(self, htmltree):
-        return self.getTreeAll(htmltree, self.expr_tags)
-
     def getActors(self, htmltree):
         b=[]
         for player in self.getTreeAll(htmltree, self.expr_actor):

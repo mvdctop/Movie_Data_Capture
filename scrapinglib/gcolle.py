@@ -58,9 +58,6 @@ class Gcolle(Parser):
     def getCover(self, htmltree):
         return "https:" + super().getCover(htmltree)
 
-    def getTags(self, htmltree):
-        return self.getTreeAll(htmltree, self.expr_tags)
-
     def getExtrafanart(self, htmltree):
         extrafanart = self.getTreeAll(htmltree, self.expr_extrafanart)
         if len(extrafanart) == 0:

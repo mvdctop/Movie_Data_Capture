@@ -104,9 +104,6 @@ class Airav(Parser):
             return result
         return super().getCover(htmltree)
 
-    def getTags(self, htmltree):
-        return self.getTreeAll(htmltree, self.expr_tags)
-
     def getSeries(self, htmltree):
         result = self.javbus.get('series')
         if isinstance(result, str) and len(result):

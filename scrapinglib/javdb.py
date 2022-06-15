@@ -32,6 +32,7 @@ class Javdb(Parser):
     expr_cover = "//div[contains(@class, 'column-video-cover')]/a/img/@src"
     expr_cover2 = "//div[contains(@class, 'column-video-cover')]/img/@src"
     expr_cover_no = '//*[contains(@class,"movie-list")]/div/a/div[contains(@class, "cover")]/img/@src'
+    expr_trailer = '//span[contains(text(),"預告片")]/../../video/source/@src'
     expr_extrafanart = "//article[@class='message video-panel']/div[@class='message-body']/div[@class='tile-images preview-images']/a[contains(@href,'/samples/')]/@href"
     expr_tags = '//strong[contains(text(),"類別")]/../span/a/text()'
     expr_tags2 = '//strong[contains(text(),"類別")]/../span/text()'
@@ -105,9 +106,10 @@ class Javdb(Parser):
     def getNum(self, htmltree):
         if self.noauth:
             return self.number
-        result1 = str(self.getTreeAll(htmltree, self.expr_number)).strip(" ['']")
-        result2 = str(self.getTreeAll(htmltree, self.expr_number2)).strip(" ['']")
-        dp_number = str(result2 + result1).strip('+')
+        # 番号被分割开，需要合并后才是完整番号
+        part1 = self.getTreeElement(htmltree, self.expr_number)
+        part2 = self.getTreeElement(htmltree, self.expr_number2)
+        dp_number = part2 + part1
         # NOTE 检测匹配与更新 self.number
         if dp_number.upper() != self.number.upper():
             raise Exception(f'[!] {self.number}: find [{dp_number}] in javdb, not match')
@@ -131,28 +133,20 @@ class Javdb(Parser):
             return self.getTreeElement(htmltree, self.expr_release_no, self.queryid).strip()
         return super().getRelease(htmltree)
 
-    def getRuntime(self, htmltree):
-        result1 = str(self.getTreeAll(htmltree, self.expr_runtime)).strip(" ['']")
-        result2 = str(self.getTreeAll(htmltree, self.expr_runtime2)).strip(" ['']")
-        return str(result1 + result2).strip('+').rstrip('mi')
-
     def getDirector(self, htmltree):
-        result1 = str(self.getTreeAll(htmltree, self.expr_director)).strip(" ['']")
-        result2 = str(self.getTreeAll(htmltree, self.expr_director2)).strip(" ['']")
-        return str(result1 + result2).strip('+').replace("', '", '').replace('"', '')
+        return self.getTreeElementbyExprs(htmltree, self.expr_director, self.expr_director2)
     
     def getSeries(self, htmltree):
-        result1 = str(self.getTreeAll(htmltree, self.expr_series)).strip(" ['']")
-        result2 = str(self.getTreeAll(htmltree, self.expr_series2)).strip(" ['']")
-        result = str(result1 + result2).strip('+').replace("', '", '').replace('"', '')
+        # NOTE 不清楚javdb是否有一部影片多个series的情况，暂时保留
+        results = self.getTreeAllbyExprs(htmltree, self.expr_series, self.expr_series2)
+        result = ''.join(results)
         if not result and self.fixstudio:
             result = self.getStudio(htmltree)
         return result
 
     def getLabel(self, htmltree):
-        result1 = str(self.getTreeAll(htmltree, self.expr_label)).strip(" ['']")
-        result2 = str(self.getTreeAll(htmltree, self.expr_label2)).strip(" ['']")
-        result = str(result1 + result2).strip('+').replace("', '", '').replace('"', '')
+        results = self.getTreeAllbyExprs(htmltree, self.expr_label, self.expr_label2)
+        result = ''.join(results)
         if not result and self.fixstudio:
             result = self.getStudio(htmltree)
         return result
@@ -182,38 +176,20 @@ class Javdb(Parser):
             return getStoryline(self.number, self.getUncensored(htmltree))
         return ''
 
-    def getStudio(self, htmltree):
-        try:
-            return self.getTreeAll(htmltree, self.expr_studio).strip(" ['']")
-        except:
-            pass
-        try:
-            return self.getTreeAll(htmltree, self.expr_studio2).strip(" ['']")
-        except:
-            return ''
-
     def getTrailer(self, htmltree):
-        video_pather = re.compile(r'<video id\=\".*?>\s*?<source src=\"(.*?)\"')
-        video = video_pather.findall(self.deatilpage)
+        video = super().getTrailer(htmltree)
         # 加上数组判空
-        if video and video[0] != "":
-            if not 'https:' in video[0]:
-                video_url = 'https:' + video[0]
+        if video:
+            if not 'https:' in video:
+                video_url = 'https:' + video
             else:
-                video_url = video[0]
+                video_url = video
         else:
             video_url = ''
         return video_url
-    
+
     def getTags(self, htmltree):
-        try:
-            return self.getTreeAll(htmltree, self.expr_tags)
-        except:
-            pass
-        try:
-            return self.getTreeAll(htmltree, self.expr_tags2)
-        except:
-            return ''
+        return self.getTreeAllbyExprs(htmltree, self.expr_tags, self.expr_tags2)
 
     def getUserRating(self, htmltree):
         try:
