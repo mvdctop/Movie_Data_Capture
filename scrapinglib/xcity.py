@@ -28,7 +28,7 @@ class Xcity(Parser):
         return super().getStudio(htmltree).strip('+').replace("', '", '').replace('"', '')
 
     def getRuntime(self, htmltree):
-        return self.getTreeAll(htmltree, self.expr_runtime)[1].strip()
+        return self.getTreeElement(htmltree, self.expr_runtime, 1).strip()
 
     def getRelease(self, htmltree):
         try:
@@ -36,13 +36,6 @@ class Xcity(Parser):
             return re.findall('\d{4}/\d{2}/\d{2}', result)[0].replace('/','-')
         except:
             return ''
-
-    def getTags(self, htmltree):
-        result = self.getTreeAll(htmltree, self.expr_tags)
-        total = []
-        for i in result:
-            total.append(i.replace("\n","").replace("\t",""))
-        return total
 
     def getCover(self, htmltree):
         try:

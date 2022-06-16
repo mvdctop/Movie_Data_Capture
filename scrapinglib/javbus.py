@@ -26,6 +26,7 @@ class Javbus(Parser):
     expr_runtime = '/html/body/div[5]/div[1]/div[2]/p[3]/text()'
     expr_actor = '//div[@class="star-name"]/a'
     expr_actorphoto = '//div[@class="star-name"]/../a/img'
+    expr_extrafanart = '//div[@id="sample-waterfall"]/a/@href'
     expr_tags = '/html/head/meta[@name="keywords"]/@content'
     expr_uncensored = '//*[@id="navbar"]/ul[1]/li[@class="active"]/a[contains(@href,"uncensored")]'
 
@@ -85,9 +86,6 @@ class Javbus(Parser):
     def getCover(self, htmltree):
         return urljoin("https://www.javbus.com", super().getCover(htmltree)) 
 
-    def getRelease(self, htmltree):
-        return super().getRelease(htmltree).strip(" ['']")
-
     def getRuntime(self, htmltree):
         return super().getRuntime(htmltree).strip(" ['']分鐘")
 
@@ -99,7 +97,7 @@ class Javbus(Parser):
         return b
     
     def getActorPhoto(self, htmltree):
-        actors = super().getActorPhoto(htmltree)
+        actors = self.getTreeAll(htmltree, self.expr_actorphoto)
         d = {}
         for i in actors:
             p = i.attrib['src']
@@ -122,19 +120,8 @@ class Javbus(Parser):
             return self.getTreeElement(htmltree, self.expr_series)
 
     def getTags(self, htmltree):
-        tags = super().getTags(htmltree).split(',')
+        tags = self.getTreeElement(htmltree, self.expr_tags).split(',')
         return tags[1:]
-
-    def getExtrafanart(self, htmltree):
-        html_pather = re.compile(r'<div id=\"sample-waterfall\">[\s\S]*?</div></a>\s*?</div>')
-        html = html_pather.search(self.htmlcode)
-        if html:
-            html = html.group()
-            extrafanart_pather = re.compile(r'<a class=\"sample-box\" href=\"(.*?)\"')
-            extrafanart_imgs = extrafanart_pather.findall(html)
-            if extrafanart_imgs:
-                return [urljoin('https://www.javbus.com',img) for img in extrafanart_imgs]
-        return ''
 
     def getOutline(self, htmltree):
         if self.morestoryline:

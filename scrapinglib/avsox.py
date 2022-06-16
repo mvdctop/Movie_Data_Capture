@@ -53,7 +53,7 @@ class Avsox(Parser):
         return self.getTreeElement(self.searchtree, self.expr_smallcover)
 
     def getTags(self, htmltree):
-        tags = super().getTags(htmltree).split(',')
+        tags = self.getTreeElement(htmltree).split(',')
         return [i.strip() for i in tags[2:]] if len(tags) > 2 else []
 
     def getOutline(self, htmltree):
@@ -70,7 +70,7 @@ class Avsox(Parser):
         return d
 
     def getActorPhoto(self, htmltree):
-        a = super().getActorPhoto(htmltree)
+        a = self.getTreeAll(htmltree, self.expr_actorphoto)
         d = {}
         for i in a:
             l = i.find('.//img').attrib['src']

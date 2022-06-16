@@ -18,6 +18,7 @@ class Fc2(Parser):
     expr_director = '//*[@id="top"]/div[1]/section[1]/div/section/div[2]/ul/li[3]/a/text()'
     expr_actor = '//*[@id="top"]/div[1]/section[1]/div/section/div[2]/ul/li[3]/a/text()'
     expr_cover = "//div[@class='items_article_MainitemThumb']/span/img/@src"
+    expr_extrafanart = '//ul[@class="items_article_SampleImagesArea"]/li/a/@href'
     expr_tags = "//a[@class='tag tagTag']/text()"
 
     def search(self, number):
@@ -44,17 +45,6 @@ class Fc2(Parser):
 
     def getCover(self, htmltree):
         return urljoin('https://adult.contents.fc2.com', super().getCover(htmltree)) 
-
-    def getExtrafanart(self, htmltree):
-        html_pather = re.compile(r'<ul class=\"items_article_SampleImagesArea\"[\s\S]*?</ul>')
-        html = html_pather.search(self.htmlcode)
-        if html:
-            html = html.group()
-            extrafanart_pather = re.compile(r'<a href=\"(.*?)\"')
-            extrafanart_imgs = extrafanart_pather.findall(html)
-            if extrafanart_imgs:
-                return extrafanart_imgs
-        return ''
 
     def getTrailer(self, htmltree):
         video_pather = re.compile(r'\'[a-zA-Z0-9]{32}\'')

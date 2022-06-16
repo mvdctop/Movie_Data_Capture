@@ -74,18 +74,14 @@ class Dlsite(Parser):
     def getOutline(self, htmltree):
         total = []
         result = self.getTreeAll(htmltree, self.expr_outline)
-        for i in result:
-            total.append(i.strip('\r\n'))
-        return str(total).strip(" ['']").replace("', '', '",r'\n').replace("', '",r'\n').strip(", '', '")
+        total = [ x.strip() for x in result if x.strip()]
+        return '\n'.join(total)
 
     def getRelease(self, htmltree):
         return super().getRelease(htmltree).replace('年','-').replace('月','-').replace('日','')
 
     def getCover(self, htmltree):
         return 'https:' + super().getCover(htmltree).replace('.webp', '.jpg')
-
-    def getTags(self, htmltree):
-        return self.getTreeAll(htmltree, self.expr_tags)
 
     def getExtrafanart(self, htmltree):
         try:

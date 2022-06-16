@@ -35,7 +35,7 @@ class wwwGetchu(Parser):
     GETCHU_WWW_SEARCH_URL = 'http://www.getchu.com/php/search.phtml?genre=anime_dvd&search_keyword=_WORD_&check_key_dtl=1&submit='
 
     expr_title = '//*[@id="soft-title"]/text()'
-    expr_cover = "/html/body/div[1]/table[2]/tr[1]/td/a/@href"
+    expr_cover = '//head/meta[@property="og:image"]'
     expr_director = "//td[contains(text(),'ブランド')]/following-sibling::td/a[1]/text()"
     expr_studio = "//td[contains(text(),'ブランド')]/following-sibling::td/a[1]/text()"
     expr_actor = "//td[contains(text(),'ブランド')]/following-sibling::td/a[1]/text()"
@@ -47,8 +47,12 @@ class wwwGetchu(Parser):
     expr_series = "//td[contains(text(),'ジャンル：')]/following-sibling::td/text()"
 
     def queryNumberUrl(self, number):
-        self.number = quote(number, encoding="euc_jp")
-        queryUrl = self.GETCHU_WWW_SEARCH_URL.replace("_WORD_", self.number)
+        if 'GETCHU' in number.upper():
+            idn = re.findall('\d+',number)[0]
+            return "http://www.getchu.com/soft.phtml?id=" + idn
+        else:
+            self.number = quote(number, encoding="euc_jp")
+            queryUrl = self.GETCHU_WWW_SEARCH_URL.replace("_WORD_", self.number)
         # NOTE dont know why will try 2 times
         retry = 2
         for i in range(retry):
@@ -64,14 +68,11 @@ class wwwGetchu(Parser):
         return 'GETCHU-' + re.findall('\d+', self.detailurl.replace("http://www.getchu.com/soft.phtml?id=", ""))[0]
 
     def getCover(self, htmltree):
-        return "http://www.getchu.com" + super().getCover(htmltree).replace("./", '/')
+        return self.getTreeElement(htmltree, self.expr_cover).get('content')
 
     def getActors(self, htmltree):
         return super().getDirector(htmltree)
 
-    def getTags(self, htmltree):
-        return self.getTreeAll(htmltree, self.expr_tags)
-    
     def getOutline(self, htmltree):
         outline = ''
         _list = self.getTreeAll(htmltree, self.expr_outline)
@@ -109,7 +110,6 @@ class dlGetchu(wwwGetchu):
     GETCHU_DL_URL = 'https://dl.getchu.com/i/item_WORD_'
 
     expr_title = "//div[contains(@style,'color: #333333; padding: 3px 0px 0px 5px;')]/text()"
-    expr_cover = "//td[contains(@bgcolor,'#ffffff')]/img/@src"
     expr_director = "//td[contains(text(),'作者')]/following-sibling::td/text()"
     expr_studio = "//td[contains(text(),'サークル')]/following-sibling::td/a/text()"
     expr_label = "//td[contains(text(),'サークル')]/following-sibling::td/a/text()"
@@ -134,9 +134,6 @@ class dlGetchu(wwwGetchu):
 
     def getNum(self, htmltree):
         return 'GETCHU-' + re.findall('\d+', self.number)[0]
-
-    def getCover(self, htmltree):
-        return "https://dl.getchu.com" + super().getCover(htmltree)
 
     def extradict(self, dic: dict):
         return dic
