@@ -4,7 +4,7 @@
 ![](https://img.shields.io/github/license/yoshiko2/Movie_data_capture.svg?style=flat)
 ![](https://img.shields.io/github/release/yoshiko2/Movie_data_capture.svg?style=flat)
 ![](https://img.shields.io/badge/Python-3.9-yellow.svg?style=flat&logo=python)<br>
-[Docker 版本](https://github.com/yoshiko2/docker-mdc)  
+[Docker 版本](https://github.com/vergilgao/docker-mdc)  
 ![](https://img.shields.io/badge/build-passing-brightgreen.svg?style=flat)
 ![](https://img.shields.io/github/license/VergilGao/docker-mdc.svg?style=flat)
 ![](https://img.shields.io/github/release/VergilGao/docker-mdc.svg?style=flat)
