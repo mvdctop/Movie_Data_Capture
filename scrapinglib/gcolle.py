@@ -29,7 +29,7 @@ class Gcolle(Parser):
         self.number = number.upper().replace('GCOLLE-','')
         self.detailurl = 'https://gcolle.net/product_info.php/products_id/' + self.number
         session = get_html_session(cookies=self.cookies, proxies=self.proxies, verify=self.verify)
-        htmlcode = session.get('https://gcolle.net/product_info.php/products_id/' + number).text
+        htmlcode = session.get('https://gcolle.net/product_info.php/products_id/' + self.number).text
         htmltree = etree.HTML(htmlcode)
 
         r18url = self.getTreeElement(htmltree, self.expr_r18)
