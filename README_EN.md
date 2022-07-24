@@ -20,14 +20,14 @@ the project plays the role of classification and metadata (metadata) grabbing, u
 * [VergilGao's Docker Edition](https://github.com/VergilGao/docker-mdc)
 
 # NOTICE
-When you view and download the source code or binary program of this project, it means that you have accepted the following terms
-* **You must be over 18 years old, or leave the page immediately**
-* This project and its results are for technical, academic exchange and Python3 performance testing purposes only
-* The contributors to this project have written this project to learn Python3 and improve programming
-* This project does not provide any movie download trail
-* Legal consequences and the consequences of use are borne by the user
+When you view and download the source code or binary program of this project, it means that you have accepted the following terms:
+* **You must be over 18 years old, or leave the page immediately.**
+* This project and its results are for technical, academic exchange and Python3 performance testing purposes only.
+* The contributors to this project have written this project to learn Python3 and improve programming.
+* This project does not provide any movie download trail.
+* Legal consequences and the consequences of use are borne by the user.
 * [GPL LICENSE](https://github.com/yoshiko2/Movie_Data_Capture/blob/master/LICENSE)
-* If you do not agree to any of the above terms, please do not use the project and project results
+* If you do not agree to any of the above terms, please do not use the project and project results.
 
 # Download
 * [Releases](https://github.com/yoshiko2/Movie_Data_Capture/releases/latest)
@@ -36,7 +36,7 @@ When you view and download the source code or binary program of this project, it
 [![](https://opencollective.com/movie_data_capture/contributors.svg?width=890)](https://github.com/yoshiko2/movie_data_Capture/graphs/contributors)
 
 # Sponsor 
-I am a college student and currently have high living and tuition costs and I want to reduce my financial dependence on my family
+I am a college student and currently have high living and tuition costs and I want to reduce my financial dependence on my family.
 
 If the program helps you, you can sponsor by:
 
