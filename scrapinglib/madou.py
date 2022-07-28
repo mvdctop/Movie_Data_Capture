@@ -59,5 +59,5 @@ class Madou(Parser):
 
     def getTags(self, htmltree):
         studio = self.getStudio(htmltree)
-        x = super().getTags(htmltree).split(',')
+        x = super().getTags(htmltree)
         return [i.strip() for i in x if len(i.strip()) and studio not in i and '麻豆' not in i]
