@@ -83,6 +83,8 @@ def argparse_function(ver: str) -> typing.Tuple[str, str, str, str, bool, bool]:
                         help="""Only show job list of files and numbers, and **NO** actual operation
 is performed. It may help you correct wrong numbers before real job.""")
     parser.add_argument("-v", "--version", action="version", version=ver)
+    parser.add_argument("-ss", "--specified-source", default='', nargs='?', help="specified Source.")
+    parser.add_argument("-su", "--specified-url", default='', nargs='?', help="specified Url.")
 
     args = parser.parse_args()
 
@@ -120,7 +122,7 @@ is performed. It may help you correct wrong numbers before real job.""")
         if no_net_op:
             conf.set_override("common:stop_counter=0;rerun_delay=0s;face:aways_imagecut=1")
 
-    return args.file, args.number, args.logdir, args.regexstr, args.zero_op, no_net_op
+    return args.file, args.number, args.logdir, args.regexstr, args.zero_op, no_net_op, args.specified_source, args.specified_url
 
 
 class OutLogger(object):
@@ -487,13 +489,13 @@ def create_data_and_move(movie_path: str, zero_op: bool, no_net_op: bool, oCC):
                 print('[!]', err)
 
 
-def create_data_and_move_with_custom_number(file_path: str, custom_number, oCC):
+def create_data_and_move_with_custom_number(file_path: str, custom_number, oCC, specified_source, specified_url):
     conf = config.getInstance()
     file_name = os.path.basename(file_path)
     try:
         print("[!] [{1}] As Number Processing for '{0}'".format(file_path, custom_number))
         if custom_number:
-            core_main(file_path, custom_number, oCC)
+            core_main(file_path, custom_number, oCC, specified_source, specified_url)
         else:
             print("[-] number empty ERROR")
         print("[*]======================================================")
@@ -513,7 +515,7 @@ def create_data_and_move_with_custom_number(file_path: str, custom_number, oCC):
 
 
 def main(args: tuple) -> Path:
-    (single_file_path, custom_number, logdir, regexstr, zero_op, no_net_op) = args
+    (single_file_path, custom_number, logdir, regexstr, zero_op, no_net_op, specified_source, specified_url) = args
     conf = config.getInstance()
     main_mode = conf.main_mode()
     folder_path = ""
@@ -609,9 +611,11 @@ def main(args: tuple) -> Path:
         print('[+]==================== Single File =====================')
         if custom_number == '':
             create_data_and_move_with_custom_number(single_file_path,
-                                                    get_number(conf.debug(), os.path.basename(single_file_path)), oCC)
+                                                    get_number(conf.debug(), os.path.basename(single_file_path)), oCC,
+                                                    specified_source, specified_url)
         else:
-            create_data_and_move_with_custom_number(single_file_path, custom_number, oCC)
+            create_data_and_move_with_custom_number(single_file_path, custom_number, oCC,
+                                                    specified_source, specified_url)
     else:
         folder_path = conf.source_folder()
         if not isinstance(folder_path, str) or folder_path == '':

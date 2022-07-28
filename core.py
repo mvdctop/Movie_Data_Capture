@@ -760,7 +760,7 @@ def core_main_no_net_op(movie_path, number):
         linkImage(path, number, part, leak_word, c_word, hack_word, ext)
 
 
-def core_main(movie_path, number_th, oCC):
+def core_main(movie_path, number_th, oCC, specified_source=None, specified_url=None):
     conf = config.getInstance()
     # =======================================================================初始化所需变量
     multi_part = 0
@@ -775,7 +775,7 @@ def core_main(movie_path, number_th, oCC):
     # 下面被注释的变量不需要
     #rootpath= os.getcwd
     number = number_th
-    json_data = get_data_from_json(number, oCC)  # 定义番号
+    json_data = get_data_from_json(number, oCC, specified_source, specified_url)  # 定义番号
 
     # Return if blank dict returned (data not found)
     if not json_data:
