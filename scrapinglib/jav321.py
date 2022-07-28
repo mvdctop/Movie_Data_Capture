@@ -26,6 +26,14 @@ class Jav321(Parser):
         return 'https://www.jav321.com/search'
 
     def getHtmlTree(self, url):
+        """ 
+        特殊处理 仅获取页面调用一次
+        """
+        if self.specifiedUrl:
+            self.detailurl = self.specifiedUrl
+            resp = httprequest.get(self.detailurl, cookies=self.cookies, proxies=self.proxies, verify=self.verify)
+            self.detailhtml = resp
+            return etree.fromstring(resp, etree.HTMLParser())
         resp = httprequest.post(url, data={"sn": self.number}, cookies=self.cookies, proxies=self.proxies, verify=self.verify)
         if "/video/" in resp.url:
             self.detailurl = resp.url

@@ -18,29 +18,45 @@ from .mgstage import Mgstage
 from .javbus import Javbus
 from .xcity import Xcity
 from .avsox import Avsox
+from .javlibrary import Javlibrary
 
 from .tmdb import Tmdb
+from .imdb import Imdb
 
 
 def search(number, sources: str=None, proxies=None, verify=None, type='adult',
+            specifiedSource=None, specifiedUrl=None,
             dbcookies=None, dbsite=None, morestoryline=False):
-    """ 根据``番号/电影``名搜索信息
+    """ 根据`番号/电影`名搜索信息
 
     :param number: number/name  depends on type
-    :param sources: sources string with `,` like ``avsox,javbus``
-    :param type: ``adult``, ``general``
+    :param sources: sources string with `,` Eg: `avsox,javbus`
+    :param type: `adult`, `general`
     """
     sc = Scraping()
     return sc.search(number, sources, proxies=proxies, verify=verify, type=type,
+                     specifiedSource=specifiedSource, specifiedUrl=specifiedUrl,
                      dbcookies=dbcookies, dbsite=dbsite, morestoryline=morestoryline)
+
+
+def getSupportedSources(tag='adult'):
+    """
+    :param tag: `adult`, `general`
+    """
+    sc = Scraping()
+    if tag == 'adult':
+        return ','.join(sc.adult_full_sources)
+    else:
+        return ','.join(sc.general_full_sources)
+
 
 class Scraping():
     """
     """
-
-    adult_full_sources = ['avsox', 'javbus', 'xcity', 'mgstage', 'madou', 'fc2', 
-                    'dlsite', 'jav321', 'fanza', 'airav', 'carib', 'mv91',
-                    'gcolle', 'javdb', 'getchu']
+    adult_full_sources = ['javlibrary', 'javdb', 'javbus', 'airav', 'fanza', 'xcity', 'jav321', 
+                          'mgstage', 'fc2', 'avsox', 'dlsite', 'carib', 'madou', 'mv91', 
+                          'getchu', 'gcolle'
+                          ]
     adult_func_mapping = {
         'avsox': Avsox().scrape,
         'javbus': Javbus().scrape,
@@ -57,15 +73,19 @@ class Scraping():
         'gcolle': Gcolle().scrape,
         'javdb': Javdb().scrape,
         'getchu': Getchu().scrape,
+        'javlibrary': Javlibrary().scrape,
     }
 
-    general_full_sources = ['tmdb']
+    general_full_sources = ['tmdb','imdb']
     general_func_mapping = {
         'tmdb': Tmdb().scrape,
+        'imdb': Imdb().scrape,
     }
 
     proxies = None
     verify = None
+    specifiedSource = None
+    specifiedUrl = None
 
     dbcookies = None
     dbsite = None
@@ -73,9 +93,12 @@ class Scraping():
     morestoryline = False
 
     def search(self, number, sources=None, proxies=None, verify=None, type='adult',
+               specifiedSource=None, specifiedUrl=None,
                dbcookies=None, dbsite=None, morestoryline=False):
         self.proxies = proxies
         self.verify = verify
+        self.specifiedSource = specifiedSource
+        self.specifiedUrl = specifiedUrl
         self.dbcookies = dbcookies
         self.dbsite = dbsite
         self.morestoryline = morestoryline
@@ -88,7 +111,10 @@ class Scraping():
         """ 查询电影电视剧
         imdb,tmdb
         """
-        sources = self.checkGeneralSources(sources, name)
+        if self.specifiedSource:
+            sources = [self.specifiedSource]
+        else:
+            sources = self.checkGeneralSources(sources, name)
         json_data = {}
         for source in sources:
             try:
@@ -116,7 +142,10 @@ class Scraping():
         return json_data
 
     def searchAdult(self, number, sources):
-        sources = self.checkAdultSources(sources, number)
+        if self.specifiedSource:
+            sources = [self.specifiedSource]
+        else:
+            sources = self.checkAdultSources(sources, number)
         json_data = {}
         for source in sources:
             try:

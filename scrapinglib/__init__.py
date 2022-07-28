@@ -1,3 +1,3 @@
 # -*- coding: utf-8 -*-
 
-from .api import search
+from .api import search, getSupportedSources

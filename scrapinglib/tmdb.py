@@ -13,10 +13,10 @@ class Tmdb(Parser):
     imagecut = 0
     apikey = None
 
-    expr_title = '//head/meta[@property="og:title"]'
+    expr_title = '//head/meta[@property="og:title"]/@content'
     expr_release = '//div/span[@class="release"]/text()'
-    expr_cover = '//head/meta[@property="og:image"]'
-    expr_outline = '//head/meta[@property="og:description"]'
+    expr_cover = '//head/meta[@property="og:image"]/@content'
+    expr_outline = '//head/meta[@property="og:description"]/@content'
 
     # def search(self, number):
     #     self.detailurl = self.queryNumberUrl(number)
@@ -30,11 +30,6 @@ class Tmdb(Parser):
         movieUrl = "https://www.themoviedb.org/movie/" + id + "?language=zh-CN"
         return movieUrl
 
-    def getTitle(self, htmltree):
-        return self.getTreeElement(htmltree, self.expr_title).get('content')
-
     def getCover(self, htmltree):
-        return "https://www.themoviedb.org" + self.getTreeElement(htmltree, self.expr_cover).get('content')
+        return "https://www.themoviedb.org" + self.getTreeElement(htmltree, self.expr_cover)
 
-    def getOutline(self, htmltree):
-        return self.getTreeElement(htmltree, self.expr_outline).get('content')

@@ -13,7 +13,7 @@ import builtins
 from urllib.parse import urljoin
 from lxml.html import fromstring
 from multiprocessing.dummy import Pool as ThreadPool
-from .httprequest  import get_html_by_browser, get_html_by_form, get_html_by_scraper, get_html_session
+from .httprequest  import get_html_by_browser, get_html_by_form, get_html_by_scraper, request_session
 
 # 舍弃 Amazon 源
 G_registered_storyline_site = {"airavwiki", "airav", "avno1", "xcity", "58avgo"}
@@ -112,7 +112,8 @@ def getStoryline_airav(number, debug):
     try:
         site = secrets.choice(('airav.cc','airav4.club'))
         url = f'https://{site}/searchresults.aspx?Search={number}&Type=0'
-        res, session = get_html_session(url, return_type='session')
+        session = request_session()
+        res = session.get(url)
         if not res:
             raise ValueError(f"get_html_by_session('{url}') failed")
         lx = fromstring(res.text)

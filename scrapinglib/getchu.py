@@ -35,7 +35,7 @@ class wwwGetchu(Parser):
     GETCHU_WWW_SEARCH_URL = 'http://www.getchu.com/php/search.phtml?genre=anime_dvd&search_keyword=_WORD_&check_key_dtl=1&submit='
 
     expr_title = '//*[@id="soft-title"]/text()'
-    expr_cover = '//head/meta[@property="og:image"]'
+    expr_cover = '//head/meta[@property="og:image"]/@content'
     expr_director = "//td[contains(text(),'ブランド')]/following-sibling::td/a[1]/text()"
     expr_studio = "//td[contains(text(),'ブランド')]/following-sibling::td/a[1]/text()"
     expr_actor = "//td[contains(text(),'ブランド')]/following-sibling::td/a[1]/text()"
@@ -66,9 +66,6 @@ class wwwGetchu(Parser):
 
     def getNum(self, htmltree):
         return 'GETCHU-' + re.findall('\d+', self.detailurl.replace("http://www.getchu.com/soft.phtml?id=", ""))[0]
-
-    def getCover(self, htmltree):
-        return self.getTreeElement(htmltree, self.expr_cover).get('content')
 
     def getActors(self, htmltree):
         return super().getDirector(htmltree)

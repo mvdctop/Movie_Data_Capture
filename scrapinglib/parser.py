@@ -11,7 +11,10 @@ class Parser:
     """ 基础刮削类
     """
     source = 'base'
-    # poster: `0` 复制 `1` 裁剪 
+    # 推荐剪切poster封面:
+    # `0` 复制cover
+    # `1` 裁剪cover 
+    # `3` 下载小封面
     imagecut = 1
     uncensored = False
     allow_number_change = False
@@ -21,6 +24,7 @@ class Parser:
     extraheader = None
     cookies = None
     morestoryline = False
+    specifiedUrl = None
 
     number = ''
     detailurl = ''
@@ -61,8 +65,19 @@ class Parser:
         return result
 
     def search(self, number):
+        """ 查询番号
+
+        查询主要流程:
+        1. 获取 url
+        2. 获取详情页面
+        3. 解析
+        4. 返回 result
+        """
         self.number = number
-        self.detailurl = self.queryNumberUrl(number)
+        if self.specifiedUrl:
+            self.detailurl = self.specifiedUrl
+        else:
+            self.detailurl = self.queryNumberUrl(number)
         htmltree = self.getHtmlTree(self.detailurl)
         result = self.dictformat(htmltree)
         return result
@@ -79,13 +94,16 @@ class Parser:
             self.verify = core.verify
         if core.morestoryline:
             self.morestoryline = True
+        if core.specifiedSource == self.source:
+            self.specifiedUrl = core.specifiedUrl
 
     def queryNumberUrl(self, number):
         """ 根据番号查询详细信息url
         
+        需要针对不同站点修改,或者在上层直接获取
         备份查询页面,预览图可能需要
         """
-        url = httprequest.get(number)
+        url = "http://detailurl.ai/" + number
         return url
 
     def getHtml(self, url, type = None):
@@ -115,26 +133,26 @@ class Parser:
                 'number': self.getNum(htmltree),
                 'title': self.getTitle(htmltree),
                 'studio': self.getStudio(htmltree),
+                'release': self.getRelease(htmltree),
                 'year': self.getYear(htmltree),
                 'outline': self.getOutline(htmltree),
                 'runtime': self.getRuntime(htmltree),
                 'director': self.getDirector(htmltree),
                 'actor': self.getActors(htmltree),
-                'release': self.getRelease(htmltree),
+                'actor_photo': self.getActorPhoto(htmltree),
                 'cover': self.getCover(htmltree),
                 'cover_small': self.getSmallCover(htmltree),
                 'extrafanart': self.getExtrafanart(htmltree),
                 'trailer': self.getTrailer(htmltree),
-                'imagecut': self.imagecut,
                 'tag': self.getTags(htmltree),
                 'label': self.getLabel(htmltree),
-                'actor_photo': self.getActorPhoto(htmltree),
+                'series': self.getSeries(htmltree),
+                'userrating': self.getUserRating(htmltree),
+                'uservotes': self.getUserVotes(htmltree),
+                'uncensored': self.getUncensored(htmltree),
                 'website': self.detailurl,
                 'source': self.source,
-                'series': self.getSeries(htmltree),
-                'uncensored': self.getUncensored(htmltree),
-                'userrating': self.getUserRating(htmltree),
-                'uservotes': self.getUserVotes(htmltree)
+                'imagecut': self.getImagecut(htmltree),
             }
             dic = self.extradict(dic)
         except Exception as e:
@@ -215,11 +233,26 @@ class Parser:
         else:
             return self.uncensored
 
+    def getImagecut(self, htmlree):
+        """ 修正 无码poster不裁剪cover
+        """
+        if self.imagecut == 1 and self.getUncensored(htmlree):
+            self.imagecut = 0
+        return self.imagecut
+
     def getUserRating(self, htmltree):
-        return self.getTreeElement(htmltree, self.expr_userrating)
+        numstrs = self.getTreeElement(htmltree, self.expr_userrating)
+        nums = re.findall('[0-9.]+', numstrs)
+        if len(nums) == 1:
+            return float(nums[0])
+        return ''
 
     def getUserVotes(self, htmltree):
-        return self.getTreeElement(htmltree, self.expr_uservotes)
+        votestrs = self.getTreeElement(htmltree, self.expr_uservotes)
+        votes = re.findall('[0-9]+', votestrs)
+        if len(votes) == 1:
+            return int(votes[0])
+        return ''
 
     def getTreeElement(self, tree: html.HtmlElement, expr, index=0):
         """ 根据表达式从`xmltree`中获取匹配值,默认 index 为 0
