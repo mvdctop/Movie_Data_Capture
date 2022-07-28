@@ -404,8 +404,8 @@ def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, f
                 except:
                     pass
             try:
-                f_rating = json_data['用户评分']
-                uc = json_data['评分人数']
+                f_rating = json_data.get('userrating')
+                uc = json_data.get('uservotes')
                 print(f"""  <rating>{round(f_rating * 2.0, 1)}</rating>
   <criticrating>{round(f_rating * 20.0, 1)}</criticrating>
   <ratings>
