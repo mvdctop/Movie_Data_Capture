@@ -88,6 +88,8 @@ class Parser:
         针对需要传递的参数: cookies, proxy等
         子类继承后修改
         """
+        if not core:
+            return
         if core.proxies:
             self.proxies = core.proxies
         if core.verify:

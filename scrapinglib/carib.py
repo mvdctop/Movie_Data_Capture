@@ -92,7 +92,8 @@ class Carib(Parser):
     def getOutline(self, htmltree):
         if self.morestoryline:
             from .storyline import getStoryline
-            result = getStoryline(self.number, uncensored=self.uncensored)
+            result = getStoryline(self.number, uncensored=self.uncensored,
+                                  proxies=self.proxies, verify=self.verify)
             if len(result):
                 return result
         return super().getOutline(htmltree)

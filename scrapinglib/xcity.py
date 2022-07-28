@@ -3,7 +3,6 @@
 import re
 import secrets
 from urllib.parse import urljoin
-from lxml import etree
 from .httprequest import get_html_by_form
 from .parser import Parser
 
@@ -27,6 +26,19 @@ class Xcity(Parser):
     expr_series = "//span[contains(text(),'シリーズ')]/../a/span/text()"
     expr_series2 = "//span[contains(text(),'シリーズ')]/../span/text()"
     expr_extrafanart = '//div[@id="sample_images"]/div/a/@href'
+    expr_outline = '//head/meta[@property="og:description"]/@content'
+
+    def queryNumberUrl(self, number):
+        xcity_number = number.replace('-','')
+        query_result, browser = get_html_by_form(
+            'https://xcity.jp/' + secrets.choice(['sitemap/','policy/','law/','help/','main/']),
+            fields = {'q' : xcity_number.lower()},
+            cookies=self.cookies, proxies=self.proxies, verify=self.verify,
+            return_type = 'browser')
+        if not query_result or not query_result.ok:
+            raise ValueError("xcity.py: page not found")
+        prelink = browser.links('avod\/detail')[0]['href']
+        return urljoin('https://xcity.jp', prelink)
 
     def getStudio(self, htmltree):
         return super().getStudio(htmltree).strip('+').replace("', '", '').replace('"', '')
@@ -55,12 +67,6 @@ class Xcity(Parser):
         except:
             return ''
 
-    def getOutline(self, htmltree):
-        if self.morestoryline:
-            from .storyline import getStoryline
-            return getStoryline(self.number, uncensored=False)
-        return ''
-
     def getActorPhoto(self, htmltree):
         treea = self.getTreeAll(htmltree, self.expr_actor_link)
         t = {i.text.strip(): i.attrib['href'] for i in treea}
@@ -84,28 +90,3 @@ class Xcity(Parser):
             i = "https:" + i
             extrafanart.append(i)
         return extrafanart
-
-    def open_by_browser(self, number):
-        xcity_number = number.replace('-','')
-        query_result, browser = get_html_by_form(
-            'https://xcity.jp/' + secrets.choice(['about/','sitemap/','policy/','law/','help/','main/']),
-            fields = {'q' : xcity_number.lower()},
-            return_type = 'browser')
-        if not query_result or not query_result.ok:
-            raise ValueError("xcity.py: page not found")
-        result = browser.follow_link(browser.links('avod\/detail')[0])
-        if not result.ok:
-            raise ValueError("xcity.py: detail page not found")
-        return str(browser.page), browser
-
-    def search(self, number):
-        self.number = number
-        if self.specifiedUrl:
-            self.detailurl = self.specifiedUrl
-            lx = self.getHtmlTree(self.detailurl)
-        else:
-            self.detail_page, self.browser = self.open_by_browser(number)
-            self.detailurl = self.browser.url
-            lx = etree.fromstring(self.detail_page, etree.HTMLParser())
-        result = self.dictformat(lx)
-        return result

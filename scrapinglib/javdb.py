@@ -176,7 +176,8 @@ class Javdb(Parser):
     def getOutline(self, htmltree):
         if self.morestoryline:
             from .storyline import getStoryline
-            return getStoryline(self.number, self.getUncensored(htmltree))
+            return getStoryline(self.number, self.getUncensored(htmltree),
+                                proxies=self.proxies, verify=self.verify)
         return ''
 
     def getTrailer(self, htmltree):

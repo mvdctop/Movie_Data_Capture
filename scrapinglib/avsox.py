@@ -63,7 +63,7 @@ class Avsox(Parser):
     def getOutline(self, htmltree):
         if self.morestoryline:
             from .storyline import getStoryline
-            return getStoryline(self.number)
+            return getStoryline(self.number, proxies=self.proxies, verify=self.verify)
         return ''
 
     def getActors(self, htmltree):
