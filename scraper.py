@@ -7,7 +7,7 @@ from pathlib import Path
 from ADC_function import delete_all_elements_in_list, delete_all_elements_in_str, file_modification_days, load_cookies, translate
 from scrapinglib.api import search
 
-def get_data_from_json(file_number, oCC):
+def get_data_from_json(file_number, oCC, specified_source, specified_url):
     """
     iterate through all services and fetch the data 从JSON返回元数据
     """
@@ -51,9 +51,11 @@ def get_data_from_json(file_number, oCC):
     cacert =None
     if conf.cacert_file():
         cacert = conf.cacert_file()
+
     json_data = search(file_number, sources, proxies=proxies, verify=cacert,
                         dbsite=javdb_site, dbcookies=javdb_cookies,
-                        morestoryline=conf.is_storyline())
+                        morestoryline=conf.is_storyline(),
+                        specifiedSource=specified_source, specifiedUrl=specified_url)
     # Return if data not found in all sources
     if not json_data:
         print('[-]Movie Number not found!')

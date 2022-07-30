@@ -29,7 +29,12 @@ class Dlsite(Parser):
 
     def search(self, number):
         self.cookies = {'locale': 'zh-cn'}
-        if "RJ" in number or "VJ" in number:
+        if self.specifiedUrl:
+            self.detailurl = self.specifiedUrl
+            # TODO 应该从页面内获取 number
+            self.number = str(re.findall("\wJ\w+", self.detailurl)).strip(" [']")
+            htmltree = self.getHtmlTree(self.detailurl)
+        elif "RJ" in number or "VJ" in number:
             self.number = number.upper()
             self.detailurl = 'https://www.dlsite.com/maniax/work/=/product_id/' + self.number + '.html/?locale=zh_CN'
             htmltree = self.getHtmlTree(self.detailurl)

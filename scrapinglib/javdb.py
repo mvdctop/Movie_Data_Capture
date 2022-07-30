@@ -4,7 +4,7 @@
 import re
 from urllib.parse import urljoin
 from lxml import etree
-from .httprequest import get_html_session
+from .httprequest import request_session
 from .parser import Parser
 
 
@@ -63,8 +63,11 @@ class Javdb(Parser):
 
     def search(self, number: str):
         self.number = number
-        self.session = get_html_session(cookies=self.cookies, proxies=self.proxies, verify=self.verify)
-        self.detailurl = self.queryNumberUrl(number)
+        self.session = request_session(cookies=self.cookies, proxies=self.proxies, verify=self.verify)
+        if self.specifiedUrl:
+            self.detailurl = self.specifiedUrl
+        else:
+            self.detailurl = self.queryNumberUrl(number)
         self.deatilpage = self.session.get(self.detailurl).text
         if '此內容需要登入才能查看或操作' in self.deatilpage or '需要VIP權限才能訪問此內容' in self.deatilpage:
             self.noauth = True
@@ -173,7 +176,8 @@ class Javdb(Parser):
     def getOutline(self, htmltree):
         if self.morestoryline:
             from .storyline import getStoryline
-            return getStoryline(self.number, self.getUncensored(htmltree))
+            return getStoryline(self.number, self.getUncensored(htmltree),
+                                proxies=self.proxies, verify=self.verify)
         return ''
 
     def getTrailer(self, htmltree):
@@ -193,19 +197,19 @@ class Javdb(Parser):
 
     def getUserRating(self, htmltree):
         try:
-            result = str(self.getTreeElement(htmltree, self.expr_userrating))
-            v = re.findall(r'(\d+|\d+\.\d+)分, 由(\d+)人評價', result)
-            return float(v[0][0])
+            numstrs = self.getTreeElement(htmltree, self.expr_userrating)
+            nums = re.findall('[0-9.]+', numstrs)
+            return float(nums[0])
         except:
-            return
+            return ''
 
     def getUserVotes(self, htmltree):
         try:
-            result = str(self.getTreeElement(htmltree, self.expr_uservotes))
-            v = re.findall(r'(\d+|\d+\.\d+)分, 由(\d+)人評價', result)
-            return int(v[0][1])
+            result = self.getTreeElement(htmltree, self.expr_uservotes)
+            v = re.findall('[0-9.]+', result)
+            return int(v[1])
         except:
-            return
+            return ''
 
     def getaphoto(self, url, session):
         html_page = session.get(url).text

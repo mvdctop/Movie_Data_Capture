@@ -8,6 +8,7 @@ from .parser import Parser
 
 class Madou(Parser):
     source = 'madou'
+    imagecut = 0
     uncensored = True
 
     expr_url = '//a[@class="share-weixin"]/@data-url'
@@ -17,7 +18,10 @@ class Madou(Parser):
 
     def search(self, number):
         self.number = number.lower().strip()
-        self.detailurl = "https://madou.club/" + number + ".html"
+        if self.specifiedUrl:
+            self.detailurl = self.specifiedUrl
+        else:
+            self.detailurl = "https://madou.club/" + number + ".html"
         self.htmlcode = self.getHtml(self.detailurl)
         if self.htmlcode == 404:
             return 404
@@ -59,5 +63,5 @@ class Madou(Parser):
 
     def getTags(self, htmltree):
         studio = self.getStudio(htmltree)
-        x = super().getTags(htmltree).split(',')
+        x = super().getTags(htmltree)
         return [i.strip() for i in x if len(i.strip()) and studio not in i and '麻豆' not in i]

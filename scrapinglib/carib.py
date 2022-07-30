@@ -22,7 +22,10 @@ class Carib(Parser):
 
     def search(self, number):
         self.number = number
-        self.detailurl = f'https://www.caribbeancom.com/moviepages/{number}/index.html'
+        if self.specifiedUrl:
+            self.detailurl = self.specifiedUrl
+        else:
+            self.detailurl = f'https://www.caribbeancom.com/moviepages/{number}/index.html'
         htmlcode = self.getHtml(self.detailurl)
         if htmlcode == 404 or 'class="movie-info section"' not in htmlcode:
             return 404
@@ -87,9 +90,11 @@ class Carib(Parser):
         return o
 
     def getOutline(self, htmltree):
-        from .storyline import getStoryline
-        result = getStoryline(self.number, uncensored=self.uncensored)
-        if len(result):
-            return result
+        if self.morestoryline:
+            from .storyline import getStoryline
+            result = getStoryline(self.number, uncensored=self.uncensored,
+                                  proxies=self.proxies, verify=self.verify)
+            if len(result):
+                return result
         return super().getOutline(htmltree)
 

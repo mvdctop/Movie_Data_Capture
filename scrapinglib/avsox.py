@@ -50,16 +50,20 @@ class Avsox(Parser):
     def getSmallCover(self, htmltree):
         """ 使用搜索页面的预览小图
         """
-        return self.getTreeElement(self.searchtree, self.expr_smallcover)
+        try:
+            return self.getTreeElement(self.searchtree, self.expr_smallcover)
+        except:
+            self.imagecut = 1
+            return ''
 
     def getTags(self, htmltree):
-        tags = self.getTreeElement(htmltree).split(',')
+        tags = self.getTreeElement(htmltree, self.expr_tags).split(',')
         return [i.strip() for i in tags[2:]] if len(tags) > 2 else []
 
     def getOutline(self, htmltree):
         if self.morestoryline:
             from .storyline import getStoryline
-            return getStoryline(self.number)
+            return getStoryline(self.number, proxies=self.proxies, verify=self.verify)
         return ''
 
     def getActors(self, htmltree):

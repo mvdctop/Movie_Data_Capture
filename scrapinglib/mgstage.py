@@ -25,7 +25,10 @@ class Mgstage(Parser):
     def search(self, number):
         self.number = number.upper()
         self.cookies = {'adc':'1'}
-        self.detailurl = 'https://www.mgstage.com/product/product_detail/'+str(self.number)+'/'
+        if self.specifiedUrl:
+            self.detailurl = self.specifiedUrl
+        else:
+            self.detailurl = 'https://www.mgstage.com/product/product_detail/'+str(self.number)+'/'
         htmltree =self.getHtmlTree(self.detailurl)
         result = self.dictformat(htmltree)
         return result

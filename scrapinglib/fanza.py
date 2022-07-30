@@ -11,15 +11,21 @@ class Fanza(Parser):
 
     expr_title = '//*[starts-with(@id, "title")]/text()'
     expr_actor = "//td[contains(text(),'出演者')]/following-sibling::td/span/a/text()"
-    expr_cover = '//head/meta[@property="og:image"]'
+    expr_cover = './/head/meta[@property="og:image"]/@content'
     expr_extrafanart = '//a[@name="sample-image"]/img/@src'
     expr_outline = "//div[@class='mg-b20 lh4']/text()"
     expr_outline2 = "//div[@class='mg-b20 lh4']//p/text()"
-    expr_outline_og = '//head/meta[@property="og:description"]'
+    expr_outline_og = '//head/meta[@property="og:description"]/@content'
     expr_runtime = "//td[contains(text(),'収録時間')]/following-sibling::td/text()"
 
     def search(self, number):
         self.number = number
+        if self.specifiedUrl:
+            self.detailurl = self.specifiedUrl
+            durl = "https://www.dmm.co.jp/age_check/=/declared=yes/?"+ urlencode({"rurl": self.detailurl})
+            self.htmltree = self.getHtmlTree(durl)
+            result = self.dictformat(self.htmltree)
+            return result
         # fanza allow letter + number + underscore, normalize the input here
         # @note: I only find the usage of underscore as h_test123456789
         fanza_search_number = number
@@ -75,7 +81,7 @@ class Fanza(Parser):
             if result == '':
                 result = self.getTreeElement(htmltree, self.expr_outline2).replace("\n", "")
             if "※ 配信方法によって収録内容が異なる場合があります。" == result:
-                result = self.getTreeElement(htmltree, self.expr_outline_og).get('content')
+                result = self.getTreeElement(htmltree, self.expr_outline_og)
             return result
         except:
             return ''
@@ -98,9 +104,6 @@ class Fanza(Parser):
         if result == '' or result == '----':
             result = self.getFanzaString('配信開始日：')
         return result.replace("/", "-").strip('\\n')
-
-    def getCover(self, htmltree):
-        return self.getTreeElement(htmltree, './/head/meta[@property="og:image"]').get('content')
 
     def getTags(self, htmltree):
         return self.getFanzaStrings('ジャンル：')

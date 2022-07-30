@@ -2,7 +2,7 @@
 
 import re
 from lxml import etree
-from .httprequest import get_html_session
+from .httprequest import request_session
 from .parser import Parser
 
 
@@ -27,9 +27,12 @@ class Gcolle(Parser):
 
     def search(self, number):
         self.number = number.upper().replace('GCOLLE-','')
-        self.detailurl = 'https://gcolle.net/product_info.php/products_id/' + self.number
-        session = get_html_session(cookies=self.cookies, proxies=self.proxies, verify=self.verify)
-        htmlcode = session.get('https://gcolle.net/product_info.php/products_id/' + self.number).text
+        if self.specifiedUrl:
+            self.detailurl = self.specifiedUrl
+        else:
+            self.detailurl = 'https://gcolle.net/product_info.php/products_id/' + self.number
+        session = request_session(cookies=self.cookies, proxies=self.proxies, verify=self.verify)
+        htmlcode = session.get(self.detailurl).text
         htmltree = etree.HTML(htmlcode)
 
         r18url = self.getTreeElement(htmltree, self.expr_r18)

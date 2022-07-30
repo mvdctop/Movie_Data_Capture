@@ -32,7 +32,12 @@ class Javbus(Parser):
 
     def search(self, number):
         self.number = number
-        try:    
+        try:
+            if self.specifiedUrl:
+                self.detailurl = self.specifiedUrl
+                htmltree = self.getHtmlTree(self.detailurl)
+                result = self.dictformat(htmltree)
+                return result
             url = "https://www." + secrets.choice([
                 'buscdn.fun', 'busdmm.fun', 'busfan.fun', 'busjav.fun',
                 'cdnbus.fun',
@@ -61,7 +66,10 @@ class Javbus(Parser):
         self.uncensored = True
 
         w_number = number.replace('.', '-')
-        self.detailurl = 'https://www.javbus.red/' + w_number
+        if self.specifiedUrl:
+            self.detailurl = self.specifiedUrl
+        else:
+            self.detailurl = 'https://www.javbus.red/' + w_number
         self.htmlcode = self.getHtml(self.detailurl)
         if self.htmlcode == 404:
             return 404
@@ -128,5 +136,6 @@ class Javbus(Parser):
             if any(caller for caller in inspect.stack() if os.path.basename(caller.filename) == 'airav.py'):
                 return ''   # 从airav.py过来的调用不计算outline直接返回，避免重复抓取数据拖慢处理速度
             from .storyline import getStoryline
-            return getStoryline(self.number , uncensored = self.uncensored)
+            return getStoryline(self.number , uncensored = self.uncensored,
+                                proxies=self.proxies, verify=self.verify)
         return ''
