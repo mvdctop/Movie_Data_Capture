@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import re
 from .parser import Parser
 
 
@@ -8,6 +7,7 @@ class Avsox(Parser):
 
     source = 'avsox'
     imagecut = 3
+    originalnum = ''
 
     expr_number = '//span[contains(text(),"识别码:")]/../span[2]/text()'
     expr_actor = '//a[@class="avatar-box"]'
@@ -21,7 +21,11 @@ class Avsox(Parser):
     expr_label = '//p[contains(text(),"系列:")]/following-sibling::p[1]/a/text()'
     expr_series = '//span[contains(text(),"系列:")]/../span[2]/text()'
 
-    def queryNumberUrl(self, number):
+    def queryNumberUrl(self, number: str):
+        upnum = number.upper()
+        if 'FC2' in upnum and 'FC2-PPV' not in upnum:
+            number = upnum.replace('FC2', 'FC2-PPV')
+            self.number = number
         qurySiteTree = self.getHtmlTree('https://tellme.pw/avsox')
         site = self.getTreeElement(qurySiteTree, '//div[@class="container"]/div/a/@href')
         self.searchtree = self.getHtmlTree(site + '/cn/search/' + number)
@@ -38,11 +42,14 @@ class Avsox(Parser):
         new_number = self.getTreeElement(htmltree, self.expr_number)
         if new_number.upper() != self.number.upper():
             raise ValueError('number not found in ' + self.source)
+        self.originalnum = new_number
+        if 'FC2-PPV' in new_number.upper():
+            new_number = new_number.upper().replace('FC2-PPV', 'FC2')
         self.number = new_number
-        return new_number
+        return self.number
 
     def getTitle(self, htmltree):
-        return super().getTitle(htmltree).replace('/', '').strip(self.number)
+        return super().getTitle(htmltree).replace('/', '').strip(self.originalnum).strip()
 
     def getStudio(self, htmltree):
         return super().getStudio(htmltree).replace("', '", ' ')

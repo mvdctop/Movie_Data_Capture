@@ -51,6 +51,8 @@ class Javdb(Parser):
             self.verify = core.verify
         if core.morestoryline:
             self.morestoryline = True
+        if core.specifiedSource == self.source:
+            self.specifiedUrl = core.specifiedUrl
         # special
         if core.dbcookies:
             self.cookies = core.dbcookies

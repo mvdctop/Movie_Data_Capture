@@ -29,6 +29,8 @@ class Javlibrary(Parser):
             self.verify = core.verify
         if core.morestoryline:
             self.morestoryline = True
+        if core.specifiedSource == self.source:
+            self.specifiedUrl = core.specifiedUrl
         self.cookies =  {'over18':'1'}
 
     def search(self, number):
