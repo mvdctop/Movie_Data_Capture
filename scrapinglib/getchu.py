@@ -121,7 +121,7 @@ class dlGetchu(wwwGetchu):
         if "item" in number or 'GETCHU' in number.upper():
             self.number = re.findall('\d+',number)[0]
         else:
-            queryUrl = self.GETCHU_DL_SEARCH_URL.replace("_WORD_", number)
+            queryUrl = self.GETCHU_DL_SEARCH_URL.replace("_WORD_", quote(number, encoding="euc_jp"))
             queryTree = self.getHtmlTree(queryUrl)
             detailurl = self.getTreeElement(queryTree, '/html/body/div[1]/table/tr/td/table[4]/tr/td[2]/table/tr[2]/td/table/tr/td/table/tr/td[2]/div/a[1]/@href')
             if detailurl == "":
