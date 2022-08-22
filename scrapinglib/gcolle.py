@@ -8,7 +8,6 @@ from .parser import Parser
 
 class Gcolle(Parser):
     source = 'gcolle'
-    imagecut = 4
 
     expr_r18 = '//*[@id="main_content"]/table[1]/tbody/tr/td[2]/table/tbody/tr/td/h4/a[2]/@href'
     expr_number = '//td[contains(text(),"商品番号")]/../td[2]/text()'
@@ -25,8 +24,11 @@ class Gcolle(Parser):
     expr_extrafanart = '//*[@id="cart_quantity"]/table/tr[3]/td/div/img/@src'
     expr_extrafanart2 = '//*[@id="cart_quantity"]/table/tr[3]/td/div/a/img/@src'
 
-    def search(self, number):
-        self.number = number.upper().replace('GCOLLE-','')
+    def extraInit(self):
+        self.imagecut = 4
+
+    def search(self, number: str):
+        self.number = number.upper().replace('GCOLLE-', '')
         if self.specifiedUrl:
             self.detailurl = self.specifiedUrl
         else:
@@ -69,5 +71,3 @@ class Gcolle(Parser):
         for i in range(len(extrafanart)):
             extrafanart[i] = 'https:' + extrafanart[i]
         return extrafanart
-
-

@@ -11,9 +11,6 @@ from .parser import Parser
 class Javdb(Parser):
     source = 'javdb'
 
-    fixstudio = False
-    noauth = False
-
     expr_number = '//strong[contains(text(),"番號")]/../span/text()'
     expr_number2 = '//strong[contains(text(),"番號")]/../span/a/text()'
     expr_title = "/html/head/title/text()"
@@ -43,6 +40,10 @@ class Javdb(Parser):
     expr_userrating = '//span[@class="score-stars"]/../text()'
     expr_uservotes = '//span[@class="score-stars"]/../text()'
     expr_actorphoto = '//strong[contains(text(),"演員:")]/../span/a[starts-with(@href,"/actors/")]'
+
+    def extraInit(self):
+        self.fixstudio = False
+        self.noauth = False
 
     def updateCore(self, core):
         if core.proxies:

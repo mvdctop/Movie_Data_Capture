@@ -8,9 +8,6 @@ from .javbus import Javbus
 
 class Airav(Parser):
     source = 'airav'
-    # for javbus
-    specifiedSource = None
-    addtion_Javbus = True
 
     expr_title = '/html/head/title/text()'
     expr_number = '/html/head/title/text()'
@@ -21,6 +18,11 @@ class Airav(Parser):
     expr_cover = '//img[contains(@src,"/storage/big_pic/")]/@src'
     expr_tags = '//div[@class="tagBtnMargin"]/a/text()'
     expr_extrafanart = '//div[@class="mobileImgThumbnail"]/a/@href'
+
+    def extraInit(self):
+        # for javbus
+        self.specifiedSource = None
+        self.addtion_Javbus = True
 
     def search(self, number):
         self.number = number

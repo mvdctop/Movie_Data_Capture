@@ -6,8 +6,6 @@ from .parser import Parser
 
 class Dlsite(Parser):
     source = 'dlsite'
-    imagecut = 4
-    allow_number_change = True
 
     expr_title = '/html/head/title/text()'
     expr_actor = '//th[contains(text(),"声优")]/../td/a/text()'
@@ -25,6 +23,10 @@ class Dlsite(Parser):
     expr_label = '//th[contains(text(),"系列名")]/../td/span[1]/a/text()'
     expr_label2 = '//th[contains(text(),"社团名")]/../td/span[1]/a/text()'
     expr_extrafanart = '//*[@id="work_left"]/div/div/div[1]/div/@data-src'
+
+    def extraInit(self):
+        self.imagecut = 4
+        self.allow_number_change = True
 
     def search(self, number):
         self.cookies = {'locale': 'zh-cn'}

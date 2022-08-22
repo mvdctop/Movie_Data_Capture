@@ -4,10 +4,7 @@ from .parser import Parser
 
 
 class Avsox(Parser):
-
     source = 'avsox'
-    imagecut = 3
-    originalnum = ''
 
     expr_number = '//span[contains(text(),"识别码:")]/../span[2]/text()'
     expr_actor = '//a[@class="avatar-box"]'
@@ -20,6 +17,10 @@ class Avsox(Parser):
     expr_tags = '/html/head/meta[@name="keywords"]/@content'
     expr_label = '//p[contains(text(),"系列:")]/following-sibling::p[1]/a/text()'
     expr_series = '//span[contains(text(),"系列:")]/../span[2]/text()'
+
+    def extraInit(self):
+        self.imagecut = 3
+        self.originalnum = ''
 
     def queryNumberUrl(self, number: str):
         upnum = number.upper()

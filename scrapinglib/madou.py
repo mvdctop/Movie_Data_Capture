@@ -8,13 +8,15 @@ from .parser import Parser
 
 class Madou(Parser):
     source = 'madou'
-    imagecut = 0
-    uncensored = True
 
     expr_url = '//a[@class="share-weixin"]/@data-url'
     expr_title = "/html/head/title/text()"
     expr_studio = '//a[@rel="category tag"]/text()'
     expr_tags = '/html/head/meta[@name="keywords"]/@content'
+
+    def extraInit(self):
+        self.imagecut = 0
+        self.uncensored = True
 
     def search(self, number):
         self.number = number.lower().strip()

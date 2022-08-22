@@ -8,8 +8,6 @@ from .parser import Parser
 class Javlibrary(Parser):
     source = 'javlibrary'
 
-    htmltree = None
-    
     expr_number = '//div[@id="video_id"]/table/tr/td[@class="text"]/text()'
     expr_title = '//div[@id="video_title"]/h3/a/text()'
     expr_actor = '//div[@id="video_cast"]/table/tr/td[@class="text"]/span/span[@class="star"]/a/text()'
@@ -21,6 +19,9 @@ class Javlibrary(Parser):
     expr_userrating = '//div[@id="video_review"]/table/tr/td/span[@class="score"]/text()'
     expr_director = '//div[@id="video_director"]/table/tr/td[@class="text"]/span/a/text()'
     expr_extrafanart = '//div[@class="previewthumbs"]/img/@src'
+
+    def extraInit(self):
+        self.htmltree = None
 
     def updateCore(self, core):
         if core.proxies:

@@ -11,23 +11,6 @@ class Parser:
     """ 基础刮削类
     """
     source = 'base'
-    # 推荐剪切poster封面:
-    # `0` 复制cover
-    # `1` 裁剪cover 
-    # `3` 下载小封面
-    imagecut = 1
-    uncensored = False
-    allow_number_change = False
-    # update
-    proxies = None
-    verify = None
-    extraheader = None
-    cookies = None
-    morestoryline = False
-    specifiedUrl = None
-
-    number = ''
-    detailurl = ''
     # xpath expr
     expr_number = ''
     expr_title = ''
@@ -54,12 +37,33 @@ class Parser:
     expr_userrating = ''
     expr_uservotes = ''
 
-    def __init__(self) -> None:
+    def __init__(self):
+        # 推荐剪切poster封面:
+        # `0` 复制cover
+        # `1` 裁剪cover 
+        # `3` 下载小封面
+        self.imagecut = 1
+        self.uncensored = False
+        self.allow_number_change = False
+        # update
+        self.proxies = None
+        self.verify = None
+        self.extraheader = None
+        self.cookies = None
+        self.morestoryline = False
+        self.specifiedUrl = None
+        self.extraInit()
+
+    def extraInit(self):
+        """ 自定义初始化内容
+        """
         pass
 
     def scrape(self, number, core: None):
         """ 刮削番号
         """
+        # 每次调用，初始化参数
+        self.__init__()
         self.updateCore(core)
         result = self.search(number)
         return result

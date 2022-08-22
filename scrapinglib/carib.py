@@ -8,7 +8,6 @@ from .parser import Parser
 
 class Carib(Parser):
     source = 'carib'
-    uncensored = True
 
     expr_title = "//div[@class='movie-info section']/div[@class='heading']/h1[@itemprop='name']/text()"
     expr_release = "//li[2]/span[@class='spec-content']/text()"
@@ -19,6 +18,9 @@ class Carib(Parser):
     expr_label = "//span[@class='spec-title'][contains(text(),'シリーズ')]/../span[@class='spec-content']/a/text()"
     expr_series = "//span[@class='spec-title'][contains(text(),'シリーズ')]/../span[@class='spec-content']/a/text()"
     expr_outline = "//div[@class='movie-info section']/p[@itemprop='description']/text()"
+
+    def extraInit(self):
+        self.uncensored = True
 
     def search(self, number):
         self.number = number

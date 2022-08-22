@@ -9,7 +9,6 @@ from .parser import Parser
 
 class Fc2(Parser):
     source = 'fc2'
-    imagecut = 0
 
     expr_title = '/html/head/title/text()'
     expr_studio = '//*[@id="top"]/div[1]/section[1]/div/section/div[2]/ul/li[3]/a/text()'
@@ -20,6 +19,9 @@ class Fc2(Parser):
     expr_cover = "//div[@class='items_article_MainitemThumb']/span/img/@src"
     expr_extrafanart = '//ul[@class="items_article_SampleImagesArea"]/li/a/@href'
     expr_tags = "//a[@class='tag tagTag']/text()"
+
+    def extraInit(self):
+        self.imagecut = 0
 
     def search(self, number):
         self.number = number.lower().replace('fc2-ppv-', '').replace('fc2-', '')
