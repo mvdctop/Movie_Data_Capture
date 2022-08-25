@@ -361,7 +361,7 @@ def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, f
                         pass
                     print("  </actor>", file=code)
             except:
-                aaaa = ''
+                pass
             print("  <maker>" + studio + "</maker>", file=code)
             print("  <label>" + label + "</label>", file=code)
             if cn_sub == '1':
@@ -377,7 +377,7 @@ def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, f
                     print("  <tag>" + i + "</tag>", file=code)
                 # print("  <tag>" + series + "</tag>", file=code)
             except:
-                aaaaa = ''
+                pass
             if cn_sub == '1':
                 print("  <genre>中文字幕</genre>", file=code)
             if liuchu == '流出':
@@ -391,7 +391,7 @@ def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, f
                     print("  <genre>" + i + "</genre>", file=code)
                 # print("  <genre>" + series + "</genre>", file=code)
             except:
-                aaaaaaaa = ''
+                pass
             print("  <num>" + number + "</num>", file=code)
             print("  <premiered>" + release + "</premiered>", file=code)
             print("  <releasedate>" + release + "</releasedate>", file=code)
