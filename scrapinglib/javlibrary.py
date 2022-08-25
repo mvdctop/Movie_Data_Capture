@@ -8,8 +8,6 @@ from .parser import Parser
 class Javlibrary(Parser):
     source = 'javlibrary'
 
-    htmltree = None
-    
     expr_number = '//div[@id="video_id"]/table/tr/td[@class="text"]/text()'
     expr_title = '//div[@id="video_title"]/h3/a/text()'
     expr_actor = '//div[@id="video_cast"]/table/tr/td[@class="text"]/span/span[@class="star"]/a/text()'
@@ -22,6 +20,9 @@ class Javlibrary(Parser):
     expr_director = '//div[@id="video_director"]/table/tr/td[@class="text"]/span/a/text()'
     expr_extrafanart = '//div[@class="previewthumbs"]/img/@src'
 
+    def extraInit(self):
+        self.htmltree = None
+
     def updateCore(self, core):
         if core.proxies:
             self.proxies = core.proxies
@@ -29,6 +30,8 @@ class Javlibrary(Parser):
             self.verify = core.verify
         if core.morestoryline:
             self.morestoryline = True
+        if core.specifiedSource == self.source:
+            self.specifiedUrl = core.specifiedUrl
         self.cookies =  {'over18':'1'}
 
     def search(self, number):

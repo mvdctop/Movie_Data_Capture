@@ -11,23 +11,6 @@ class Parser:
     """ 基础刮削类
     """
     source = 'base'
-    # 推荐剪切poster封面:
-    # `0` 复制cover
-    # `1` 裁剪cover 
-    # `3` 下载小封面
-    imagecut = 1
-    uncensored = False
-    allow_number_change = False
-    # update
-    proxies = None
-    verify = None
-    extraheader = None
-    cookies = None
-    morestoryline = False
-    specifiedUrl = None
-
-    number = ''
-    detailurl = ''
     # xpath expr
     expr_number = ''
     expr_title = ''
@@ -54,12 +37,33 @@ class Parser:
     expr_userrating = ''
     expr_uservotes = ''
 
-    def __init__(self) -> None:
+    def __init__(self):
+        # 推荐剪切poster封面:
+        # `0` 复制cover
+        # `1` 裁剪cover 
+        # `3` 下载小封面
+        self.imagecut = 1
+        self.uncensored = False
+        self.allow_number_change = False
+        # update
+        self.proxies = None
+        self.verify = None
+        self.extraheader = None
+        self.cookies = None
+        self.morestoryline = False
+        self.specifiedUrl = None
+        self.extraInit()
+
+    def extraInit(self):
+        """ 自定义初始化内容
+        """
         pass
 
     def scrape(self, number, core: None):
         """ 刮削番号
         """
+        # 每次调用，初始化参数
+        self.__init__()
         self.updateCore(core)
         result = self.search(number)
         return result
@@ -228,17 +232,28 @@ class Parser:
     def getActorPhoto(self, htmltree) -> dict:
         return {}
 
-    def getUncensored(self, htmlree) -> bool:
-        if self.expr_uncensored:
-            u = self.getTreeAll(htmlree, self.expr_uncensored)
-            return bool(u)
-        else:
+    def getUncensored(self, htmltree) -> bool:
+        """ 
+        tag:    無码 無修正 uncensored 无码
+        title:  無碼 無修正 uncensored
+        """
+        if self.uncensored:
             return self.uncensored
+        tags = [x.lower() for x in self.getTags(htmltree) if len(x)]
+        title = self.getTitle(htmltree)
+        if self.expr_uncensored:
+            u = self.getTreeAll(htmltree, self.expr_uncensored)
+            self.uncensored = bool(u)
+        elif '無码' in tags or '無修正' in tags or 'uncensored' in tags or '无码' in tags:
+            self.uncensored = True
+        elif '無码' in title or '無修正' in title or 'uncensored' in title.lower():
+            self.uncensored = True
+        return self.uncensored
 
-    def getImagecut(self, htmlree):
+    def getImagecut(self, htmltree):
         """ 修正 无码poster不裁剪cover
         """
-        if self.imagecut == 1 and self.getUncensored(htmlree):
+        if self.imagecut == 1 and self.getUncensored(htmltree):
             self.imagecut = 0
         return self.imagecut
 

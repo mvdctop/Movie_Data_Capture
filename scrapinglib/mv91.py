@@ -8,8 +8,6 @@ from .parser import Parser
 
 class Mv91(Parser):
     source = 'mv91'
-    imagecut = 0
-    uncensored = True
 
     expr_number = '//div[@class="player-title"]/text()'
     expr_title = '//div[@class="player-title"]/text()'
@@ -17,6 +15,10 @@ class Mv91(Parser):
     expr_outline = '//div[@class="play-text"]/text()'
     expr_tags = '//div[@class="player-tag"]/text()'
     expr_actor = '//p[@class="player-name"]/text()'
+
+    def extraInit(self):
+        self.imagecut = 0
+        self.uncensored = True
 
     def getHtmlTree(self, url, type=None):
         self.htmlcode = self.getHtml(url, type)

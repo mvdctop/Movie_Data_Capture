@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from .utils import getTreeElement
 from .parser import Parser
 
 
