@@ -125,8 +125,9 @@ class Scraping():
                         continue
                     json_data = json.loads(data)
                 except Exception as e:
-                    print('[!] 出错啦')
-                    print(e)
+                    # print('[!] 出错啦')
+                    # print(e)
+                    pass
                 # if any service return a valid return, break
                 if self.get_data_state(json_data):
                     print(f"[+]Find movie [{name}] metadata on website '{source}'")
@@ -156,8 +157,9 @@ class Scraping():
                         continue
                     json_data = json.loads(data)
                 except Exception as e:
-                    print('[!] 出错啦')
-                    print(e)
+                    # print('[!] 出错啦')
+                    # print(e)
+                    pass
                     # json_data = self.func_mapping[source](number, self)
                 # if any service return a valid return, break
                 if self.get_data_state(json_data):

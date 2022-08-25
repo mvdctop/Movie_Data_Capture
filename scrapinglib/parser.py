@@ -162,7 +162,7 @@ class Parser:
             }
             dic = self.extradict(dic)
         except Exception as e:
-            print(e)
+            #print(e)
             dic = {"title": ""}
         js = json.dumps(dic, ensure_ascii=False, sort_keys=True, separators=(',', ':'))
         return js

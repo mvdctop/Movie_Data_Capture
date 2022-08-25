@@ -86,7 +86,7 @@ class Javdb(Parser):
         try:
             resp = self.session.get(javdb_url)
         except Exception as e:
-            print(e)
+            #print(e)
             raise Exception(f'[!] {self.number}: page not fond in javdb')
 
         self.querytree = etree.fromstring(resp.text, etree.HTMLParser()) 
