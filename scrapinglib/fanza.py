@@ -11,8 +11,8 @@ class Fanza(Parser):
 
     expr_title = '//*[starts-with(@id, "title")]/text()'
     expr_actor = "//td[contains(text(),'出演者')]/following-sibling::td/span/a/text()"
-    expr_cover = './/head/meta[@property="og:image"]/@content'
-    expr_extrafanart = '//a[@name="sample-image"]/img/@src'
+    # expr_cover = './/head/meta[@property="og:image"]/@content'
+    # expr_extrafanart = '//a[@name="sample-image"]/img/@src'
     expr_outline = "//div[@class='mg-b20 lh4']/text()"
     expr_outline2 = "//div[@class='mg-b20 lh4']//p/text()"
     expr_outline_og = '//head/meta[@property="og:description"]/@content'
@@ -119,6 +119,56 @@ class Fanza(Parser):
         if ret == "----":
             return ''
         return ret
+    
+        def getCover(self, htmltree):
+        cover_number = self.number
+        try:
+            result = htmltree.xpath('//*[@id="' + cover_number + '"]/@href')[0]
+        except:
+            # sometimes fanza modify _ to \u0005f for image id
+            if "_" in cover_number:
+                cover_number = cover_number.replace("_", r"\u005f")
+            try:
+                result = htmltree.xpath('//*[@id="' + cover_number + '"]/@href')[0]
+            except:
+                # (TODO) handle more edge case
+                # print(html)
+                # raise exception here, same behavior as before
+                # people's major requirement is fetching the picture
+                raise ValueError("can not find image")
+        return result
+
+    def getExtrafanart(self, htmltree):
+        html_parent = re.compile(r'<div id=\"sample-image-block\"[\s\S]*?<br></div>\s*?</div>')
+        html = html_parent.search(
+            self.htmlcode)  
+        if html:
+            html = html.group()
+            extrafanart_parent = re.compile(r'<img.*?src=\"(.*?)\"')
+            extrafanart_images = extrafanart_parent.findall(html)
+            if extrafanart_images:
+                sheet = []
+                for img_url in extrafanart_images:
+                    img_urls = img_url.rsplit('-', 1)
+                    img_url = img_urls[0] + 'jp-' + img_urls[1]
+                    sheet.append(img_url)
+                return sheet
+        return ''
+
+    def getTrailer(self, htmltree):
+        html_parent = re.compile(r'<script type=\"application/ld\+json\">[\s\S].*}\s*?</script>')
+        html = html_parent.search(
+            self.htmlcode)  
+        if html:
+            html = html.group()
+            trailer_parent = re.compile(r'\"contentUrl\":\"(.*?)\"')
+            trailer_url = trailer_parent.search(html)
+            if trailer_url:
+                trailer_url = trailer_url.group(1)
+                trailer_cuts = trailer_url.rsplit('_', 2)
+                trailer_url = trailer_cuts[0] + '_mhb_w.mp4'
+                return trailer_url
+        return ''
 
     def getFanzaString(self, expr):
         result1 = str(self.htmltree.xpath("//td[contains(text(),'"+expr+"')]/following-sibling::td/a/text()")).strip(" ['']")
