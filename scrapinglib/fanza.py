@@ -140,8 +140,7 @@ class Fanza(Parser):
 
     def getExtrafanart(self, htmltree):
         html_parent = re.compile(r'<div id=\"sample-image-block\"[\s\S]*?<br></div>\s*?</div>')
-        html = html_parent.search(
-            self.htmlcode)  
+        html = html_parent.search(self.htmlcode)  
         if html:
             html = html.group()
             extrafanart_parent = re.compile(r'<img.*?src=\"(.*?)\"')
@@ -157,8 +156,7 @@ class Fanza(Parser):
 
     def getTrailer(self, htmltree):
         html_parent = re.compile(r'<script type=\"application/ld\+json\">[\s\S].*}\s*?</script>')
-        html = html_parent.search(
-            self.htmlcode)  
+        html = html_parent.search(self.htmlcode)  
         if html:
             html = html.group()
             trailer_parent = re.compile(r'\"contentUrl\":\"(.*?)\"')
