@@ -139,35 +139,24 @@ class Fanza(Parser):
         return result
 
     def getExtrafanart(self, htmltree):
-        html_parent = re.compile(r'<div id=\"sample-image-block\"[\s\S]*?<br></div>\s*?</div>')
-        html = html_parent.search(
-            self.htmlcode)  
-        if html:
-            html = html.group()
-            extrafanart_parent = re.compile(r'<img.*?src=\"(.*?)\"')
-            extrafanart_images = extrafanart_parent.findall(html)
+        htmltext = re.search(r'<div id=\"sample-image-block\"[\s\S]*?<br></div>\s*?</div>', self.htmlcode).group()
+        if htmltext:
+            extrafanart_images = re.findall(r'<img.*?src=\"(.*?)\"', htmltext)
             if extrafanart_images:
                 sheet = []
                 for img_url in extrafanart_images:
-                    img_urls = img_url.rsplit('-', 1)
-                    img_url = img_urls[0] + 'jp-' + img_urls[1]
-                    sheet.append(img_url)
+                    url_cuts = img_url.rsplit('-', 1)
+                    sheet.append(url_cuts[0] + 'jp-' + url_cuts[1])
                 return sheet
         return ''
 
     def getTrailer(self, htmltree):
-        html_parent = re.compile(r'<script type=\"application/ld\+json\">[\s\S].*}\s*?</script>')
-        html = html_parent.search(
-            self.htmlcode)  
-        if html:
-            html = html.group()
-            trailer_parent = re.compile(r'\"contentUrl\":\"(.*?)\"')
-            trailer_url = trailer_parent.search(html)
-            if trailer_url:
-                trailer_url = trailer_url.group(1)
-                trailer_cuts = trailer_url.rsplit('_', 2)
-                trailer_url = trailer_cuts[0] + '_mhb_w.mp4'
-                return trailer_url
+        htmltext = re.search(r'<script type=\"application/ld\+json\">[\s\S].*}\s*?</script>', self.htmlcode).group()
+        if htmltext:
+            url = re.search(r'\"contentUrl\":\"(.*?)\"', htmltext).group(1)
+            if url:
+                url = url.rsplit('_', 2)[0] + '_mhb_w.mp4'
+                return url
         return ''
 
     def getFanzaString(self, expr):
