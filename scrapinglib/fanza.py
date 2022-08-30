@@ -18,11 +18,17 @@ class Fanza(Parser):
     expr_outline_og = '//head/meta[@property="og:description"]/@content'
     expr_runtime = "//td[contains(text(),'収録時間')]/following-sibling::td/text()"
 
+    def __init__(self):
+        super().__init__()
+        self.fanza_hinban = None
+        self.htmltree = None
+        self.htmlcode = None
+
     def search(self, number):
         self.number = number
         if self.specifiedUrl:
             self.detailurl = self.specifiedUrl
-            durl = "https://www.dmm.co.jp/age_check/=/declared=yes/?"+ urlencode({"rurl": self.detailurl})
+            durl = "https://www.dmm.co.jp/age_check/=/declared=yes/?" + urlencode({"rurl": self.detailurl})
             self.htmltree = self.getHtmlTree(durl)
             result = self.dictformat(self.htmltree)
             return result
@@ -47,7 +53,7 @@ class Fanza(Parser):
 
         for url in fanza_urls:
             self.detailurl = url + fanza_search_number
-            url = "https://www.dmm.co.jp/age_check/=/declared=yes/?"+ urlencode({"rurl": self.detailurl})
+            url = "https://www.dmm.co.jp/age_check/=/declared=yes/?" + urlencode({"rurl": self.detailurl})
             self.htmlcode = self.getHtml(url)
             if self.htmlcode != 404:
                 self.htmltree = etree.HTML(self.htmlcode)
@@ -65,10 +71,9 @@ class Fanza(Parser):
         self.fanza_hinban = self.getFanzaString('品番：')
         self.number = self.fanza_hinban
         number_lo = self.number.lower()
-        if (re.sub('-|_', '', number_lo) == self.fanza_hinban or
-            number_lo.replace('-', '00') == self.fanza_hinban or
-            number_lo.replace('-', '') + 'so' == self.fanza_hinban
-        ):
+        if (re.sub('- | _', '', number_lo) == self.fanza_hinban or
+                number_lo.replace('-', '00') == self.fanza_hinban or
+                number_lo.replace('-', '') + 'so' == self.fanza_hinban):
             self.number = self.number
         return self.number
 
@@ -103,7 +108,11 @@ class Fanza(Parser):
         result = self.getFanzaString('発売日：')
         if result == '' or result == '----':
             result = self.getFanzaString('配信開始日：')
-        return result.replace("/", "-").strip('\\n')
+        return result.strip('\\n')
+
+    def getPublish(self, htmltree):
+        result = self.getFanzaString('配信開始日：')
+        return result.strip('\\n')
 
     def getTags(self, htmltree):
         return self.getFanzaStrings('ジャンル：')
@@ -119,8 +128,8 @@ class Fanza(Parser):
         if ret == "----":
             return ''
         return ret
-    
-        def getCover(self, htmltree):
+
+    def getCover(self, htmltree):
         cover_number = self.number
         try:
             result = htmltree.xpath('//*[@id="' + cover_number + '"]/@href')[0]
@@ -171,9 +180,11 @@ class Fanza(Parser):
         return ''
 
     def getFanzaString(self, expr):
-        result1 = str(self.htmltree.xpath("//td[contains(text(),'"+expr+"')]/following-sibling::td/a/text()")).strip(" ['']")
-        result2 = str(self.htmltree.xpath("//td[contains(text(),'"+expr+"')]/following-sibling::td/text()")).strip(" ['']")
-        return result1+result2
+        result1 = str(
+            self.htmltree.xpath("//td[contains(text(),'" + expr + "')]/following-sibling::td/a/text()")).strip(" ['']")
+        result2 = str(self.htmltree.xpath("//td[contains(text(),'" + expr + "')]/following-sibling::td/text()")).strip(
+            " ['']")
+        return result1 + result2
 
     def getFanzaStrings(self, string):
         result1 = self.htmltree.xpath("//td[contains(text(),'" + string + "')]/following-sibling::td/a/text()")
