@@ -139,8 +139,9 @@ class Fanza(Parser):
         return result
 
     def getExtrafanart(self, htmltree):
-        htmltext = re.search(r'<div id=\"sample-image-block\"[\s\S]*?<br></div>\s*?</div>', self.htmlcode).group()
+        htmltext = re.search(r'<div id=\"sample-image-block\"[\s\S]*?<br></div>\s*?</div>', self.htmlcode)
         if htmltext:
+            htmltext = htmltext.group()
             extrafanart_images = re.findall(r'<img.*?src=\"(.*?)\"', htmltext)
             if extrafanart_images:
                 sheet = []
@@ -151,10 +152,12 @@ class Fanza(Parser):
         return ''
 
     def getTrailer(self, htmltree):
-        htmltext = re.search(r'<script type=\"application/ld\+json\">[\s\S].*}\s*?</script>', self.htmlcode).group()
+        htmltext = re.search(r'<script type=\"application/ld\+json\">[\s\S].*}\s*?</script>', self.htmlcode)
         if htmltext:
-            url = re.search(r'\"contentUrl\":\"(.*?)\"', htmltext).group(1)
+            htmltext = htmltext.group()
+            url = re.search(r'\"contentUrl\":\"(.*?)\"', htmltext)
             if url:
+                url = url.group(1)
                 url = url.rsplit('_', 2)[0] + '_mhb_w.mp4'
                 return url
         return ''
