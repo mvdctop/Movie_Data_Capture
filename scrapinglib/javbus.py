@@ -42,7 +42,6 @@ class Javbus(Parser):
                 'buscdn.fun', 'busdmm.fun', 'busfan.fun', 'busjav.fun',
                 'cdnbus.fun',
                 'dmmbus.fun', 'dmmsee.fun',
-                'fanbus.us',
                 'seedmm.fun',
                 ]) + "/"
             try:
