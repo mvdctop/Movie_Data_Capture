@@ -63,6 +63,9 @@ class Carib(Parser):
                 r.append('https://www.caribbeancom.com' + jpg)
         return r
 
+    def getTrailer(self, htmltree):
+        return f'https://smovie.caribbeancom.com/sample/movies/{self.number}/1080p.mp4'
+
     def getActorPhoto(self, htmltree):
         htmla = htmltree.xpath("//*[@id='moviepages']/div[@class='container']/div[@class='inner-container']/div[@class='movie-info section']/ul/li[@class='movie-spec']/span[@class='spec-content']/a[@itemprop='actor']")
         names = htmltree.xpath("//*[@id='moviepages']/div[@class='container']/div[@class='inner-container']/div[@class='movie-info section']/ul/li[@class='movie-spec']/span[@class='spec-content']/a[@itemprop='actor']/span[@itemprop='name']/text()")
