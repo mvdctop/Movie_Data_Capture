@@ -253,8 +253,8 @@ class Parser:
     def getImagecut(self, htmltree):
         """ 修正 无码poster不裁剪cover
         """
-        if self.imagecut == 1 and self.getUncensored(htmltree):
-            self.imagecut = 0
+        # if self.imagecut == 1 and self.getUncensored(htmltree):
+        #     self.imagecut = 0
         return self.imagecut
 
     def getUserRating(self, htmltree):

@@ -20,6 +20,7 @@ class Carib(Parser):
     expr_outline = "//div[@class='movie-info section']/p[@itemprop='description']/text()"
 
     def extraInit(self):
+        self.imagecut = 1
         self.uncensored = True
 
     def search(self, number):
