@@ -211,32 +211,32 @@ class Scraping():
             lo_file_number = file_number.lower()
             if "carib" in sources and (re.search(r"^\d{6}-\d{3}", file_number)
             ):
-                sources = insert(sources,"carib")
+                sources = insert(sources, "carib")
             elif "item" in file_number or "GETCHU" in file_number.upper():
-                sources = insert(sources,"getchu")
-            elif "rj" in lo_file_number or "vj" in lo_file_number or re.search(r"[\u3040-\u309F\u30A0-\u30FF]+", file_number):
+                sources = insert(sources, "getchu")
+            elif "rj" in lo_file_number or "vj" in lo_file_number or re.search(r"[\u3040-\u309F\u30A0-\u30FF]+",
+                                                                               file_number):
                 sources = insert(sources, "getchu")
                 sources = insert(sources, "dlsite")
-            elif re.search(r"^\d{5,}", file_number) or "heyzo" in lo_file_number:
-                if "avsox" in sources:
-                    sources = insert(sources,"avsox")
-            elif "mgstage" in sources and \
-                    (re.search(r"\d+\D+", file_number) or "siro" in lo_file_number):
-                sources = insert(sources,"mgstage")
             elif "fc2" in lo_file_number:
                 if "fc2" in sources:
-                    sources = insert(sources,"fc2")
+                    sources = insert(sources, "fc2")
+            elif "mgstage" in sources and \
+                    (re.search(r"\d+\D+", file_number) or "siro" in lo_file_number):
+                sources = insert(sources, "mgstage")
             elif "gcolle" in sources and (re.search("\d{6}", file_number)):
-                sources = insert(sources,"gcolle")
+                sources = insert(sources, "gcolle")
+            elif "madou" in sources and (re.search(r"^[a-z0-9]{3,}-[0-9]{1,}$", lo_file_number)):
+                sources = insert(sources, "madou")
+
+            elif re.search(r"^\d{5,}", file_number) or "heyzo" in lo_file_number:
+                if "avsox" in sources:
+                    sources = insert(sources, "avsox")
             elif re.search(r"^[a-z0-9]{3,}$", lo_file_number):
                 if "xcity" in sources:
-                    sources = insert(sources,"xcity")
+                    sources = insert(sources, "xcity")
                 if "madou" in sources:
-                    sources = insert(sources,"madou")
-            elif "madou" in sources and (
-                    re.search(r"^[a-z0-9]{3,}-[0-9]{1,}$", lo_file_number)
-            ):
-                sources = insert(sources,"madou")
+                    sources = insert(sources, "madou")
 
         # check sources in func_mapping
         todel = []
