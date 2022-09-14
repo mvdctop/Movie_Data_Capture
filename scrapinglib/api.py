@@ -3,6 +3,7 @@
 import re
 import json
 
+import config
 from .airav import Airav
 from .carib import Carib
 from .dlsite import Dlsite
@@ -118,7 +119,8 @@ class Scraping():
         json_data = {}
         for source in sources:
             try:
-                print('[+]select', source)
+                if config.getInstance().debug():
+                    print('[+]select', source)
                 try:
                     data = self.general_func_mapping[source](name, self)
                     if data == 404:
@@ -150,7 +152,8 @@ class Scraping():
         json_data = {}
         for source in sources:
             try:
-                print('[+]select', source)
+                if config.getInstance().debug():
+                    print('[+]select', source)
                 try:
                     data = self.adult_func_mapping[source](number, self)
                     if data == 404:
