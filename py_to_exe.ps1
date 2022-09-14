@@ -10,6 +10,7 @@ mkdir __pycache__
 
 pyinstaller --onefile Movie_Data_Capture.py `
     --hidden-import "ImageProcessing.cnn" `
+    --python-option u `
     --add-data "$FACE_RECOGNITION_MODELS;face_recognition_models" `
     --add-data "$CLOUDSCRAPER_PATH;cloudscraper" `
     --add-data "$OPENCC_PATH;opencc" `
