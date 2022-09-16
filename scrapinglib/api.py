@@ -3,7 +3,6 @@
 import re
 import json
 
-import config
 from .airav import Airav
 from .carib import Carib
 from .dlsite import Dlsite
@@ -25,9 +24,7 @@ from .tmdb import Tmdb
 from .imdb import Imdb
 
 
-def search(number, sources: str=None, proxies=None, verify=None, type='adult',
-            specifiedSource=None, specifiedUrl=None,
-            dbcookies=None, dbsite=None, morestoryline=False):
+def search(number, sources: str=None, **kwargs):
     """ 根据`番号/电影`名搜索信息
 
     :param number: number/name  depends on type
@@ -35,9 +32,7 @@ def search(number, sources: str=None, proxies=None, verify=None, type='adult',
     :param type: `adult`, `general`
     """
     sc = Scraping()
-    return sc.search(number, sources, proxies=proxies, verify=verify, type=type,
-                     specifiedSource=specifiedSource, specifiedUrl=specifiedUrl,
-                     dbcookies=dbcookies, dbsite=dbsite, morestoryline=morestoryline)
+    return sc.search(number, sources, **kwargs)
 
 
 def getSupportedSources(tag='adult'):
@@ -83,6 +78,8 @@ class Scraping():
         'imdb': Imdb().scrape,
     }
 
+    debug = False
+
     proxies = None
     verify = None
     specifiedSource = None
@@ -95,7 +92,9 @@ class Scraping():
 
     def search(self, number, sources=None, proxies=None, verify=None, type='adult',
                specifiedSource=None, specifiedUrl=None,
-               dbcookies=None, dbsite=None, morestoryline=False):
+               dbcookies=None, dbsite=None, morestoryline=False,
+               debug=False):
+        self.debug = debug
         self.proxies = proxies
         self.verify = verify
         self.specifiedSource = specifiedSource
@@ -119,7 +118,7 @@ class Scraping():
         json_data = {}
         for source in sources:
             try:
-                if config.getInstance().debug():
+                if self.debug:
                     print('[+]select', source)
                 try:
                     data = self.general_func_mapping[source](name, self)
@@ -152,7 +151,7 @@ class Scraping():
         json_data = {}
         for source in sources:
             try:
-                if config.getInstance().debug():
+                if self.debug:
                     print('[+]select', source)
                 try:
                     data = self.adult_func_mapping[source](number, self)
