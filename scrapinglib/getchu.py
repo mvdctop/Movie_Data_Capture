@@ -52,8 +52,7 @@ class wwwGetchu(Parser):
             idn = re.findall('\d+',number)[0]
             return "http://www.getchu.com/soft.phtml?id=" + idn
         else:
-            self.number = quote(number, encoding="euc_jp")
-            queryUrl = self.GETCHU_WWW_SEARCH_URL.replace("_WORD_", self.number)
+            queryUrl = self.GETCHU_WWW_SEARCH_URL.replace("_WORD_", quote(number, encoding="euc_jp"))
         # NOTE dont know why will try 2 times
         retry = 2
         for i in range(retry):
