@@ -350,7 +350,7 @@ def translate(
     return trans_result
 
 
-def load_cookies(cookie_json_filename: str):
+def load_cookies(cookie_json_filename: str) -> typing.Tuple[typing.Optional[dict], typing.Optional[str]]:
     """
     加载cookie,用于以会员方式访问非游客内容
 
