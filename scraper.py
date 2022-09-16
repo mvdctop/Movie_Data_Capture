@@ -7,6 +7,7 @@ from pathlib import Path
 from ADC_function import delete_all_elements_in_list, delete_all_elements_in_str, file_modification_days, load_cookies, translate
 from scrapinglib.api import search
 
+
 def get_data_from_json(file_number, oCC, specified_source, specified_url):
     """
     iterate through all services and fetch the data 从JSON返回元数据
@@ -180,6 +181,7 @@ def get_data_from_json(file_number, oCC, specified_source, specified_url):
     if oCC:
         cc_vars = conf.cc_convert_vars().split(",")
         ccm = conf.cc_convert_mode()
+        
         def convert_list(mapping_data,language,vars):
             total = []
             for i in vars:
@@ -187,6 +189,7 @@ def get_data_from_json(file_number, oCC, specified_source, specified_url):
                     i = mapping_data.xpath('a[contains(@keyword, $name)]/@' + language, name=f",{i},")[0]
                 total.append(i)
             return total
+
         def convert(mapping_data,language,vars):
             if len(mapping_data.xpath('a[contains(@keyword, $name)]/@' + language, name=vars)) != 0:
                 return mapping_data.xpath('a[contains(@keyword, $name)]/@' + language, name=vars)[0]

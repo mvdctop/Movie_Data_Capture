@@ -1,4 +1,3 @@
-
 import os
 import sys
 import time
@@ -18,7 +17,8 @@ INFO = 20
 DEBUG = 10
 NOTSET = 0
 
-class Logger():
+
+class Logger:
     def __init__(self, name, buffer_size=0, file_name=None, roll_num=1):
         self.err_color = '\033[0m'
         self.warn_color = '\033[0m'
@@ -28,7 +28,7 @@ class Logger():
         self.name = str(name)
         self.file_max_size = 1024 * 1024
         self.buffer_lock = threading.Lock()
-        self.buffer = {} # id => line
+        self.buffer = {}  # id => line
         self.buffer_size = buffer_size
         self.last_no = 0
         self.min_level = NOTSET
@@ -107,7 +107,7 @@ class Logger():
             if not os.path.isfile(old_name):
                 continue
 
-            #self.info("roll_log %s -> %s", old_name, new_name)
+            # self.info("roll_log %s -> %s", old_name, new_name)
             shutil.move(old_name, new_name)
 
         shutil.move(self.log_filename, self.log_filename + ".1")
@@ -157,7 +157,8 @@ class Logger():
                 if buffer_len > self.buffer_size:
                     del self.buffer[self.last_no - self.buffer_size]
         except Exception as e:
-            string = '%s - [%s]LOG_EXCEPT: %s, Except:%s<br> %s' % (time.ctime()[4:-5], level, fmt % args, e, traceback.format_exc())
+            string = '%s - [%s]LOG_EXCEPT: %s, Except:%s<br> %s' % (
+            time.ctime()[4:-5], level, fmt % args, e, traceback.format_exc())
             self.last_no += 1
             self.buffer[self.last_no] = string
             buffer_len = len(self.buffer)
@@ -202,7 +203,7 @@ class Logger():
     def tofile(self, fmt, *args, **kwargs):
         self.log_to_file('@', self.warn_color, fmt, *args, **kwargs)
 
-    #=================================================================
+    # =================================================================
     def set_buffer_size(self, set_size):
         self.buffer_lock.acquire()
         self.buffer_size = set_size
@@ -255,7 +256,9 @@ class Logger():
             print(("Except stack:%s" % traceback.format_exc()))
             return ""
 
+
 loggerDict = {}
+
 
 def getLogger(name=None, buffer_size=0, file_name=None, roll_num=1):
     global loggerDict, default_log
@@ -279,28 +282,37 @@ def getLogger(name=None, buffer_size=0, file_name=None, roll_num=1):
         default_log = logger_instance
         return logger_instance
 
+
 default_log = getLogger()
+
 
 def debg(fmt, *args, **kwargs):
     default_log.debug(fmt, *args, **kwargs)
 
+
 def info(fmt, *args, **kwargs):
     default_log.info(fmt, *args, **kwargs)
+
 
 def warn(fmt, *args, **kwargs):
     default_log.warning(fmt, *args, **kwargs)
 
+
 def erro(fmt, *args, **kwargs):
     default_log.error(fmt, *args, **kwargs)
+
 
 def excp(fmt, *args, **kwargs):
     default_log.exception(fmt, *args, **kwargs)
 
+
 def crit(fmt, *args, **kwargs):
     default_log.critical(fmt, *args, **kwargs)
 
+
 def tofile(fmt, *args, **kwargs):
     default_log.tofile(fmt, *args, **kwargs)
+
 
 if __name__ == '__main__':
     log_file = os.path.join(os.path.dirname(sys.argv[0]), "test.log")
@@ -313,7 +325,6 @@ if __name__ == '__main__':
     tofile("write to file only")
 
     try:
-        1/0
+        1 / 0
     except Exception as e:
         excp("An error has occurred")
-
