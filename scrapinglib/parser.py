@@ -37,7 +37,9 @@ class Parser:
     expr_userrating = ''
     expr_uservotes = ''
 
-    def __init__(self):
+    def init(self):
+        """ 初始化参数
+        """
         # 推荐剪切poster封面:
         # `0` 复制cover
         # `1` 裁剪cover 
@@ -63,7 +65,7 @@ class Parser:
         """ 刮削番号
         """
         # 每次调用，初始化参数
-        self.__init__()
+        self.init()
         self.updateCore(core)
         result = self.search(number)
         return result
