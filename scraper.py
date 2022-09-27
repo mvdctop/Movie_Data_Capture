@@ -60,9 +60,9 @@ def get_data_from_json(file_number, oCC, specified_source, specified_url):
         javdb_site = secrets.choice(javdb_sites)
         javdb_cookies = None
 
-    ca_cert = None
+    cacert = None
     if conf.cacert_file():
-        ca_cert = conf.cacert_file()
+        cacert = conf.cacert_file()
 
     json_data = search(file_number, sources, proxies=proxies, verify=cacert,
                         dbsite=javdb_site, dbcookies=javdb_cookies,
