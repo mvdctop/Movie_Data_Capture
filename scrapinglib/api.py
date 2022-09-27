@@ -46,11 +46,11 @@ def getSupportedSources(tag='adult'):
         return ','.join(sc.general_full_sources)
 
 
-class Scraping():
+class Scraping:
     """
     """
-    adult_full_sources = ['javlibrary', 'javdb', 'javbus', 'airav', 'fanza', 'xcity', 'jav321', 
-                          'mgstage', 'fc2', 'avsox', 'dlsite', 'carib', 'madou', 'mv91', 
+    adult_full_sources = ['javlibrary', 'javdb', 'javbus', 'airav', 'fanza', 'xcity', 'jav321',
+                          'mgstage', 'fc2', 'avsox', 'dlsite', 'carib', 'madou', 'mv91',
                           'getchu', 'gcolle'
                           ]
     adult_func_mapping = {
@@ -72,7 +72,7 @@ class Scraping():
         'javlibrary': Javlibrary().scrape,
     }
 
-    general_full_sources = ['tmdb','imdb']
+    general_full_sources = ['tmdb', 'imdb']
     general_func_mapping = {
         'tmdb': Tmdb().scrape,
         'imdb': Imdb().scrape,
@@ -199,7 +199,8 @@ class Scraping():
             sources = self.adult_full_sources
         else:
             sources = c_sources.split(',')
-        def insert(sources,source):
+
+        def insert(sources, source):
             if source in sources:
                 sources.insert(0, sources.pop(sources.index(source)))
             return sources

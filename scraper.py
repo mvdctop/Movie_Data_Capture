@@ -1,11 +1,21 @@
+# build-in lib
 import json
 import secrets
-import config
-from lxml import etree
 from pathlib import Path
 
-from ADC_function import delete_all_elements_in_list, delete_all_elements_in_str, file_modification_days, load_cookies, translate
+# third party lib
+from lxml import etree
+
+# project wide definitions
+import config
+from ADC_function import (translate,
+                          load_cookies,
+                          file_modification_days,
+                          delete_all_elements_in_str,
+                          delete_all_elements_in_list
+                          )
 from scrapinglib.api import search
+
 
 def get_data_from_json(file_number, oCC, specified_source, specified_url):
     """
@@ -21,11 +31,11 @@ def get_data_from_json(file_number, oCC, specified_source, specified_url):
 
     # TODO 准备参数
     # - 清理 ADC_function, webcrawler
-    proxies = None
-    configProxy = conf.proxy()
-    if configProxy.enable:
-        proxies = configProxy.proxies()
-    
+    proxies: dict = None
+    config_proxy = conf.proxy()
+    if config_proxy.enable:
+        proxies = config_proxy.proxies()
+
     javdb_sites = conf.javdb_sites().split(',')
     for i in javdb_sites:
         javdb_sites[javdb_sites.index(i)] = "javdb" + i
@@ -43,14 +53,16 @@ def get_data_from_json(file_number, oCC, specified_source, specified_url):
                 has_json = True
                 break
             elif cdays != 9999:
-                print(f'[!]Cookies file {cookies_filepath} was updated {cdays} days ago, it will not be used for HTTP requests.')
+                print(
+                    f'[!]Cookies file {cookies_filepath} was updated {cdays} days ago, it will not be used for HTTP requests.')
     if not has_json:
+        # get real random site from javdb_sites, because random is not really random when the seed value is known
         javdb_site = secrets.choice(javdb_sites)
         javdb_cookies = None
 
-    cacert =None
+    ca_cert = None
     if conf.cacert_file():
-        cacert = conf.cacert_file()
+        ca_cert = conf.cacert_file()
 
     json_data = search(file_number, sources, proxies=proxies, verify=cacert,
                         dbsite=javdb_site, dbcookies=javdb_cookies,
@@ -181,18 +193,21 @@ def get_data_from_json(file_number, oCC, specified_source, specified_url):
     if oCC:
         cc_vars = conf.cc_convert_vars().split(",")
         ccm = conf.cc_convert_mode()
-        def convert_list(mapping_data,language,vars):
+
+        def convert_list(mapping_data, language, vars):
             total = []
             for i in vars:
                 if len(mapping_data.xpath('a[contains(@keyword, $name)]/@' + language, name=f",{i},")) != 0:
                     i = mapping_data.xpath('a[contains(@keyword, $name)]/@' + language, name=f",{i},")[0]
                 total.append(i)
             return total
-        def convert(mapping_data,language,vars):
+
+        def convert(mapping_data, language, vars):
             if len(mapping_data.xpath('a[contains(@keyword, $name)]/@' + language, name=vars)) != 0:
                 return mapping_data.xpath('a[contains(@keyword, $name)]/@' + language, name=vars)[0]
             else:
                 raise IndexError('keyword not found')
+
         for cc in cc_vars:
             if json_data[cc] == "" or len(json_data[cc]) == 0:
                 continue
@@ -239,7 +254,7 @@ def get_data_from_json(file_number, oCC, specified_source, specified_url):
                 except:
                     pass
 
-    naming_rule=""
+    naming_rule = ""
     for i in conf.naming_rule().split("+"):
         if i not in json_data:
             naming_rule += i.strip("'").strip('"')
@@ -254,17 +269,17 @@ def get_data_from_json(file_number, oCC, specified_source, specified_url):
 def special_characters_replacement(text) -> str:
     if not isinstance(text, str):
         return text
-    return (text.replace('\\', '∖').     # U+2216 SET MINUS @ Basic Multilingual Plane
-                replace('/', '∕').       # U+2215 DIVISION SLASH @ Basic Multilingual Plane
-                replace(':', '꞉').       # U+A789 MODIFIER LETTER COLON @ Latin Extended-D
-                replace('*', '∗').       # U+2217 ASTERISK OPERATOR @ Basic Multilingual Plane
-                replace('?', '？').      # U+FF1F FULLWIDTH QUESTION MARK @ Basic Multilingual Plane
-                replace('"', '＂').      # U+FF02 FULLWIDTH QUOTATION MARK @ Basic Multilingual Plane
-                replace('<', 'ᐸ').       # U+1438 CANADIAN SYLLABICS PA @ Basic Multilingual Plane
-                replace('>', 'ᐳ').       # U+1433 CANADIAN SYLLABICS PO @ Basic Multilingual Plane
-                replace('|', 'ǀ').       # U+01C0 LATIN LETTER DENTAL CLICK @ Basic Multilingual Plane
-                replace('&lsquo;', '‘'). # U+02018 LEFT SINGLE QUOTATION MARK
-                replace('&rsquo;', '’'). # U+02019 RIGHT SINGLE QUOTATION MARK
-                replace('&hellip;','…').
-                replace('&amp;', '＆')
+    return (text.replace('\\', '∖').  # U+2216 SET MINUS @ Basic Multilingual Plane
+            replace('/', '∕').  # U+2215 DIVISION SLASH @ Basic Multilingual Plane
+            replace(':', '꞉').  # U+A789 MODIFIER LETTER COLON @ Latin Extended-D
+            replace('*', '∗').  # U+2217 ASTERISK OPERATOR @ Basic Multilingual Plane
+            replace('?', '？').  # U+FF1F FULLWIDTH QUESTION MARK @ Basic Multilingual Plane
+            replace('"', '＂').  # U+FF02 FULLWIDTH QUOTATION MARK @ Basic Multilingual Plane
+            replace('<', 'ᐸ').  # U+1438 CANADIAN SYLLABICS PA @ Basic Multilingual Plane
+            replace('>', 'ᐳ').  # U+1433 CANADIAN SYLLABICS PO @ Basic Multilingual Plane
+            replace('|', 'ǀ').  # U+01C0 LATIN LETTER DENTAL CLICK @ Basic Multilingual Plane
+            replace('&lsquo;', '‘').  # U+02018 LEFT SINGLE QUOTATION MARK
+            replace('&rsquo;', '’').  # U+02019 RIGHT SINGLE QUOTATION MARK
+            replace('&hellip;', '…').
+            replace('&amp;', '＆')
             )
