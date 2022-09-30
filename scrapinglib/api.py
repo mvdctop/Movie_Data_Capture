@@ -24,7 +24,7 @@ from .tmdb import Tmdb
 from .imdb import Imdb
 
 
-def search(number, sources: str=None, **kwargs):
+def search(number, sources: str = None, **kwargs):
     """ 根据`番号/电影`名搜索信息
 
     :param number: number/name  depends on type
