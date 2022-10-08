@@ -773,7 +773,7 @@ def core_main(movie_path, number_th, oCC, specified_source=None, specified_url=N
     hack_word = ''
 
     # 下面被注释的变量不需要
-    #rootpath= os.getcwd
+    # rootpath = os.getcwd
     number = number_th
     json_data = get_data_from_json(number, oCC, specified_source, specified_url)  # 定义番号
 
