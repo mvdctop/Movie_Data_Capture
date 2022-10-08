@@ -76,11 +76,10 @@ def get_data_from_json(
         ca_cert = conf.cacert_file()
 
     json_data = search(file_number, sources, proxies=proxies, verify=ca_cert,
-                       dbsite=javdb_site, dbcookies=javdb_cookies,
-                       morestoryline=conf.is_storyline(),
-                       specifiedSource=specified_source, specifiedUrl=specified_url,
-                       debug=conf.debug())
-
+                        dbsite=javdb_site, dbcookies=javdb_cookies,
+                        morestoryline=conf.is_storyline(),
+                        specifiedSource=specified_source, specifiedUrl=specified_url,
+                        debug = conf.debug())
     # Return if data not found in all sources
     if not json_data:
         print('[-]Movie Number not found!')
