@@ -38,17 +38,17 @@ class Javbus(Parser):
                 htmltree = self.getHtmlTree(self.detailurl)
                 result = self.dictformat(htmltree)
                 return result
-            url = "https://www." + secrets.choice([
-                'buscdn.fun', 'busdmm.fun', 'busfan.fun', 'busjav.fun',
-                'cdnbus.fun',
-                'dmmbus.fun', 'dmmsee.fun',
-                'seedmm.fun',
-                ]) + "/"
             try:
-                self.detailurl = url + number
+                self.detailurl = 'https://www.javbus.com/' + number
                 self.htmlcode = self.getHtml(self.detailurl)
             except:
-                self.detailurl = 'https://www.javbus.com/' + number
+                mirror_url = "https://www." + secrets.choice([
+                    'buscdn.fun', 'busdmm.fun', 'busfan.fun', 'busjav.fun',
+                    'cdnbus.fun',
+                    'dmmbus.fun', 'dmmsee.fun',
+                    'seedmm.fun',
+                    ]) + "/"
+                self.detailurl = mirror_url + number
                 self.htmlcode = self.getHtml(self.detailurl)
             if self.htmlcode == 404:
                 return 404
