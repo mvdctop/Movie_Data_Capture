@@ -104,7 +104,7 @@ class Javdb(Parser):
                 correct_url = urls[self.queryid]
             except:
                 # 为避免获得错误番号，只要精确对应的结果
-                if ids[0].upper() != number:
+                if ids[0].upper() != number.upper():
                     raise ValueError("number not found in javdb")
                 correct_url = urls[0]
         return urljoin(resp.url, correct_url)

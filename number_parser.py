@@ -58,7 +58,12 @@ def get_number(debug: bool, file_path: str) -> str:
             filename = re.sub("[-_]cd\d{1,2}", "", filename, flags=re.IGNORECASE)
             if not re.search("-|_", filename): # 去掉-CD1之后再无-的情况，例如n1012-CD1.wmv
                 return str(re.search(r'\w+', filename[:filename.find('.')], re.A).group())
-            file_number = str(re.search(r'\w+(-|_)\w+', filename, re.A).group())
+            file_number =  os.path.splitext(filename)
+            filename = re.search(r'\w+(-|_)\w+', filename, re.A)
+            if filename:
+                file_number = str(filename.group())
+            else:
+                file_number = file_number[0]
             file_number = re.sub("(-|_)c$", "", file_number, flags=re.IGNORECASE)
             if re.search("\d+ch$", file_number, flags=re.I):
                 file_number = file_number[:-2]
@@ -82,7 +87,7 @@ def get_number(debug: bool, file_path: str) -> str:
         
 # modou提取number
 def md(filename):
-    m = re.search(r'(md[a-z]{0,2}-?)(\d{2,})(-ep\d*)*', filename, re.I)
+    m = re.search(r'(md[a-z]{0,2}-?)(\d{2,})(-ep\d*|-\d*)*', filename, re.I)
     return f'{m.group(1).replace("-","").upper()}{m.group(2).zfill(4)}{m.group(3) or ""}'
 
 def mmz(filename):
@@ -103,9 +108,11 @@ def yk(filename):
 
 def pm(filename):
     m = re.search(r'(pm[a-z]?-?)(\d{2,})(-ep\d*)*', filename, re.I)
-    return f'{m.group(1).replace("-","").upper()}{m.group(2).zfill(3)}{m.group(3) or ""}'   
+    return f'{m.group(1).replace("-","").upper()}{m.group(2).zfill(3)}{m.group(3) or ""}'
    
-   
+def fsog(filename):
+    m = re.search(r'(fsog-?)(\d{2,})(-ep\d*)*', filename, re.I)
+    return f'{m.group(1).replace("-","").upper()}{m.group(2).zfill(3)}{m.group(3) or ""}'
 
 # 按javdb数据源的命名规范提取number
 G_TAKE_NUM_RULES = {
@@ -117,12 +124,15 @@ G_TAKE_NUM_RULES = {
     'xxx-av': lambda x: ''.join(['xxx-av-', re.findall(r'xxx-av[^\d]*(\d{3,5})[^\d]*', x, re.I)[0]]),
     'heydouga': lambda x: 'heydouga-' + '-'.join(re.findall(r'(\d{4})[\-_](\d{3,4})[^\d]*', x, re.I)[0]),
     'heyzo': lambda x: 'HEYZO-' + re.findall(r'heyzo[^\d]*(\d{4})', x, re.I)[0],
+    'mdbk': lambda x: str(re.search(r'mdbk(-|_)(\d{4})', x, re.I).group()),
+    'mdtm': lambda x: str(re.search(r'mdtm(-|_)(\d{4})', x, re.I).group()),
     r'\bmd[a-z]{0,2}-\d{2,}': md,
     r'\bmmz-\d{2,}':mmz,
     r'\bmsd-\d{2,}':msd,
     r'\bmky-[a-z]{2,2}-\d{2,}':mky,
     r'\byk-\d{2,3}': yk,
-    r'\bpm[a-z]?-?\d{2,}':pm
+    r'\bpm[a-z]?-?\d{2,}':pm,
+    r'\bfsog-?\d{2,}':fsog
 }
 
 
