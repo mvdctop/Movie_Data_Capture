@@ -4,20 +4,21 @@
 
 """
 
-
 import json
 import os
 import re
 import time
 import secrets
 import builtins
+import config
+
 from urllib.parse import urljoin
 from lxml.html import fromstring
 from multiprocessing.dummy import Pool as ThreadPool
 
 from .airav import Airav
 from .xcity import Xcity
-from .httprequest  import get_html_by_form, get_html_by_scraper, request_session
+from .httprequest import get_html_by_form, get_html_by_scraper, request_session
 
 # 舍弃 Amazon 源
 G_registered_storyline_site = {"airavwiki", "airav", "avno1", "xcity", "58avgo"}
@@ -78,7 +79,8 @@ def getStoryline(number, title=None, sites: list=None, uncensored=None, proxies=
     for site, desc in zip(apply_sites, results):
         sl = len(desc) if isinstance(desc, str) else 0
         s += f'，[选中{site}字数:{sl}]' if site == sel_site else f'，{site}字数:{sl}' if sl else f'，{site}:空'
-    print(s)
+    if config.getInstance().debug():
+        print(s)
     return sel
 
 
@@ -100,12 +102,13 @@ def getStoryline_mp(args):
         storyline = getStoryline_58avgo(number, debug, proxies, verify)
     if not debug:
         return storyline
-    print("[!]MP 线程[{}]运行{:.3f}秒，结束于{}返回结果: {}".format(
+    if config.getInstance().debug():
+        print("[!]MP 线程[{}]运行{:.3f}秒，结束于{}返回结果: {}".format(
             site,
             time.time() - start_time,
             time.strftime("%H:%M:%S"),
             storyline if isinstance(storyline, str) and len(storyline) else '[空]')
-    )
+        )
     return storyline
 
 

@@ -131,7 +131,8 @@ class Scraping:
                     pass
                 # if any service return a valid return, break
                 if self.get_data_state(json_data):
-                    print(f"[+]Find movie [{name}] metadata on website '{source}'")
+                    if self.debug:
+                        print(f"[+]Find movie [{name}] metadata on website '{source}'")
                     break
             except:
                 continue
@@ -165,7 +166,8 @@ class Scraping:
                     # json_data = self.func_mapping[source](number, self)
                 # if any service return a valid return, break
                 if self.get_data_state(json_data):
-                    print(f"[+]Find movie [{number}] metadata on website '{source}'")
+                    if self.debug:
+                        print(f"[+]Find movie [{number}] metadata on website '{source}'")
                     break
             except:
                 continue
