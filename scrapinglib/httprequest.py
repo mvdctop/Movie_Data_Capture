@@ -6,12 +6,14 @@ from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 from cloudscraper import create_scraper
 
+import config
+
 G_USER_AGENT = r'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.133 Safari/537.36'
 G_DEFAULT_TIMEOUT = 10
 
 
-def get(url: str, cookies=None, ua: str=None, extra_headers=None, return_type: str=None, encoding: str=None,
-        retry: int=3, timeout: int=G_DEFAULT_TIMEOUT, proxies=None, verify=None):
+def get(url: str, cookies=None, ua: str = None, extra_headers=None, return_type: str = None, encoding: str = None,
+        retry: int = 3, timeout: int = G_DEFAULT_TIMEOUT, proxies=None, verify=None):
     """
     网页请求核心函数
 
@@ -33,14 +35,16 @@ def get(url: str, cookies=None, ua: str=None, extra_headers=None, return_type: s
                 result.encoding = encoding or result.apparent_encoding
                 return result.text
         except Exception as e:
-            print(f"[-]Connect: {url} retry {i + 1}/{retry}")
+            if config.getInstance().debug():
+                print(f"[-]Connect: {url} retry {i + 1}/{retry}")
             errors = str(e)
-    if "getaddrinfo failed" in errors:
-        print("[-]Connect Failed! Please Check your proxy config")
-        print("[-]" + errors)
-    else:
-        print("[-]" + errors)
-        print('[-]Connect Failed! Please check your Proxy or Network!')
+    if config.getInstance().debug():
+        if "getaddrinfo failed" in errors:
+            print("[-]Connect Failed! Please Check your proxy config")
+            print("[-]" + errors)
+        else:
+            print("[-]" + errors)
+            print('[-]Connect Failed! Please check your Proxy or Network!')
     raise Exception('Connect Failed')
 
 
@@ -64,15 +68,17 @@ def post(url: str, data: dict=None, files=None, cookies=None, ua: str=None, retu
                 result.encoding = encoding or result.apparent_encoding
                 return result
         except Exception as e:
-            print(f"[-]Connect: {url} retry {i + 1}/{retry}")
+            if config.getInstance().debug():
+                print(f"[-]Connect: {url} retry {i + 1}/{retry}")
             errors = str(e)
-    if "getaddrinfo failed" in errors:
-        print("[-]Connect Failed! Please Check your proxy config")
-        print("[-]" + errors)
-    else:
-        print("[-]" + errors)
-        print('[-]Connect Failed! Please check your Proxy or Network!')
-    raise Exception('Connect Failed')
+        if config.getInstance().debug():
+            if "getaddrinfo failed" in errors:
+                print("[-]Connect Failed! Please Check your proxy config")
+                print("[-]" + errors)
+            else:
+                print("[-]" + errors)
+                print('[-]Connect Failed! Please check your Proxy or Network!')
+        raise Exception('Connect Failed')
 
 
 class TimeoutHTTPAdapter(HTTPAdapter):

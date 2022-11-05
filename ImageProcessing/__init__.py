@@ -100,7 +100,6 @@ def cutImage(imagecut, path, fanart_path, poster_path, skip_facerec=False):
 
 
 def face_center(filename, model):
-    print('[+]Use model         ' + model)
     try:
         mod = importlib.import_module('.' + model, 'ImageProcessing')
         return mod.face_center(filename, model)

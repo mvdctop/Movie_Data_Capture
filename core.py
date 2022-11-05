@@ -473,9 +473,8 @@ def add_mark(poster_path, thumb_path, cn_sub, leak, uncensored, hack) -> None:
     if mark_type == '':
         return
     add_mark_thread(thumb_path, cn_sub, leak, uncensored, hack)
-    print('[+]Thumb Add Mark:   ' + mark_type.strip(','))
     add_mark_thread(poster_path, cn_sub, leak, uncensored, hack)
-    print('[+]Poster Add Mark:  ' + mark_type.strip(','))
+    print('[+]Add Mark:         ' + mark_type.strip(','))
 
 
 def add_mark_thread(pic_path, cn_sub, leak, uncensored, hack):
