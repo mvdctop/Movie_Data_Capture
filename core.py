@@ -367,7 +367,7 @@ def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, f
             if cn_sub == '1':
                 print("  <tag>中文字幕</tag>", file=code)
             if liuchu == '流出':
-                print("  <tag>流出</tag>", file=code)
+                print("  <tag>无码流出</tag>", file=code)
             if uncensored == 1:
                 print("  <tag>无码</tag>", file=code)
             if hack_word != '':
@@ -381,7 +381,7 @@ def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, f
             if cn_sub == '1':
                 print("  <genre>中文字幕</genre>", file=code)
             if liuchu == '流出':
-                print("  <genre>流出</genre>", file=code)
+                print("  <genre>无码流出</genre>", file=code)
             if uncensored == 1:
                 print("  <genre>无码</genre>", file=code)
             if hack_word != '':
@@ -465,7 +465,7 @@ def add_mark(poster_path, thumb_path, cn_sub, leak, uncensored, hack) -> None:
     if cn_sub:
         mark_type += ',字幕'
     if leak:
-        mark_type += ',流出'
+        mark_type += ',无码流出'
     if uncensored:
         mark_type += ',无码'
     if hack:
@@ -721,7 +721,7 @@ def core_main_no_net_op(movie_path, number):
         c_word = '-C'  # 中文字幕影片后缀
     uncensored = 1 if is_uncensored(number) else 0
     if '流出' in movie_path or 'uncensored' in movie_path.lower():
-        leak_word = '-流出' # 流出影片后缀
+        leak_word = '-无码流出' # 无码流出影片后缀
         leak = 1
 
     if 'hack'.upper() in str(movie_path).upper() or '破解' in movie_path:
@@ -806,7 +806,7 @@ def core_main(movie_path, number_th, oCC, specified_source=None, specified_url=N
     if '流出' in movie_path or 'uncensored' in movie_path.lower():
         liuchu = '流出'
         leak = 1
-        leak_word = '-流出' # 流出影片后缀
+        leak_word = '-无码流出' # 流出影片后缀
     else:
         leak = 0
 
