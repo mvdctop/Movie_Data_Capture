@@ -364,22 +364,24 @@ def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, f
                 pass
             print("  <maker>" + studio + "</maker>", file=code)
             print("  <label>" + label + "</label>", file=code)
-            if cn_sub == '1':
-                print("  <tag>中文字幕</tag>", file=code)
-            if liuchu == '流出':
-                print("  <tag>流出</tag>", file=code)
-            if uncensored == 1:
-                print("  <tag>无码</tag>", file=code)
-            if hack_word != '':
-                print("  <tag>破解</tag>", file=code)
-            if _4k == '4k':
-                print("  <tag>4k</tag>", file=code)
-            try:
-                for i in tag:
-                    print("  <tag>" + i + "</tag>", file=code)
-                # print("  <tag>" + series + "</tag>", file=code)
-            except:
-                pass
+            skip_tags = config.getInstance().donot_save_tags()
+            if not skip_tags:
+                if cn_sub == '1':
+                    print("  <tag>中文字幕</tag>", file=code)
+                if liuchu == '流出':
+                    print("  <tag>流出</tag>", file=code)
+                if uncensored == 1:
+                    print("  <tag>无码</tag>", file=code)
+                if hack_word != '':
+                    print("  <tag>破解</tag>", file=code)
+                if _4k == '4k':
+                    print("  <tag>4k</tag>", file=code)
+                try:
+                    for i in tag:
+                        print("  <tag>" + i + "</tag>", file=code)
+                    # print("  <tag>" + series + "</tag>", file=code)
+                except:
+                    pass
             if cn_sub == '1':
                 print("  <genre>中文字幕</genre>", file=code)
             if liuchu == '流出':
