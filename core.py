@@ -5,7 +5,7 @@ import pathlib
 import re
 import shutil
 import sys
-
+from videoprops import get_video_properties
 
 from PIL import Image
 from io import BytesIO
@@ -307,7 +307,7 @@ def image_download(cover, fanart_path, thumb_path, path, filepath, json_headers=
     shutil.copyfile(full_filepath, os.path.join(path, thumb_path))
 
 
-def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, filepath, tag, actor_list, liuchu, uncensored, hack_word,fanart_path,poster_path,thumb_path):
+def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, filepath, tag, actor_list, liuchu, uncensored, hack_word,_4k,fanart_path,poster_path,thumb_path):
     title, studio, year, outline, runtime, director, actor_photo, release, number, cover, trailer, website, series, label = get_info(json_data)
     if config.getInstance().main_mode() == 3:  # 模式3下，由于视频文件不做任何改变，.nfo文件必须和视频文件名称除后缀外完全一致，KODI等软件方可支持
         nfo_path = str(Path(filepath).with_suffix('.nfo'))
@@ -372,6 +372,8 @@ def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, f
                 print("  <tag>无码</tag>", file=code)
             if hack_word != '':
                 print("  <tag>破解</tag>", file=code)
+            if _4k == '4k':
+                print("  <tag>4k</tag>", file=code)
             try:
                 for i in tag:
                     print("  <tag>" + i + "</tag>", file=code)
@@ -386,6 +388,8 @@ def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, f
                 print("  <genre>无码</genre>", file=code)
             if hack_word != '':
                 print("  <genre>破解</genre>", file=code)
+            if _4k == '4k':
+                print("  <tag>4k</tag>", file=code)
             try:
                 for i in tag:
                     print("  <genre>" + i + "</genre>", file=code)
@@ -770,6 +774,8 @@ def core_main(movie_path, number_th, oCC, specified_source=None, specified_url=N
     liuchu = ''
     hack = ''
     hack_word = ''
+    _4k = ''
+    _4k_world = ''
 
     # 下面被注释的变量不需要
     # rootpath = os.getcwd
@@ -813,6 +819,13 @@ def core_main(movie_path, number_th, oCC, specified_source=None, specified_url=N
     if 'hack'.upper() in str(movie_path).upper() or '破解' in movie_path:
         hack = 1
         hack_word = "-hack"
+        
+    # 判断是否4k
+    if '4K' in tag: tag.remove('4K') # 从tag中移除'4K'
+    props = get_video_properties(movie_path)  # 判断是否为4K视频
+    if props['width'] >=4096 or props['height'] >= 2160:
+        _4k = '4k'
+        _4k_world = '-4k'
 
     # 调试模式检测
     if conf.debug():
@@ -885,7 +898,7 @@ def core_main(movie_path, number_th, oCC, specified_source=None, specified_url=N
 
         # 最后输出.nfo元数据文件，以完成.nfo文件创建作为任务成功标志
         print_files(path, leak_word, c_word,  json_data.get('naming_rule'), part, cn_sub, json_data, movie_path, tag,  json_data.get('actor_list'), liuchu, uncensored, hack_word
-        ,fanart_path,poster_path,thumb_path)
+        ,_4k,fanart_path,poster_path,thumb_path)
 
     elif conf.main_mode() == 2:
         # 创建文件夹
