@@ -153,7 +153,7 @@ class Airav(Parser):
         return ''
     def getExtrafanart(self,htmltree):
         try:
-            result = htmltree("images")
+            result = htmltree["images"]
         except:
             result = ""
         return result
