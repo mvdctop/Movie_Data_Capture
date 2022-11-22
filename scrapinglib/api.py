@@ -11,7 +11,6 @@ from .gcolle import Gcolle
 from .getchu import Getchu
 from .jav321 import Jav321
 from .javdb import Javdb
-from .mv91 import Mv91
 from .fc2 import Fc2
 from .madou import Madou
 from .mgstage import Mgstage
@@ -19,6 +18,7 @@ from .javbus import Javbus
 from .xcity import Xcity
 from .avsox import Avsox
 from .javlibrary import Javlibrary
+from .javday import Javday
 
 from .tmdb import Tmdb
 from .imdb import Imdb
@@ -50,8 +50,8 @@ class Scraping:
     """
     """
     adult_full_sources = ['javlibrary', 'javdb', 'javbus', 'airav', 'fanza', 'xcity', 'jav321',
-                          'mgstage', 'fc2', 'avsox', 'dlsite', 'carib', 'madou', 'mv91',
-                          'getchu', 'gcolle'
+                          'mgstage', 'fc2', 'avsox', 'dlsite', 'carib', 'madou', 
+                          'getchu', 'gcolle','javday'
                           ]
     adult_func_mapping = {
         'avsox': Avsox().scrape,
@@ -65,11 +65,11 @@ class Scraping:
         'fanza': Fanza().scrape,
         'airav': Airav().scrape,
         'carib': Carib().scrape,
-        'mv91': Mv91().scrape,
         'gcolle': Gcolle().scrape,
         'javdb': Javdb().scrape,
         'getchu': Getchu().scrape,
         'javlibrary': Javlibrary().scrape,
+        'javday': Javday().scrape
     }
 
     general_full_sources = ['tmdb', 'imdb']
