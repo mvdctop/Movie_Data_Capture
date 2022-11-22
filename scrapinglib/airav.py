@@ -29,7 +29,7 @@ class Airav(Parser):
         if self.specifiedUrl:
             self.detailurl = self.specifiedUrl
         else:
-            self.detailurl = self.queryNumberUrl(self.number)
+            self.detailurl = "https://www.airav.wiki/api/video/barcode/" + self.number.upper() + "?lng=zh-CN"
         if self.addtion_Javbus:
             engine = Javbus()
             javbusinfo = engine.scrape(self.number, self)
@@ -38,33 +38,37 @@ class Airav(Parser):
             else:
                 self.javbus = json.loads(javbusinfo)
         self.htmlcode = self.getHtml(self.detailurl)
-        htmltree = etree.fromstring(self.htmlcode, etree.HTMLParser())
+        # htmltree = etree.fromstring(self.htmlcode, etree.HTMLParser())
+        #result = self.dictformat(htmltree)
+        htmltree = json.loads(self.htmlcode)["result"]
         result = self.dictformat(htmltree)
         return result
 
-    def queryNumberUrl(self, number):
-        queryUrl =  "https://cn.airav.wiki/?search=" + number
-        queryTree = self.getHtmlTree(queryUrl)
-        results = self.getTreeAll(queryTree, '//div[contains(@class,"videoList")]/div/a')
-        for i in results:
-            num = self.getTreeElement(i, '//div/div[contains(@class,"videoNumber")]/p[1]/text()')
-            if num.replace('-','') == number.replace('-','').upper():
-                self.number = num
-                return "https://cn.airav.wiki" + i.attrib['href']
-        return 'https://cn.airav.wiki/video/' + number
+    # def queryNumberUrl(self, number):
+    #     queryUrl =  "https://cn.airav.wiki/?search=" + number
+    #     queryTree = self.getHtmlTree(queryUrl)
+    #     results = self.getTreeAll(queryTree, '//div[contains(@class,"videoList")]/div/a')
+    #     for i in results:
+    #         num = self.getTreeElement(i, '//div/div[contains(@class,"videoNumber")]/p[1]/text()')
+    #         if num.replace('-','') == number.replace('-','').upper():
+    #             self.number = num
+    #             return "https://cn.airav.wiki" + i.attrib['href']
+    #     return 'https://cn.airav.wiki/video/' + number
 
     def getNum(self, htmltree):
-        if self.addtion_Javbus:
-            result = self.javbus.get('number')
-            if isinstance(result, str) and len(result):
-                return result
-        number = super().getNum(htmltree)
-        result = str(re.findall('^\[(.*?)]', number)[0])
+        # if self.addtion_Javbus:
+        #     result = self.javbus.get('number')
+        #     if isinstance(result, str) and len(result):
+        #         return result
+        # number = super().getNum(htmltree)
+        # result = str(re.findall('^\[(.*?)]', number)[0])
+        result = htmltree["barcode"]
         return result
 
     def getTitle(self, htmltree):
-        title = super().getTitle(htmltree)
-        result = str(re.findall('](.*?)- AIRAV-WIKI', title)[0]).strip()
+        # title = super().getTitle(htmltree)
+        # result = str(re.findall('](.*?)- AIRAV-WIKI', title)[0]).strip()
+        result = htmltree["name"]
         return result
 
     def getStudio(self, htmltree):
@@ -93,7 +97,13 @@ class Airav(Parser):
         return str(re.findall('\d{4}', release)).strip(" ['']")
 
     def getOutline(self, htmltree):
-        return self.getTreeAll(htmltree, self.expr_outline).replace('\n','').strip()
+
+        # return self.getTreeAll(htmltree, self.expr_outline).replace('\n','').strip()
+        try:
+            result = htmltree["description"]
+        except:
+            result = ""
+        return result
 
     def getRuntime(self, htmltree):
         if self.addtion_Javbus:
@@ -110,15 +120,23 @@ class Airav(Parser):
         return ''
 
     def getActors(self, htmltree):
-        a = super().getActors(htmltree)
-        b = [ i.strip() for i in a if len(i)]
-        if len(b):
-            return b
-        if self.addtion_Javbus:
-            result = self.javbus.get('actor')
-            if isinstance(result, list) and len(result):
-                return result
-        return []
+        # a = super().getActors(htmltree)
+        # b = [ i.strip() for i in a if len(i)]
+        # if len(b):
+        #     return b
+        # if self.addtion_Javbus:
+        #     result = self.javbus.get('actor')
+        #     if isinstance(result, list) and len(result):
+        #         return result
+        # return []
+        a = htmltree["actors"]
+        if a:
+            b = []
+            for i in a:
+                b.append(i["name"])
+        else:
+            b = []
+        return b
 
     def getCover(self, htmltree):
         if self.addtion_Javbus:
@@ -133,3 +151,19 @@ class Airav(Parser):
             if isinstance(result, str) and len(result):
                 return result
         return ''
+    def getExtrafanart(self,htmltree):
+        try:
+            result = htmltree["images"]
+        except:
+            result = ""
+        return result
+
+    def getTags(self, htmltree):
+        try:
+            tag = htmltree["tags"]
+            tags = []
+            for i in tag:
+                tags.append(i["name"])
+        except:
+            tags = []
+        return tags
