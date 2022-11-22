@@ -9,3 +9,4 @@ certifi
 MechanicalSoup
 opencc-python-reimplemented
 face_recognition
+get-video-properties
