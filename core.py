@@ -393,9 +393,6 @@ def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, f
                         print("  <tag>4k</tag>", file=code)
                     for i in tag:
                         print("  <tag>" + i + "</tag>", file=code)
-                    # print("  <tag>" + series + "</tag>", file=code)
-                except:
-                    pass
             if cn_sub == '1':
                 print("  <genre>中文字幕</genre>", file=code)
             if liuchu == '流出':
@@ -409,7 +406,6 @@ def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, f
             try:
                 for i in tag:
                     print("  <genre>" + i + "</genre>", file=code)
-                # print("  <genre>" + series + "</genre>", file=code)
             except:
                 pass
             print("  <num>" + number + "</num>", file=code)
@@ -469,11 +465,9 @@ def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, f
         return
 
 
-def add_mark(poster_path, thumb_path, cn_sub, leak, uncensored, hack) -> None:
+def add_mark(poster_path, thumb_path, cn_sub, leak, uncensored, hack, _4k) -> None:
     """
     add watermark on poster or thumb for describe extra properties 给海报和缩略图加属性水印
-
-    此函数从gui版copy过来用用
 
     :poster_path 海报位置
     :thumb_path 缩略图位置
@@ -490,14 +484,16 @@ def add_mark(poster_path, thumb_path, cn_sub, leak, uncensored, hack) -> None:
         mark_type += ',无码'
     if hack:
         mark_type += ',破解'
+    if _4k:
+        mark_type += ',4k'
     if mark_type == '':
         return
-    add_mark_thread(thumb_path, cn_sub, leak, uncensored, hack)
-    add_mark_thread(poster_path, cn_sub, leak, uncensored, hack)
+    add_mark_thread(thumb_path, cn_sub, leak, uncensored, hack, _4k)
+    add_mark_thread(poster_path, cn_sub, leak, uncensored, hack, _4k)
     print('[+]Add Mark:         ' + mark_type.strip(','))
 
 
-def add_mark_thread(pic_path, cn_sub, leak, uncensored, hack):
+def add_mark_thread(pic_path, cn_sub, leak, uncensored, hack, _4k):
     size = 9
     img_pic = Image.open(pic_path)
     # 获取自定义位置，取余配合pos达到顺时针添加的效果
@@ -513,6 +509,8 @@ def add_mark_thread(pic_path, cn_sub, leak, uncensored, hack):
         add_to_pic(pic_path, img_pic, size, count, 3)
     if hack == 1 or hack == '1':
         add_to_pic(pic_path, img_pic, size, count, 4)
+    if _4k == 1 or _4k == '1':
+        add_to_pic(pic_path, img_pic, size, count, 5)
     img_pic.close()
 
 
@@ -527,6 +525,8 @@ def add_to_pic(pic_path, img_pic, size, count, mode):
         pngpath = "Img/UNCENSORED.png"
     elif mode == 4:
         pngpath = "Img/HACK.png"
+    elif mode == 5:
+        pngpath = "Img/4K.png"
     else:
         print('[-]Error: watermark image param mode invalid!')
         return
@@ -730,6 +730,7 @@ def core_main_no_net_op(movie_path, number):
     cn_sub = ''
     hack = ''
     hack_word = ''
+    _4k = ''
     imagecut = 1
     multi = False
     part = ''
@@ -751,7 +752,15 @@ def core_main_no_net_op(movie_path, number):
         hack = 1
         hack_word = "-hack"
 
+    try:
+        props = get_video_properties(movie_path)  # 判断是否为4K视频
+        if props['width'] >= 4096 or props['height'] >= 2160:
+            _4k = '1'
+    except:
+        pass
+
     prestr = f"{number}{leak_word}{c_word}{hack_word}"
+
     full_nfo = Path(path) / f"{prestr}{part}.nfo"
     if full_nfo.is_file():
         if full_nfo.read_text(encoding='utf-8').find(r'<tag>无码</tag>') >= 0:
@@ -780,7 +789,7 @@ def core_main_no_net_op(movie_path, number):
 
     cutImage(imagecut, path, fanart_path, poster_path, bool(conf.face_uncensored_only() and not uncensored))
     if conf.is_watermark():
-        add_mark(full_poster_path, full_thumb_path, cn_sub, leak, uncensored, hack)
+        add_mark(full_poster_path, full_thumb_path, cn_sub, leak, uncensored, hack, _4k)
 
     if multi and conf.jellyfin_multi_part_fanart():
         linkImage(path, number, part, leak_word, c_word, hack_word, ext)
@@ -798,7 +807,6 @@ def core_main(movie_path, number_th, oCC, specified_source=None, specified_url=N
     hack = ''
     hack_word = ''
     _4k = ''
-    _4k_world = ''
 
     # 下面被注释的变量不需要
     # rootpath = os.getcwd
@@ -846,10 +854,13 @@ def core_main(movie_path, number_th, oCC, specified_source=None, specified_url=N
     # 判断是否4k
     if '4K' in tag:
         tag.remove('4K')  # 从tag中移除'4K'
-    props = get_video_properties(movie_path)  # 判断是否为4K视频
-    if props['width'] >= 4096 or props['height'] >= 2160:
-        _4k = '4k'
-        _4k_world = '-4k'
+
+    try:
+        props = get_video_properties(movie_path)  # 判断是否为4K视频
+        if props['width'] >= 4096 or props['height'] >= 2160:
+            _4k = '1'
+    except:
+        pass
 
     # 调试模式检测
     if conf.debug():
@@ -914,10 +925,6 @@ def core_main(movie_path, number_th, oCC, specified_source=None, specified_url=N
         # 裁剪图
         cutImage(imagecut, path, fanart_path, poster_path, bool(conf.face_uncensored_only() and not uncensored))
 
-        # 添加水印
-        if conf.is_watermark():
-            add_mark(os.path.join(path, poster_path), os.path.join(path, thumb_path), cn_sub, leak, uncensored, hack)
-
         # 兼容Jellyfin封面图文件名规则
         if multi_part and conf.jellyfin_multi_part_fanart():
             linkImage(path, number_th, part, leak_word, c_word, hack_word, ext)
@@ -935,8 +942,13 @@ def core_main(movie_path, number_th, oCC, specified_source=None, specified_url=N
         path = create_folder(json_data)
         # 移动文件
         paste_file_to_folder_mode2(movie_path, path, multi_part, number, part, leak_word, c_word, hack_word)
+        # Move subtitles
+        move_status = move_subtitles(movie_path, path, multi_part, number, part, leak_word, c_word, hack_word)
+        if move_status:
+            cn_sub = "1"
         if conf.is_watermark():
-            add_mark(os.path.join(path, poster_path), os.path.join(path, thumb_path), cn_sub, leak, uncensored, hack)
+            add_mark(os.path.join(path, poster_path), os.path.join(path, thumb_path), cn_sub, leak, uncensored, hack,
+                     _4k)
 
     elif conf.main_mode() == 3:
         path = str(Path(movie_path).parent)
@@ -980,7 +992,8 @@ def core_main(movie_path, number_th, oCC, specified_source=None, specified_url=N
 
         # 添加水印
         if conf.is_watermark():
-            add_mark(os.path.join(path, poster_path), os.path.join(path, thumb_path), cn_sub, leak, uncensored, hack)
+            add_mark(os.path.join(path, poster_path), os.path.join(path, thumb_path), cn_sub, leak, uncensored, hack,
+                     _4k)
 
         # 兼容Jellyfin封面图文件名规则
         if multi_part and conf.jellyfin_multi_part_fanart():
