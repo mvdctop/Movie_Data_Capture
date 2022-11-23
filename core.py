@@ -758,9 +758,13 @@ def core_main_no_net_op(movie_path, number):
             return
     else:
         return
-    fanart_path = f"{prestr}-fanart{ext}"
-    poster_path = f"{prestr}-poster{ext}"
-    thumb_path = f"{prestr}-thumb{ext}"
+    fanart_path = f"fanart{ext}"
+    poster_path = f"poster{ext}"
+    thumb_path = f"thumb{ext}"
+    if config.getInstance().image_naming_with_number():
+        fanart_path = f"{prestr}-fanart{ext}"
+        poster_path = f"{prestr}-poster{ext}"
+        thumb_path = f"{prestr}-thumb{ext}"
     full_fanart_path = os.path.join(path, fanart_path)
     full_poster_path = os.path.join(path, poster_path)
     full_thumb_path = os.path.join(path, thumb_path)
@@ -850,9 +854,15 @@ def core_main(movie_path, number_th, oCC, specified_source=None, specified_url=N
 
     cover = json_data.get('cover')
     ext = image_ext(cover)
-    fanart_path = f"{number}{leak_word}{c_word}{hack_word}-fanart{ext}"
-    poster_path = f"{number}{leak_word}{c_word}{hack_word}-poster{ext}"
-    thumb_path = f"{number}{leak_word}{c_word}{hack_word}-thumb{ext}"
+
+    fanart_path = f"fanart{ext}"
+    poster_path = f"poster{ext}"
+    thumb_path = f"thumb{ext}"
+    if config.getInstance().image_naming_with_number():
+        fanart_path = f"{number}{leak_word}{c_word}{hack_word}-fanart{ext}"
+        poster_path = f"{number}{leak_word}{c_word}{hack_word}-poster{ext}"
+        thumb_path = f"{number}{leak_word}{c_word}{hack_word}-thumb{ext}"
+
     # main_mode
     #  1: 刮削模式 / Scraping mode
     #  2: 整理模式 / Organizing mode

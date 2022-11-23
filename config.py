@@ -328,6 +328,12 @@ class Config:
         except:
             return 50
 
+    def image_naming_with_number(self) -> bool:
+        try:
+            return self.conf.getboolean("Name_Rule", "image_naming_with_number")
+        except:
+            return False
+
     def update_check(self) -> bool:
         try:
             return self.conf.getboolean("update", "update_check")
