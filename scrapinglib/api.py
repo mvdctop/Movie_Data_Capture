@@ -148,6 +148,8 @@ class Scraping:
     def searchAdult(self, number, sources):
         if self.specifiedSource:
             sources = [self.specifiedSource]
+        elif type(sources) is list:
+            pass
         else:
             sources = self.checkAdultSources(sources, number)
         json_data = {}
@@ -172,7 +174,17 @@ class Scraping:
                     break
             except:
                 continue
-
+            
+        # javdb的封面有水印，如果可以用其他源的封面来替换javdb的封面
+        if json_data['source'] == 'javdb':
+            other_sources = sources[sources.index('javdb') + 1:]
+            # search other sources
+            json_data_other = self.searchAdult(number, other_sources)
+            if json_data_other is not None:
+                json_data['cover'] = json_data_other['cover']
+                if self.debug:
+                    print(f"[+]Find movie [{number}] cover on website '{json_data_other['cover']}'")
+            
         # Return if data not found in all sources
         if not json_data:
             print(f'[-]Movie Number [{number}] not found!')
