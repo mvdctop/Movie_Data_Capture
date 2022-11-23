@@ -43,22 +43,22 @@ class noThread(object):
 def getStoryline(number, title=None, sites: list=None, uncensored=None, proxies=None, verify=None):
     start_time = time.time()
     debug = False
-    storyine_sites = "1:avno1,4:airavwiki".split(',')
+    storyine_sites = config.getInstance().storyline_site().split(",")  # "1:airav,4:airavwiki".split(',')
     if uncensored:
-        storyine_sites += "3:58avgo".split(',')
+        storyine_sites = config.getInstance().storyline_uncensored_site().split(
+            ",") + storyine_sites  # "3:58avgo".split(',')
     else:
-        storyine_sites += "2:airav,5:xcity".split(',')
+        storyine_sites = config.getInstance().storyline_censored_site().split(
+            ",") + storyine_sites  # "2:airav,5:xcity".split(',')
     r_dup = set()
     sort_sites = []
     for s in storyine_sites:
-        ns = re.sub(r'.*?:', '', s, re.A)
-        if ns in G_registered_storyline_site and ns not in r_dup:
+        if s in G_registered_storyline_site and s not in r_dup:
             sort_sites.append(s)
-            r_dup.add(ns)
-    sort_sites.sort()
-    apply_sites = [re.sub(r'.*?:', '', s, re.A) for s in sort_sites]
-    mp_args = ((site, number, title, debug, proxies, verify) for site in apply_sites)
-    cores = min(len(apply_sites), os.cpu_count())
+            r_dup.add(s)
+    # sort_sites.sort()
+    mp_args = ((site, number, title, debug, proxies, verify) for site in sort_sites)
+    cores = min(len(sort_sites), os.cpu_count())
     if cores == 0:
         return ''
     run_mode = 1
@@ -67,16 +67,16 @@ def getStoryline(number, title=None, sites: list=None, uncensored=None, proxies=
     sel = ''
 
     # 以下debug结果输出会写入日志
-    s = f'[!]Storyline{G_mode_txt[run_mode]}模式运行{len(apply_sites)}个任务共耗时(含启动开销){time.time() - start_time:.3f}秒，结束于{time.strftime("%H:%M:%S")}'
+    s = f'[!]Storyline{G_mode_txt[run_mode]}模式运行{len(sort_sites)}个任务共耗时(含启动开销){time.time() - start_time:.3f}秒，结束于{time.strftime("%H:%M:%S")}'
     sel_site = ''
-    for site, desc in zip(apply_sites, results):
+    for site, desc in zip(sort_sites, results):
         if isinstance(desc, str) and len(desc):
             if not is_japanese(desc):
                 sel_site, sel = site, desc
                 break
             if not len(sel_site):
                 sel_site, sel = site, desc
-    for site, desc in zip(apply_sites, results):
+    for site, desc in zip(sort_sites, results):
         sl = len(desc) if isinstance(desc, str) else 0
         s += f'，[选中{site}字数:{sl}]' if site == sel_site else f'，{site}字数:{sl}' if sl else f'，{site}:空'
     if config.getInstance().debug():
