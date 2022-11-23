@@ -402,7 +402,7 @@ def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, f
             if hack_word != '':
                 print("  <genre>破解</genre>", file=code)
             if _4k == '4k':
-                print("  <tag>4k</tag>", file=code)
+                print("  <genre>4k</genre>", file=code)
             try:
                 for i in tag:
                     print("  <genre>" + i + "</genre>", file=code)
