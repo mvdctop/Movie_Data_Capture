@@ -212,9 +212,12 @@ class Config:
 
     def mapping_table_validity(self) -> int:
         return self.conf.getint("common", "mapping_table_validity")
-    
+
     def donot_save_tags(self) -> int:
         return self.conf.getint("common", "donot_save_tags")
+
+    def actor_only_tag(self) -> bool:
+        return self.conf.getboolean("common", "actor_only_tag")
 
     def sleep(self) -> int:
         return self.conf.getint("common", "sleep")
