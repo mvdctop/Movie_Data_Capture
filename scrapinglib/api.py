@@ -3,6 +3,7 @@
 import re
 import json
 
+import config
 from .airav import Airav
 from .carib import Carib
 from .dlsite import Dlsite
@@ -243,11 +244,12 @@ class Scraping:
         # check sources in func_mapping
         todel = []
         for s in sources:
-            if not s in self.adult_func_mapping:
+            if not s in self.adult_func_mapping and config.getInstance().debug():
                 print('[!] Source Not Exist : ' + s)
                 todel.append(s)
         for d in todel:
-            print('[!] Remove Source : ' + s)
+            if config.getInstance().debug():
+                print('[!] Remove Source : ' + s)
             sources.remove(d)
         return sources
 
