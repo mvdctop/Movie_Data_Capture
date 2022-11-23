@@ -589,21 +589,6 @@ def paste_file_to_folder(filepath, path, multi_part, number, part, leak_word, c_
                 os.symlink(filerelpath, targetpath)
             except:
                 os.symlink(str(filepath_obj.resolve()), targetpath)
-
-        sub_res = config.getInstance().sub_rule()
-        for subfile in filepath_obj.parent.glob('**/*'):
-            if subfile.is_file() and subfile.suffix.lower() in sub_res:
-                if multi_part and part.lower() not in subfile.name.lower():
-                    continue
-                if filepath_obj.stem.split('.')[0].lower() != subfile.stem.split('.')[0].lower():
-                    continue
-                sub_targetpath = Path(path) / f"{number}{leak_word}{c_word}{hack_word}{''.join(subfile.suffixes)}"
-                if link_mode not in (1, 2):
-                    shutil.move(str(subfile), str(sub_targetpath))
-                    print(f"[+]Sub Moved!        {sub_targetpath.name}")
-                else:
-                    shutil.copyfile(str(subfile), str(sub_targetpath))
-                    print(f"[+]Sub Copied!       {sub_targetpath.name}")
         return
 
     except FileExistsError as fee:
@@ -643,19 +628,6 @@ def paste_file_to_folder_mode2(filepath, path, multi_part, number, part, leak_wo
                 os.symlink(filerelpath, targetpath)
             except:
                 os.symlink(str(filepath_obj.resolve()), targetpath)
-
-        sub_res = config.getInstance().sub_rule()
-        for subfile in filepath_obj.parent.glob('**/*'):
-            if subfile.is_file() and subfile.suffix.lower() in sub_res:
-                if multi_part and part.lower() not in subfile.name.lower():
-                    continue
-                sub_targetpath = Path(path) / f"{number}{leak_word}{c_word}{hack_word}{''.join(subfile.suffixes)}"
-                if link_mode not in (1, 2):
-                    shutil.move(str(subfile), str(sub_targetpath))
-                    print(f"[+]Sub Moved!        {sub_targetpath.name}")
-                else:
-                    shutil.copyfile(str(subfile), str(sub_targetpath))
-                    print(f"[+]Sub Copied!       {sub_targetpath.name}")
         return
     except FileExistsError as fee:
         print(f'[-]FileExistsError: {fee}')
@@ -795,6 +767,31 @@ def core_main_no_net_op(movie_path, number):
         linkImage(path, number, part, leak_word, c_word, hack_word, ext)
 
 
+def move_subtitles(filepath, path, multi_part, number, part, leak_word, c_word, hack_word) -> bool:
+    filepath_obj = pathlib.Path(filepath)
+    link_mode = config.getInstance().link_mode()
+    sub_res = config.getInstance().sub_rule()
+    result = False
+    for subfile in filepath_obj.parent.glob('**/*'):
+        if subfile.is_file() and subfile.suffix.lower() in sub_res:
+            if multi_part and part.lower() not in subfile.name.lower():
+                continue
+            if filepath_obj.stem.split('.')[0].lower() != subfile.stem.split('.')[0].lower():
+                continue
+            sub_targetpath = Path(path) / f"{number}{leak_word}{c_word}{hack_word}{''.join(subfile.suffixes)}"
+            if link_mode not in (1, 2):
+                shutil.move(str(subfile), str(sub_targetpath))
+                print(f"[+]Sub Moved!        {sub_targetpath.name}")
+                result = True
+            else:
+                shutil.copyfile(str(subfile), str(sub_targetpath))
+                print(f"[+]Sub Copied!       {sub_targetpath.name}")
+                result = True
+            if result:
+                break
+    return result
+
+
 def core_main(movie_path, number_th, oCC, specified_source=None, specified_url=None):
     conf = config.getInstance()
     # =======================================================================初始化所需变量
@@ -931,6 +928,15 @@ def core_main(movie_path, number_th, oCC, specified_source=None, specified_url=N
 
         # 移动电影
         paste_file_to_folder(movie_path, path, multi_part, number, part, leak_word, c_word, hack_word)
+
+        # Move subtitles
+        move_status = move_subtitles(movie_path, path, multi_part, number, part, leak_word, c_word, hack_word)
+        if move_status:
+            cn_sub = "1"
+        # 添加水印
+        if conf.is_watermark():
+            add_mark(os.path.join(path, poster_path), os.path.join(path, thumb_path), cn_sub, leak, uncensored,
+                     hack, _4k)
 
         # 最后输出.nfo元数据文件，以完成.nfo文件创建作为任务成功标志
         print_files(path, leak_word, c_word, json_data.get('naming_rule'), part, cn_sub, json_data, movie_path, tag,
