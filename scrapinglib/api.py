@@ -177,13 +177,17 @@ class Scraping:
             
         # javdb的封面有水印，如果可以用其他源的封面来替换javdb的封面
         if json_data['source'] == 'javdb':
-            other_sources = sources[sources.index('javdb') + 1:]
             # search other sources
-            json_data_other = self.searchAdult(number, other_sources)
-            if json_data_other is not None:
-                json_data['cover'] = json_data_other['cover']
-                if self.debug:
-                    print(f"[+]Find movie [{number}] cover on website '{json_data_other['cover']}'")
+            other_sources = sources[sources.index('javdb') + 1:]
+            # If cover not found in other source, then skip using other sources using javdb cover
+            try:
+                json_data_other = self.searchAdult(number, other_sources)
+                if json_data_other is not None:
+                    json_data['cover'] = json_data_other['cover']
+                    if self.debug:
+                        print(f"[+]Find movie [{number}] cover on website '{json_data_other['cover']}'")
+            except:
+                pass
             
         # Return if data not found in all sources
         if not json_data:
