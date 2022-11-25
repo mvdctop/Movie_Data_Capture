@@ -11,7 +11,7 @@ from PIL import Image
 from io import BytesIO
 from pathlib import Path
 from datetime import datetime
-from lxml import etree
+# from videoprops import get_video_properties
 
 from ADC_function import *
 # from WebCrawler import get_data_from_json
@@ -724,12 +724,12 @@ def core_main_no_net_op(movie_path, number):
         hack = 1
         hack_word = "-hack"
 
-    try:
-        props = get_video_properties(movie_path)  # 判断是否为4K视频
-        if props['width'] >= 4096 or props['height'] >= 2160:
-            _4k = '1'
-    except:
-        pass
+    # try:
+    #     props = get_video_properties(movie_path)  # 判断是否为4K视频
+    #     if props['width'] >= 4096 or props['height'] >= 2160:
+    #         _4k = '1'
+    # except:
+    #     pass
 
     prestr = f"{number}{leak_word}{c_word}{hack_word}"
 
@@ -852,12 +852,12 @@ def core_main(movie_path, number_th, oCC, specified_source=None, specified_url=N
     if '4K' in tag:
         tag.remove('4K')  # 从tag中移除'4K'
 
-    try:
-        props = get_video_properties(movie_path)  # 判断是否为4K视频
-        if props['width'] >= 4096 or props['height'] >= 2160:
-            _4k = '1'
-    except:
-        pass
+    # try:
+    #     props = get_video_properties(movie_path)  # 判断是否为4K视频
+    #     if props['width'] >= 4096 or props['height'] >= 2160:
+    #         _4k = '1'
+    # except:
+    #     pass
 
     # 调试模式检测
     if conf.debug():
