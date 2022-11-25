@@ -855,7 +855,7 @@ def core_main(movie_path, number_th, oCC, specified_source=None, specified_url=N
     try:
         props = get_video_properties(movie_path)  # 判断是否为4K视频
         if props['width'] >= 4096 or props['height'] >= 2160:
-            _4k = '1'
+            _4k = '4k'
     except:
         pass
 
