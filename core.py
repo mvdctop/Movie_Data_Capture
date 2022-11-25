@@ -389,7 +389,7 @@ def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, f
                         print("  <tag>无码</tag>", file=code)
                     if hack_word != '':
                         print("  <tag>破解</tag>", file=code)
-                    if _4k == '4k':
+                    if _4k == '1':
                         print("  <tag>4k</tag>", file=code)
                     for i in tag:
                         print("  <tag>" + i + "</tag>", file=code)
@@ -401,7 +401,7 @@ def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, f
                 print("  <genre>无码</genre>", file=code)
             if hack_word != '':
                 print("  <genre>破解</genre>", file=code)
-            if _4k == '4k':
+            if _4k == '1':
                 print("  <genre>4k</genre>", file=code)
             try:
                 for i in tag:
