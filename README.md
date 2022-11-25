@@ -15,7 +15,7 @@
 
 [English](https://github.com/yoshiko2/Movie_Data_Capture/blob/master/README_EN.md)
 
-## 广告位招租 yoshiko2.dev@gmail.com
+## 正在寻找实习与兼职机会（深圳或远程） yoshiko2.dev@gmail.com
 
 # 文档
 * [官方教程WIKI](https://github.com/yoshiko2/Movie_Data_Capture/wiki)
