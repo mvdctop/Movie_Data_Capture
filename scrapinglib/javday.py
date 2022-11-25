@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import re
 from lxml import etree
-from urllib.parse import urlparse, unquote
 from .parser import Parser
 
 

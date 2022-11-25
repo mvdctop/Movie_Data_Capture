@@ -6,7 +6,6 @@ import traceback
 import threading
 import json
 import shutil
-import types
 
 CRITICAL = 50
 FATAL = CRITICAL

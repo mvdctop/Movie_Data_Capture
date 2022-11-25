@@ -1,24 +1,20 @@
-import json
 import os.path
-import os
 import pathlib
-import re
 import shutil
 import sys
-from videoprops import get_video_properties
 
 from PIL import Image
 from io import BytesIO
-from pathlib import Path
 from datetime import datetime
 # from videoprops import get_video_properties
 
 from ADC_function import *
-# from WebCrawler import get_data_from_json
 from scraper import get_data_from_json
 from number_parser import is_uncensored
 from ImageProcessing import cutImage
 
+
+# from WebCrawler import get_data_from_json
 
 def escape_path(path, escape_literals: str):  # Remove escape literals
     backslash = '\\'

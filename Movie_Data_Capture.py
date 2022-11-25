@@ -10,7 +10,6 @@ import typing
 import urllib3
 import signal
 import platform
-import multiprocessing
 from datetime import datetime, timedelta
 from pathlib import Path
 
