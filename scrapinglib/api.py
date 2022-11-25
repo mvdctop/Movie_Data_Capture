@@ -176,7 +176,7 @@ class Scraping:
                 continue
             
         # javdb的封面有水印，如果可以用其他源的封面来替换javdb的封面
-        if json_data['source'] == 'javdb':
+        if 'source' in json_data and json_data['source'] == 'javdb':
             # search other sources
             other_sources = sources[sources.index('javdb') + 1:]
             # If cover not found in other source, then skip using other sources using javdb cover
