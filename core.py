@@ -847,6 +847,10 @@ def core_main(movie_path, number_th, oCC, specified_source=None, specified_url=N
     # 判断是否4k
     if '4K' in tag:
         tag.remove('4K')  # 从tag中移除'4K'
+        
+    # 判断是否为无码破解
+    if '无码破解' in tag:
+        tag.remove('无码破解')  # 从tag中移除'无码破解'
 
     # try:
     #     props = get_video_properties(movie_path)  # 判断是否为4K视频
