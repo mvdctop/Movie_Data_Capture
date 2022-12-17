@@ -169,13 +169,13 @@ class Config:
             self._exit("common:main_mode")
 
     def source_folder(self) -> str:
-        return self.conf.get("common", "source_folder")
+        return self.conf.get("common", "source_folder").replace("\\\\", "/").replace("\\", "/")
 
     def failed_folder(self) -> str:
-        return self.conf.get("common", "failed_output_folder")
+        return self.conf.get("common", "failed_output_folder").replace("\\\\", "/").replace("\\", "/")
 
     def success_folder(self) -> str:
-        return self.conf.get("common", "success_output_folder")
+        return self.conf.get("common", "success_output_folder").replace("\\\\", "/").replace("\\", "/")
 
     def actor_gender(self) -> str:
         return self.conf.get("common", "actor_gender")
