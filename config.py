@@ -213,8 +213,8 @@ class Config:
     def mapping_table_validity(self) -> int:
         return self.conf.getint("common", "mapping_table_validity")
 
-    def donot_save_tags(self) -> int:
-        return self.conf.getint("common", "donot_save_tags")
+    def jellyfin(self) -> int:
+        return self.conf.getint("common", "jellyfin")
 
     def actor_only_tag(self) -> bool:
         return self.conf.getboolean("common", "actor_only_tag")
@@ -443,7 +443,7 @@ class Config:
         conf.set(sec1, "ignore_failed_list", 0)
         conf.set(sec1, "download_only_missing_images", 1)
         conf.set(sec1, "mapping_table_validity", 7)
-        conf.set(sec1, "donot_save_tags", 0)
+        conf.set(sec1, "jellyfin", 0)
 
         sec2 = "advenced_sleep"
         conf.add_section(sec2)

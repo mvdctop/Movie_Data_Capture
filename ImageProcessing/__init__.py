@@ -60,9 +60,9 @@ def face_crop_height(filename, width, height):
     return (0, 0, width, cropHeight)
 
 
-def cutImage(imagecut, path, fanart_path, poster_path, skip_facerec=False):
+def cutImage(imagecut, path, thumb_path, poster_path, skip_facerec=False):
     conf = config.getInstance()
-    fullpath_fanart = os.path.join(path, fanart_path)
+    fullpath_fanart = os.path.join(path, thumb_path)
     fullpath_poster = os.path.join(path, poster_path)
     aspect_ratio = conf.face_aspect_ratio()
     if conf.face_aways_imagecut():
