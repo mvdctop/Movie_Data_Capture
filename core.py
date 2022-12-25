@@ -342,9 +342,14 @@ def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, f
         with open(nfo_path, "wt", encoding='UTF-8') as code:
             print('<?xml version="1.0" encoding="UTF-8" ?>', file=code)
             print("<movie>", file=code)
-            print("  <title><![CDATA[" + naming_rule + "]]></title>", file=code)
-            print("  <originaltitle><![CDATA[" + naming_rule + "]]></originaltitle>", file=code)
-            print("  <sorttitle><![CDATA[" + naming_rule + "]]></sorttitle>", file=code)
+            if not config.getInstance().jellyfin():
+                print("  <title><![CDATA[" + naming_rule + "]]></title>", file=code)
+                print("  <originaltitle><![CDATA[" + naming_rule + "]]></originaltitle>", file=code)
+                print("  <sorttitle><![CDATA[" + naming_rule + "]]></sorttitle>", file=code)
+            else:
+                print("  <title>" + naming_rule + "</title>", file=code)
+                print("  <originaltitle>" + naming_rule + "</originaltitle>", file=code)
+                print("  <sorttitle>" + naming_rule + "</sorttitle>", file=code)    
             print("  <customrating>JP-18+</customrating>", file=code)
             print("  <mpaa>JP-18+</mpaa>", file=code)
             try:
@@ -353,14 +358,18 @@ def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, f
                 print("  <set></set>", file=code)
             print("  <studio>" + studio + "</studio>", file=code)
             print("  <year>" + year + "</year>", file=code)
-            print("  <outline><![CDATA[" + outline + "]]></outline>", file=code)
-            print("  <plot><![CDATA[" + outline + "]]></plot>", file=code)
+            if not config.getInstance().jellyfin():
+                print("  <outline><![CDATA[" + outline + "]]></outline>", file=code)
+                print("  <plot><![CDATA[" + outline + "]]></plot>", file=code)
+            else:
+                print("  <outline>" + outline + "</outline>", file=code)
+                print("  <plot>" + outline + "</plot>", file=code)
             print("  <runtime>" + str(runtime).replace(" ", "") + "</runtime>", file=code)
             print("  <director>" + director + "</director>", file=code)
             print("  <poster>" + poster_path + "</poster>", file=code)
-            if not config.getInstance().jellyfin(): # jellyfin 不需要保存thunb
-                print("  <thumb>" + thumb_path + "</thumb>", file=code)
-            print("  <fanart>" + fanart_path + "</fanart>", file=code)
+            print("  <thumb>" + thumb_path + "</thumb>", file=code)
+            if not config.getInstance().jellyfin(): # jellyfin 不需要保存fanart
+                print("  <fanart>" + fanart_path + "</fanart>", file=code)
             try:
                 for key in actor_list:
                     print("  <actor>", file=code)
@@ -1015,4 +1024,4 @@ def core_main(movie_path, number_th, oCC, specified_source=None, specified_url=N
         # 最后输出.nfo元数据文件，以完成.nfo文件创建作为任务成功标志
         print_files(path, leak_word, c_word, json_data.get('naming_rule'), part, cn_sub, json_data, movie_path,
                     tag, json_data.get('actor_list'), liuchu, uncensored, hack_word, fanart_path, poster_path,
-                    thumb_path)
+                     _4k, thumb_path)
