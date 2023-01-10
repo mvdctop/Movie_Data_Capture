@@ -279,15 +279,15 @@ def image_ext(url):
 
 # 封面是否下载成功，否则移动到failed
 def image_download(cover, fanart_path, thumb_path, path, filepath, json_headers=None):
-    full_filepath = os.path.join(path, fanart_path)
+    full_filepath = os.path.join(path, thumb_path)
     if config.getInstance().download_only_missing_images() and not file_not_exist_or_empty(full_filepath):
         return
     if json_headers != None:
-        if download_file_with_filename(cover, fanart_path, path, filepath, json_headers['headers']) == 'failed':
+        if download_file_with_filename(cover, thumb_path, path, filepath, json_headers['headers']) == 'failed':
             moveFailedFolder(filepath)
             return
     else:
-        if download_file_with_filename(cover, fanart_path, path, filepath) == 'failed':
+        if download_file_with_filename(cover, thumb_path, path, filepath) == 'failed':
             moveFailedFolder(filepath)
             return
 
@@ -296,16 +296,17 @@ def image_download(cover, fanart_path, thumb_path, path, filepath, json_headers=
         if file_not_exist_or_empty(full_filepath):
             print('[!]Image Download Failed! Trying again. [{}/3]', i + 1)
             if json_headers != None:
-                download_file_with_filename(cover, fanart_path, path, filepath, json_headers['headers'])
+                download_file_with_filename(cover, thumb_path, path, filepath, json_headers['headers'])
             else:
-                download_file_with_filename(cover, fanart_path, path, filepath)
+                download_file_with_filename(cover, thumb_path, path, filepath)
             continue
         else:
             break
     if file_not_exist_or_empty(full_filepath):
         return
     print('[+]Image Downloaded!', Path(full_filepath).name)
-    shutil.copyfile(full_filepath, os.path.join(path, thumb_path))
+    if not config.getInstance().jellyfin():
+        shutil.copyfile(full_filepath, os.path.join(path, fanart_path))
 
 
 def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, filepath, tag, actor_list, liuchu,
@@ -332,13 +333,23 @@ def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, f
             pass
         # KODI内查看影片信息时找不到number，配置naming_rule=number+'#'+title虽可解决
         # 但使得标题太长，放入时常为空的outline内会更适合，软件给outline留出的显示版面也较大
-        outline = f"{number}#{outline}"
+        if not outline:
+            pass
+        elif json_data['source'] == 'pissplay':
+            outline = f"{outline}"
+        else:
+            outline = f"{number}#{outline}"
         with open(nfo_path, "wt", encoding='UTF-8') as code:
             print('<?xml version="1.0" encoding="UTF-8" ?>', file=code)
             print("<movie>", file=code)
-            print("  <title><![CDATA[" + naming_rule + "]]></title>", file=code)
-            print("  <originaltitle><![CDATA[" + naming_rule + "]]></originaltitle>", file=code)
-            print("  <sorttitle><![CDATA[" + naming_rule + "]]></sorttitle>", file=code)
+            if not config.getInstance().jellyfin():
+                print("  <title><![CDATA[" + naming_rule + "]]></title>", file=code)
+                print("  <originaltitle><![CDATA[" + naming_rule + "]]></originaltitle>", file=code)
+                print("  <sorttitle><![CDATA[" + naming_rule + "]]></sorttitle>", file=code)
+            else:
+                print("  <title>" + naming_rule + "</title>", file=code)
+                print("  <originaltitle>" + naming_rule + "</originaltitle>", file=code)
+                print("  <sorttitle>" + naming_rule + "</sorttitle>", file=code)    
             print("  <customrating>JP-18+</customrating>", file=code)
             print("  <mpaa>JP-18+</mpaa>", file=code)
             try:
@@ -347,13 +358,18 @@ def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, f
                 print("  <set></set>", file=code)
             print("  <studio>" + studio + "</studio>", file=code)
             print("  <year>" + year + "</year>", file=code)
-            print("  <outline><![CDATA[" + outline + "]]></outline>", file=code)
-            print("  <plot><![CDATA[" + outline + "]]></plot>", file=code)
+            if not config.getInstance().jellyfin():
+                print("  <outline><![CDATA[" + outline + "]]></outline>", file=code)
+                print("  <plot><![CDATA[" + outline + "]]></plot>", file=code)
+            else:
+                print("  <outline>" + outline + "</outline>", file=code)
+                print("  <plot>" + outline + "</plot>", file=code)
             print("  <runtime>" + str(runtime).replace(" ", "") + "</runtime>", file=code)
             print("  <director>" + director + "</director>", file=code)
             print("  <poster>" + poster_path + "</poster>", file=code)
             print("  <thumb>" + thumb_path + "</thumb>", file=code)
-            print("  <fanart>" + fanart_path + "</fanart>", file=code)
+            if not config.getInstance().jellyfin(): # jellyfin 不需要保存fanart
+                print("  <fanart>" + fanart_path + "</fanart>", file=code)
             try:
                 for key in actor_list:
                     print("  <actor>", file=code)
@@ -368,8 +384,8 @@ def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, f
             print("  <maker>" + studio + "</maker>", file=code)
             print("  <label>" + label + "</label>", file=code)
             
-            skip_tags = config.getInstance().donot_save_tags()
-            if not skip_tags:
+            jellyfin = config.getInstance().jellyfin()
+            if not jellyfin:
                 if config.getInstance().actor_only_tag():
                     for key in actor_list:
                         try:
@@ -920,7 +936,7 @@ def core_main(movie_path, number_th, oCC, specified_source=None, specified_url=N
                 pass
 
         # 裁剪图
-        cutImage(imagecut, path, fanart_path, poster_path, bool(conf.face_uncensored_only() and not uncensored))
+        cutImage(imagecut, path, thumb_path, poster_path, bool(conf.face_uncensored_only() and not uncensored))
 
         # 兼容Jellyfin封面图文件名规则
         if multi_part and conf.jellyfin_multi_part_fanart():
@@ -998,7 +1014,7 @@ def core_main(movie_path, number_th, oCC, specified_source=None, specified_url=N
 
         # 添加水印
         if conf.is_watermark():
-            add_mark(os.path.join(path, poster_path), os.path.join(path, thumb_path), cn_sub, leak, uncensored, hack,
+            add_mark(os.path.join(path, poster_path), os.path.join(path, fanart_path), cn_sub, leak, uncensored, hack,
                      _4k)
 
         # 兼容Jellyfin封面图文件名规则
@@ -1008,4 +1024,4 @@ def core_main(movie_path, number_th, oCC, specified_source=None, specified_url=N
         # 最后输出.nfo元数据文件，以完成.nfo文件创建作为任务成功标志
         print_files(path, leak_word, c_word, json_data.get('naming_rule'), part, cn_sub, json_data, movie_path,
                     tag, json_data.get('actor_list'), liuchu, uncensored, hack_word, fanart_path, poster_path,
-                    thumb_path)
+                     _4k, thumb_path)
