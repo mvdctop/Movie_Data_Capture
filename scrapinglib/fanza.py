@@ -49,6 +49,8 @@ class Fanza(Parser):
             self.detailurl = url + fanza_search_number
             url = "https://www.dmm.co.jp/age_check/=/declared=yes/?"+ urlencode({"rurl": self.detailurl})
             self.htmlcode = self.getHtml(url)
+            if "Sorry! This content is not available in your region." in self.htmlcode:
+                continue
             if self.htmlcode != 404:
                 self.htmltree = etree.HTML(self.htmlcode)
                 break
