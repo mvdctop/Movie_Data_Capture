@@ -76,7 +76,7 @@ class Pissplay(Parser):
             else:
                 return [tags[0]]
         else:
-            return 'Bruce and Morgan'
+            return ['Bruce and Morgan']
     
     def getOutline(self, htmltree):
         outline = self.getTreeAll(htmltree, self.expr_outline)
