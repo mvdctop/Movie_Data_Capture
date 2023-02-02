@@ -128,7 +128,7 @@ class Javbus(Parser):
 
     def getTags(self, htmltree):
         tags = self.getTreeElement(htmltree, self.expr_tags).split(',')
-        return tags[1:]
+        return tags[2:]
 
     def getOutline(self, htmltree):
         if self.morestoryline:
