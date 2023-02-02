@@ -310,7 +310,7 @@ def image_download(cover, fanart_path, thumb_path, path, filepath, json_headers=
 
 
 def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, filepath, tag, actor_list, liuchu,
-                uncensored, hack_word, _4k, fanart_path, poster_path, thumb_path):
+                uncensored, hack, hack_word, _4k, fanart_path, poster_path, thumb_path):
     title, studio, year, outline, runtime, director, actor_photo, release, number, cover, trailer, website, series, label = get_info(
         json_data)
     if config.getInstance().main_mode() == 3:  # 模式3下，由于视频文件不做任何改变，.nfo文件必须和视频文件名称除后缀外完全一致，KODI等软件方可支持
@@ -393,27 +393,27 @@ def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, f
                         except:
                             pass
                 else:
-                    if cn_sub == '1':
+                    if cn_sub:
                         print("  <tag>中文字幕</tag>", file=code)
-                    if liuchu == '流出':
+                    if liuchu:
                         print("  <tag>流出</tag>", file=code)
-                    if uncensored == 1:
+                    if uncensored:
                         print("  <tag>无码</tag>", file=code)
-                    if hack_word != '':
+                    if hack:
                         print("  <tag>破解</tag>", file=code)
-                    if _4k == '1':
+                    if _4k:
                         print("  <tag>4k</tag>", file=code)
                     for i in tag:
                         print("  <tag>" + i + "</tag>", file=code)
-            if cn_sub == '1':
+            if cn_sub:
                 print("  <genre>中文字幕</genre>", file=code)
-            if liuchu == '流出':
+            if liuchu:
                 print("  <genre>无码流出</genre>", file=code)
-            if uncensored == 1:
+            if uncensored:
                 print("  <genre>无码</genre>", file=code)
-            if hack_word != '':
+            if hack:
                 print("  <genre>破解</genre>", file=code)
-            if _4k == '1':
+            if _4k:
                 print("  <genre>4k</genre>", file=code)
             try:
                 for i in tag:
@@ -486,6 +486,7 @@ def add_mark(poster_path, thumb_path, cn_sub, leak, uncensored, hack, _4k) -> No
     :cn_sub: 中文字幕 可选值：1,"1" 或其他值
     :uncensored 无码 可选值：1,"1" 或其他值
     :hack 破解 可选值：1,"1" 或其他值
+    :_4k Bool
     """
     mark_type = ''
     if cn_sub:
@@ -511,17 +512,17 @@ def add_mark_thread(pic_path, cn_sub, leak, uncensored, hack, _4k):
     # 获取自定义位置，取余配合pos达到顺时针添加的效果
     # 左上 0, 右上 1, 右下 2， 左下 3
     count = config.getInstance().watermark_type()
-    if cn_sub == 1 or cn_sub == '1':
+    if cn_sub:
         add_to_pic(pic_path, img_pic, size, count, 1)  # 添加
         count = (count + 1) % 4
-    if leak == 1 or leak == '1':
+    if leak:
         add_to_pic(pic_path, img_pic, size, count, 2)
         count = (count + 1) % 4
-    if uncensored == 1 or uncensored == '1':
+    if uncensored:
         add_to_pic(pic_path, img_pic, size, count, 3)
-    if hack == 1 or hack == '1':
+    if hack:
         add_to_pic(pic_path, img_pic, size, count, 4)
-    if _4k == 1 or _4k == '1':
+    if _4k:
         add_to_pic(pic_path, img_pic, size, count, 5)
     img_pic.close()
 
@@ -709,12 +710,12 @@ def core_main_no_net_op(movie_path, number):
     conf = config.getInstance()
     part = ''
     leak_word = ''
-    leak = 0
+    leak = False
     c_word = ''
-    cn_sub = ''
-    hack = ''
+    cn_sub = False
+    hack = False
     hack_word = ''
-    _4k = ''
+    _4k = False
     imagecut = 1
     multi = False
     part = ''
@@ -725,30 +726,30 @@ def core_main_no_net_op(movie_path, number):
         multi = True
     if re.search(r'[-_]C(\.\w+$|-\w+)|\d+ch(\.\w+$|-\w+)', movie_path,
                  re.I) or '中文' in movie_path or '字幕' in movie_path or ".chs" in movie_path or '.cht' in movie_path:
-        cn_sub = '1'
+        cn_sub = True
         c_word = '-C'  # 中文字幕影片后缀
-    uncensored = 1 if is_uncensored(number) else 0
+    uncensored = True if is_uncensored(number) else 0
     if '流出' in movie_path or 'uncensored' in movie_path.lower():
         leak_word = '-无码流出'  # 无码流出影片后缀
-        leak = 1
+        leak = True
 
     if 'hack'.upper() in str(movie_path).upper() or '破解' in movie_path:
-        hack = 1
+        hack = True
         hack_word = "-hack"
 
     # try:
+
     #     props = get_video_properties(movie_path)  # 判断是否为4K视频
     #     if props['width'] >= 4096 or props['height'] >= 2160:
-    #         _4k = '1'
+    #         _4k = True
     # except:
     #     pass
-
     prestr = f"{number}{leak_word}{c_word}{hack_word}"
 
     full_nfo = Path(path) / f"{prestr}{part}.nfo"
     if full_nfo.is_file():
         if full_nfo.read_text(encoding='utf-8').find(r'<tag>无码</tag>') >= 0:
-            uncensored = 1
+            uncensored = True
         try:
             nfo_xml = etree.parse(full_nfo)
             nfo_fanart_path = nfo_xml.xpath('//fanart/text()')[0]
@@ -807,15 +808,15 @@ def move_subtitles(filepath, path, multi_part, number, part, leak_word, c_word, 
 def core_main(movie_path, number_th, oCC, specified_source=None, specified_url=None):
     conf = config.getInstance()
     # =======================================================================初始化所需变量
-    multi_part = 0
+    multi_part = False
     part = ''
     leak_word = ''
     c_word = ''
-    cn_sub = ''
-    liuchu = ''
-    hack = ''
+    cn_sub = False
+    liuchu = False
+    hack = False
     hack_word = ''
-    _4k = ''
+    _4k = False
 
     # 下面被注释的变量不需要
     # rootpath = os.getcwd
@@ -838,11 +839,11 @@ def core_main(movie_path, number_th, oCC, specified_source=None, specified_url=N
     tag = json_data.get('tag')
     # =======================================================================判断-C,-CD后缀
     if re.search('[-_]CD\d+', movie_path, re.IGNORECASE):
-        multi_part = 1
+        multi_part = True
         part = re.findall('[-_]CD\d+', movie_path, re.IGNORECASE)[0].upper()
     if re.search(r'[-_]C(\.\w+$|-\w+)|\d+ch(\.\w+$|-\w+)', movie_path,
                  re.I) or '中文' in movie_path or '字幕' in movie_path:
-        cn_sub = '1'
+        cn_sub = True
         c_word = '-C'  # 中文字幕影片后缀
 
     # 判断是否无码
@@ -851,19 +852,22 @@ def core_main(movie_path, number_th, oCC, specified_source=None, specified_url=N
 
     if '流出' in movie_path or 'uncensored' in movie_path.lower():
         liuchu = '流出'
-        leak = 1
+        leak = True
         leak_word = '-无码流出'  # 流出影片后缀
     else:
-        leak = 0
+        leak = False
 
     if 'hack'.upper() in str(movie_path).upper() or '破解' in movie_path:
-        hack = 1
+        hack = True
         hack_word = "-hack"
+
+    if '4k'.upper() in str(movie_path).upper() or '4k' in movie_path:
+        _4k = True
 
     # 判断是否4k
     if '4K' in tag:
         tag.remove('4K')  # 从tag中移除'4K'
-        
+
     # 判断是否为无码破解
     if '无码破解' in tag:
         tag.remove('无码破解')  # 从tag中移除'无码破解'
@@ -871,7 +875,7 @@ def core_main(movie_path, number_th, oCC, specified_source=None, specified_url=N
     # try:
     #     props = get_video_properties(movie_path)  # 判断是否为4K视频
     #     if props['width'] >= 4096 or props['height'] >= 2160:
-    #         _4k = '1'
+    #         _4k = True
     # except:
     #     pass
 
@@ -956,7 +960,7 @@ def core_main(movie_path, number_th, oCC, specified_source=None, specified_url=N
 
         # 最后输出.nfo元数据文件，以完成.nfo文件创建作为任务成功标志
         print_files(path, leak_word, c_word, json_data.get('naming_rule'), part, cn_sub, json_data, movie_path, tag,
-                    json_data.get('actor_list'), liuchu, uncensored, hack_word
+                    json_data.get('actor_list'), liuchu, uncensored, hack, hack_word
                     , _4k, fanart_path, poster_path, thumb_path)
 
     elif conf.main_mode() == 2:
@@ -1023,5 +1027,5 @@ def core_main(movie_path, number_th, oCC, specified_source=None, specified_url=N
 
         # 最后输出.nfo元数据文件，以完成.nfo文件创建作为任务成功标志
         print_files(path, leak_word, c_word, json_data.get('naming_rule'), part, cn_sub, json_data, movie_path,
-                    tag, json_data.get('actor_list'), liuchu, uncensored, hack_word, fanart_path, poster_path,
-                     _4k, thumb_path)
+                    tag, json_data.get('actor_list'), liuchu, uncensored, hack, hack_word, fanart_path, poster_path,
+                    _4k, thumb_path)
