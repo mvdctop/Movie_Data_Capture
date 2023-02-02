@@ -72,9 +72,9 @@ class Pissplay(Parser):
         tags = self.getTreeAll(htmltree, self.expr_tags)
         if 'Guests' in tags:
             if tags[0] == 'Collaboration' or tags[0] == 'Toilet for a Day' or tags[0] == 'Collaboration':
-                return tags[1]
+                return [tags[1]]
             else:
-                return tags[0]
+                return [tags[0]]
         else:
             return 'Bruce and Morgan'
     
