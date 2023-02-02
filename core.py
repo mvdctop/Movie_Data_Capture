@@ -952,7 +952,7 @@ def core_main(movie_path, number_th, oCC, specified_source=None, specified_url=N
         # Move subtitles
         move_status = move_subtitles(movie_path, path, multi_part, number, part, leak_word, c_word, hack_word)
         if move_status:
-            cn_sub = "1"
+            cn_sub = True
         # 添加水印
         if conf.is_watermark():
             add_mark(os.path.join(path, poster_path), os.path.join(path, thumb_path), cn_sub, leak, uncensored,
@@ -971,7 +971,7 @@ def core_main(movie_path, number_th, oCC, specified_source=None, specified_url=N
         # Move subtitles
         move_status = move_subtitles(movie_path, path, multi_part, number, part, leak_word, c_word, hack_word)
         if move_status:
-            cn_sub = "1"
+            cn_sub = True
         if conf.is_watermark():
             add_mark(os.path.join(path, poster_path), os.path.join(path, thumb_path), cn_sub, leak, uncensored, hack,
                      _4k)
