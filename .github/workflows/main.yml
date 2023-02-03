@@ -77,5 +77,5 @@ jobs:
       - name: Upload build artifact
         uses: actions/upload-artifact@v1
         with:
-          name: Movie_Data_Capture-CLI-${{ env.VERSION }}-${{ runner.os }}-amd64
+          name: MDC-${{ env.VERSION }}-${{ runner.os }}-amd64
           path: dist
