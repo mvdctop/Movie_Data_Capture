@@ -99,6 +99,10 @@ def get_data_from_json(
 
     # ================================================网站规则添加结束================================================
 
+    if json_data.get('title') == '':
+        print('[-]Movie Number or Title not found!')
+        return None
+
     title = json_data.get('title')
     actor_list = str(json_data.get('actor')).strip("[ ]").replace("'", '').split(',')  # 字符串转列表
     actor_list = [actor.strip() for actor in actor_list]  # 去除空白
@@ -138,11 +142,6 @@ def get_data_from_json(
         actor = str(actor_list).strip("[ ]").replace("'", '')
     else:
         actor = str(actor_list).strip("[ ]").replace("'", '').replace(" ", '')
-
-    if title == '' or number == '':
-        if json_data['source'] != 'pissplay': # pissplay 没有番号
-            print('[-]Movie Number or Title not found!')
-            return None
 
     # if imagecut == '3':
     #     DownloadFileWithFilename()
