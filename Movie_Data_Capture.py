@@ -458,7 +458,7 @@ def create_data_and_move(movie_path: str, zero_op: bool, no_net_op: bool, oCC):
             return
         if n_number:
             if no_net_op:
-                core_main_no_net_op(movie_path, n_number)
+                core_main_no_net_op(movie_path, n_number, oCC)
             else:
                 core_main(movie_path, n_number, oCC)
         else:
@@ -472,7 +472,7 @@ def create_data_and_move(movie_path: str, zero_op: bool, no_net_op: bool, oCC):
                 return
             if n_number:
                 if no_net_op:
-                    core_main_no_net_op(movie_path, n_number)
+                    core_main_no_net_op(movie_path, n_number, oCC)
                 else:
                     core_main(movie_path, n_number, oCC)
             else:
