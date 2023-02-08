@@ -117,7 +117,7 @@ def core_main_no_net_op(movie_path, number_th, oCC, specified_source=None, speci
         hack_word = "-hack"
     # 判断字幕文件
     # 原逻辑是对文件名加-C，这里逻辑要重写，加字幕检测，改写nfo
-    move_status = move_subtitles(movie_path, path, multi_part, number, part, leak_word, c_word, hack_word)
+    move_status = move_subtitles(movie_path, path, multi, number, part, leak_word, c_word, hack_word)
     if move_status:
         cn_sub = True
         
