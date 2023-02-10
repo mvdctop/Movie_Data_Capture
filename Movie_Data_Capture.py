@@ -104,9 +104,9 @@ is performed. It may help you correct wrong numbers before real job.""")
     set_str_or_none("common:source_folder", args.path)
     set_bool_or_none("common:auto_exit", args.auto_exit)
     set_natural_number_or_none("common:nfo_skip_days", args.days)
-    set_natural_number_or_none("common:stop_counter", args.cnt)
+    set_natural_number_or_none("advenced_sleep:stop_counter", args.cnt)
     set_bool_or_none("common:ignore_failed_list", args.ignore_failed_list)
-    set_str_or_none("common:rerun_delay", args.delaytm)
+    set_str_or_none("advenced_sleep:rerun_delay", args.delaytm)
     set_str_or_none("priority:website", args.site)
     if isinstance(args.dnimg, bool) and args.dnimg:
         conf.set_override("common:download_only_missing_images=0")
@@ -119,7 +119,7 @@ is performed. It may help you correct wrong numbers before real job.""")
     if conf.main_mode() == 3:
         no_net_op = args.no_network_operation
         if no_net_op:
-            conf.set_override("common:stop_counter=0;rerun_delay=0s;face:aways_imagecut=1")
+            conf.set_override("advenced_sleep:stop_counter=0;advenced_sleep:rerun_delay=0s;face:aways_imagecut=1")
 
     return args.file, args.number, args.logdir, args.regexstr, args.zero_op, no_net_op, args.specified_source, args.specified_url
 
