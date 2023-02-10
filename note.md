@@ -19,28 +19,6 @@ core.py最后print_files函数参数错误
 
 
 
-## 增加命名规则：_P分集
-
-core.py修改
-
-```python
-    if re.search('[-_]CD\d+', movie_path, re.IGNORECASE):
-        part = re.findall('[-_]CD\d+', movie_path, re.IGNORECASE)[0].upper()
-        multi = True
-    if re.search('[-_]P\d+', movie_path, re.IGNORECASE):
-        multi = True
-        part = re.findall('[-_]P\d+', movie_path, re.IGNORECASE)[0].upper()
-略
-    if re.search('[-_]CD\d+', movie_path, re.IGNORECASE):
-        multi_part = True
-        part = re.findall('[-_]CD\d+', movie_path, re.IGNORECASE)[0].upper()
-    if re.search('[-_]P\d+', movie_path, re.IGNORECASE):
-        multi_part = True
-        part = re.findall('[-_]P\d+', movie_path, re.IGNORECASE)[0].upper()
-```
-
-
-
 ## 在cloud drive挂载的网络盘下，创建的nfo元数据没有被存储。
 
 怀疑是不能对文件文本编辑。
@@ -115,15 +93,15 @@ def core_main_no_net_op(movie_path, number_th, oCC, specified_source=None, speci
     if 'hack'.upper() in str(movie_path).upper() or '破解' in movie_path:
         hack = True
         hack_word = "-hack"
-    # 判断字幕文件
-    # 原逻辑是对文件名加-C，这里逻辑要重写，加字幕检测，改写nfo
+
+略
+    # 判断字幕文件，改写nfo
+    # 给字幕文件加分段后缀
+    if multi:
+        number += part  # 这时number会被附加上CD1后缀    
     move_status = move_subtitles(movie_path, path, multi, number, part, leak_word, c_word, hack_word)
     if move_status:
         cn_sub = True
-        
-    # try:
-    #     props = get_video_properties(movie_path)  # 判断是否为4K视频
-略
     # 最后输出.nfo元数据文件，以完成.nfo文件创建作为任务成功标志
     print_files(path, leak_word, c_word, json_data.get('naming_rule'), part, cn_sub, json_data, movie_path, tag,
                 json_data.get('actor_list'), liuchu, uncensored, hack, hack_word
