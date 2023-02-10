@@ -324,6 +324,7 @@ def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, f
             except:
                 print(f"[-]Fatal error! can not make folder '{path}'")
                 os._exit(0)
+        nfo_path_edit = os.path.join("./nfo", f"{number}{part}{leak_word}{c_word}{hack_word}.nfo")
 
         old_nfo = None
         try:
@@ -339,7 +340,7 @@ def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, f
             outline = f"{outline}"
         else:
             outline = f"{number}#{outline}"
-        with open(nfo_path, "wt", encoding='UTF-8') as code:
+        with open(nfo_path_edit, "wt", encoding='UTF-8') as code:
             print('<?xml version="1.0" encoding="UTF-8" ?>', file=code)
             print("<movie>", file=code)
             if not config.getInstance().jellyfin():
@@ -464,7 +465,10 @@ def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, f
                 print("  <trailer>" + trailer + "</trailer>", file=code)
             print("  <website>" + website + "</website>", file=code)
             print("</movie>", file=code)
-            print("[+]Wrote!            " + nfo_path)
+            code.close()
+            print("[+]Wrote!            " + nfo_path_edit)
+            shutil.move(nfo_path_edit,nfo_path)
+            print("[+]Moved!            " + nfo_path)
     except IOError as e:
         print("[-]Write Failed!")
         print("[-]", e)
@@ -706,7 +710,7 @@ def debug_print(data: json):
         pass
 
 
-def core_main_no_net_op(movie_path, number):
+def core_main_no_net_op(movie_path, number, oCC, specified_source=None, specified_url=None):
     conf = config.getInstance()
     part = ''
     leak_word = ''
@@ -721,6 +725,14 @@ def core_main_no_net_op(movie_path, number):
     part = ''
     path = str(Path(movie_path).parent)
 
+    liuchu = False
+    json_data = get_data_from_json(number, oCC, specified_source, specified_url)  # 定义番号
+    # Return if blank dict returned (data not found)
+    if not json_data:
+        moveFailedFolder(movie_path)
+        return
+    tag = json_data.get('tag')  
+
     if re.search('[-_]CD\d+', movie_path, re.IGNORECASE):
         part = re.findall('[-_]CD\d+', movie_path, re.IGNORECASE)[0].upper()
         multi = True
@@ -732,7 +744,7 @@ def core_main_no_net_op(movie_path, number):
     if '流出' in movie_path or 'uncensored' in movie_path.lower():
         leak_word = '-无码流出'  # 无码流出影片后缀
         leak = True
-
+        liuchu = True
     if 'hack'.upper() in str(movie_path).upper() or '破解' in movie_path:
         hack = True
         hack_word = "-hack"
@@ -779,6 +791,17 @@ def core_main_no_net_op(movie_path, number):
     if multi and conf.jellyfin_multi_part_fanart():
         linkImage(path, number, part, leak_word, c_word, hack_word, ext)
 
+    # 判断字幕文件，改写nfo
+    # 给字幕文件加分段后缀
+    if multi:
+        number += part  # 这时number会被附加上CD1后缀    
+    move_status = move_subtitles(movie_path, path, multi, number, part, leak_word, c_word, hack_word)
+    if move_status:
+        cn_sub = True
+    # 最后输出.nfo元数据文件，以完成.nfo文件创建作为任务成功标志
+    print_files(path, leak_word, c_word, json_data.get('naming_rule'), part, cn_sub, json_data, movie_path, tag,
+                json_data.get('actor_list'), liuchu, uncensored, hack, hack_word
+                , _4k, fanart_path, poster_path, thumb_path)
 
 def move_subtitles(filepath, path, multi_part, number, part, leak_word, c_word, hack_word) -> bool:
     filepath_obj = pathlib.Path(filepath)
@@ -841,6 +864,7 @@ def core_main(movie_path, number_th, oCC, specified_source=None, specified_url=N
     if re.search('[-_]CD\d+', movie_path, re.IGNORECASE):
         multi_part = True
         part = re.findall('[-_]CD\d+', movie_path, re.IGNORECASE)[0].upper()
+
     if re.search(r'[-_]C(\.\w+$|-\w+)|\d+ch(\.\w+$|-\w+)', movie_path,
                  re.I) or '中文' in movie_path or '字幕' in movie_path:
         cn_sub = True
@@ -980,7 +1004,10 @@ def core_main(movie_path, number_th, oCC, specified_source=None, specified_url=N
         path = str(Path(movie_path).parent)
         if multi_part == 1:
             number += part  # 这时number会被附加上CD1后缀
-
+        #判断subtitle文件
+        move_status = move_subtitles(movie_path, path, multi_part, number, part, leak_word, c_word, hack_word)
+        if move_status:
+            cn_sub = True
         # 检查小封面, 如果image cut为3，则下载小封面
         if imagecut == 3:
             if 'headers' in json_data:
@@ -1027,5 +1054,5 @@ def core_main(movie_path, number_th, oCC, specified_source=None, specified_url=N
 
         # 最后输出.nfo元数据文件，以完成.nfo文件创建作为任务成功标志
         print_files(path, leak_word, c_word, json_data.get('naming_rule'), part, cn_sub, json_data, movie_path,
-                    tag, json_data.get('actor_list'), liuchu, uncensored, hack, hack_word, fanart_path, poster_path,
-                    _4k, thumb_path)
+                    tag, json_data.get('actor_list'), liuchu, uncensored, hack, hack_word, _4k, fanart_path, poster_path,
+                    thumb_path)
