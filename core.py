@@ -344,11 +344,11 @@ def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, f
             print("<movie>", file=code)
             if not config.getInstance().jellyfin():
                 print("  <title><![CDATA[" + naming_rule + "]]></title>", file=code)
-                print("  <originaltitle><![CDATA[" + naming_rule + "]]></originaltitle>", file=code)
+                print("  <originaltitle><![CDATA[" + json_data['original_naming_rule'] + "]]></originaltitle>", file=code)
                 print("  <sorttitle><![CDATA[" + naming_rule + "]]></sorttitle>", file=code)
             else:
                 print("  <title>" + naming_rule + "</title>", file=code)
-                print("  <originaltitle>" + naming_rule + "</originaltitle>", file=code)
+                print("  <originaltitle>" + json_data['original_naming_rule'] + "</originaltitle>", file=code)
                 print("  <sorttitle>" + naming_rule + "</sorttitle>", file=code)    
             print("  <customrating>JP-18+</customrating>", file=code)
             print("  <mpaa>JP-18+</mpaa>", file=code)
