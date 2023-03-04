@@ -630,6 +630,8 @@ def paste_file_to_folder_mode2(filepath, path, multi_part, number, part, leak_wo
         create_softlink = False
         if link_mode not in (1, 2):
             shutil.move(filepath, targetpath)
+            print("[!]Move =>          ", path)
+            return
         elif link_mode == 2:
             try:
                 os.link(filepath, targetpath, follow_symlinks=False)
@@ -641,16 +643,13 @@ def paste_file_to_folder_mode2(filepath, path, multi_part, number, part, leak_wo
                 os.symlink(filerelpath, targetpath)
             except:
                 os.symlink(str(filepath_obj.resolve()), targetpath)
-        return
+        print("[!]Link =>          ", path)
     except FileExistsError as fee:
         print(f'[-]FileExistsError: {fee}')
-        return
     except PermissionError:
         print('[-]Error! Please run as administrator!')
-        return
     except OSError as oserr:
         print(f'[-]OS Error errno  {oserr.errno}')
-        return
 
 
 def linkImage(path, number, part, leak_word, c_word, hack_word, ext):
@@ -968,13 +967,9 @@ def core_main(movie_path, number_th, oCC, specified_source=None, specified_url=N
         path = create_folder(json_data)
         # 移动文件
         paste_file_to_folder_mode2(movie_path, path, multi_part, number, part, leak_word, c_word, hack_word)
+
         # Move subtitles
-        move_status = move_subtitles(movie_path, path, multi_part, number, part, leak_word, c_word, hack_word)
-        if move_status:
-            cn_sub = True
-        if conf.is_watermark():
-            add_mark(os.path.join(path, poster_path), os.path.join(path, thumb_path), cn_sub, leak, uncensored, hack,
-                     _4k)
+        move_subtitles(movie_path, path, multi_part, number, part, leak_word, c_word, hack_word)
 
     elif conf.main_mode() == 3:
         path = str(Path(movie_path).parent)
