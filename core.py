@@ -347,11 +347,11 @@ def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, f
             print("<movie>", file=code)
             if not config.getInstance().jellyfin():
                 print("  <title><![CDATA[" + naming_rule + "]]></title>", file=code)
-                print("  <originaltitle><![CDATA[" + naming_rule + "]]></originaltitle>", file=code)
+                print("  <originaltitle><![CDATA[" + json_data['original_naming_rule'] + "]]></originaltitle>", file=code)
                 print("  <sorttitle><![CDATA[" + naming_rule + "]]></sorttitle>", file=code)
             else:
                 print("  <title>" + naming_rule + "</title>", file=code)
-                print("  <originaltitle>" + naming_rule + "</originaltitle>", file=code)
+                print("  <originaltitle>" + json_data['original_naming_rule'] + "</originaltitle>", file=code)
                 print("  <sorttitle>" + naming_rule + "</sorttitle>", file=code)    
             print("  <customrating>JP-18+</customrating>", file=code)
             print("  <mpaa>JP-18+</mpaa>", file=code)
@@ -633,6 +633,8 @@ def paste_file_to_folder_mode2(filepath, path, multi_part, number, part, leak_wo
         create_softlink = False
         if link_mode not in (1, 2):
             shutil.move(filepath, targetpath)
+            print("[!]Move =>          ", path)
+            return
         elif link_mode == 2:
             try:
                 os.link(filepath, targetpath, follow_symlinks=False)
@@ -644,16 +646,13 @@ def paste_file_to_folder_mode2(filepath, path, multi_part, number, part, leak_wo
                 os.symlink(filerelpath, targetpath)
             except:
                 os.symlink(str(filepath_obj.resolve()), targetpath)
-        return
+        print("[!]Link =>          ", path)
     except FileExistsError as fee:
         print(f'[-]FileExistsError: {fee}')
-        return
     except PermissionError:
         print('[-]Error! Please run as administrator!')
-        return
     except OSError as oserr:
         print(f'[-]OS Error errno  {oserr.errno}')
-        return
 
 
 def linkImage(path, number, part, leak_word, c_word, hack_word, ext):
@@ -971,13 +970,9 @@ def core_main(movie_path, number_th, oCC, specified_source=None, specified_url=N
         path = create_folder(json_data)
         # 移动文件
         paste_file_to_folder_mode2(movie_path, path, multi_part, number, part, leak_word, c_word, hack_word)
+
         # Move subtitles
-        move_status = move_subtitles(movie_path, path, multi_part, number, part, leak_word, c_word, hack_word)
-        if move_status:
-            cn_sub = True
-        if conf.is_watermark():
-            add_mark(os.path.join(path, poster_path), os.path.join(path, thumb_path), cn_sub, leak, uncensored, hack,
-                     _4k)
+        move_subtitles(movie_path, path, multi_part, number, part, leak_word, c_word, hack_word)
 
     elif conf.main_mode() == 3:
         path = str(Path(movie_path).parent)
@@ -1030,5 +1025,5 @@ def core_main(movie_path, number_th, oCC, specified_source=None, specified_url=N
 
         # 最后输出.nfo元数据文件，以完成.nfo文件创建作为任务成功标志
         print_files(path, leak_word, c_word, json_data.get('naming_rule'), part, cn_sub, json_data, movie_path,
-                    tag, json_data.get('actor_list'), liuchu, uncensored, hack, hack_word, fanart_path, poster_path,
-                    _4k, thumb_path)
+                    tag, json_data.get('actor_list'), liuchu, uncensored, hack, hack_word, _4k, fanart_path, poster_path,
+                    thumb_path)

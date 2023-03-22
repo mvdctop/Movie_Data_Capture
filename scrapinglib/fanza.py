@@ -49,15 +49,13 @@ class Fanza(Parser):
             self.detailurl = url + fanza_search_number
             url = "https://www.dmm.co.jp/age_check/=/declared=yes/?"+ urlencode({"rurl": self.detailurl})
             self.htmlcode = self.getHtml(url)
-            if "Sorry! This content is not available in your region." in self.htmlcode:
-                continue
-            if self.htmlcode != 404:
+            if self.htmlcode != 404 \
+                    and 'Sorry! This content is not available in your region.' not in self.htmlcode:
                 self.htmltree = etree.HTML(self.htmlcode)
-                break
-        if self.htmlcode == 404:
-            return 404
-        result = self.dictformat(self.htmltree)
-        return result
+                if self.htmltree is not None:
+                    result = self.dictformat(self.htmltree)
+                    return result
+        return 404
 
     def getNum(self, htmltree):
         # for some old page, the input number does not match the page

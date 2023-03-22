@@ -269,14 +269,22 @@ def get_data_from_json(
                     pass
 
     naming_rule = ""
+    original_naming_rule = ""
     for i in conf.naming_rule().split("+"):
         if i not in json_data:
             naming_rule += i.strip("'").strip('"')
+            original_naming_rule += i.strip("'").strip('"')
         else:
             item = json_data.get(i)
             naming_rule += item if type(item) is not list else "&".join(item)
+            # PATCH：处理[title]存在翻译的情况，后续NFO文件的original_name只会直接沿用naming_rule,这导致original_name非原始名
+            # 理应在翻译处处理 naming_rule和original_naming_rule
+            if i == 'title':
+                item = json_data.get('original_title')
+            original_naming_rule += item if type(item) is not list else "&".join(item)
 
     json_data['naming_rule'] = naming_rule
+    json_data['original_naming_rule'] = original_naming_rule
     return json_data
 
 
