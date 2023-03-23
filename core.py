@@ -272,7 +272,10 @@ def extrafanart_download_threadpool(url_list, save_dir, number, json_data=None):
 
 def image_ext(url):
     try:
-        return os.path.splitext(url)[-1]
+        ext = os.path.splitext(url)[-1]
+        if ext in {'.jpg','.jpge','.bmp','.png','.gif'}:
+            return ext
+        return ".jpg"
     except:
         return ".jpg"
 

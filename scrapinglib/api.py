@@ -21,6 +21,7 @@ from .avsox import Avsox
 from .javlibrary import Javlibrary
 from .javday import Javday
 from .pissplay import Pissplay
+from .javmenu import Javmenu
 
 from .tmdb import Tmdb
 from .imdb import Imdb
@@ -53,7 +54,7 @@ class Scraping:
     """
     adult_full_sources = ['javlibrary', 'javdb', 'javbus', 'airav', 'fanza', 'xcity', 'jav321',
                           'mgstage', 'fc2', 'avsox', 'dlsite', 'carib', 'madou', 
-                          'getchu', 'gcolle','javday','pissplay'
+                          'getchu', 'gcolle','javday','pissplay','javmenu'
                           ]
     adult_func_mapping = {
         'avsox': Avsox().scrape,
@@ -72,7 +73,8 @@ class Scraping:
         'getchu': Getchu().scrape,
         'javlibrary': Javlibrary().scrape,
         'javday': Javday().scrape,
-        'pissplay': Pissplay().scrape
+        'pissplay': Pissplay().scrape,
+        'javmenu': Javmenu().scrape
     }
 
     general_full_sources = ['tmdb', 'imdb']
