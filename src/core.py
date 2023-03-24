@@ -8,10 +8,10 @@ from io import BytesIO
 from datetime import datetime
 # from videoprops import get_video_properties
 
-from ADC_function import *
-from scraper import get_data_from_json
-from number_parser import is_uncensored
-from ImageProcessing import cutImage
+from .ADC_function import *
+from .scraper import get_data_from_json
+from .number_parser import is_uncensored
+from .ImageProcessing import cutImage
 
 
 # from WebCrawler import get_data_from_json

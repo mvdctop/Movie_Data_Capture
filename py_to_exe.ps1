@@ -1,5 +1,6 @@
 # If you can't run this script, please execute the following command in PowerShell.
 # Set-ExecutionPolicy RemoteSigned -Scope CurrentUser -Force
+cd src
 
 $CLOUDSCRAPER_PATH=$(python -c 'import cloudscraper as _; print(_.__path__[0])' | select -Last 1)
 $OPENCC_PATH=$(python -c 'import opencc as _; print(_.__path__[0])' | select -Last 1)
