@@ -31,6 +31,7 @@ When you view and download the source code or binary program of this project, it
 
 # Download
 * [Releases](https://github.com/yoshiko2/Movie_Data_Capture/releases/latest)
+* `pip3 install git+https://github.com/Rhythmicc/Movie_Data_Capture.git -U`, an `mdc` command will be created for global use
 
 # Contributors
 [![](https://opencollective.com/movie_data_capture/contributors.svg?width=890)](https://github.com/yoshiko2/movie_data_Capture/graphs/contributors)
