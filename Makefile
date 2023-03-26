@@ -7,7 +7,7 @@ SHELL = /bin/bash
 
 .DEFAULT: make
 make:
-	cd src
+	cd Movie_Data_Capture
 	@echo "[+]make prepare-dev"
 	#sudo apt-get -y install python3 python3-pip
 	pip3 install -r requirements.txt
