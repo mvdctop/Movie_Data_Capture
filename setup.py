@@ -27,7 +27,7 @@ setup(
     install_requires=requirements,
     entry_points={
         'console_scripts': [
-            'mdc = Movie_Data_Capture.Movie_data_Capture:main'
+            'mdc = Movie_Data_Capture.Movie_Data_Capture:main'
         ]
     },
 )
