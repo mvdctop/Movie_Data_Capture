@@ -1,7 +1,5 @@
 # If you can't run this script, please execute the following command in PowerShell.
 # Set-ExecutionPolicy RemoteSigned -Scope CurrentUser -Force
-cd Movie_Data_Capture
-
 $CLOUDSCRAPER_PATH=$(python -c 'import cloudscraper as _; print(_.__path__[0])' | select -Last 1)
 $OPENCC_PATH=$(python -c 'import opencc as _; print(_.__path__[0])' | select -Last 1)
 $FACE_RECOGNITION_MODELS=$(python -c 'import face_recognition_models as _; print(_.__path__[0])' | select -Last 1)
