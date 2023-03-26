@@ -1,9 +1,8 @@
-import face_recognition
-
+from .. import requirePackage
 
 def face_center(filename, model):
-    image = face_recognition.load_image_file(filename)
-    face_locations = face_recognition.face_locations(image, 1, model)
+    image = requirePackage('face_recognition', 'load_image_file')(filename)
+    face_locations = requirePackage('face_recognition', 'face_locations')(image, 1, model)
     print('[+]Found person      [' + str(len(face_locations)) + ']      By model hog')
     maxRight = 0
     maxTop = 0

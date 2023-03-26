@@ -7,7 +7,6 @@ SHELL = /bin/bash
 
 .DEFAULT: make
 make:
-	cd Movie_Data_Capture
 	@echo "[+]make prepare-dev"
 	#sudo apt-get -y install python3 python3-pip
 	pip3 install -r requirements.txt
@@ -17,6 +16,7 @@ make:
 	#export cloudscraper_path=$(python3 -c 'import cloudscraper as _; print(_.__path__[0])' | tail -n 1)
 
 	@echo "[+]Pyinstaller make"
+	cd Movie_Data_Capture
 	pyinstaller --onefile Movie_Data_Capture.py  --hidden-import ADC_function.py --hidden-import core.py \
 	    --hidden-import "ImageProcessing.cnn" \
 	    --python-option u \
@@ -27,9 +27,9 @@ make:
 		--add-data "config.ini:." \
 
 	@echo "[+]Move to bin"
-	if [ ! -d "./bin" ];then  mkdir bin; fi
-	mv dist/* bin/
-	cp config.ini bin/
+	if [ ! -d "../bin" ];then  mkdir bin; fi
+	mv dist/* ../bin/
+	cp ../config.ini ../bin/
 	rm -rf dist/
 
 	@echo "[+]Clean cache"
@@ -37,3 +37,4 @@ make:
 	@find . -name '__pycache__' -type d | xargs rm -fr
 	@find . -name '.pytest_cache' -type d | xargs rm -fr
 	rm -rf build/
+	cd ..

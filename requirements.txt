@@ -9,4 +9,3 @@ certifi
 MechanicalSoup
 opencc-python-reimplemented
 face_recognition
-
