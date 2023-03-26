@@ -3,12 +3,12 @@ sys.path.append('../')
 
 import logging
 import os
-from .. import config
 import importlib
 from pathlib import Path
 from PIL import Image
 import shutil
-from ADC_function import file_not_exist_or_empty
+from .. import config
+from ..ADC_function import file_not_exist_or_empty
 
 
 def face_crop_width(filename, width, height):
