@@ -9,7 +9,7 @@ SHELL = /bin/bash
 make:
 	@echo "[+]make prepare-dev"
 	#sudo apt-get -y install python3 python3-pip
-	pip3 install -r requirements.txt
+	pip3 install -r ../requirements.txt
 	pip3 install pyinstaller
 
 	#@echo "[+]Set CLOUDSCRAPER_PATH variable"
