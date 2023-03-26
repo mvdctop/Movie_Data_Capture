@@ -1,5 +1,5 @@
 from setuptools import setup, find_packages
-from Movie_Data_Capture import VERSION
+from src import VERSION
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
