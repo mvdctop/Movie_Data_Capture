@@ -29,7 +29,7 @@
 
 # 下载
 * [Releases](https://github.com/yoshiko2/Movie_Data_Capture/releases/latest)
-* `pip3 install git+https://github.com/Rhythmicc/Movie_Data_Capture.git -U`, 将创建一个`mdc`命令供全局使用
+* `pip3 install git+https://github.com/yoshiko2/Movie_Data_Capture.git -U`, 将创建一个`mdc`命令供全局使用
 
 # 贡献者
 [![](https://opencollective.com/movie_data_capture/contributors.svg?width=890)](https://github.com/yoshiko2/movie_data_Capture/graphs/contributors)
