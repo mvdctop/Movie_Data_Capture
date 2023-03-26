@@ -15,7 +15,7 @@ from pathlib import Path
 
 from opencc import OpenCC
 
-import config
+from . import config
 from .ADC_function import file_modification_days, get_html, parallel_download_files
 from .number_parser import get_number
 from .core import core_main, core_main_no_net_op, moveFailedFolder

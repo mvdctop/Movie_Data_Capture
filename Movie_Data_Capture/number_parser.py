@@ -1,7 +1,7 @@
 import os
 import re
 import sys
-import config
+from . import config
 import typing
 
 G_spat = re.compile(

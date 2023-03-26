@@ -3,7 +3,7 @@
 import re
 import json
 
-import config
+from .. import config
 from .airav import Airav
 from .carib import Carib
 from .dlsite import Dlsite

@@ -10,7 +10,7 @@ import re
 import time
 import secrets
 import builtins
-import config
+from .. import config
 
 from urllib.parse import urljoin
 from lxml.html import fromstring

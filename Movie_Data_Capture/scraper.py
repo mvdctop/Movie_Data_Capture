@@ -9,7 +9,7 @@ import opencc
 from lxml import etree
 
 # project wide definitions
-import config
+from . import config
 from .ADC_function import (
     translate,
     load_cookies,

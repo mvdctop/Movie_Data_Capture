@@ -19,7 +19,7 @@ from lxml import etree
 from cloudscraper import create_scraper
 
 # project wide
-import config
+from . import config
 
 
 def get_xpath_single(html_code: str, xpath):

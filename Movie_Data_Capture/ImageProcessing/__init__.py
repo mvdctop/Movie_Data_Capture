@@ -3,7 +3,7 @@ sys.path.append('../')
 
 import logging
 import os
-import config
+from .. import config
 import importlib
 from pathlib import Path
 from PIL import Image
