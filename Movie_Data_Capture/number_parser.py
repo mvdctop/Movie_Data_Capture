@@ -54,7 +54,7 @@ def get_number(debug: bool, file_path: str) -> str:
             filename = str(re.sub("\[\d{4}-\d{1,2}-\d{1,2}\] - ", "", filepath))  # 去除文件名中时间
             lower_check = filename.lower()
             if 'fc2' in lower_check:
-                filename = lower_check.replace('ppv', '').replace('--', '-').replace('_', '-').upper()
+                filename = lower_check.replace('--', '-').replace('_', '-').upper()
             filename = re.sub("[-_]cd\d{1,2}", "", filename, flags=re.IGNORECASE)
             if not re.search("-|_", filename): # 去掉-CD1之后再无-的情况，例如n1012-CD1.wmv
                 return str(re.search(r'\w+', filename[:filename.find('.')], re.A).group())

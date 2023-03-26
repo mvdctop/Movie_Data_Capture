@@ -21,6 +21,7 @@ from .avsox import Avsox
 from .javlibrary import Javlibrary
 from .javday import Javday
 from .pissplay import Pissplay
+from .javmenu import Javmenu
 
 from .tmdb import Tmdb
 from .imdb import Imdb
