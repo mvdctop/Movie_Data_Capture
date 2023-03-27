@@ -22,6 +22,7 @@ class Fc2(Parser):
 
     def extraInit(self):
         self.imagecut = 0
+        self.allow_number_change = True
 
     def search(self, number):
         self.number = number.lower().replace('fc2-ppv-', '').replace('fc2-', '')

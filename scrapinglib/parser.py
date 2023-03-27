@@ -210,6 +210,13 @@ class Parser:
 
     def getTags(self, htmltree) -> list:
         alls = self.getTreeAll(htmltree, self.expr_tags)
+        tags = []
+        for t in alls:
+            for tag in t.strip().split(','):
+                tag = tag.strip()
+                if tag:
+                    tags.append(tag)
+        return tags
         return [ x.strip() for x in alls if x.strip()]
 
     def getStudio(self, htmltree):
