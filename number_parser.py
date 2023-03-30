@@ -59,7 +59,7 @@ def get_number(debug: bool, file_path: str) -> str:
             if not re.search("-|_", filename): # 去掉-CD1之后再无-的情况，例如n1012-CD1.wmv
                 return str(re.search(r'\w+', filename[:filename.find('.')], re.A).group())
             file_number =  os.path.splitext(filename)
-            filename = re.search(r'\w+(-|_)\w+', filename, re.A)
+            filename = re.search(r'[\w\-_]+', filename, re.A)
             if filename:
                 file_number = str(filename.group())
             else:
@@ -85,34 +85,7 @@ def get_number(debug: bool, file_path: str) -> str:
             print(f'[-]Number Parser exception: {e} [{file_path}]')
         return None
         
-# modou提取number
-def md(filename):
-    m = re.search(r'(md[a-z]{0,2}-?)(\d{2,})(-ep\d*|-\d*)*', filename, re.I)
-    return f'{m.group(1).replace("-","").upper()}{m.group(2).zfill(4)}{m.group(3) or ""}'
 
-def mmz(filename):
-    m = re.search(r'(mmz-?)(\d{2,})(-ep\d*)*', filename, re.I)
-    return f'{m.group(1).replace("-","").upper()}{m.group(2).zfill(3)}{m.group(3) or ""}'
-
-def msd(filename):
-    m = re.search(r'(msd-?)(\d{2,})(-ep\d*)*', filename, re.I)
-    return f'{m.group(1).replace("-","").upper()}{m.group(2).zfill(3)}{m.group(3) or ""}'
-
-def mky(filename):
-    m = re.search(r'(mky-[a-z]{2,2}-?)(\d{2,})(-ep\d*)*', filename, re.I)
-    return f'{m.group(1).replace("-","").upper()}{m.group(2).zfill(3)}{m.group(3) or ""}'
-
-def yk(filename):
-    m = re.search(r'(yk-?)(\d{2,})(-ep\d*)*', filename, re.I)
-    return f'{m.group(1).replace("-","").upper()}{m.group(2).zfill(3)}{m.group(3) or ""}'
-
-def pm(filename):
-    m = re.search(r'(pm[a-z]?-?)(\d{2,})(-ep\d*)*', filename, re.I)
-    return f'{m.group(1).replace("-","").upper()}{m.group(2).zfill(3)}{m.group(3) or ""}'
-   
-def fsog(filename):
-    m = re.search(r'(fsog-?)(\d{2,})(-ep\d*)*', filename, re.I)
-    return f'{m.group(1).replace("-","").upper()}{m.group(2).zfill(3)}{m.group(3) or ""}'
 
 # 按javdb数据源的命名规范提取number
 G_TAKE_NUM_RULES = {
@@ -126,13 +99,6 @@ G_TAKE_NUM_RULES = {
     'heyzo': lambda x: 'HEYZO-' + re.findall(r'heyzo[^\d]*(\d{4})', x, re.I)[0],
     'mdbk': lambda x: str(re.search(r'mdbk(-|_)(\d{4})', x, re.I).group()),
     'mdtm': lambda x: str(re.search(r'mdtm(-|_)(\d{4})', x, re.I).group()),
-    r'\bmd[a-z]{0,2}-\d{2,}': md,
-    r'\bmmz-\d{2,}':mmz,
-    r'\bmsd-\d{2,}':msd,
-    r'\bmky-[a-z]{2,2}-\d{2,}':mky,
-    r'\byk-\d{2,3}': yk,
-    r'\bpm[a-z]?-?\d{2,}':pm,
-    r'\bfsog-?\d{2,}':fsog
 }
 
 

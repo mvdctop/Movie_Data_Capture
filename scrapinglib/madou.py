@@ -6,6 +6,28 @@ from urllib.parse import urlparse, unquote
 from .parser import Parser
 
 
+NUM_RULES3=[
+    r'(mmz{2,4})-?(\d{2,})(-ep\d*|-\d*)?.*',
+    r'(msd)-?(\d{2,})(-ep\d*|-\d*)?.*',
+    r'(yk)-?(\d{2,})(-ep\d*|-\d*)?.*',
+    r'(pm)-?(\d{2,})(-ep\d*|-\d*)?.*',
+    r'(mky-[a-z]{2,2})-?(\d{2,})(-ep\d*|-\d*)?.*',
+]
+
+# modou提取number
+def change_number(number):
+    number = number.lower().strip()
+    m = re.search(r'(md[a-z]{0,2})-?(\d{2,})(-ep\d*|-\d*)?.*', number, re.I)
+    if m:
+        return f'{m.group(1)}{m.group(2).zfill(4)}{m.group(3) or ""}'
+    for rules in NUM_RULES3:
+        m = re.search(rules, number, re.I)
+        if m:
+            return f'{m.group(1)}{m.group(2).zfill(3)}{m.group(3) or ""}'
+    return number
+
+
+
 class Madou(Parser):
     source = 'madou'
 
@@ -14,12 +36,15 @@ class Madou(Parser):
     expr_studio = '//a[@rel="category tag"]/text()'
     expr_tags = '/html/head/meta[@name="keywords"]/@content'
 
+
+
     def extraInit(self):
-        self.imagecut = 0
+        self.imagecut = 4
         self.uncensored = True
+        self.allow_number_change = True
 
     def search(self, number):
-        self.number = number.lower().strip()
+        self.number = change_number(number)
         if self.specifiedUrl:
             self.detailurl = self.specifiedUrl
         else:
@@ -65,5 +90,5 @@ class Madou(Parser):
 
     def getTags(self, htmltree):
         studio = self.getStudio(htmltree)
-        x = super().getTags(htmltree)
-        return [i.strip() for i in x if len(i.strip()) and studio not in i and '麻豆' not in i]
+        tags = super().getTags(htmltree)
+        return [tag for tag in tags if studio not in tag and '麻豆' not in tag]
