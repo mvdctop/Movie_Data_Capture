@@ -301,7 +301,7 @@ def get_html_by_scraper(url: str = None, cookies: dict = None, ua: str = None, r
 
 def translate(
         src: str,
-        target_language: str = "zh_cn",
+        target_language: str = config.getInstance().get_target_language(),
         engine: str = "google-free",
         app_id: str = "",
         key: str = "",

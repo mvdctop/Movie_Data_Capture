@@ -279,6 +279,9 @@ class Config:
     def get_translate_engine(self) -> str:
         return self.conf.get("translate", "engine")
 
+    def get_target_language(self) -> str:
+        return self.conf.get("translate", "target_language")
+
     # def get_translate_appId(self) ->str:
     #     return self.conf.get("translate","appid")
 
