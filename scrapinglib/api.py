@@ -168,7 +168,7 @@ class Scraping:
                     other_sources = sources[sources.index(other_json_data['source']) + 1:]
                 except:
                     pass
-            
+
         # Return if data not found in all sources
         if not json_data:
             print(f'[-]Movie Number [{number}] not found!')
@@ -263,5 +263,9 @@ class Scraping:
         if data["title"] is None or data["title"] == "" or data["title"] == "null":
             return False
         if data["number"] is None or data["number"] == "" or data["number"] == "null":
+            return False
+        if (data["cover"] is None or data["cover"] == "" or data["cover"] == "null") \
+                and (data["cover_small"] is None or data["cover_small"] == "" or
+                     data["cover_small"] == "null"):
             return False
         return True
