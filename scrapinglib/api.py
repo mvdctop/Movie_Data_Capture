@@ -105,6 +105,14 @@ class Scraping:
             print(f'[-]Movie Number [{name}] not found!')
             return None
 
+        # If actor is anonymous, Fill in Anonymous
+        if len(json_data['actor']) == 0:
+            if config.getInstance().anonymous_fill() == True:
+                if "zh_" in config.getInstance().get_target_language():
+                    json_data['actor'] = "佚名"
+                else:
+                    json_data['actor'] = "Anonymous"
+
         return json_data
 
     def searchAdult(self, number, sources):
@@ -165,6 +173,14 @@ class Scraping:
         if not json_data:
             print(f'[-]Movie Number [{number}] not found!')
             return None
+
+        # If actor is anonymous, Fill in Anonymous
+        if len(json_data['actor']) == 0:
+            if config.getInstance().anonymous_fill() == True:
+                if "zh_" in config.getInstance().get_target_language():
+                    json_data['actor'] = "佚名"
+                else:
+                    json_data['actor'] = "Anonymous"
 
         return json_data
 

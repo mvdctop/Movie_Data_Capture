@@ -222,13 +222,16 @@ class Config:
     def sleep(self) -> int:
         return self.conf.getint("common", "sleep")
 
+    def anonymous_fill(self) -> bool:
+        return self.conf.getint("common", "anonymous_fill")
+
     def stop_counter(self) -> int:
         return self.conf.getint("advenced_sleep", "stop_counter", fallback=0)
 
     def rerun_delay(self) -> int:
         value = self.conf.get("advenced_sleep", "rerun_delay")
         if not (isinstance(value, str) and re.match(r'^[\dsmh]+$', value, re.I)):
-            return 0   # not match '1h30m45s' or '30' or '1s2m1h4s5m'
+            return 0  # not match '1h30m45s' or '30' or '1s2m1h4s5m'
         if value.isnumeric() and int(value) >= 0:
             return int(value)
         sec = 0
@@ -442,16 +445,19 @@ class Config:
         # actor_gender value: female or male or both or all(含人妖)
         conf.set(sec1, "actor_gender", "female")
         conf.set(sec1, "del_empty_folder", "1")
-        conf.set(sec1, "nfo_skip_days", 30)
-        conf.set(sec1, "ignore_failed_list", 0)
-        conf.set(sec1, "download_only_missing_images", 1)
-        conf.set(sec1, "mapping_table_validity", 7)
-        conf.set(sec1, "jellyfin", 0)
+        conf.set(sec1, "nfo_skip_days", "30")
+        conf.set(sec1, "ignore_failed_list", "0")
+        conf.set(sec1, "download_only_missing_images", "1")
+        conf.set(sec1, "mapping_table_validity", "7")
+        conf.set(sec1, "jellyfin", "0")
+        conf.set(sec1, "actor_only_tag", "0")
+        conf.set(sec1, "sleep", "3")
+        conf.set(sec1, "anonymous_fill", "0")
 
         sec2 = "advenced_sleep"
         conf.add_section(sec2)
-        conf.set(sec2, "stop_counter", 0)
-        conf.set(sec2, "rerun_delay", 0)
+        conf.set(sec2, "stop_counter", "0")
+        conf.set(sec2, "rerun_delay", "0")
 
         sec3 = "proxy"
         conf.add_section(sec3)
@@ -466,6 +472,7 @@ class Config:
         conf.set(sec4, "location_rule", "actor + '/' + number")
         conf.set(sec4, "naming_rule", "number + '-' + title")
         conf.set(sec4, "max_title_len", "50")
+        conf.set(sec4, "image_naming_with_number", "0")
 
         sec5 = "update"
         conf.add_section(sec5)
@@ -488,6 +495,7 @@ class Config:
         conf.add_section(sec9)
         conf.set(sec9, "switch", "0")
         conf.set(sec9, "engine", "google-free")
+        conf.set(sec9, "target_language", "zh_cn")
         # conf.set(sec8, "appid", "")
         conf.set(sec9, "key", "")
         conf.set(sec9, "delay", "1")
@@ -511,28 +519,28 @@ class Config:
 
         sec13 = "watermark"
         conf.add_section(sec13)
-        conf.set(sec13, "switch", 1)
-        conf.set(sec13, "water", 2)
+        conf.set(sec13, "switch", "1")
+        conf.set(sec13, "water", "2")
 
         sec14 = "extrafanart"
         conf.add_section(sec14)
-        conf.set(sec14, "switch", 1)
+        conf.set(sec14, "switch", "1")
         conf.set(sec14, "extrafanart_folder", "extrafanart")
-        conf.set(sec14, "parallel_download", 1)
+        conf.set(sec14, "parallel_download", "1")
 
         sec15 = "storyline"
         conf.add_section(sec15)
-        conf.set(sec15, "switch", 1)
+        conf.set(sec15, "switch", "1")
         conf.set(sec15, "site", "1:avno1,4:airavwiki")
         conf.set(sec15, "censored_site", "2:airav,5:xcity,6:amazon")
         conf.set(sec15, "uncensored_site", "3:58avgo")
-        conf.set(sec15, "show_result", 0)
-        conf.set(sec15, "run_mode", 1)
-        conf.set(sec15, "cc_convert", 1)
+        conf.set(sec15, "show_result", "0")
+        conf.set(sec15, "run_mode", "1")
+        conf.set(sec15, "cc_convert", "1")
 
         sec16 = "cc_convert"
         conf.add_section(sec16)
-        conf.set(sec16, "mode", 1)
+        conf.set(sec16, "mode", "1")
         conf.set(sec16, "vars", "actor,director,label,outline,series,studio,tag,title")
 
         sec17 = "javdb"
