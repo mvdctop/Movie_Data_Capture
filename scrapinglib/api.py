@@ -2,9 +2,30 @@
 
 import re
 import json
-from .parser import Parser
+
 import config
-import importlib
+from .airav import Airav
+from .carib import Carib
+from .dlsite import Dlsite
+from .fanza import Fanza
+from .gcolle import Gcolle
+from .getchu import Getchu
+from .jav321 import Jav321
+from .javdb import Javdb
+from .fc2 import Fc2
+from .madou import Madou
+from .mgstage import Mgstage
+from .javbus import Javbus
+from .xcity import Xcity
+from .avsox import Avsox
+from .javlibrary import Javlibrary
+from .javday import Javday
+from .pissplay import Pissplay
+from .javmenu import Javmenu
+
+from .tmdb import Tmdb
+from .imdb import Imdb
+
 
 def search(number, sources: str = None, **kwargs):
     """ 根据`番号/电影`名搜索信息
@@ -35,8 +56,32 @@ class Scraping:
                           'mgstage', 'fc2', 'avsox', 'dlsite', 'carib', 'madou',
                           'getchu', 'gcolle', 'javday', 'pissplay', 'javmenu'
                           ]
+    adult_func_mapping = {
+        'avsox': Avsox().scrape,
+        'javbus': Javbus().scrape,
+        'xcity': Xcity().scrape,
+        'mgstage': Mgstage().scrape,
+        'madou': Madou().scrape,
+        'fc2': Fc2().scrape,
+        'dlsite': Dlsite().scrape,
+        'jav321': Jav321().scrape,
+        'fanza': Fanza().scrape,
+        'airav': Airav().scrape,
+        'carib': Carib().scrape,
+        'gcolle': Gcolle().scrape,
+        'javdb': Javdb().scrape,
+        'getchu': Getchu().scrape,
+        'javlibrary': Javlibrary().scrape,
+        'javday': Javday().scrape,
+        'pissplay': Pissplay().scrape,
+        'javmenu': Javmenu().scrape
+    }
 
     general_full_sources = ['tmdb', 'imdb']
+    general_func_mapping = {
+        'tmdb': Tmdb().scrape,
+        'imdb': Imdb().scrape,
+    }
 
     debug = False
 
@@ -81,16 +126,13 @@ class Scraping:
                 if self.debug:
                     print('[+]select', source)
                 try:
-                    module = importlib.import_module('.'+source,'scrapinglib')
-                    parser_type = getattr(module, source.capitalize())
-                    parser:Parser = parser_type()
-                    data = parser.scrape(name,self)
+                    data = self.general_func_mapping[source](name, self)
                     if data == 404:
                         continue
                     json_data = json.loads(data)
                 except Exception as e:
-                    print('[!] 出错啦')
-                    print(e)
+                    # print('[!] 出错啦')
+                    # print(e)
                     pass
                 # if any service return a valid return, break
                 if self.get_data_state(json_data):
@@ -128,16 +170,13 @@ class Scraping:
                 if self.debug:
                     print('[+]select', source)
                 try:
-                    module = importlib.import_module('.'+source,'scrapinglib')
-                    parser_type = getattr(module, source.capitalize())
-                    parser:Parser = parser_type()
-                    data = parser.scrape(number,self)
+                    data = self.adult_func_mapping[source](number, self)
                     if data == 404:
                         continue
                     json_data = json.loads(data)
                 except Exception as e:
-                    print('[!] 出错啦')
-                    print(e)
+                    # print('[!] 出错啦')
+                    # print(e)
                     pass
                     # json_data = self.func_mapping[source](number, self)
                 # if any service return a valid return, break
@@ -147,13 +186,13 @@ class Scraping:
                     break
             except:
                 continue
-            
+
         # javdb的封面有水印，如果可以用其他源的封面来替换javdb的封面
         if 'source' in json_data and json_data['source'] == 'javdb':
             # search other sources
             other_sources = sources[sources.index('javdb') + 1:]
             while other_sources:
-            # If cover not found in other source, then skip using other sources using javdb cover instead
+                # If cover not found in other source, then skip using other sources using javdb cover instead
                 try:
                     other_json_data = self.searchAdult(number, other_sources)
                     if other_json_data is not None and 'cover' in other_json_data and other_json_data['cover'] != '':
@@ -193,7 +232,7 @@ class Scraping:
         # check sources in func_mapping
         todel = []
         for s in sources:
-            if not s in self.general_full_sources:
+            if not s in self.general_func_mapping:
                 print('[!] Source Not Exist : ' + s)
                 todel.append(s)
         for d in todel:
@@ -212,7 +251,7 @@ class Scraping:
                 sources.insert(0, sources.pop(sources.index(source)))
             return sources
 
-        if len(sources) <= len(self.adult_full_sources):
+        if len(sources) <= len(self.adult_func_mapping):
             # if the input file name matches certain rules,
             # move some web service to the beginning of the list
             lo_file_number = file_number.lower()
@@ -248,7 +287,7 @@ class Scraping:
         # check sources in func_mapping
         todel = []
         for s in sources:
-            if not s in self.adult_full_sources and config.getInstance().debug():
+            if not s in self.adult_func_mapping and config.getInstance().debug():
                 print('[!] Source Not Exist : ' + s)
                 todel.append(s)
         for d in todel:
