@@ -12,4 +12,3 @@ urllib3
 certifi
 MechanicalSoup
 opencc-python-reimplemented
-importlib
