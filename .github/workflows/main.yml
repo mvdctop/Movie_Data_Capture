@@ -3,10 +3,10 @@ name: PyInstaller
 on:
   push:
     branches:
-      - develop
+      - master
   pull_request:
     branches:
-      - develop
+      - master
 
 jobs:
   build:
