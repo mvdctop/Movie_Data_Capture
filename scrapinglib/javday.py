@@ -39,3 +39,8 @@ class Javday(Parser):
         # 删除番号和网站名
         result = title.replace(self.number,"").replace("- JAVDAY.TV","").strip()
         return result
+    
+    def getTags(self, htmltree) -> list:
+        tags = super().getTags(htmltree)
+        return [tag for tag in tags if 'JAVDAY.TV' not in tag]
+ 

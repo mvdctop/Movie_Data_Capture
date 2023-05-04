@@ -19,6 +19,16 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Install UPX
+        uses: crazy-max/ghaction-upx@v2
+        if: matrix.os == 'windows-latest' || matrix.os == 'ubuntu-latest'
+        with:
+          install-only: true
+
+      - name: UPX version
+        if: matrix.os == 'windows-latest' || matrix.os == 'ubuntu-latest'
+        run: upx --version
+
       - name: Setup Python 3.10
         uses: actions/setup-python@v2
         with:
@@ -28,6 +38,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+          pip install face_recognition --no-deps
           pip install pyinstaller
 
       - name: Test number_perser.get_number
@@ -39,11 +50,11 @@ jobs:
         run: |
           pyinstaller \
             --onefile Movie_Data_Capture.py \
-            --python-option u \
-            --hidden-import "ImageProcessing.cnn" \
-            --add-data "$(python -c 'import cloudscraper as _; print(_.__path__[0])' | tail -n 1):cloudscraper" \
-            --add-data "$(python -c 'import opencc as _; print(_.__path__[0])' | tail -n 1):opencc" \
-            --add-data "$(python -c 'import face_recognition_models as _; print(_.__path__[0])' | tail -n 1):face_recognition_models" \
+            --collect-submodules "scrapinglib" \
+            --collect-submodules "ImageProcessing" \
+            --collect-data "face_recognition_models" \
+            --collect-data "cloudscraper" \
+            --collect-data "opencc" \
             --add-data "Img:Img" \
             --add-data "config.ini:." \
 
@@ -52,11 +63,11 @@ jobs:
         run: |
           pyinstaller `
             --onefile Movie_Data_Capture.py `
-            --python-option u `
-            --hidden-import "ImageProcessing.cnn" `
-            --add-data "$(python -c 'import cloudscraper as _; print(_.__path__[0])' | tail -n 1);cloudscraper" `
-            --add-data "$(python -c 'import opencc as _; print(_.__path__[0])' | tail -n 1);opencc" `
-            --add-data "$(python -c 'import face_recognition_models as _; print(_.__path__[0])' | tail -n 1);face_recognition_models" `
+            --collect-submodules "scrapinglib" `
+            --collect-submodules "ImageProcessing" `
+            --collect-data "face_recognition_models" `
+            --collect-data "cloudscraper" `
+            --collect-data "opencc" `
             --add-data "Img;Img" `
             --add-data "config.ini;." `
 
@@ -77,5 +88,5 @@ jobs:
       - name: Upload build artifact
         uses: actions/upload-artifact@v1
         with:
-          name: Movie_Data_Capture-CLI-${{ env.VERSION }}-${{ runner.os }}-amd64
+          name: MDC-${{ env.VERSION }}-${{ runner.os }}-amd64
           path: dist

@@ -301,7 +301,7 @@ def get_html_by_scraper(url: str = None, cookies: dict = None, ua: str = None, r
 
 def translate(
         src: str,
-        target_language: str = "zh_cn",
+        target_language: str = config.getInstance().get_target_language(),
         engine: str = "google-free",
         app_id: str = "",
         key: str = "",
@@ -342,7 +342,15 @@ def translate(
         result = post_html(url=url, query=body, headers=headers)
         translate_list = [i["text"] for i in result.json()[0]["translations"]]
         trans_result = trans_result.join(translate_list)
-
+    elif engine == "deeplx":
+        url = config.getInstance().get_translate_service_site()
+        res = requests.post(f"{url}/translate", json={
+            'text': src,
+            'source_lang': 'auto',
+            'target_lang': target_language,
+        })
+        if res.text.strip():
+            trans_result = res.json().get('data')
     else:
         raise ValueError("Non-existent translation engine")
 

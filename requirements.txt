@@ -1,4 +1,8 @@
 requests
+dlib-bin
+Click
+numpy
+face-recognition-models
 lxml
 beautifulsoup4
 pillow
@@ -8,5 +12,3 @@ urllib3
 certifi
 MechanicalSoup
 opencc-python-reimplemented
-face_recognition
-get-video-properties

@@ -20,6 +20,8 @@ from .xcity import Xcity
 from .avsox import Avsox
 from .javlibrary import Javlibrary
 from .javday import Javday
+from .pissplay import Pissplay
+from .javmenu import Javmenu
 
 from .tmdb import Tmdb
 from .imdb import Imdb
@@ -51,8 +53,8 @@ class Scraping:
     """
     """
     adult_full_sources = ['javlibrary', 'javdb', 'javbus', 'airav', 'fanza', 'xcity', 'jav321',
-                          'mgstage', 'fc2', 'avsox', 'dlsite', 'carib', 'madou', 
-                          'getchu', 'gcolle','javday'
+                          'mgstage', 'fc2', 'avsox', 'dlsite', 'carib', 'madou',
+                          'getchu', 'gcolle', 'javday', 'pissplay', 'javmenu'
                           ]
     adult_func_mapping = {
         'avsox': Avsox().scrape,
@@ -70,7 +72,9 @@ class Scraping:
         'javdb': Javdb().scrape,
         'getchu': Getchu().scrape,
         'javlibrary': Javlibrary().scrape,
-        'javday': Javday().scrape
+        'javday': Javday().scrape,
+        'pissplay': Pissplay().scrape,
+        'javmenu': Javmenu().scrape
     }
 
     general_full_sources = ['tmdb', 'imdb']
@@ -143,6 +147,14 @@ class Scraping:
             print(f'[-]Movie Number [{name}] not found!')
             return None
 
+        # If actor is anonymous, Fill in Anonymous
+        if len(json_data['actor']) == 0:
+            if config.getInstance().anonymous_fill() == True:
+                if "zh_" in config.getInstance().get_target_language():
+                    json_data['actor'] = "佚名"
+                else:
+                    json_data['actor'] = "Anonymous"
+
         return json_data
 
     def searchAdult(self, number, sources):
@@ -174,13 +186,13 @@ class Scraping:
                     break
             except:
                 continue
-            
+
         # javdb的封面有水印，如果可以用其他源的封面来替换javdb的封面
         if 'source' in json_data and json_data['source'] == 'javdb':
             # search other sources
             other_sources = sources[sources.index('javdb') + 1:]
             while other_sources:
-            # If cover not found in other source, then skip using other sources using javdb cover instead
+                # If cover not found in other source, then skip using other sources using javdb cover instead
                 try:
                     other_json_data = self.searchAdult(number, other_sources)
                     if other_json_data is not None and 'cover' in other_json_data and other_json_data['cover'] != '':
@@ -195,11 +207,19 @@ class Scraping:
                     other_sources = sources[sources.index(other_json_data['source']) + 1:]
                 except:
                     pass
-            
+
         # Return if data not found in all sources
         if not json_data:
             print(f'[-]Movie Number [{number}] not found!')
             return None
+
+        # If actor is anonymous, Fill in Anonymous
+        if len(json_data['actor']) == 0:
+            if config.getInstance().anonymous_fill() == True:
+                if "zh_" in config.getInstance().get_target_language():
+                    json_data['actor'] = "佚名"
+                else:
+                    json_data['actor'] = "Anonymous"
 
         return json_data
 
@@ -282,5 +302,9 @@ class Scraping:
         if data["title"] is None or data["title"] == "" or data["title"] == "null":
             return False
         if data["number"] is None or data["number"] == "" or data["number"] == "null":
+            return False
+        if (data["cover"] is None or data["cover"] == "" or data["cover"] == "null") \
+                and (data["cover_small"] is None or data["cover_small"] == "" or
+                     data["cover_small"] == "null"):
             return False
         return True

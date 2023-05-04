@@ -272,22 +272,25 @@ def extrafanart_download_threadpool(url_list, save_dir, number, json_data=None):
 
 def image_ext(url):
     try:
-        return os.path.splitext(url)[-1]
+        ext = os.path.splitext(url)[-1]
+        if ext in {'.jpg','.jpge','.bmp','.png','.gif'}:
+            return ext
+        return ".jpg"
     except:
         return ".jpg"
 
 
 # 封面是否下载成功，否则移动到failed
 def image_download(cover, fanart_path, thumb_path, path, filepath, json_headers=None):
-    full_filepath = os.path.join(path, fanart_path)
+    full_filepath = os.path.join(path, thumb_path)
     if config.getInstance().download_only_missing_images() and not file_not_exist_or_empty(full_filepath):
         return
     if json_headers != None:
-        if download_file_with_filename(cover, fanart_path, path, filepath, json_headers['headers']) == 'failed':
+        if download_file_with_filename(cover, thumb_path, path, filepath, json_headers['headers']) == 'failed':
             moveFailedFolder(filepath)
             return
     else:
-        if download_file_with_filename(cover, fanart_path, path, filepath) == 'failed':
+        if download_file_with_filename(cover, thumb_path, path, filepath) == 'failed':
             moveFailedFolder(filepath)
             return
 
@@ -296,20 +299,21 @@ def image_download(cover, fanart_path, thumb_path, path, filepath, json_headers=
         if file_not_exist_or_empty(full_filepath):
             print('[!]Image Download Failed! Trying again. [{}/3]', i + 1)
             if json_headers != None:
-                download_file_with_filename(cover, fanart_path, path, filepath, json_headers['headers'])
+                download_file_with_filename(cover, thumb_path, path, filepath, json_headers['headers'])
             else:
-                download_file_with_filename(cover, fanart_path, path, filepath)
+                download_file_with_filename(cover, thumb_path, path, filepath)
             continue
         else:
             break
     if file_not_exist_or_empty(full_filepath):
         return
     print('[+]Image Downloaded!', Path(full_filepath).name)
-    shutil.copyfile(full_filepath, os.path.join(path, thumb_path))
+    if not config.getInstance().jellyfin():
+        shutil.copyfile(full_filepath, os.path.join(path, fanart_path))
 
 
 def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, filepath, tag, actor_list, liuchu,
-                uncensored, hack_word, _4k, fanart_path, poster_path, thumb_path):
+                uncensored, hack, hack_word, _4k, fanart_path, poster_path, thumb_path):
     title, studio, year, outline, runtime, director, actor_photo, release, number, cover, trailer, website, series, label = get_info(
         json_data)
     if config.getInstance().main_mode() == 3:  # 模式3下，由于视频文件不做任何改变，.nfo文件必须和视频文件名称除后缀外完全一致，KODI等软件方可支持
@@ -332,13 +336,23 @@ def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, f
             pass
         # KODI内查看影片信息时找不到number，配置naming_rule=number+'#'+title虽可解决
         # 但使得标题太长，放入时常为空的outline内会更适合，软件给outline留出的显示版面也较大
-        outline = f"{number}#{outline}"
+        if not outline:
+            pass
+        elif json_data['source'] == 'pissplay':
+            outline = f"{outline}"
+        else:
+            outline = f"{number}#{outline}"
         with open(nfo_path, "wt", encoding='UTF-8') as code:
             print('<?xml version="1.0" encoding="UTF-8" ?>', file=code)
             print("<movie>", file=code)
-            print("  <title><![CDATA[" + naming_rule + "]]></title>", file=code)
-            print("  <originaltitle><![CDATA[" + naming_rule + "]]></originaltitle>", file=code)
-            print("  <sorttitle><![CDATA[" + naming_rule + "]]></sorttitle>", file=code)
+            if not config.getInstance().jellyfin():
+                print("  <title><![CDATA[" + naming_rule + "]]></title>", file=code)
+                print("  <originaltitle><![CDATA[" + json_data['original_naming_rule'] + "]]></originaltitle>", file=code)
+                print("  <sorttitle><![CDATA[" + naming_rule + "]]></sorttitle>", file=code)
+            else:
+                print("  <title>" + naming_rule + "</title>", file=code)
+                print("  <originaltitle>" + json_data['original_naming_rule'] + "</originaltitle>", file=code)
+                print("  <sorttitle>" + naming_rule + "</sorttitle>", file=code)    
             print("  <customrating>JP-18+</customrating>", file=code)
             print("  <mpaa>JP-18+</mpaa>", file=code)
             try:
@@ -347,13 +361,18 @@ def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, f
                 print("  <set></set>", file=code)
             print("  <studio>" + studio + "</studio>", file=code)
             print("  <year>" + year + "</year>", file=code)
-            print("  <outline><![CDATA[" + outline + "]]></outline>", file=code)
-            print("  <plot><![CDATA[" + outline + "]]></plot>", file=code)
+            if not config.getInstance().jellyfin():
+                print("  <outline><![CDATA[" + outline + "]]></outline>", file=code)
+                print("  <plot><![CDATA[" + outline + "]]></plot>", file=code)
+            else:
+                print("  <outline>" + outline + "</outline>", file=code)
+                print("  <plot>" + outline + "</plot>", file=code)
             print("  <runtime>" + str(runtime).replace(" ", "") + "</runtime>", file=code)
             print("  <director>" + director + "</director>", file=code)
             print("  <poster>" + poster_path + "</poster>", file=code)
             print("  <thumb>" + thumb_path + "</thumb>", file=code)
-            print("  <fanart>" + fanart_path + "</fanart>", file=code)
+            if not config.getInstance().jellyfin(): # jellyfin 不需要保存fanart
+                print("  <fanart>" + fanart_path + "</fanart>", file=code)
             try:
                 for key in actor_list:
                     print("  <actor>", file=code)
@@ -368,8 +387,8 @@ def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, f
             print("  <maker>" + studio + "</maker>", file=code)
             print("  <label>" + label + "</label>", file=code)
             
-            skip_tags = config.getInstance().donot_save_tags()
-            if not skip_tags:
+            jellyfin = config.getInstance().jellyfin()
+            if not jellyfin:
                 if config.getInstance().actor_only_tag():
                     for key in actor_list:
                         try:
@@ -377,27 +396,27 @@ def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, f
                         except:
                             pass
                 else:
-                    if cn_sub == '1':
+                    if cn_sub:
                         print("  <tag>中文字幕</tag>", file=code)
-                    if liuchu == '流出':
+                    if liuchu:
                         print("  <tag>流出</tag>", file=code)
-                    if uncensored == 1:
+                    if uncensored:
                         print("  <tag>无码</tag>", file=code)
-                    if hack_word != '':
+                    if hack:
                         print("  <tag>破解</tag>", file=code)
-                    if _4k == '1':
+                    if _4k:
                         print("  <tag>4k</tag>", file=code)
                     for i in tag:
                         print("  <tag>" + i + "</tag>", file=code)
-            if cn_sub == '1':
+            if cn_sub:
                 print("  <genre>中文字幕</genre>", file=code)
-            if liuchu == '流出':
+            if liuchu:
                 print("  <genre>无码流出</genre>", file=code)
-            if uncensored == 1:
+            if uncensored:
                 print("  <genre>无码</genre>", file=code)
-            if hack_word != '':
+            if hack:
                 print("  <genre>破解</genre>", file=code)
-            if _4k == '1':
+            if _4k:
                 print("  <genre>4k</genre>", file=code)
             try:
                 for i in tag:
@@ -470,6 +489,7 @@ def add_mark(poster_path, thumb_path, cn_sub, leak, uncensored, hack, _4k) -> No
     :cn_sub: 中文字幕 可选值：1,"1" 或其他值
     :uncensored 无码 可选值：1,"1" 或其他值
     :hack 破解 可选值：1,"1" 或其他值
+    :_4k Bool
     """
     mark_type = ''
     if cn_sub:
@@ -495,17 +515,17 @@ def add_mark_thread(pic_path, cn_sub, leak, uncensored, hack, _4k):
     # 获取自定义位置，取余配合pos达到顺时针添加的效果
     # 左上 0, 右上 1, 右下 2， 左下 3
     count = config.getInstance().watermark_type()
-    if cn_sub == 1 or cn_sub == '1':
+    if cn_sub:
         add_to_pic(pic_path, img_pic, size, count, 1)  # 添加
         count = (count + 1) % 4
-    if leak == 1 or leak == '1':
+    if leak:
         add_to_pic(pic_path, img_pic, size, count, 2)
         count = (count + 1) % 4
-    if uncensored == 1 or uncensored == '1':
+    if uncensored:
         add_to_pic(pic_path, img_pic, size, count, 3)
-    if hack == 1 or hack == '1':
+    if hack:
         add_to_pic(pic_path, img_pic, size, count, 4)
-    if _4k == 1 or _4k == '1':
+    if _4k:
         add_to_pic(pic_path, img_pic, size, count, 5)
     img_pic.close()
 
@@ -613,6 +633,8 @@ def paste_file_to_folder_mode2(filepath, path, multi_part, number, part, leak_wo
         create_softlink = False
         if link_mode not in (1, 2):
             shutil.move(filepath, targetpath)
+            print("[!]Move =>          ", path)
+            return
         elif link_mode == 2:
             try:
                 os.link(filepath, targetpath, follow_symlinks=False)
@@ -624,16 +646,13 @@ def paste_file_to_folder_mode2(filepath, path, multi_part, number, part, leak_wo
                 os.symlink(filerelpath, targetpath)
             except:
                 os.symlink(str(filepath_obj.resolve()), targetpath)
-        return
+        print("[!]Link =>          ", path)
     except FileExistsError as fee:
         print(f'[-]FileExistsError: {fee}')
-        return
     except PermissionError:
         print('[-]Error! Please run as administrator!')
-        return
     except OSError as oserr:
         print(f'[-]OS Error errno  {oserr.errno}')
-        return
 
 
 def linkImage(path, number, part, leak_word, c_word, hack_word, ext):
@@ -693,12 +712,12 @@ def core_main_no_net_op(movie_path, number):
     conf = config.getInstance()
     part = ''
     leak_word = ''
-    leak = 0
+    leak = False
     c_word = ''
-    cn_sub = ''
-    hack = ''
+    cn_sub = False
+    hack = False
     hack_word = ''
-    _4k = ''
+    _4k = False
     imagecut = 1
     multi = False
     part = ''
@@ -709,30 +728,30 @@ def core_main_no_net_op(movie_path, number):
         multi = True
     if re.search(r'[-_]C(\.\w+$|-\w+)|\d+ch(\.\w+$|-\w+)', movie_path,
                  re.I) or '中文' in movie_path or '字幕' in movie_path or ".chs" in movie_path or '.cht' in movie_path:
-        cn_sub = '1'
+        cn_sub = True
         c_word = '-C'  # 中文字幕影片后缀
-    uncensored = 1 if is_uncensored(number) else 0
+    uncensored = True if is_uncensored(number) else 0
     if '流出' in movie_path or 'uncensored' in movie_path.lower():
         leak_word = '-无码流出'  # 无码流出影片后缀
-        leak = 1
+        leak = True
 
     if 'hack'.upper() in str(movie_path).upper() or '破解' in movie_path:
-        hack = 1
+        hack = True
         hack_word = "-hack"
 
     # try:
+
     #     props = get_video_properties(movie_path)  # 判断是否为4K视频
     #     if props['width'] >= 4096 or props['height'] >= 2160:
-    #         _4k = '1'
+    #         _4k = True
     # except:
     #     pass
-
     prestr = f"{number}{leak_word}{c_word}{hack_word}"
 
     full_nfo = Path(path) / f"{prestr}{part}.nfo"
     if full_nfo.is_file():
         if full_nfo.read_text(encoding='utf-8').find(r'<tag>无码</tag>') >= 0:
-            uncensored = 1
+            uncensored = True
         try:
             nfo_xml = etree.parse(full_nfo)
             nfo_fanart_path = nfo_xml.xpath('//fanart/text()')[0]
@@ -791,15 +810,15 @@ def move_subtitles(filepath, path, multi_part, number, part, leak_word, c_word, 
 def core_main(movie_path, number_th, oCC, specified_source=None, specified_url=None):
     conf = config.getInstance()
     # =======================================================================初始化所需变量
-    multi_part = 0
+    multi_part = False
     part = ''
     leak_word = ''
     c_word = ''
-    cn_sub = ''
-    liuchu = ''
-    hack = ''
+    cn_sub = False
+    liuchu = False
+    hack = False
     hack_word = ''
-    _4k = ''
+    _4k = False
 
     # 下面被注释的变量不需要
     # rootpath = os.getcwd
@@ -822,11 +841,11 @@ def core_main(movie_path, number_th, oCC, specified_source=None, specified_url=N
     tag = json_data.get('tag')
     # =======================================================================判断-C,-CD后缀
     if re.search('[-_]CD\d+', movie_path, re.IGNORECASE):
-        multi_part = 1
+        multi_part = True
         part = re.findall('[-_]CD\d+', movie_path, re.IGNORECASE)[0].upper()
     if re.search(r'[-_]C(\.\w+$|-\w+)|\d+ch(\.\w+$|-\w+)', movie_path,
                  re.I) or '中文' in movie_path or '字幕' in movie_path:
-        cn_sub = '1'
+        cn_sub = True
         c_word = '-C'  # 中文字幕影片后缀
 
     # 判断是否无码
@@ -835,19 +854,22 @@ def core_main(movie_path, number_th, oCC, specified_source=None, specified_url=N
 
     if '流出' in movie_path or 'uncensored' in movie_path.lower():
         liuchu = '流出'
-        leak = 1
+        leak = True
         leak_word = '-无码流出'  # 流出影片后缀
     else:
-        leak = 0
+        leak = False
 
     if 'hack'.upper() in str(movie_path).upper() or '破解' in movie_path:
-        hack = 1
+        hack = True
         hack_word = "-hack"
+
+    if '4k'.upper() in str(movie_path).upper() or '4k' in movie_path:
+        _4k = True
 
     # 判断是否4k
     if '4K' in tag:
         tag.remove('4K')  # 从tag中移除'4K'
-        
+
     # 判断是否为无码破解
     if '无码破解' in tag:
         tag.remove('无码破解')  # 从tag中移除'无码破解'
@@ -855,7 +877,7 @@ def core_main(movie_path, number_th, oCC, specified_source=None, specified_url=N
     # try:
     #     props = get_video_properties(movie_path)  # 判断是否为4K视频
     #     if props['width'] >= 4096 or props['height'] >= 2160:
-    #         _4k = '1'
+    #         _4k = True
     # except:
     #     pass
 
@@ -920,7 +942,7 @@ def core_main(movie_path, number_th, oCC, specified_source=None, specified_url=N
                 pass
 
         # 裁剪图
-        cutImage(imagecut, path, fanart_path, poster_path, bool(conf.face_uncensored_only() and not uncensored))
+        cutImage(imagecut, path, thumb_path, poster_path, bool(conf.face_uncensored_only() and not uncensored))
 
         # 兼容Jellyfin封面图文件名规则
         if multi_part and conf.jellyfin_multi_part_fanart():
@@ -932,7 +954,7 @@ def core_main(movie_path, number_th, oCC, specified_source=None, specified_url=N
         # Move subtitles
         move_status = move_subtitles(movie_path, path, multi_part, number, part, leak_word, c_word, hack_word)
         if move_status:
-            cn_sub = "1"
+            cn_sub = True
         # 添加水印
         if conf.is_watermark():
             add_mark(os.path.join(path, poster_path), os.path.join(path, thumb_path), cn_sub, leak, uncensored,
@@ -940,7 +962,7 @@ def core_main(movie_path, number_th, oCC, specified_source=None, specified_url=N
 
         # 最后输出.nfo元数据文件，以完成.nfo文件创建作为任务成功标志
         print_files(path, leak_word, c_word, json_data.get('naming_rule'), part, cn_sub, json_data, movie_path, tag,
-                    json_data.get('actor_list'), liuchu, uncensored, hack_word
+                    json_data.get('actor_list'), liuchu, uncensored, hack, hack_word
                     , _4k, fanart_path, poster_path, thumb_path)
 
     elif conf.main_mode() == 2:
@@ -948,13 +970,9 @@ def core_main(movie_path, number_th, oCC, specified_source=None, specified_url=N
         path = create_folder(json_data)
         # 移动文件
         paste_file_to_folder_mode2(movie_path, path, multi_part, number, part, leak_word, c_word, hack_word)
+
         # Move subtitles
-        move_status = move_subtitles(movie_path, path, multi_part, number, part, leak_word, c_word, hack_word)
-        if move_status:
-            cn_sub = "1"
-        if conf.is_watermark():
-            add_mark(os.path.join(path, poster_path), os.path.join(path, thumb_path), cn_sub, leak, uncensored, hack,
-                     _4k)
+        move_subtitles(movie_path, path, multi_part, number, part, leak_word, c_word, hack_word)
 
     elif conf.main_mode() == 3:
         path = str(Path(movie_path).parent)
@@ -998,7 +1016,7 @@ def core_main(movie_path, number_th, oCC, specified_source=None, specified_url=N
 
         # 添加水印
         if conf.is_watermark():
-            add_mark(os.path.join(path, poster_path), os.path.join(path, thumb_path), cn_sub, leak, uncensored, hack,
+            add_mark(os.path.join(path, poster_path), os.path.join(path, fanart_path), cn_sub, leak, uncensored, hack,
                      _4k)
 
         # 兼容Jellyfin封面图文件名规则
@@ -1007,5 +1025,5 @@ def core_main(movie_path, number_th, oCC, specified_source=None, specified_url=N
 
         # 最后输出.nfo元数据文件，以完成.nfo文件创建作为任务成功标志
         print_files(path, leak_word, c_word, json_data.get('naming_rule'), part, cn_sub, json_data, movie_path,
-                    tag, json_data.get('actor_list'), liuchu, uncensored, hack_word, fanart_path, poster_path,
+                    tag, json_data.get('actor_list'), liuchu, uncensored, hack, hack_word, _4k, fanart_path, poster_path,
                     thumb_path)
