@@ -55,7 +55,7 @@ jobs:
             --collect-data "cloudscraper" \
             --collect-data "opencc" \
             --add-data "Img:Img" \
-          --add-data "scrapinglib;scrapinglib" \
+            --add-data "scrapinglib;scrapinglib" \
             --add-data "config.ini:." \
 
       - name: Build with PyInstaller for windows
