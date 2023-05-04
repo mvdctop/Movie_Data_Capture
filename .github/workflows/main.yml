@@ -50,12 +50,12 @@ jobs:
         run: |
           pyinstaller \
             --onefile Movie_Data_Capture.py \
-            --collect-submodules "scrapinglib" \
             --collect-submodules "ImageProcessing" \
             --collect-data "face_recognition_models" \
             --collect-data "cloudscraper" \
             --collect-data "opencc" \
             --add-data "Img:Img" \
+          --add-data "scrapinglib;scrapinglib" \
             --add-data "config.ini:." \
 
       - name: Build with PyInstaller for windows
@@ -63,12 +63,12 @@ jobs:
         run: |
           pyinstaller `
             --onefile Movie_Data_Capture.py `
-            --collect-submodules "scrapinglib" `
             --collect-submodules "ImageProcessing" `
             --collect-data "face_recognition_models" `
             --collect-data "cloudscraper" `
             --collect-data "opencc" `
             --add-data "Img;Img" `
+            --add-data "scrapinglib;scrapinglib" `
             --add-data "config.ini;." `
 
       - name: Copy config.ini

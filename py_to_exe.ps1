@@ -7,13 +7,13 @@ $PYTHONPATH=$pwd.path
 mkdir build
 mkdir __pycache__
 
-pyinstaller --collect-submodules "scrapinglib" `
-    --collect-submodules "ImageProcessing" `
+pyinstaller --collect-submodules "ImageProcessing" `
     --collect-data "face_recognition_models" `
     --collect-data "cloudscraper" `
     --collect-data "opencc" `
     --add-data "Img;Img" `
     --add-data "config.ini;." `
+    --add-data "scrapinglib;scrapinglib" `
     --onefile Movie_Data_Capture.py
 
 
