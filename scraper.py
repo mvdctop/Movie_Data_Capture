@@ -200,9 +200,16 @@ def get_data_from_json(
                     key=conf.get_translate_key(),
                 )
             else:
-                t = translate(json_data[translate_value])
-            if len(t):
-                json_data[translate_value] = special_characters_replacement(t)
+                if len(json_data[translate_value]):
+                    if type(json_data[translate_value]) == str:
+                        json_data[translate_value] = special_characters_replacement(json_data[translate_value])
+                        json_data[translate_value] = translate(json_data[translate_value])
+                    else:
+                        for i in range(len(json_data[translate_value])):
+                            json_data[translate_value][i] = special_characters_replacement(
+                                json_data[translate_value][i])
+                        list_in_str = ",".join(json_data[translate_value])
+                        json_data[translate_value] = translate(list_in_str).split(',')
 
     if open_cc:
         cc_vars = conf.cc_convert_vars().split(",")
@@ -303,5 +310,6 @@ def special_characters_replacement(text) -> str:
             replace('&lsquo;', '‘').  # U+02018 LEFT SINGLE QUOTATION MARK
             replace('&rsquo;', '’').  # U+02019 RIGHT SINGLE QUOTATION MARK
             replace('&hellip;', '…').
-            replace('&amp;', '＆')
+            replace('&amp;', '＆').
+            replace("&", '＆')
             )

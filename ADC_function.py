@@ -314,7 +314,7 @@ def translate(
     """
     trans_result = ""
     # 中文句子如果包含&等符号会被谷歌翻译截断损失内容，而且中文翻译到中文也没有意义，故而忽略，只翻译带有日语假名的
-    if not is_japanese(src):
+    if (is_japanese(src) == False) and ("zh_" in target_language):
         return src
     if engine == "google-free":
         gsite = config.getInstance().get_translate_service_site()
