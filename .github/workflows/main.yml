@@ -19,6 +19,16 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Install UPX
+        uses: crazy-max/ghaction-upx@v2
+        if: matrix.os == 'windows-latest' || matrix.os == 'ubuntu-latest'
+        with:
+          install-only: true
+
+      - name: UPX version
+        if: matrix.os == 'windows-latest' || matrix.os == 'ubuntu-latest'
+        run: upx --version
+
       - name: Setup Python 3.10
         uses: actions/setup-python@v2
         with:
