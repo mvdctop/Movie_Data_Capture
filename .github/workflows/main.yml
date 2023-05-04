@@ -2,11 +2,11 @@ name: PyInstaller
 
 on:
   push:
-    paths:
-      - ./
+    branches:
+      - develop
   pull_request:
-    paths:
-      - ./
+    branches:
+      - develop
 
 jobs:
   build:
