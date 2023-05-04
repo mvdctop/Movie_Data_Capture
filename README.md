@@ -40,3 +40,6 @@
 
 # 贡献者
 [![](https://opencollective.com/movie_data_capture/contributors.svg?width=890)](https://github.com/yoshiko2/movie_data_Capture/graphs/contributors)
+
+# Star History
+[![Star History Chart](https://api.star-history.com/svg?repos=yoshiko2/Movie_Data_Capture&type=Date)](https://star-history.com/#yoshiko2/Movie_Data_Capture&Date)
