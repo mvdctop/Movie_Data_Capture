@@ -1,5 +1,8 @@
 requests
 dlib-binary
+Click
+numpy
+face-recognition-models
 lxml
 beautifulsoup4
 pillow
@@ -9,5 +12,4 @@ urllib3
 certifi
 MechanicalSoup
 opencc-python-reimplemented
-face_recognition
 importlib
