@@ -1,4 +1,5 @@
 requests
+dlib-binary
 lxml
 beautifulsoup4
 pillow
@@ -10,4 +11,3 @@ MechanicalSoup
 opencc-python-reimplemented
 face_recognition
 importlib
-
