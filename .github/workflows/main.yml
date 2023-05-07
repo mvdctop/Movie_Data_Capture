@@ -91,10 +91,18 @@ jobs:
           name: MDC-${{ env.VERSION }}-${{ runner.os }}-amd64
           path: dist
 
-      - name: Run test
-        if: matrix.os == 'ubuntu-latest'
+      - name: Run test (Ubuntu & MacOS)
+        if: matrix.os == 'ubuntu-latest' || matrix.os == 'macos-latest'
         run: |
           cd dist
           touch IPX-292.mp4
           touch STAR-437-C.mp4
           ./Movie_Data_Capture
+
+      - name: Run test (Windows)
+        if: matrix.os == 'windows-latest'
+        run: |
+          cd dist
+          ni IPX-292.mp4
+          ni STAR-437-C.mp4
+          Movie_Data_Capture
