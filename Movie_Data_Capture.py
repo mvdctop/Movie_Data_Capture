@@ -10,15 +10,16 @@ import typing
 import urllib3
 import signal
 import platform
+import config
+
 from datetime import datetime, timedelta
 from pathlib import Path
-
 from opencc import OpenCC
 
-import config
+from scraper import get_data_from_json
 from ADC_function import file_modification_days, get_html, parallel_download_files
 from number_parser import get_number
-from core import core_main, core_main_no_net_op, moveFailedFolder
+from core import core_main, core_main_no_net_op, moveFailedFolder, debug_print
 
 
 def check_update(local_version):
@@ -82,6 +83,7 @@ def argparse_function(ver: str) -> typing.Tuple[str, str, str, str, bool, bool]:
                         help="""Only show job list of files and numbers, and **NO** actual operation
 is performed. It may help you correct wrong numbers before real job.""")
     parser.add_argument("-v", "--version", action="version", version=ver)
+    parser.add_argument("-s", "--search", default='', nargs='?', help="Search number")
     parser.add_argument("-ss", "--specified-source", default='', nargs='?', help="specified Source.")
     parser.add_argument("-su", "--specified-url", default='', nargs='?', help="specified Url.")
 
@@ -121,7 +123,7 @@ is performed. It may help you correct wrong numbers before real job.""")
         if no_net_op:
             conf.set_override("advenced_sleep:stop_counter=0;advenced_sleep:rerun_delay=0s;face:aways_imagecut=1")
 
-    return args.file, args.number, args.logdir, args.regexstr, args.zero_op, no_net_op, args.specified_source, args.specified_url
+    return args.file, args.number, args.logdir, args.regexstr, args.zero_op, no_net_op, args.search, args.specified_source, args.specified_url
 
 
 class OutLogger(object):
@@ -514,7 +516,8 @@ def create_data_and_move_with_custom_number(file_path: str, custom_number, oCC, 
 
 
 def main(args: tuple) -> Path:
-    (single_file_path, custom_number, logdir, regexstr, zero_op, no_net_op, specified_source, specified_url) = args
+    (single_file_path, custom_number, logdir, regexstr, zero_op, no_net_op, search, specified_source,
+     specified_url) = args
     conf = config.getInstance()
     main_mode = conf.main_mode()
     folder_path = ""
@@ -605,6 +608,10 @@ def main(args: tuple) -> Path:
         # some OS no OpenCC cpython, try opencc-python-reimplemented.
         # pip uninstall opencc && pip install opencc-python-reimplemented
         oCC = None if ccm == 0 else OpenCC('t2s' if ccm == 1 else 's2t')
+
+    if not search == '':
+        json_data = get_data_from_json(search, oCC, None, None)
+        debug_print(json_data)
 
     if not single_file_path == '':  # Single File
         print('[+]==================== Single File =====================')
