@@ -21,14 +21,17 @@ class Mgstage(Parser):
     expr_series = '//th[contains(text(),"シリーズ")]/../td/a/text()'
     expr_extrafanart = '//a[@class="sample_image"]/@href'
 
+    def extraInit(self):
+        self.imagecut = 4
+
     def search(self, number):
         self.number = number.upper()
-        self.cookies = {'adc':'1'}
+        self.cookies = {'adc': '1'}
         if self.specifiedUrl:
             self.detailurl = self.specifiedUrl
         else:
-            self.detailurl = 'https://www.mgstage.com/product/product_detail/'+str(self.number)+'/'
-        htmltree =self.getHtmlTree(self.detailurl)
+            self.detailurl = 'https://www.mgstage.com/product/product_detail/' + str(self.number) + '/'
+        htmltree = self.getHtmlTree(self.detailurl)
         result = self.dictformat(htmltree)
         return result
 
