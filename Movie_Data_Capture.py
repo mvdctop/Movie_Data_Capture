@@ -680,7 +680,7 @@ if __name__ == '__main__':
     app_start = time.time()
 
     # Read config.ini first, in argparse_function() need conf.failed_folder()
-    conf = config.Config("config.ini")
+    conf = config.getInstance()
 
     # Parse command line args
     args = tuple(argparse_function(version))
@@ -714,5 +714,3 @@ if __name__ == '__main__':
     if not conf.auto_exit():
         if sys.platform == 'win32':
             input("Press enter key exit, you can check the error message before you exit...")
-
-    sys.exit(0)
