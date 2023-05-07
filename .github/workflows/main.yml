@@ -105,4 +105,4 @@ jobs:
           cd dist
           ni IPX-292.mp4
           ni STAR-437-C.mp4
-          Movie_Data_Capture
+          ./Movie_Data_Capture
