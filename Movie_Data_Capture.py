@@ -610,8 +610,12 @@ def main(args: tuple) -> Path:
         oCC = None if ccm == 0 else OpenCC('t2s' if ccm == 1 else 's2t')
 
     if not search == '':
-        json_data = get_data_from_json(search, oCC, None, None)
-        debug_print(json_data)
+        search_list = search.split(",")
+        for i in search_list:
+            json_data = get_data_from_json(i, oCC, None, None)
+            debug_print(json_data)
+            time.sleep(int(config.getInstance().sleep()))
+        os._exit(0)
 
     if not single_file_path == '':  # Single File
         print('[+]==================== Single File =====================')

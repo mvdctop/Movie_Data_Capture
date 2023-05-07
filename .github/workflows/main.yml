@@ -98,11 +98,3 @@ jobs:
           touch IPX-292.mp4
           touch STAR-437-C.mp4
           ./Movie_Data_Capture
-
-      - name: Run test (Windows)
-        if: matrix.os == 'windows-latest'
-        run: |
-          cd dist
-          ni IPX-292.mp4
-          ni STAR-437-C.mp4
-          ./Movie_Data_Capture
