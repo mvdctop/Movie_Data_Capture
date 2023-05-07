@@ -90,9 +90,8 @@ class Scraping:
                         continue
                     json_data = json.loads(data)
                 except Exception as e:
-                    print('[!] 出错啦')
-                    print(e)
-                    pass
+                    if config.getInstance().debug():
+                        print(e)
                 # if any service return a valid return, break
                 if self.get_data_state(json_data):
                     if self.debug:
@@ -102,8 +101,7 @@ class Scraping:
                 continue
 
         # Return if data not found in all sources
-        if not json_data:
-            print(f'[-]Movie Number [{name}] not found!')
+        if not json_data or json_data['title'] == "":
             return None
 
         # If actor is anonymous, Fill in Anonymous
@@ -137,9 +135,8 @@ class Scraping:
                         continue
                     json_data = json.loads(data)
                 except Exception as e:
-                    print('[!] 出错啦')
-                    print(e)
-                    pass
+                    if config.getInstance().debug():
+                        print(e)
                     # json_data = self.func_mapping[source](number, self)
                 # if any service return a valid return, break
                 if self.get_data_state(json_data):
@@ -171,8 +168,7 @@ class Scraping:
                     pass
 
         # Return if data not found in all sources
-        if not json_data:
-            print(f'[-]Movie Number [{number}] not found!')
+        if not json_data or json_data['title'] == "":
             return None
 
         # If actor is anonymous, Fill in Anonymous
