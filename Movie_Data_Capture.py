@@ -23,14 +23,7 @@ from core import core_main, core_main_no_net_op, moveFailedFolder, debug_print
 
 
 def check_update(local_version):
-    htmlcode = ""
-    try:
-        htmlcode = get_html("https://api.github.com/repos/yoshiko2/Movie_Data_Capture/releases/latest")
-    except:
-        print("===== Failed to connect to github =====")
-        print("========== AUTO EXIT IN 60s ===========")
-        time.sleep(60)
-        os._exit(-1)
+    htmlcode = get_html("https://apai.github.com/repos/yoshiko2/Movie_Data_Capture/releases/latest")
     data = json.loads(htmlcode)
     remote = int(data["tag_name"].replace(".", ""))
     local_version = int(local_version.replace(".", ""))
@@ -41,7 +34,7 @@ def check_update(local_version):
         print("[*]======================================================")
 
 
-def argparse_function(ver: str) -> typing.Tuple[str, str, str, str, bool, bool]:
+def argparse_function(ver: str) -> typing.Tuple[str, str, str, str, bool, bool, str, str]:
     conf = config.getInstance()
     parser = argparse.ArgumentParser(epilog=f"Load Config file '{conf.ini_path}'.")
     parser.add_argument("file", default='', nargs='?', help="Single Movie file path.")
@@ -564,41 +557,32 @@ def main(args: tuple) -> Path:
     if conf.update_check():
         try:
             check_update(version)
-        except Exception as e:
-            print('[-]Update check failed!',e)
+
+            # Download Mapping Table, parallel version
+            def fmd(f) -> typing.Tuple[str, Path]:
+                return ('https://raw.githubusercontent.com/yoshiko2/Movie_Data_Capture/master/MappingTable/' + f,
+                        Path.home() / '.local' / 'share' / 'mdc' / f)
+
+            map_tab = (fmd('mapping_actor.xml'), fmd('mapping_info.xml'), fmd('c_number.json'))
+            for k, v in map_tab:
+                if v.exists():
+                    if file_modification_days(str(v)) >= conf.mapping_table_validity():
+                        print("[+]Mapping Table Out of date! Remove", str(v))
+                        os.remove(str(v))
+            res = parallel_download_files(((k, v) for k, v in map_tab if not v.exists()))
+            for i, fp in enumerate(res, start=1):
+                if fp and len(fp):
+                    print(f"[+] [{i}/{len(res)}] Mapping Table Downloaded to {fp}")
+                else:
+                    print(f"[-] [{i}/{len(res)}] Mapping Table Download failed")
+        except:
+            print("[!]======================= WARNING ======================")
+            print('[!]' + '-- GITHUB CONNECTION FAILED --'.center(54))
+            print('[!]' + 'Failed to check for updates'.center(54))
+            print('[!]' + '& update the mapping table'.center(54))
+            print("[!]======================================================")
 
     create_failed_folder(conf.failed_folder())
-
-    # Download Mapping Table, parallel version
-    def fmd(f) -> typing.Tuple[str, Path]:
-        """
-
-        """
-        return ('https://raw.githubusercontent.com/yoshiko2/Movie_Data_Capture/master/MappingTable/' + f,
-                Path.home() / '.local' / 'share' / 'mdc' / f)
-
-    map_tab = (fmd('mapping_actor.xml'), fmd('mapping_info.xml'), fmd('c_number.json'))
-    for k, v in map_tab:
-        if v.exists():
-            if file_modification_days(str(v)) >= conf.mapping_table_validity():
-                print("[+]Mapping Table Out of date! Remove", str(v))
-                os.remove(str(v))
-    try:
-        res = parallel_download_files(((k, v) for k, v in map_tab if not v.exists()))
-        for i, fp in enumerate(res, start=1):
-            if fp and len(fp):
-                print(f"[+] [{i}/{len(res)}] Mapping Table Downloaded to {fp}")
-            else:
-                print(f"[-] [{i}/{len(res)}] Mapping Table Download failed")
-    except Exception as e:
-        print("[!] ==================== ERROR ====================")
-        print("[!] " + "Mapping Table Download FAILED".center(47))
-        print("[!] " + "无法连接github".center(47))
-        print("[!] " + "请过几小时再试试".center(47))
-        print("[!]", e)
-        print("[-] " + "------ AUTO EXIT AFTER 30s !!! ------ ".center(47))
-        time.sleep(30)
-        os._exit(-1)
 
     # create OpenCC converter
     ccm = conf.cc_convert_mode()
