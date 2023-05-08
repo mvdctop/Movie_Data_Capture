@@ -13,6 +13,7 @@ import platform
 import config
 
 from datetime import datetime, timedelta
+from lxml import etree
 from pathlib import Path
 from opencc import OpenCC
 
@@ -575,11 +576,16 @@ def main(args: tuple) -> Path:
                 else:
                     print(f"[-] [{i}/{len(res)}] Mapping Table Download failed")
         except:
-            print("[!]======================= WARNING ======================")
+            print("[!]" + " WARNING ".center(54, "="))
             print('[!]' + '-- GITHUB CONNECTION FAILED --'.center(54))
             print('[!]' + 'Failed to check for updates'.center(54))
             print('[!]' + '& update the mapping table'.center(54))
-            print("[!]======================================================")
+            print("[!]" + "".center(54, "="))
+            try:
+                etree.parse(str(Path.home() / '.local' / 'share' / 'mdc' / 'mapping_actor.xml'))
+            except:
+                print('[!]' + "Failed to load mapping table".center(54))
+                print('[!]' + "".center(54, "="))
 
     create_failed_folder(conf.failed_folder())
 

@@ -30,9 +30,12 @@ def get_data_from_json(
     :param specified_url: 指定的数据查询地址, 目前未使用
     :return 给定影片名称的具体信息
     """
-
-    actor_mapping_data = etree.parse(str(Path.home() / '.local' / 'share' / 'mdc' / 'mapping_actor.xml'))
-    info_mapping_data = etree.parse(str(Path.home() / '.local' / 'share' / 'mdc' / 'mapping_info.xml'))
+    try:
+        actor_mapping_data = etree.parse(str(Path.home() / '.local' / 'share' / 'mdc' / 'mapping_actor.xml'))
+        info_mapping_data = etree.parse(str(Path.home() / '.local' / 'share' / 'mdc' / 'mapping_info.xml'))
+    except:
+        actor_mapping_data = etree.fromstring("<html></html>", etree.HTMLParser())
+        info_mapping_data = etree.fromstring("<html></html>", etree.HTMLParser())
 
     conf = config.getInstance()
     # default fetch order list, from the beginning to the end
