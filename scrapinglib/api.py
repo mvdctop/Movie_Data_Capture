@@ -34,7 +34,7 @@ class Scraping:
     """
     adult_full_sources = ['javlibrary', 'javdb', 'javbus', 'airav', 'fanza', 'xcity', 'jav321',
                           'mgstage', 'fc2', 'avsox', 'dlsite', 'carib', 'madou',
-                          'getchu', 'gcolle', 'javday', 'pissplay', 'javmenu'
+                          'getchu', 'gcolle', 'javday', 'pissplay', 'javmenu', 'caribpr'
                           ]
 
     general_full_sources = ['tmdb', 'imdb']
@@ -216,6 +216,9 @@ class Scraping:
             if "carib" in sources and (re.search(r"^\d{6}-\d{3}", file_number)
             ):
                 sources = insert(sources, "carib")
+            elif "caribpr" in sources and (re.search(r"^\d{6}-\d{3}", file_number)
+            ):
+                sources = insert(sources, "caribpr")
             elif "item" in file_number or "GETCHU" in file_number.upper():
                 sources = insert(sources, "getchu")
             elif "rj" in lo_file_number or "vj" in lo_file_number or re.search(r"[\u3040-\u309F\u30A0-\u30FF]+",
