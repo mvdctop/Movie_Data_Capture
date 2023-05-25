@@ -34,7 +34,7 @@ class Scraping:
     """
     adult_full_sources = ['javlibrary', 'javdb', 'javbus', 'airav', 'fanza', 'xcity', 'jav321',
                           'mgstage', 'fc2', 'avsox', 'dlsite', 'carib', 'madou',
-                          'getchu', 'gcolle', 'javday', 'pissplay', 'javmenu', 'caribpr'
+                          'getchu', 'gcolle', 'javday', 'pissplay', 'javmenu', 'pcolle', 'caribpr'
                           ]
 
     general_full_sources = ['tmdb', 'imdb']
@@ -218,6 +218,8 @@ class Scraping:
                                                                                file_number):
                 sources = insert(sources, "getchu")
                 sources = insert(sources, "dlsite")
+            elif "pcolle" in sources and "pcolle" in lo_file_number:
+                sources = insert(sources, "pcolle")
             elif "fc2" in lo_file_number:
                 if "fc2" in sources:
                     sources = insert(sources, "fc2")

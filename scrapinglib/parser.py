@@ -4,6 +4,7 @@ import json
 import re
 from lxml import etree, html
 
+import config
 from . import httprequest
 from .utils import getTreeElement, getTreeAll
 
@@ -166,7 +167,8 @@ class Parser:
             }
             dic = self.extradict(dic)
         except Exception as e:
-            #print(e)
+            if config.getInstance().debug():
+                print(e)
             dic = {"title": ""}
         js = json.dumps(dic, ensure_ascii=False, sort_keys=True, separators=(',', ':'))
         return js
