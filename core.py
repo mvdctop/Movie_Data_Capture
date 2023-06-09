@@ -273,7 +273,7 @@ def extrafanart_download_threadpool(url_list, save_dir, number, json_data=None):
 def image_ext(url):
     try:
         ext = os.path.splitext(url)[-1]
-        if ext in {'.jpg','.jpge','.bmp','.png','.gif'}:
+        if ext in {'.jpg', '.jpge', '.bmp', '.png', '.gif'}:
             return ext
         return ".jpg"
     except:
@@ -347,12 +347,13 @@ def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, f
             print("<movie>", file=code)
             if not config.getInstance().jellyfin():
                 print("  <title><![CDATA[" + naming_rule + "]]></title>", file=code)
-                print("  <originaltitle><![CDATA[" + json_data['original_naming_rule'] + "]]></originaltitle>", file=code)
+                print("  <originaltitle><![CDATA[" + json_data['original_naming_rule'] + "]]></originaltitle>",
+                      file=code)
                 print("  <sorttitle><![CDATA[" + naming_rule + "]]></sorttitle>", file=code)
             else:
                 print("  <title>" + naming_rule + "</title>", file=code)
                 print("  <originaltitle>" + json_data['original_naming_rule'] + "</originaltitle>", file=code)
-                print("  <sorttitle>" + naming_rule + "</sorttitle>", file=code)    
+                print("  <sorttitle>" + naming_rule + "</sorttitle>", file=code)
             print("  <customrating>JP-18+</customrating>", file=code)
             print("  <mpaa>JP-18+</mpaa>", file=code)
             try:
@@ -371,7 +372,7 @@ def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, f
             print("  <director>" + director + "</director>", file=code)
             print("  <poster>" + poster_path + "</poster>", file=code)
             print("  <thumb>" + thumb_path + "</thumb>", file=code)
-            if not config.getInstance().jellyfin(): # jellyfin 不需要保存fanart
+            if not config.getInstance().jellyfin():  # jellyfin 不需要保存fanart
                 print("  <fanart>" + fanart_path + "</fanart>", file=code)
             try:
                 for key in actor_list:
@@ -386,7 +387,7 @@ def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, f
                 pass
             print("  <maker>" + studio + "</maker>", file=code)
             print("  <label>" + label + "</label>", file=code)
-            
+
             jellyfin = config.getInstance().jellyfin()
             if not jellyfin:
                 if config.getInstance().actor_only_tag():
@@ -1025,5 +1026,6 @@ def core_main(movie_path, number_th, oCC, specified_source=None, specified_url=N
 
         # 最后输出.nfo元数据文件，以完成.nfo文件创建作为任务成功标志
         print_files(path, leak_word, c_word, json_data.get('naming_rule'), part, cn_sub, json_data, movie_path,
-                    tag, json_data.get('actor_list'), liuchu, uncensored, hack, hack_word, _4k, fanart_path, poster_path,
+                    tag, json_data.get('actor_list'), liuchu, uncensored, hack, hack_word, _4k, fanart_path,
+                    poster_path,
                     thumb_path)
