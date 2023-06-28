@@ -213,13 +213,12 @@ class Scraping:
             ):
                 sources = insert(sources, "caribpr")
             elif "item" in file_number or "GETCHU" in file_number.upper():
-                sources = insert(sources, "getchu")
+                sources = ["getchu"]
             elif "rj" in lo_file_number or "vj" in lo_file_number or re.search(r"[\u3040-\u309F\u30A0-\u30FF]+",
                                                                                file_number):
-                sources = insert(sources, "getchu")
-                sources = insert(sources, "dlsite")
+                sources = ["dlsite", "getchu"]
             elif "pcolle" in sources and "pcolle" in lo_file_number:
-                sources = insert(sources, "pcolle")
+                sources = ["pcolle"]
             elif "fc2" in lo_file_number:
                 if "fc2" in sources:
                     sources = insert(sources, "msin")
