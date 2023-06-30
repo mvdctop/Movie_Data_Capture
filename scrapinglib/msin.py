@@ -11,6 +11,7 @@ class Msin(Parser):
 
     expr_number = '//div[@class="mv_fileName"]/text()'
     expr_title = '//div[@class="mv_title"]/text()'
+    expr_title_unsubscribe = '//div[@class="mv_title unsubscribe"]/text()'
     expr_studio = '//div[@class="mv_writer"]/text()'
     expr_director = '//div[@class="mv_writer"]/text()'
     expr_actor = '//div[@class="mv_writer"]/text()'
@@ -35,10 +36,12 @@ class Msin(Parser):
         session = request_session(cookies=self.cookies, proxies=self.proxies, verify=self.verify)
         htmlcode = session.get(self.detailurl).text
         htmltree = etree.HTML(htmlcode)
+        # if title are null, use unsubscribe title
+        if super().getTitle(htmltree) == "":
+            self.expr_title = self.expr_title_unsubscribe
         # if tags are null, use genres
         if len(super().getTags(htmltree)) == 0:
             self.expr_tags = self.expr_genres
-
         result = self.dictformat(htmltree)
         return result
 
