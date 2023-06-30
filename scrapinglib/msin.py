@@ -12,12 +12,12 @@ class Msin(Parser):
     expr_number = '//div[@class="mv_fileName"]/text()'
     expr_title = '//div[@class="mv_title"]/text()'
     expr_title_unsubscribe = '//div[@class="mv_title unsubscribe"]/text()'
-    expr_studio = '//div[@class="mv_writer"]/text()'
-    expr_director = '//div[@class="mv_writer"]/text()'
-    expr_actor = '//div[@class="mv_writer"]/text()'
-    expr_label = '//div[@class="mv_mfr"]/text()'
-    expr_series = '//div[@class="mv_mfr"]/text()'
-    expr_release = '//div[@class="mv_createDate"]/text()'
+    expr_studio = '//a[@class="mv_writer"]/text()'
+    expr_director = '//a[@class="mv_writer"]/text()'
+    expr_actor = '(//div[@class="performer_text"]/a/text())[1]'
+    expr_label = '//a[@class="mv_mfr"]/text()'
+    expr_series = '//a[@class="mv_mfr"]/text()'
+    expr_release = '//a[@class="mv_createDate"]/text()'
     expr_cover = '//div[@class="movie_top"]/img/@src'
     expr_tags = '//div[@class="mv_tag"]/label/text()'
     expr_genres = '//div[@class="mv_genre"]/label/text()'
@@ -44,6 +44,14 @@ class Msin(Parser):
             self.expr_tags = self.expr_genres
         result = self.dictformat(htmltree)
         return result
+
+    def getActors(self, htmltree):
+        actors = super().getActors(htmltree)
+        i = 0
+        while i < len(actors):
+            actors[i] = actors[i].replace("（FC2動画）", "")
+            i = i + 1
+        return actors
 
     def getTags(self, htmltree) -> list:
         return super().getTags(htmltree)
