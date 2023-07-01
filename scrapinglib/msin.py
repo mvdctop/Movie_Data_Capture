@@ -14,7 +14,7 @@ class Msin(Parser):
     expr_title_unsubscribe = '//div[@class="mv_title unsubscribe"]/text()'
     expr_studio = '//a[@class="mv_writer"]/text()'
     expr_director = '//a[@class="mv_writer"]/text()'
-    expr_actor = '(//div[@class="performer_text"]/a/text())[1]'
+    expr_actor = '//div[contains(text(),"出演者：")]/following-sibling::div[1]/div/div[@class="performer_text"]/a/text()'
     expr_label = '//a[@class="mv_mfr"]/text()'
     expr_series = '//a[@class="mv_mfr"]/text()'
     expr_release = '//a[@class="mv_createDate"]/text()'
@@ -42,6 +42,8 @@ class Msin(Parser):
         # if tags are null, use genres
         if len(super().getTags(htmltree)) == 0:
             self.expr_tags = self.expr_genres
+        if len(super().getActors(htmltree)) == 0:
+            self.expr_actor = self.expr_director
         result = self.dictformat(htmltree)
         return result
 
