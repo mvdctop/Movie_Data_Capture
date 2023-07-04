@@ -228,9 +228,6 @@ class Scraping:
                 sources = insert(sources, "mgstage")
             elif "gcolle" in sources and (re.search("\d{6}", file_number)):
                 sources = insert(sources, "gcolle")
-            elif "madou" in sources and (re.search(r"^[a-z0-9]{3,}-[0-9]{1,}$", lo_file_number)):
-                sources = insert(sources, "madou")
-
             elif re.search(r"^\d{5,}", file_number) or "heyzo" in lo_file_number:
                 if "avsox" in sources:
                     sources = insert(sources, "avsox")
