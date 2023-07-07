@@ -95,8 +95,14 @@ class wwwGetchu(Parser):
     def extradict(self, dic: dict):
         """ 额外新增的  headers
         """
-        dic['headers'] =  {'referer': self.detailurl}
+        dic['headers'] = {'referer': self.detailurl}
         return dic
+
+    def getTags(self, htmltree):
+        tags = super().getTags(htmltree)
+        tags.append("Getchu")
+        return tags
+
 
 class dlGetchu(wwwGetchu):
     """ 二者基本一致
@@ -140,7 +146,7 @@ class dlGetchu(wwwGetchu):
 
     def extradict(self, dic: dict):
         return dic
-    
+
     def getExtrafanart(self, htmltree):
         arts = self.getTreeAll(htmltree, self.expr_extrafanart)
         extrafanart = []
@@ -148,3 +154,8 @@ class dlGetchu(wwwGetchu):
             i = "https://dl.getchu.com" + i
             extrafanart.append(i)
         return extrafanart
+
+    def getTags(self, htmltree):
+        tags = super().getTags(htmltree)
+        tags.append("Getchu")
+        return tags

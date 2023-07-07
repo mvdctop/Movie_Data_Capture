@@ -221,8 +221,9 @@ class Scraping:
                 sources = ["pcolle"]
             elif "fc2" in lo_file_number:
                 if "fc2" in sources:
-                    sources = insert(sources, "msin")
-                    sources = insert(sources, "fc2")
+                    sources = ["msin", "fc2"]
+                    # sources = insert(sources, "msin")
+                    # sources = insert(sources, "fc2")
             elif "mgstage" in sources and \
                     (re.search(r"\d+\D+", file_number) or "siro" in lo_file_number):
                 sources = insert(sources, "mgstage")
@@ -245,7 +246,7 @@ class Scraping:
                 todel.append(s)
         for d in todel:
             if config.getInstance().debug():
-                print('[!] Remove Source : ' + s)
+                print('[!] Remove Source : ' + d)
             sources.remove(d)
         return sources
 
