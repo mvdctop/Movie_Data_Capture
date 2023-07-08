@@ -220,10 +220,7 @@ class Scraping:
             elif "pcolle" in sources and "pcolle" in lo_file_number:
                 sources = ["pcolle"]
             elif "fc2" in lo_file_number:
-                if "fc2" in sources:
-                    sources = ["msin", "fc2"]
-                    # sources = insert(sources, "msin")
-                    # sources = insert(sources, "fc2")
+                sources = ["fc2", "msin"]
             elif "mgstage" in sources and \
                     (re.search(r"\d+\D+", file_number) or "siro" in lo_file_number):
                 sources = insert(sources, "mgstage")
