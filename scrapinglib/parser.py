@@ -219,7 +219,6 @@ class Parser:
                 if tag:
                     tags.append(tag)
         return tags
-        return [ x.strip() for x in alls if x.strip()]
 
     def getStudio(self, htmltree):
         return self.getTreeElementbyExprs(htmltree, self.expr_studio, self.expr_studio2)

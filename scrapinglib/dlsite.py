@@ -97,3 +97,8 @@ class Dlsite(Parser):
         except:
             result = ''
         return result
+
+    def getTags(self, htmltree):
+        tags = super().getTags(htmltree)
+        tags.append("DLsite")
+        return tags

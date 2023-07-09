@@ -351,6 +351,8 @@ def movie_lists(source_folder, regexstr: str) -> typing.List[str]:
     for full_name in source.glob(r'**/*'):
         if main_mode != 3 and set(full_name.parent.parts) & escape_folder_set:
             continue
+        if not full_name.is_file():
+            continue
         if not full_name.suffix.lower() in file_type:
             continue
         absf = str(full_name)
@@ -681,7 +683,7 @@ def period(delta, pattern):
 
 
 if __name__ == '__main__':
-    version = '6.6.5'
+    version = '6.6.6'
     urllib3.disable_warnings()  # Ignore http proxy warning
     app_start = time.time()
 
