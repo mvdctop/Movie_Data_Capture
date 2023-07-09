@@ -3,6 +3,8 @@
 import re
 import json
 from urllib.parse import quote
+
+from scrapinglib import httprequest
 from .parser import Parser
 
 
@@ -63,6 +65,18 @@ class wwwGetchu(Parser):
         if detailurl == "":
             return None
         return detailurl.replace('../', 'http://www.getchu.com/')
+
+    def getHtml(self, url, type = None):
+        """ 访问网页(指定EUC-JP)
+        """
+        resp = httprequest.get(url, cookies=self.cookies, proxies=self.proxies, extra_headers=self.extraheader, encoding='euc-jp', verify=self.verify, return_type=type)
+        if '<title>404 Page Not Found' in resp \
+            or '<title>未找到页面' in resp \
+            or '404 Not Found' in resp \
+            or '<title>404' in resp \
+            or '<title>お探しの商品が見つかりません' in resp:
+            return 404
+        return resp
 
     def getNum(self, htmltree):
         return 'GETCHU-' + re.findall('\d+', self.detailurl.replace("http://www.getchu.com/soft.phtml?id=", ""))[0]
