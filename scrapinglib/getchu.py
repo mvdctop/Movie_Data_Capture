@@ -69,7 +69,7 @@ class wwwGetchu(Parser):
     def getHtml(self, url, type = None):
         """ 访问网页(指定EUC-JP)
         """
-        resp = httprequest.get(url, cookies=self.cookies, proxies=self.proxies, extra_headers=self.extraheader, encoding='euc-jp', verify=self.verify, return_type=type)
+        resp = httprequest.get(url, cookies=self.cookies, proxies=self.proxies, extra_headers=self.extraheader, encoding='euc_jis_2004', verify=self.verify, return_type=type)
         if '<title>404 Page Not Found' in resp \
             or '<title>未找到页面' in resp \
             or '404 Not Found' in resp \
