@@ -15,7 +15,7 @@ jobs:
     strategy:
       matrix:
         os: [windows-2019, macos-13, ubuntu-20.04]
-        arch: [aarch64, amd64]
+        arch: [arm64, amd64]
 
     steps:
       - uses: actions/checkout@v2
@@ -91,7 +91,7 @@ jobs:
       - name: Upload build artifact
         uses: actions/upload-artifact@v1
         with:
-          name: MDC-${{ env.VERSION }}-${{ runner.os }}-${{ runner.arch }}
+          name: MDC-${{ env.VERSION }}-${{ matrix.os }}-${{ matrix.arch }}
           path: dist
 
       - name: Run test (Ubuntu & MacOS)
