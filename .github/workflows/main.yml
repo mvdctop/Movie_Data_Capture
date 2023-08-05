@@ -22,12 +22,12 @@ jobs:
 
       - name: Install UPX
         uses: crazy-max/ghaction-upx@v2
-        if: matrix.os == 'windows-latest' || matrix.os == 'ubuntu-latest'
+        if: matrix.os == 'windows-2019' || matrix.os == 'ubuntu-20.04'
         with:
           install-only: true
 
       - name: UPX version
-        if: matrix.os == 'windows-latest' || matrix.os == 'ubuntu-latest'
+        if: matrix.os == 'windows-2019' || matrix.os == 'ubuntu-20.04'
         run: upx --version
 
       - name: Setup Python 3.10
@@ -47,7 +47,7 @@ jobs:
           python number_parser.py -v
 
       - name: Build with PyInstaller for macos/ubuntu
-        if: matrix.os == 'macos-latest' || matrix.os == 'ubuntu-latest'
+        if: matrix.os == 'macos-latest' || matrix.os == 'ubuntu-20.04'
         run: |
           pyinstaller \
             --onefile Movie_Data_Capture.py \
@@ -61,7 +61,7 @@ jobs:
             --add-data "config.ini:." \
 
       - name: Build with PyInstaller for windows
-        if: matrix.os == 'windows-latest'
+        if: matrix.os == 'windows-2019'
         run: |
           pyinstaller `
             --onefile Movie_Data_Capture.py `
@@ -79,12 +79,12 @@ jobs:
           cp config.ini dist/
 
       - name: Set VERSION variable for macos/ubuntu
-        if: matrix.os == 'macos-latest' || matrix.os == 'ubuntu-latest'
+        if: matrix.os == 'macos-latest' || matrix.os == 'ubuntu-20.04'
         run: |
           echo "VERSION=$(python Movie_Data_Capture.py --version)" >> $GITHUB_ENV
 
       - name: Set VERSION variable for windows
-        if: matrix.os == 'windows-latest'
+        if: matrix.os == 'windows-2019'
         run: |
           echo "VERSION=$(python Movie_Data_Capture.py --version)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
@@ -95,7 +95,7 @@ jobs:
           path: dist
 
       - name: Run test (Ubuntu & MacOS)
-        if: matrix.os == 'ubuntu-latest' || matrix.os == 'macos-latest'
+        if: matrix.os == 'ubuntu-20.04' || matrix.os == 'macos-latest'
         run: |
           cd dist
           touch IPX-292.mp4
