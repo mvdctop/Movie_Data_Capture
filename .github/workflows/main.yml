@@ -15,7 +15,7 @@ jobs:
     strategy:
       matrix:
         os: [windows-2019, macos-13, ubuntu-20.04]
-        arch: [arm64, amd64]
+        arch: [aarch64, amd64]
 
     steps:
       - uses: actions/checkout@v2
@@ -37,6 +37,7 @@ jobs:
 
       - name: Install dependencies
         run: |
+          uname -m
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install face_recognition --no-deps
