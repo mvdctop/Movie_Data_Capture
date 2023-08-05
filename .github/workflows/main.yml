@@ -10,12 +10,11 @@ on:
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
+    runs-on: [x64, arm64]
 
     strategy:
       matrix:
         os: [windows-2019, macos-13, ubuntu-20.04]
-        arch: [aarch64, amd64]
 
     steps:
       - uses: actions/checkout@v2
