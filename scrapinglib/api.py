@@ -208,22 +208,21 @@ class Scraping:
             lo_file_number = file_number.lower()
             if "carib" in sources and (re.search(r"^\d{6}-\d{3}", file_number)
             ):
-                sources = insert(sources, "carib")
-            elif "caribpr" in sources and (re.search(r"^\d{6}-\d{3}", file_number)
-            ):
                 sources = insert(sources, "caribpr")
+                sources = insert(sources, "carib")
             elif "item" in file_number or "GETCHU" in file_number.upper():
                 sources = ["getchu"]
-            elif "rj" in lo_file_number or "vj" in lo_file_number or re.search(r"[\u3040-\u309F\u30A0-\u30FF]+",
-                                                                               file_number):
+            elif "rj" in lo_file_number or "vj" in lo_file_number:
+                sources = ["dlsite"]
+            elif re.search(r"[\u3040-\u309F\u30A0-\u30FF]+", file_number):
                 sources = ["dlsite", "getchu"]
             elif "pcolle" in sources and "pcolle" in lo_file_number:
                 sources = ["pcolle"]
             elif "fc2" in lo_file_number:
                 sources = ["fc2", "msin"]
-            elif "mgstage" in sources and \
-                    (re.search(r"\d+\D+", file_number) or "siro" in lo_file_number):
-                sources = insert(sources, "mgstage")
+            elif (re.search(r"\d+\D+", file_number) or "siro" in lo_file_number):
+                if "mgstage" in sources:
+                    sources = insert(sources, "mgstage")
             elif "gcolle" in sources and (re.search("\d{6}", file_number)):
                 sources = insert(sources, "gcolle")
             elif re.search(r"^\d{5,}", file_number) or "heyzo" in lo_file_number:
