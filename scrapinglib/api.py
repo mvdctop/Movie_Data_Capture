@@ -206,8 +206,7 @@ class Scraping:
             # if the input file name matches certain rules,
             # move some web service to the beginning of the list
             lo_file_number = file_number.lower()
-            if "carib" in sources and (re.search(r"^\d{6}-\d{3}", file_number)
-            ):
+            if "carib" in sources:
                 sources = insert(sources, "caribpr")
                 sources = insert(sources, "carib")
             elif "item" in file_number or "GETCHU" in file_number.upper():
@@ -219,15 +218,15 @@ class Scraping:
             elif "pcolle" in sources and "pcolle" in lo_file_number:
                 sources = ["pcolle"]
             elif "fc2" in lo_file_number:
-                sources = ["fc2", "msin"]
-            elif (re.search(r"\d+\D+", file_number) or "siro" in lo_file_number):
+                sources = ["fc2", "avsox", "msin"]
+            elif (re.search(r"\d+\D+-", file_number) or "siro" in lo_file_number):
                 if "mgstage" in sources:
                     sources = insert(sources, "mgstage")
             elif "gcolle" in sources and (re.search("\d{6}", file_number)):
                 sources = insert(sources, "gcolle")
-            elif re.search(r"^\d{5,}", file_number) or "heyzo" in lo_file_number:
-                if "avsox" in sources:
-                    sources = insert(sources, "avsox")
+            elif re.search(r"^\d{5,}", file_number) or \
+                    (re.search(r"^\d{6}-\d{3}", file_number)) or "heyzo" in lo_file_number:
+                sources = ["avsox", "carib", "caribpr", "javbus", "xcity", "javdb"]
             elif re.search(r"^[a-z0-9]{3,}$", lo_file_number):
                 if "xcity" in sources:
                     sources = insert(sources, "xcity")
