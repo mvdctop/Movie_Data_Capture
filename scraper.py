@@ -120,6 +120,10 @@ def get_data_from_json(
     series = json_data.get('series')
     year = json_data.get('year')
 
+    
+    if conf.number_uppercase():
+        number = number.upper()
+
     if json_data.get('cover_small'):
         cover_small = json_data.get('cover_small')
     else:
