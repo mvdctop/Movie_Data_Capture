@@ -349,11 +349,11 @@ class Config:
         except:
             return False
         
-    def number_regexs(self) -> list[str]:
+    def number_regexs(self) -> str:
         try:
-            return self.conf.get("Name_Rule", "number_regexs").split()
+            return self.conf.get("Name_Rule", "number_regexs")
         except:
-            return []
+            return ""
 
     def update_check(self) -> bool:
         try:
@@ -486,7 +486,7 @@ class Config:
         conf.set(sec4, "max_title_len", "50")
         conf.set(sec4, "image_naming_with_number", "0")
         conf.set(sec4, "number_uppercase", "0")
-        conf.set(sec4, "number_regexs", [])
+        conf.set(sec4, "number_regexs", "")
 
         sec5 = "update"
         conf.add_section(sec5)
