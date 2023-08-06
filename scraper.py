@@ -120,10 +120,6 @@ def get_data_from_json(
     series = json_data.get('series')
     year = json_data.get('year')
 
-    
-    if conf.number_uppercase():
-        number = number.upper()
-
     if json_data.get('cover_small'):
         cover_small = json_data.get('cover_small')
     else:
@@ -168,6 +164,10 @@ def get_data_from_json(
     if len(tmpArr) > 0:
         cover_small = tmpArr[0].strip('\"').strip('\'')
     # ====================处理异常字符 END================== #\/:*?"<>|
+
+    # 处理大写
+    if conf.number_uppercase():
+        json_data['number'] = number.upper()
 
     # 返回处理后的json_data
     json_data['title'] = title
