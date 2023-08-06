@@ -165,6 +165,10 @@ def get_data_from_json(
         cover_small = tmpArr[0].strip('\"').strip('\'')
     # ====================处理异常字符 END================== #\/:*?"<>|
 
+    # 处理大写
+    if conf.number_uppercase():
+        json_data['number'] = number.upper()
+
     # 返回处理后的json_data
     json_data['title'] = title
     json_data['original_title'] = title

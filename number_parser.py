@@ -40,6 +40,15 @@ def get_number(debug: bool, file_path: str) -> str:
     filepath = os.path.basename(file_path)
     # debug True 和 False 两块代码块合并，原因是此模块及函数只涉及字符串计算，没有IO操作，debug on时输出导致异常信息即可
     try:
+        # 先对自定义正则进行匹配
+        if config.getInstance().number_regexs().split().__len__() > 0:
+            for regex in config.getInstance().number_regexs().split():
+                try:
+                    if re.search(regex, filepath):
+                        return re.search(regex, filepath).group()
+                except Exception as e:
+                    print(f'[-]custom regex exception: {e} [{regex}]')
+
         file_number = get_number_by_dict(filepath)
         if file_number:
             return file_number
