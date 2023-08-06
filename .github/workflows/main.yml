@@ -14,20 +14,19 @@ jobs:
 
     strategy:
       matrix:
-        os: [windows-2019, macos-13, ubuntu-20.04]
-        arch: [aarch64, amd64]
+        os: [windows-latest, macos-latest, ubuntu-latest]
 
     steps:
       - uses: actions/checkout@v2
 
       - name: Install UPX
         uses: crazy-max/ghaction-upx@v2
-        if: matrix.os == 'windows-2019' || matrix.os == 'ubuntu-20.04'
+        if: matrix.os == 'windows-latest' || matrix.os == 'ubuntu-latest'
         with:
           install-only: true
 
       - name: UPX version
-        if: matrix.os == 'windows-2019' || matrix.os == 'ubuntu-20.04'
+        if: matrix.os == 'windows-latest' || matrix.os == 'ubuntu-latest'
         run: upx --version
 
       - name: Setup Python 3.10
@@ -37,7 +36,6 @@ jobs:
 
       - name: Install dependencies
         run: |
-          echo $(uname -m)
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install face_recognition --no-deps
@@ -48,7 +46,7 @@ jobs:
           python number_parser.py -v
 
       - name: Build with PyInstaller for macos/ubuntu
-        if: matrix.os == 'macos-13' || matrix.os == 'ubuntu-20.04'
+        if: matrix.os == 'macos-latest' || matrix.os == 'ubuntu-latest'
         run: |
           pyinstaller \
             --onefile Movie_Data_Capture.py \
@@ -62,7 +60,7 @@ jobs:
             --add-data "config.ini:." \
 
       - name: Build with PyInstaller for windows
-        if: matrix.os == 'windows-2019'
+        if: matrix.os == 'windows-latest'
         run: |
           pyinstaller `
             --onefile Movie_Data_Capture.py `
@@ -80,23 +78,23 @@ jobs:
           cp config.ini dist/
 
       - name: Set VERSION variable for macos/ubuntu
-        if: matrix.os == 'macos-13' || matrix.os == 'ubuntu-20.04'
+        if: matrix.os == 'macos-latest' || matrix.os == 'ubuntu-latest'
         run: |
           echo "VERSION=$(python Movie_Data_Capture.py --version)" >> $GITHUB_ENV
 
       - name: Set VERSION variable for windows
-        if: matrix.os == 'windows-2019'
+        if: matrix.os == 'windows-latest'
         run: |
           echo "VERSION=$(python Movie_Data_Capture.py --version)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v1
         with:
-          name: MDC-${{ env.VERSION }}-${{ matrix.os }}-${{ matrix.arch }}
+          name: MDC-${{ env.VERSION }}-${{ runner.os }}-amd64
           path: dist
 
       - name: Run test (Ubuntu & MacOS)
-        if: matrix.os == 'ubuntu-20.04' || matrix.os == 'macos-13'
+        if: matrix.os == 'ubuntu-latest' || matrix.os == 'macos-latest'
         run: |
           cd dist
           touch IPX-292.mp4
