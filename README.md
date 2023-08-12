@@ -18,7 +18,7 @@
 
 * [官方Twitter](https://twitter.com/mdac_official)
 
-友情链接：[CloudNAS](https://www.clouddrive2.com/)
+友情链接：[CloudDrive](https://www.clouddrive2.com/)
 
 # 文档
 * [官方教程WIKI](https://github.com/yoshiko2/Movie_Data_Capture/wiki)
