@@ -18,8 +18,6 @@
 
 * [官方Twitter](https://twitter.com/mdac_official)
 
-友情链接：[CloudDrive](https://www.clouddrive2.com/)
-
 # 文档
 * [官方教程WIKI](https://github.com/yoshiko2/Movie_Data_Capture/wiki)
 * [VergilGao's Docker部署](https://github.com/VergilGao/docker-mdc)
@@ -43,6 +41,9 @@
 
 # 贡献者
 [![](https://opencollective.com/movie_data_capture/contributors.svg?width=890)](https://github.com/yoshiko2/movie_data_Capture/graphs/contributors)
+
+# 友情链接
+* [CloudDrive](https://www.clouddrive2.com/)
 
 # Star History
 [![Star History Chart](https://api.star-history.com/svg?repos=yoshiko2/Movie_Data_Capture&type=Date)](https://star-history.com/#yoshiko2/Movie_Data_Capture&Date)
