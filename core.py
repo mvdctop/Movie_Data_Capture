@@ -872,6 +872,18 @@ def core_main(movie_path, number_th, oCC, specified_source=None, specified_url=N
         cn_sub = True
         c_word = '-C'  # 中文字幕影片后缀
 
+    if re.search(r'[-_]UC(\.\w+$|-\w+)', movie_path,
+                 re.I):
+        cn_sub = True
+        c_word = '-UC'  #
+        hack = True
+        hack_word = "-UC"
+        
+    if re.search(r'[-_]U(\.\w+$|-\w+)', movie_path,
+                 re.I):#
+        hack = True
+        hack_word = "-U"
+        
     # 判断是否无码
     unce = json_data.get('无码')
     uncensored = int(unce) if isinstance(unce, bool) else int(is_uncensored(number))
