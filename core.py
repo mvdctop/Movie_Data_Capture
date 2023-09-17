@@ -314,6 +314,8 @@ def image_download(cover, fanart_path, thumb_path, path, filepath, json_headers=
 
 def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, filepath, tag, actor_list, liuchu,
                 uncensored, hack, hack_word, _4k, fanart_path, poster_path, thumb_path, iso):
+    
+    conf = config.getInstance()
     title, studio, year, outline, runtime, director, actor_photo, release, number, cover, trailer, website, series, label = get_info(
         json_data)
     if config.getInstance().main_mode() == 3:  # 模式3下，由于视频文件不做任何改变，.nfo文件必须和视频文件名称除后缀外完全一致，KODI等软件方可支持
@@ -369,7 +371,10 @@ def print_files(path, leak_word, c_word, naming_rule, part, cn_sub, json_data, f
                 print("  <outline>" + outline + "</outline>", file=code)
                 print("  <plot>" + outline + "</plot>", file=code)
             print("  <runtime>" + str(runtime).replace(" ", "") + "</runtime>", file=code)
-            print("  <director>" + director + "</director>", file=code)
+            
+            if False != conf.get_direct(): 
+                print("  <director>" + director + "</director>", file=code)
+                
             print("  <poster>" + poster_path + "</poster>", file=code)
             print("  <thumb>" + thumb_path + "</thumb>", file=code)
             if not config.getInstance().jellyfin():  # jellyfin 不需要保存fanart
@@ -867,6 +872,18 @@ def core_main(movie_path, number_th, oCC, specified_source=None, specified_url=N
         cn_sub = True
         c_word = '-C'  # 中文字幕影片后缀
 
+    if re.search(r'[-_]UC(\.\w+$|-\w+)', movie_path,
+                 re.I):
+        cn_sub = True
+        c_word = '-UC'  #
+        hack = True
+        hack_word = "-UC"
+        
+    if re.search(r'[-_]U(\.\w+$|-\w+)', movie_path,
+                 re.I):#
+        hack = True
+        hack_word = "-U"
+        
     # 判断是否无码
     unce = json_data.get('无码')
     uncensored = int(unce) if isinstance(unce, bool) else int(is_uncensored(number))

@@ -73,10 +73,18 @@ def get_number(debug: bool, file_path: str) -> str:
                 file_number = str(filename.group())
             else:
                 file_number = file_number[0]
-            file_number = re.sub("(-|_)c$", "", file_number, flags=re.IGNORECASE)
-            if re.search("\d+ch$", file_number, flags=re.I):
-                file_number = file_number[:-2]
-            return file_number.upper()
+            
+            new_file_number = file_number
+            if re.search("-c", file_number, flags=re.IGNORECASE):
+                new_file_number = re.sub("(-|_)c$", "", file_number, flags=re.IGNORECASE)
+            elif re.search("-u$", file_number, flags=re.IGNORECASE):
+                new_file_number = re.sub("(-|_)u$", "", file_number, flags=re.IGNORECASE)
+            elif re.search("-uc$", file_number, flags=re.IGNORECASE):
+                new_file_number = re.sub("(-|_)uc$", "", file_number, flags=re.IGNORECASE)
+            elif re.search("\d+ch$", file_number, flags=re.I):
+                new_file_number = file_number[:-2]
+                
+            return new_file_number.upper()
         else:  # 提取不含减号-的番号，FANZA CID
             # 欧美番号匹配规则
             oumei = re.search(r'[a-zA-Z]+\.\d{2}\.\d{2}\.\d{2}', filepath)
