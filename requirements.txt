@@ -8,7 +8,7 @@ beautifulsoup4
 pillow==9.5.0
 cloudscraper
 pysocks==1.7.1
-urllib3==1.26.5
+urllib3==1.26.18
 certifi
 MechanicalSoup
 opencc-python-reimplemented
