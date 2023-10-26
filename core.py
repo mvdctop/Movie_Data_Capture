@@ -577,7 +577,7 @@ def add_to_pic(pic_path, img_pic, size, count, mode):
     img_subt = Image.open(mark_pic_path)
     scroll_high = int(img_pic.height / size)
     scroll_wide = int(scroll_high * img_subt.width / img_subt.height)
-    img_subt = img_subt.resize((scroll_wide, scroll_high), Image.ANTIALIAS)
+    img_subt = img_subt.resize((scroll_wide, scroll_high), Image.LANCZOS)
     r, g, b, a = img_subt.split()  # 获取颜色通道，保持png的透明性
     # 封面四个角的位置
     pos = [
