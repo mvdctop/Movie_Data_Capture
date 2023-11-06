@@ -17,6 +17,8 @@ from ImageProcessing import cutImage
 # from WebCrawler import get_data_from_json
 
 def escape_path(path, escape_literals: str):  # Remove escape literals
+    if path.startswith('\\\\wsl.localhost'):
+        return path
     backslash = '\\'
     for literal in escape_literals:
         path = path.replace(backslash + literal, '')
