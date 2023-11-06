@@ -14,6 +14,13 @@ G_conf_override = {
 }
 
 
+def convert_path(folder):
+    prefix = '\\\\wsl.localhost'
+    if folder.startswith(prefix):
+        return prefix + folder[len(prefix):].replace('\\\\', '/').replace('\\', '/')
+    return folder.replace('\\\\', '/').replace('\\', '/')
+
+
 def getInstance():
     if isinstance(G_conf_override[0], Config):
         return G_conf_override[0]
@@ -169,13 +176,13 @@ class Config:
             self._exit("common:main_mode")
 
     def source_folder(self) -> str:
-        return self.conf.get("common", "source_folder").replace("\\\\", "/").replace("\\", "/")
+        return convert_path(self.conf.get("common", "source_folder"))
 
     def failed_folder(self) -> str:
-        return self.conf.get("common", "failed_output_folder").replace("\\\\", "/").replace("\\", "/")
+        return convert_path(self.conf.get("common", "failed_output_folder"))
 
     def success_folder(self) -> str:
-        return self.conf.get("common", "success_output_folder").replace("\\\\", "/").replace("\\", "/")
+        return convert_path(self.conf.get("common", "success_output_folder"))
 
     def actor_gender(self) -> str:
         return self.conf.get("common", "actor_gender")
