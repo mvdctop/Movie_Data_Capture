@@ -1,0 +1,29 @@
+{
+    // 使用 IntelliSense 了解相关属性。 
+    // 悬停以查看现有属性的描述。
+    // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: 当前文件",
+            "type": "python",
+            "request": "launch",
+            "console": "integratedTerminal",
+            "env": {
+                "PYTHONIOENCODING": "utf-8"
+            },
+            "program": "${workspaceFolder}/Movie_Data_capture.py",
+            "program4": "${workspaceFolder}/number_parser.py",
+            "program5": "${workspaceFolder}/config.py",
+            "cwd0": "${fileDirname}",
+            "cwd1": "${workspaceFolder}/dist",
+            "cwd2": "${env:HOME}${env:USERPROFILE}/.mdc",
+            "args0": ["-a","-p","J:/Downloads","-o","J:/log"],
+            "args1": ["-g","-m","3","-c","1","-d","0"],
+            "args3": ["-agd0","-m3", "-q", ".*","-p","J:/#output"],
+            "args4": ["-gic1", "-d0", "-m3", "-o", "avlog", "-p", "I:/output"],
+            "args5": ["-gic1", "-d0", "-m1", "-o", "avlog", "-p", "J:/Downloads"],
+            "args6": ["-z", "-o", "J:/log"]
+        }
+    ]
+}

@@ -1,0 +1,100 @@
+name: PyInstaller
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install UPX
+        uses: crazy-max/ghaction-upx@v2
+        if: matrix.os == 'windows-latest' || matrix.os == 'ubuntu-latest'
+        with:
+          install-only: true
+
+      - name: UPX version
+        if: matrix.os == 'windows-latest' || matrix.os == 'ubuntu-latest'
+        run: upx --version
+
+      - name: Setup Python 3.10
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install face_recognition --no-deps
+          pip install pyinstaller
+
+      - name: Test number_perser.get_number
+        run: |
+          python number_parser.py -v
+
+      - name: Build with PyInstaller for macos/ubuntu
+        if: matrix.os == 'macos-latest' || matrix.os == 'ubuntu-latest'
+        run: |
+          pyinstaller \
+            --onefile Movie_Data_Capture.py \
+            --python-option u \
+            --hidden-import "ImageProcessing.cnn" \
+            --add-data "$(python -c 'import cloudscraper as _; print(_.__path__[0])' | tail -n 1):cloudscraper" \
+            --add-data "$(python -c 'import opencc as _; print(_.__path__[0])' | tail -n 1):opencc" \
+            --add-data "$(python -c 'import face_recognition_models as _; print(_.__path__[0])' | tail -n 1):face_recognition_models" \
+            --add-data "Img:Img" \
+            --add-data "scrapinglib:scrapinglib" \
+            --add-data "config.ini:." \
+
+      - name: Build with PyInstaller for windows
+        if: matrix.os == 'windows-latest'
+        run: |
+          pyinstaller `
+            --onefile Movie_Data_Capture.py `
+            --python-option u `
+            --hidden-import "ImageProcessing.cnn" `
+            --add-data "$(python -c 'import cloudscraper as _; print(_.__path__[0])' | tail -n 1);cloudscraper" `
+            --add-data "$(python -c 'import opencc as _; print(_.__path__[0])' | tail -n 1);opencc" `
+            --add-data "$(python -c 'import face_recognition_models as _; print(_.__path__[0])' | tail -n 1);face_recognition_models" `
+            --add-data "Img;Img" `
+            --add-data "scrapinglib;scrapinglib" `
+            --add-data "config.ini;." `
+
+      - name: Copy config.ini
+        run: |
+          cp config.ini dist/
+
+      - name: Set VERSION variable for macos/ubuntu
+        if: matrix.os == 'macos-latest' || matrix.os == 'ubuntu-latest'
+        run: |
+          echo "VERSION=$(python Movie_Data_Capture.py --version)" >> $GITHUB_ENV
+
+      - name: Set VERSION variable for windows
+        if: matrix.os == 'windows-latest'
+        run: |
+          echo "VERSION=$(python Movie_Data_Capture.py --version)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v1
+        with:
+          name: MDC-${{ env.VERSION }}-${{ runner.os }}-amd64
+          path: dist
+
+      - name: Run test (Ubuntu & MacOS)
+        if: matrix.os == 'ubuntu-latest' || matrix.os == 'macos-latest'
+        run: |
+          cd dist
+          ./Movie_Data_Capture

@@ -1,0 +1,14 @@
+requests
+dlib-bin
+Click
+numpy
+face-recognition-models
+lxml
+beautifulsoup4
+pillow==10.0.1
+cloudscraper
+pysocks==1.7.1
+urllib3==1.26.18
+certifi
+MechanicalSoup
+opencc-python-reimplemented

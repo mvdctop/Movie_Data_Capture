@@ -1,0 +1,13 @@
+version: "2.2"
+services:
+  jav:
+    user: "${MDCUID}:${MDCGID}"
+    image: jav:local
+    build: .
+    volumes:
+      - ./config.ini:/mdc/config.ini
+      - ${MDC_PATH}:/mdc/data
+    command:
+      - python
+      - /mdc/Movie_Data_Capture.py
+      - -a
