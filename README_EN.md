@@ -4,6 +4,8 @@ Movie Data Crawler (formerly Movie Data Capture) is a tool for organizing movie 
 
 MDC automatically identifies media files, retrieves titles, cast details, synopses, posters, and background images, and generates standard NFO files to help you quickly organize your local media library.
 
+[Offical Website](https://www.mvdc.top) | [Blog](https://docs.mvdc.top/blog)
+
 ## ✨ Key Features
 
 - **AI-powered extraction of media information from almost any webpage**
@@ -35,12 +37,6 @@ You can review and edit the extracted information before saving it.
 - Using MDC with a NAS
 - Organizing media folders for Emby, Jellyfin, or Plex
 - Standardizing media file names and folder structures in bulk
-
-## 🌐 Learn More
-
-Visit the official MDC website for a product overview, feature details, help, and the latest updates:
-
-[www.mvdc.top](https://www.mvdc.top)
 
 ## 📖 Documentation
 
