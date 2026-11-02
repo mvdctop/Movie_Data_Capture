@@ -1,7 +1,48 @@
-<h1 align="center">Movie Data Capture</h1>
+# Movie Data Crawler
 
-## 网站
-[www.mvdc.top](https://www.mvdc.top)
-
-## 核心代码开源
+[English](/README_EN.md)
  
+Movie Data Crawler（原 Movie Data Capture）是一款用于整理电影和电视剧媒体文件的工具。
+ 
+MDC 可以自动识别媒体文件，获取标题、演员、简介、海报、背景图等信息，并生成标准 NFO 文件，帮助你快速整理本地媒体库。
+ 
+## ✨主要功能
+
+- **支持 AI 解析几乎所有网页媒体信息**
+- 电影和电视剧信息刮削
+- 自动获取标题、演员、简介和封面
+- 生成 NFO、海报和背景图
+- 支持单文件和批量刮削
+- 支持自定义文件命名和目录整理
+- 支持本地配置和云端配置
+- 支持 Docker 部署
+- 兼容 Emby、Jellyfin、Plex 等媒体服务器 
+ 
+## 🤖 AI 全能解析
+ 
+当常规刮削无法获取媒体信息时，可以使用 AI 从具体网页中提取： 
+ 
+- 媒体标题
+- 演员信息
+- 简介
+- 封面
+- 其他网页元数据
+ 
+解析结果可以在保存前进行检查和修改。 
+ 
+## 🎬 适用场景 
+- 整理个人电影和电视剧收藏 
+- 创建家庭媒体库 
+- 配合 NAS 使用 
+- 整理 Emby、Jellyfin 或 Plex 媒体目录 
+- 批量规范媒体文件名和目录结构 
+ 
+## 🌐 了解更多 
+ 
+访问 MDC 官网，查看产品介绍、功能说明、使用帮助和最新信息： 
+ 
+[www.mvdc.top](https://www.mvdc.top)
+ 
+## 📖 使用文档 
+ 
+[查看 MDC 使用文档](https://docs.mvdc.top)
