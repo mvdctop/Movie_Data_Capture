@@ -1,24 +1,47 @@
-<h1 align="center">Movie Data Capture</h1>
+# Movie Data Crawler
 
-# Core of the code is open source
+Movie Data Crawler (formerly Movie Data Capture) is a tool for organizing movie and TV show files.
 
-**Movie Metadata Scraper**, with local JAV management software Emby, Jellyfin, Kodi, etc. to manage local movies, 
-the project plays the role of classification and metadata (metadata) grabbing, using metadata information to classify, only for local movie classification and organization.
+MDC automatically identifies media files, retrieves titles, cast details, synopses, posters, and background images, and generates standard NFO files to help you quickly organize your local media library.
 
-[中文 | Chinese](https://github.com/yoshiko2/Movie_Data_Capture/blob/master/README.md)
+## ✨ Key Features
 
-## Website
-[docs.mvdc.top](https://docs.mvdc.top)
+- **AI-powered extraction of media information from almost any webpage**
+- Metadata scraping for movies and TV shows
+- Automatic retrieval of titles, cast details, synopses, and cover images
+- Generation of NFO files, posters, and background images
+- Support for single-file and batch scraping
+- Customizable file naming and folder organization
+- Support for local and cloud configurations
+- Docker deployment support
+- Compatibility with media servers such as Emby, Jellyfin, and Plex
 
-# NOTICE
-When you view and download the source code or binary program of this project, it means that you have accepted the following terms:
-* **You must be over 18 years old, or leave the page immediately.**
-* This project and its results are for technical, academic exchange and Python3 performance testing purposes only.
-* The contributors to this project have written this project to learn Python3 and improve programming.
-* This project does not provide any movie download trail.
-* Legal consequences and the consequences of use are borne by the user.
-* [GPL LICENSE](https://github.com/yoshiko2/Movie_Data_Capture/blob/master/LICENSE)
-* If you do not agree to any of the above terms, please do not use the project and project results.
+## 🤖 AI-Powered Parsing
 
+When conventional scraping cannot retrieve media information, AI can extract the following from a specific webpage:
 
+- Media title
+- Cast details
+- Synopsis
+- Cover image
+- Other webpage metadata
 
+You can review and edit the extracted information before saving it.
+
+## 🎬 Use Cases
+
+- Organizing personal movie and TV show collections
+- Building a home media library
+- Using MDC with a NAS
+- Organizing media folders for Emby, Jellyfin, or Plex
+- Standardizing media file names and folder structures in bulk
+
+## 🌐 Learn More
+
+Visit the official MDC website for a product overview, feature details, help, and the latest updates:
+
+[www.mvdc.top](https://www.mvdc.top)
+
+## 📖 Documentation
+
+[Read the MDC Documentation](https://docs.mvdc.top)
