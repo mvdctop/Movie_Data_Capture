@@ -1,6 +1,6 @@
-# Movie Data Crawler
+# MDC - Movie Data Crawler
 
-Movie Data Crawler (formerly Movie Data Capture) is a tool for organizing movie and TV show files.
+MDC - Movie Data Crawler (formerly Movie Data Capture) is a tool for organizing movie and TV show files.
 
 MDC automatically identifies media files, retrieves titles, cast details, synopses, posters, and background images, and generates standard NFO files to help you quickly organize your local media library.
 
