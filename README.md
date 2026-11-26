@@ -1,8 +1,8 @@
-# Movie Data Crawler
+# MDC - Movie Data Crawler
 
 [English](/README_EN.md)
 
-Movie Data Crawler（原 Movie Data Capture）是一款用于整理电影和电视剧媒体文件的工具。
+MDC - Movie Data Crawler（原 Movie Data Capture）是一款用于整理电影和电视剧媒体文件的工具。
  
 MDC 可以自动识别媒体文件，获取标题、演员、简介、海报、背景图等信息，并生成标准 NFO 文件，帮助你快速整理本地媒体库。
 
